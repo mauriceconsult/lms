@@ -1,19 +1,19 @@
 import { db } from "@/lib/db";
 import { Schools } from "./_components/schools";
-// import { getCourses } from "@/actions/get-faculties";
+
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { FacultySearchInput } from "./_components/faculty-search-input";
-// import { CoursesList } from "@/components/courses-list";
+import { SearchInput } from "./_components/search-input";
 
-interface FacultySearchPageProps {
+
+interface SearchPageProps {
   searchParams: {
     title: string;
     schoolId: string;
   };
 }
-const FacultySearchPage = async ({}: // searchParams
-FacultySearchPageProps) => {
+const SearchPage = async ({}: // searchParams
+SearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
@@ -23,15 +23,10 @@ FacultySearchPageProps) => {
       name: "asc",
     },
   });
-  // const courses = await getCourses({
-  //   userId,
-  //   ...searchParams
-  // })
-
   return (
     <>
       <div className="px-6 pt-6 md:hidden md:mb-0 block">
-        <FacultySearchInput />
+        <SearchInput />
       </div>
       <div className="p-6 space-y-4">
         <Schools items={schools} />
@@ -40,4 +35,4 @@ FacultySearchPageProps) => {
     </>
   );
 };
-export default FacultySearchPage;
+export default SearchPage;

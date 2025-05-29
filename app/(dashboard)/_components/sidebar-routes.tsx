@@ -12,7 +12,7 @@ const guestRoutes = [
   },
   {
     icon: Compass,
-    label: "Browse Faculties",
+    label: "Browse",
     href: "/search",
   },
 ];
@@ -24,7 +24,7 @@ const facultyRoutes = [
   },
   {
     icon: Compass,
-    label: "Browse Courses",
+    label: "Browse Faculties",
     href: "/faculty/create-faculty/${facultyId}/search",
   },
   {
@@ -41,7 +41,7 @@ const courseRoutes = [
   },
   {
     icon: Compass,
-    label: "Browse Topics",
+    label: "Browse Courses",
     href: "/faculty/create-faculty/${facultyId}/course/${courseId}/search",
   },
   {
@@ -55,7 +55,12 @@ const tutorRoutes = [
     icon: List,
     label: "Topics",
     href: "/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/tutors",
-  }, 
+  },
+  {
+    icon: Compass,
+    label: "Browse Topics",
+    href: "/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}/search",
+  },
   {
     icon: BarChart,
     label: "Analytics",

@@ -1,19 +1,19 @@
 import { db } from "@/lib/db";
 import { Faculties } from "./_components/faculties";
-import { CourseSearchInput } from "./_components/course-search-input";
-// import { getCourses } from "@/actions/get-faculties";
+import { FacultySearchInput } from "./_components/faculty-search-input";
+// import { getFacultys } from "@/actions/get-faculties";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-// import { CoursesList } from "@/components/courses-list";
+// import { FacultysList } from "@/components/courses-list";
 
-interface CourseSearchPageProps {
+interface FacultySearchPageProps {
   searchParams: {
     title: string;
     facultyId: string;
   };
 }
-const CourseSearchPage = async ({}: // searchParams
-CourseSearchPageProps) => {
+const FacultySearchPage = async ({}: // searchParams
+FacultySearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
@@ -23,7 +23,7 @@ CourseSearchPageProps) => {
       title: "asc",
     },
   });
-  // const courses = await getCourses({
+  // const courses = await getFacultys({
   //   userId,
   //   ...searchParams
   // })
@@ -31,13 +31,13 @@ CourseSearchPageProps) => {
   return (
     <>
       <div className="px-6 pt-6 md:hidden md:mb-0 block">
-        <CourseSearchInput />
+        <FacultySearchInput />
       </div>
       <div className="p-6 space-y-4">
         <Faculties items={faculties} />
-        {/* <CoursesList items={courses} /> */}
+        {/* <FacultysList items={courses} /> */}
       </div>
     </>
   );
 };
-export default CourseSearchPage;
+export default FacultySearchPage;

@@ -1,10 +1,9 @@
 import { db } from "@/lib/db";
 import { Tutors } from "./_components/tutors";
-// import { getTutors } from "@/actions/get-faculties";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { TutorSearchInput } from "./_components/tutor-search-input";
-// import { TutorsList } from "@/components/tutors-list";
+
 
 interface TutorSearchPageProps {
   searchParams: {

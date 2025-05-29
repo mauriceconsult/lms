@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 // import { Courses } from "./_components/courses";
 import { Courses } from "./courses";
-import { CourseSearchInput } from "../../../../search/_components/course-search-input";
+import { CourseSearchInput } from "../../../../search/_components/faculty-search-input";
 // import { getCourses } from "@/actions/get-courses";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";

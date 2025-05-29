@@ -7,27 +7,27 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import qs from "query-string";
 
-export const FacultySearchInput = () => {
+export const SearchInput = () => {
   const [value, setValue] = useState("");
   const debouncedValue = useDebounce(value);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const currentSchoolId = searchParams.get("schoolId");
+  const currentId = searchParams.get("schoolId");
 
   useEffect(() => {
     const url = qs.stringifyUrl(
       {
         url: pathname,
         query: {
-          schoolId: currentSchoolId,
+          schoolId: currentId,
           title: debouncedValue,
         },
       },
       { skipEmptyString: true, skipNull: true }
     );
     router.push(url);
-  }, [debouncedValue, currentSchoolId, router, pathname]);
+  }, [debouncedValue, currentId, router, pathname]);
 
   return (
     <div className="relative">
@@ -36,7 +36,7 @@ export const FacultySearchInput = () => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className="w-full md:w-[300px] pl-9 rounded-full bg-slate-100 focus-visible:ring-slate-200"
-        placeholder="Search Faculties..."
+        placeholder="Search ..."
       />
     </div>
   );

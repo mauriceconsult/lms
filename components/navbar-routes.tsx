@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 import { LogOut } from "lucide-react";
 import Link from "next/link";
-import { FacultySearchInput } from "../app/(dashboard)/(routes)/search/_components/faculty-search-input";
-import { CourseSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/search/_components/course-search-input";
+import { FacultySearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/search/_components/faculty-search-input";
+import { CourseSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/search/_components/course-search-input";
 import { TutorSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/search/_components/tutor-search-input";
 import React, { FC, ReactElement } from "react";
 
@@ -31,7 +31,6 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
       {(isFacultyPage || isCoursePage || isTutorPage) && (
         <div className="mt-16 hidden md:block">
           {isSearchPages && React.createElement(isSearchPages)}
-         
         </div>
       )}
       <div className="flex gap-x-2 ml-auto">

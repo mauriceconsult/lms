@@ -1,11 +1,9 @@
 import { db } from "@/lib/db";
 import { Courses } from "./_components/courses";
-import { CourseSearchInput } from "../../../search/_components/course-search-input";
-// import { SearchInput } from "@/app/(dashboard)/(routes)/search/_components/faculty-search-input";
-// import { getCourses } from "@/actions/get-faculties";
+import { CourseSearchInput } from "./_components/course-search-input";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-// import { CoursesList } from "@/components/courses-list";
+
 
 interface CourseSearchPageProps {
   searchParams: {
@@ -24,10 +22,6 @@ CourseSearchPageProps) => {
       title: "asc",
     },
   });
-  // const courses = await getCourses({
-  //   userId,
-  //   ...searchParams
-  // })
 
   return (
     <>
