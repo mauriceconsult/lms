@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model School {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  faculties   Faculty[]
+  attachments Attachment[]
+  docs        Doc[]
+}
+
+model Doc {
+  id          String       @id @default(uuid())
+  userId      String
+  title       String       @db.Text
+  school      String?      @db.Text
+  description String?      @db.Text
+  imageUrl    String?      @db.Text
+  isPublished Boolean      @default(false)
+  position    Int?
+  faculty     Faculty[]
+  courses     Course[]
+  tutors      Tutor[]
+  attachments Attachment[]
+  receipts    Receipt[]
+  payments    Payment[]
+  // purchase    Purchase[]
+  schoolId    String?
+  schools     School?      @relation(fields: [schoolId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId])
+}
+
+model Faculty {
+  id          String  @id @default(uuid())
+  userId      String
+  title       String  @db.Text
+  description String? @db.Text
+  imageUrl    String? @db.Text
+
+  schoolId    String?
+  school      School?      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  courses     Course[]
+  docs        Doc[]
+  attachments Attachment[]
+  payments    Payment[]
+
+  position    Int?
+  isFree      Boolean @default(false)
+  isPublished Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([schoolId])
+}
+
+model Course {
+  id          String  @id @default(uuid())
+  title       String
+  userId      String
+  description String? @db.Text
+  imageUrl    String? @db.Text
+  amount      String? @db.Text
+
+  attachments Attachment[]
+  tutors      Tutor[]
+  purchases   Purchase[]
+  facultyId   String?
+  faculty     Faculty?     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  position    Int?
+  isPublished Boolean      @default(false)
+  isFree      Boolean      @default(false)
+
+  docId String?
+  docs  Doc?    @relation(fields: [docId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([facultyId])
+}
+
+model Tutor {
+  id              String         @id @default(uuid())
+  userId          String
+  title           String         @db.Text
+  description     String?        @db.Text
+  objective       String?        @db.Text
+  topicAssignment String?        @db.Text
+  videoUrl        String?        @db.Text
+  position        Int?
+  docId           String?
+  docs            Doc?           @relation(fields: [docId], references: [id], onDelete: Cascade)
+  userProgess     UserProgress[]
+  isPublished     Boolean        @default(false)
+  isFree          Boolean?       @default(false)
+  courseId        String?
+  course          Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  muxData         MuxData?
+  muxDataId       String?        @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
+}
+
+model MuxData {
+  id         String   @id @default(uuid())
+  tutorId    String   @unique
+  tutor      Tutor    @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  playbackId String?
+  assetId    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model UserProgress {
+  id          String   @id @default(uuid())
+  userId      String
+  tutorId     String
+  tutors      Tutor    @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, tutorId])
+  @@index([tutorId])
+}
+
+model Attachment {
+  id        String   @id @default(uuid())
+  name      String
+  url       String   @db.Text
+  docId     String?
+  docs      Doc?     @relation(fields: [docId], references: [id])
+  schoolId  String?
+  school    School?  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  facultyId String?
+  faculty   Faculty? @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  courseId  String?
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([facultyId])
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  userId    String
+  partyId   String   @db.Text
+  facultyId String?
+  faculty   Faculty? @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  docId     String?
+  docs      Doc?     @relation(fields: [docId], references: [id])
+  receiptId String?
+  receipt   Receipt? @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partyId])
+}
+
+model Receipt {
+  id        String    @id @default(cuid())
+  userId    String
+  docId     String?
+  docs      Doc?      @relation(fields: [docId], references: [id])
+  paymentId String?
+  receiptId String?
+  payments  Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([receiptId])
+}
+
+model Purchase {
+  id       String  @id @default(cuid())
+  userId   String
+  partyId  String  @unique @db.Text
+  courseId String?
+  courses  Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  isPaid    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([partyId, courseId])
+  @@index([partyId])
+}
