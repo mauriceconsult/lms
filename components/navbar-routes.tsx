@@ -17,7 +17,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   const isFacultyPage: boolean = pathname?.startsWith("/faculty") ?? false;
   const isTutorPage: boolean = pathname?.includes("/tutor") ?? false;
   const isCoursePage: boolean = pathname?.includes("/course") ?? false;
-  // const isSearchPage = pathname === "/search";
+  
   let isSearchPages: SearchInputComponent | undefined;
   if (isTutorPage) {
     isSearchPages = TutorSearchInput;
