@@ -1,36 +1,43 @@
 import { db } from "@/lib/db";
-import { Courses } from "./_components/courses";
 import { CourseSearchInput } from "./_components/course-search-input";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { CoursesList } from "./_components/courses-list";
+import { getCourses } from "@/actions/get-courses";
+import { Faculties } from "../../../search/_components/faculties";
 
 
 interface CourseSearchPageProps {
-  searchParams: {
+  courseSearchParams: {
     title: string;
     facultyId: string;
   };
 }
-const CourseSearchPage = async ({}: // searchParams
-CourseSearchPageProps) => {
+const CourseSearchPage = async ({
+  courseSearchParams
+}: CourseSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
   }
-  const courses = await db.course.findMany({
+  const faculties = await db.faculty.findMany({
     orderBy: {
-      title: "asc",
-    },
-  });
-
+      title: "asc"
+    }
+  })
+  const courses = await getCourses({
+    userId,
+    ...courseSearchParams
+  })
+  
   return (
     <>
       <div className="px-6 pt-6 md:hidden md:mb-0 block">
         <CourseSearchInput />
       </div>
       <div className="p-6 space-y-4">
-        <Courses items={courses} />
-        {/* <CoursesList items={courses} /> */}
+        <Faculties items={faculties} />
+        <CoursesList items={courses} />
       </div>
     </>
   );

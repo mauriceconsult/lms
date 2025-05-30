@@ -1,6 +1,5 @@
 import { db } from "@/lib/db";
 import { Schools } from "./_components/schools";
-
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { SearchInput } from "./_components/search-input";
@@ -37,7 +36,7 @@ const SearchPage = async ({
       </div>
       <div className="p-6 space-y-4">
         <Schools items={schools} />  
-        <FacultiesList items={faculties ?? []} />
+        <FacultiesList items={faculties}/>
       </div>
     </>
   );

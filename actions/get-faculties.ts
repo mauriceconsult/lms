@@ -1,15 +1,20 @@
 import { db } from "@/lib/db";
+import { Faculty, School } from "@prisma/client";
+
+type FacultyWithSchool = Faculty & {
+  school: School | null;
+  courses: { id: string }[];
+};
 
 type GetFaculties = {
   userId: string;
   title?: string;
   schoolId?: string;
 };
-export const getFaculties = async ({
-  userId,
+export const getFaculties = async ({  
   title,
   schoolId,
-}: GetFaculties) => {
+}: GetFaculties): Promise<FacultyWithSchool[]> => {
   try {
     const faculties = await db.faculty.findMany({
       where: {
@@ -17,14 +22,13 @@ export const getFaculties = async ({
         title: {
           contains: title,
         },
-        schoolId,
+        schoolId,    
       },
       include: {
         school: true,
         courses: {
           where: {
             isPublished: true,
-            userId,
           },
           select: {
             id: true,
@@ -35,8 +39,9 @@ export const getFaculties = async ({
         },
       },
     });
-    return faculties;
+    return faculties as FacultyWithSchool[];
   } catch (error) {
     console.log("[GET_FACULTIES]", error);
+    return [];
   }
 };
