@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { CoursesList } from "./_components/courses-list";
 import { getCourses } from "@/actions/get-courses";
-import { Faculties } from "../../../search/_components/faculties";
+import { Courses } from "./_components/courses";
 
 
 interface CourseSearchPageProps {
@@ -36,7 +36,14 @@ const CourseSearchPage = async ({
         <CourseSearchInput />
       </div>
       <div className="p-6 space-y-4">
-        <Faculties items={faculties} />
+        <Courses
+          items={faculties.map(faculty => ({
+            ...faculty,
+            docId: null,
+            facultyId: faculty.id,
+            amount: null
+          }))}
+        />
         <CoursesList items={courses} />
       </div>
     </>

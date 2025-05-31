@@ -5,28 +5,28 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { IconType } from "react-icons";
 import qs from "query-string";
 
-interface FacultyItemProps {
+interface SchoolItemProps {
     label: string;
     value?: string;
     icon?: IconType
 }
-export const FacultyItem = ({
+export const SchoolItem = ({
     label,
     value,
     icon: Icon,
-}: FacultyItemProps) => {
+}: SchoolItemProps) => {
     const pathname = usePathname();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const currentFacultyId = searchParams.get("facultyId");
-    const currentTitle = searchParams.get("title");
-    const isSelected = currentFacultyId === value;
+    const currentSchoolId = searchParams.get("schoolId");
+    const currentTitle = searchParams.get("name");
+    const isSelected = currentSchoolId === value;
     const onClick = () => {
         const url = qs.stringifyUrl({
             url: pathname,
             query: {
-                title: currentTitle,
-                facultyId: isSelected ? null : value,
+                name: currentTitle,
+                schoolId: isSelected ? null : value,
             }
         }, { skipNull: true, skipEmptyString: true });
         router.push(url);
