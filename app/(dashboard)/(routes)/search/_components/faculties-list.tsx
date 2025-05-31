@@ -17,8 +17,8 @@ export const FacultiesList = ({ items }: FacultiesListProps) => {
               key={item.id}
               id={item.id}
               title={item.title}
-              imageUrl={item.imageUrl!}
-              description={item.description!}
+              imageUrl={item.imageUrl ?? ""}
+              description={item.description ?? ""}
               school={item?.school?.name ?? ""}
             />
           ))}
