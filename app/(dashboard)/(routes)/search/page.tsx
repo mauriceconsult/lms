@@ -9,7 +9,7 @@ import { FacultiesList } from "./_components/faculties-list";
 
 interface SearchPageProps {
   searchParams: {
-    title: string;
+    name: string;
     schoolId: string;
   };
 }
