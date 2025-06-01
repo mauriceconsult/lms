@@ -1,30 +1,30 @@
 import { db } from "@/lib/db";
-import { Tutors } from "./_components/tutors";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { TutorSearchInput } from "./_components/tutor-search-input";
+import { Courses } from "../../../search/_components/courses";
 
 
 interface TutorSearchPageProps {
-  searchParams: {
+  tutorSearchParams: {
     title: string;
     tutorId: string;
   };
 }
-const TutorSearchPage = async ({}: // searchParams
+const TutorSearchPage = async ({}: // tutorSearchParams
 TutorSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
   }
-  const tutors = await db.tutor.findMany({
+  const courses = await db.course.findMany({
     orderBy: {
       title: "asc",
     },
   });
   // const tutors = await getTutors({
   //   userId,
-  //   ...searchParams
+  //   ...tutorSearchParams
   // })
 
   return (
@@ -33,7 +33,7 @@ TutorSearchPageProps) => {
         <TutorSearchInput />
       </div>
       <div className="p-6 space-y-4">
-        <Tutors items={tutors} />
+        <Courses items={courses} />
         {/* <TutorsList items={tutors} /> */}
       </div>
     </>

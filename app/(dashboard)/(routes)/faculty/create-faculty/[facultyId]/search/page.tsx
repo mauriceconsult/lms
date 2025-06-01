@@ -9,7 +9,7 @@ import { FacultiesList } from "@/app/(dashboard)/(routes)/search/_components/fac
 
 interface FacultySearchPageProps {
   facultySearchParams: {
-    name: string;
+    title: string;
     schoolId: string;
   };
 }

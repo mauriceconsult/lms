@@ -1,12 +1,12 @@
 import { FacultyCard } from "@/components/faculty-card";
 import { School, Faculty } from "@prisma/client";
 
-type FacultyWithSchool = Faculty & {
+type FacultiesWithSchool = Faculty & {
   school: School | null;
   courses: { id: string }[];
 };
 interface FacultiesListProps {
-  items: FacultyWithSchool[];
+  items: FacultiesWithSchool[];
 }
 export const FacultiesList = ({ items }: FacultiesListProps) => {
   return (
