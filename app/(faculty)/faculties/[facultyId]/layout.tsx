@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { FacultySidebar } from "./_components/faculty-sidebar";
+import { FacultyNavbar } from "./_components/faculty-navbar";
 
 const FacultyLayout = async ({
   children,
@@ -31,6 +32,9 @@ const FacultyLayout = async ({
   }
   return (
     <div className="h-full">
+      <div className="h-[80px] md:pl-80 fixed inset-y-0 w-full z-50">
+        <FacultyNavbar faculty={faculty} />
+      </div>
       <div className="hidden md:flex h-full w-80 flex-col fixed inset-y-0 z-50">
         <FacultySidebar faculty={faculty} />
       </div>
