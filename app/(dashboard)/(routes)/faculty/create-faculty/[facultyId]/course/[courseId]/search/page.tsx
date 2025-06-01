@@ -8,13 +8,13 @@ import { Faculties } from "../../../search/_components/faculties";
 
 
 interface CourseSearchPageProps {
-  courseSearchParams: {
+  searchParams: {
     title: string;
     facultyId: string;
   };
 }
 const CourseSearchPage = async ({
-  courseSearchParams
+  searchParams
 }: CourseSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
@@ -27,7 +27,7 @@ const CourseSearchPage = async ({
   })
   const courses = await getCourses({
     userId,
-    ...courseSearchParams
+    ...searchParams
   })
   
   return (

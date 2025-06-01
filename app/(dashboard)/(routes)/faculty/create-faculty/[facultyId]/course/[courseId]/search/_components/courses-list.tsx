@@ -19,7 +19,7 @@ export const CoursesList = ({ items }: CoursesListProps) => {
             id={item.id}
             title={item.title}
             imageUrl={item.imageUrl ?? ""}
-            topicsLength={item.tutors.length}
+            tutorsLength={item.tutors.length}
             amount={Number(item.amount)}
             progress={item.progress}
             faculty={item?.faculty?.title ?? ""}

@@ -6,12 +6,12 @@ import { Courses } from "../../../search/_components/courses";
 
 
 interface TutorSearchPageProps {
-  tutorSearchParams: {
+  searchParams: {
     title: string;
     tutorId: string;
   };
 }
-const TutorSearchPage = async ({}: // tutorSearchParams
+const TutorSearchPage = async ({}: // searchParams
 TutorSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
@@ -22,11 +22,7 @@ TutorSearchPageProps) => {
       title: "asc",
     },
   });
-  // const tutors = await getTutors({
-  //   userId,
-  //   ...tutorSearchParams
-  // })
-
+  
   return (
     <>
       <div className="px-6 pt-6 md:hidden md:mb-0 block">

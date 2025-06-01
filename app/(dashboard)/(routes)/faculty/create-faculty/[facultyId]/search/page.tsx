@@ -8,13 +8,13 @@ import { FacultiesList } from "@/app/(dashboard)/(routes)/search/_components/fac
 
 
 interface FacultySearchPageProps {
-  facultySearchParams: {
+  searchParams: {
     title: string;
     schoolId: string;
   };
 }
 const FacultySearchPage = async ({
-  facultySearchParams
+  searchParams
 }: FacultySearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
@@ -27,7 +27,7 @@ const FacultySearchPage = async ({
   });
   const faculties = await getFaculties({
     userId,
-    ...facultySearchParams
+    ...searchParams
   })
   return (
     <>
