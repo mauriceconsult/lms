@@ -1,5 +1,6 @@
 import { NavbarRoutes } from "@/components/navbar-routes";
 import { Course, Faculty } from "@prisma/client"
+import { FacultyMobileSidebar } from "./faculty-mobile-sidebar";
 
 interface FacultyNavbarProps {
     faculty: Faculty & {
@@ -8,11 +9,14 @@ interface FacultyNavbarProps {
 }
 
 export const FacultyNavbar = ({
-    // faculty,
+    faculty,
 }: FacultyNavbarProps) => {
     return (
         <div className="p-4 border-b h-full flex items-center bg-white shadow-sm">
-            <NavbarRoutes/>
+            <FacultyMobileSidebar
+                faculty={faculty}
+            />
+            <NavbarRoutes />
         </div>
     )
 }

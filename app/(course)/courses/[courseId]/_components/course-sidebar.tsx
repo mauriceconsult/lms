@@ -7,7 +7,7 @@ import { CourseSidebarItem } from "./course-sidebar-item";
 interface CourseSidebarProps {
   course: Course & {
     tutors: (Tutor & {
-      userProgress?: UserProgress[];
+      userProgress?: UserProgress[] | null;
     })[];
   };
   progressCount: number;
@@ -15,7 +15,8 @@ interface CourseSidebarProps {
 
 export const CourseSidebar = async ({
   course,
-}: //   progressCount,
+  // progressCount,
+}:
 CourseSidebarProps) => {
   const { userId } = await auth();
   if (!userId) {
@@ -45,6 +46,7 @@ CourseSidebarProps) => {
             isCompleted={!!tutor.userProgress?.[0]?.isCompleted}
             courseId={course.id}
             isLocked={!tutor.isFree && !purchase}
+            
           />
         ))}
       </div>
