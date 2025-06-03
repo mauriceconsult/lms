@@ -1,5 +1,9 @@
 const FacultyIdPage = () => {
-  return <div>Watch FID</div>;
-};
-
+    return ( 
+        <div>
+            Watch the faculty
+        </div>
+     );
+}
+ 
 export default FacultyIdPage;
