@@ -1,12 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
-import { Attachment, Course, Faculty } from "@prisma/client";
+import { Course, Faculty } from "@prisma/client";
 import { FacultySidebarItem } from "./faculty-sidebar-item";
 
 interface FacultySidebarProps {
   faculty: Faculty & {
-    courses: (Course & {
-      attachments: Attachment[] | null;
-    })[];
+    courses: (Course)[];
   };
 }
 export const FacultySidebar = async ({ faculty }: FacultySidebarProps) => {

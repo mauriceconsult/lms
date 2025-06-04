@@ -6,9 +6,7 @@ import { CourseSidebarItem } from "./course-sidebar-item";
 interface CourseSidebarProps {
   course: Course & {
     tutors: (Tutor & {
-      userProgress: UserProgress[] | null;
-      // attachments: Attachment[] | null;
-      // purchases: Purchase[] | null;
+      userProgress: UserProgress[] | null;    
     })[]
   };
   progressCount: number;
