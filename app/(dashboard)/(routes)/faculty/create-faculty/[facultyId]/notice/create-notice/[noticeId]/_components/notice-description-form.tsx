@@ -17,11 +17,11 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
-import { NoticeBoard } from "@prisma/client";
+import { Noticeboard } from "@prisma/client";
 
 
 interface NoticeDescriptionProps {
-  initialData: NoticeBoard;
+  initialData: Noticeboard;
   noticeId: string;
 }
 const formSchema = z.object({

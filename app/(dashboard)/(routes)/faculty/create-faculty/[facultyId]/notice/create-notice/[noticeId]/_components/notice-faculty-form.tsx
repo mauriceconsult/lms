@@ -17,10 +17,10 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Combobox } from "@/components/ui/combobox";
-import { NoticeBoard } from "@prisma/client";
+import { Noticeboard } from "@prisma/client";
 
 interface NoticeFacultyFormProps {
-  initialData: NoticeBoard;
+  initialData: Noticeboard;
   noticeId: string;
   facultyId: string;
   options: { label: string; value: string }[];

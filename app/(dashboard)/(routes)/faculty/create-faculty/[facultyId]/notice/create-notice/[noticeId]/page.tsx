@@ -23,7 +23,7 @@ const NoticeIdPage = async ({
     return redirect("/");
   }
 
-  const notice = await db.noticeBoard.findFirst({
+  const notice = await db.noticeboard.findFirst({
     where: {
       id: params.noticeId,
       userId,

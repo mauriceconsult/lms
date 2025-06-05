@@ -9,7 +9,7 @@ const NoticesPage = async () => {
   if (!userId) {
     return redirect("/");
   }
-  const notices = await db.noticeBoard.findMany({
+  const notices = await db.noticeboard.findMany({
     where: {
       userId,
     },

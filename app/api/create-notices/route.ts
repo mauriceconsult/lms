@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     if (!userId) {
       return new NextResponse("Unauthorized!", { status: 401 });
     }
-    const notice = await db.noticeBoard.create({
+    const notice = await db.noticeboard.create({
       data: {
         title,
         userId,

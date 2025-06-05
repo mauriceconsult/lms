@@ -7,10 +7,10 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileUpload } from "@/components/file-upload";
-import { Attachment,  NoticeBoard } from "@prisma/client";
+import { Attachment,  Noticeboard } from "@prisma/client";
 
 interface NoticeAttachmentFormProps {
-  initialData: NoticeBoard & { attachments: Attachment[] };
+  initialData: Noticeboard & { attachments: Attachment[] };
   noticeId: string;  
 }
 

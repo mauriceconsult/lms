@@ -6,12 +6,12 @@ import { ImageIcon, Pencil, PlusCircle } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { NoticeBoard } from "@prisma/client";
+import { Noticeboard } from "@prisma/client";
 import Image from "next/image";
 import { FileUpload } from "@/components/file-upload";
 
 interface NoticeImageFormProps {
-  initialData: NoticeBoard;
+  initialData: Noticeboard;
   noticeId: string;
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

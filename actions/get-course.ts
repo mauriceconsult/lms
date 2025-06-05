@@ -49,8 +49,8 @@ export const getCourse = async ({
       });
     }
     return {
-      course,
       faculty,
+      course,
       attachments,
       nextCourse,
     };

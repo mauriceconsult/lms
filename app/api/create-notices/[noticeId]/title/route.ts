@@ -11,7 +11,7 @@ export async function DELETE(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const notice = await db.noticeBoard.findUnique({
+    const notice = await db.noticeboard.findUnique({
       where: {
         id: params.noticeId,
         userId: userId,
@@ -20,7 +20,7 @@ export async function DELETE(
     if (!notice) {
       return new NextResponse("Not found", { status: 404 });
     }
-    const deletedNotice = await db.noticeBoard.delete({
+    const deletedNotice = await db.noticeboard.delete({
       where: {
         id: params.noticeId,
       },
@@ -43,7 +43,7 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unathorized", { status: 401 });
     }
-    const notice = await db.noticeBoard.update({
+    const notice = await db.noticeboard.update({
       where: {
         id: noticeId,
         userId,

@@ -25,7 +25,7 @@ model Faculty {
   school      School?       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   courses     Course[]
   attachments Attachment[]
-  noticeBoard NoticeBoard[]
+  noticeBoard Noticeboard[]
   position    Int?
   isFree      Boolean       @default(false)
   isPublished Boolean       @default(false)
@@ -47,6 +47,8 @@ model Course {
   tutors      Tutor[]
   purchases   Purchase[]
   facultyId   String?
+  noticeboard     Noticeboard?     @relation(fields: [noticeboardId], references: [id], onDelete: Cascade)
+  noticeboardId   String?
   faculty     Faculty?     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   position    Int?
   isPublished Boolean      @default(false)
@@ -116,13 +118,13 @@ model Attachment {
   course        Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
-  NoticeBoard   NoticeBoard? @relation(fields: [noticeBoardId], references: [id], onDelete: Cascade)
+  Noticeboard   Noticeboard? @relation(fields: [noticeBoardId], references: [id], onDelete: Cascade)
   noticeBoardId String?
 
   @@index([facultyId])
 }
 
-model NoticeBoard {
+model Noticeboard {
   id          String       @id @default(uuid())
   title       String
   userId      String
@@ -131,6 +133,7 @@ model NoticeBoard {
   facultyId   String?
   faculty     Faculty?     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   position    Int?
+  courses     Course[]
   attachments Attachment[]
   isPublished Boolean      @default(false)
   createdAt   DateTime     @default(now())

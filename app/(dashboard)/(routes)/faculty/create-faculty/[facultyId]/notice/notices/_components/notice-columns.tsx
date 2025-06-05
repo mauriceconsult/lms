@@ -1,5 +1,5 @@
 "use client";
-import { NoticeBoard } from "@prisma/client";
+import { Noticeboard } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export const columns: ColumnDef<NoticeBoard>[] = [
+export const columns: ColumnDef<Noticeboard>[] = [
   {
     accessorKey: "title",
     header: ({ column }) => {
@@ -53,7 +53,7 @@ export const columns: ColumnDef<NoticeBoard>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const { id, facultyId } = row.original as NoticeBoard & { facultyId?: string };
+      const { id, facultyId } = row.original as Noticeboard & { facultyId?: string };
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
