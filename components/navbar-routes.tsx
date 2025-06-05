@@ -17,6 +17,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   const isFacultyPage = pathname?.startsWith("/faculty");
   const isTutorPage = pathname?.includes("/tutor");
   const isCoursePage = pathname?.includes("/courses");
+  const isNoticePage = pathname?.includes("/notice");
   
   let isSearchPages: SearchInputComponent | undefined;
   if (isTutorPage) {
@@ -34,7 +35,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
         </div>
       )}
       <div className="flex gap-x-2 ml-auto">
-        {isFacultyPage || isTutorPage || isCoursePage ? (
+        {isFacultyPage || isTutorPage || isCoursePage || isNoticePage ? (
           <Link href="/">
             <Button size="sm" variant="ghost">
               <LogOut className="h-4 w-4 mr-2" />
@@ -64,6 +65,12 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
         <Link href="/doc/create-doc">
           <Button size="sm" variant="ghost">
             Docs
+          </Button>
+        </Link>
+
+        <Link href="/faculty/create-faculty/${facultyId}/notice/notices">
+          <Button size="sm" variant="ghost">
+            Notice
           </Button>
         </Link>
 

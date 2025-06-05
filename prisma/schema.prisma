@@ -105,33 +105,37 @@ model UserProgress {
 }
 
 model Attachment {
-  id        String   @id @default(uuid())
-  name      String
-  url       String   @db.Text
-  schoolId  String?
-  school    School?  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  facultyId String?
-  faculty   Faculty? @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  courseId  String?
-  course    Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String       @id @default(uuid())
+  name          String
+  url           String       @db.Text
+  schoolId      String?
+  school        School?      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  facultyId     String?
+  faculty       Faculty?     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  courseId      String?
+  course        Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  NoticeBoard   NoticeBoard? @relation(fields: [noticeBoardId], references: [id], onDelete: Cascade)
+  noticeBoardId String?
 
   @@index([facultyId])
 }
 
 model NoticeBoard {
-  id          String   @id @default(uuid())
+  id          String       @id @default(uuid())
   title       String
-  imageUrl    String?  @db.Text
-  description String?  @db.Text
+  userId      String
+  imageUrl    String?      @db.Text
+  description String?      @db.Text
   facultyId   String?
-  faculty     Faculty? @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  position  Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  faculty     Faculty?     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  position    Int?
+  attachments Attachment[]
+  isPublished Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  @@unique([title, facultyId])
   @@index([facultyId])
 }
 
