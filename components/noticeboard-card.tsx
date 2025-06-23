@@ -4,15 +4,13 @@ import Link from "next/link";
 interface NoticeboardCardProps {
   id: string;
   title: string;
-  imageUrl: string;
   description?: string;
   faculty: string;
 }
 
 export const NoticeboardCard = ({
   id,
-  title,
-  imageUrl,
+  title,  
   description,
   faculty,
 }: NoticeboardCardProps) => {
@@ -20,7 +18,7 @@ export const NoticeboardCard = ({
     <Link href={`/faculties/${id}`}>
       <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
         <div className="relative w-full aspect-video rounded-md overflow-hidden">
-          <Image fill className="object-cover" alt="title" src={imageUrl} />
+          <Image fill className="object-cover" alt="title" src={"/mcalogo.png"} />
         </div>
         <div className="flex flex-col pt-2">
           <div className="text-lg md:text-base font-medium group-hover:text-sky-700 transition line-clamp-2">

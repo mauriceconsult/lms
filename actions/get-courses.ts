@@ -1,22 +1,20 @@
-import { Faculty, Course } from "@prisma/client";
-import { getProgress } from "./get-progress";
 import { db } from "@/lib/db";
+import { Course } from "@prisma/client";
 
-type CourseWithProgressWithFaculty = Course & {
-  faculty: Faculty | null;
+type CoursesWithCourse = Course & {
+  course: Course | null;
   tutors: { id: string }[];
-  progress: number | null;
 };
+
 type GetCourses = {
   userId: string;
   title?: string;
   facultyId?: string;
 };
 export const getCourses = async ({
-  userId,
   title,
   facultyId,
-}: GetCourses): Promise<CourseWithProgressWithFaculty[]> => {
+}: GetCourses): Promise<CoursesWithCourse[]> => {
   try {
     const courses = await db.course.findMany({
       where: {
@@ -35,34 +33,24 @@ export const getCourses = async ({
           select: {
             id: true,
           },
-        },
-        purchases: {
-          where: {
-            userId,
+          orderBy: {
+            createdAt: "desc",
           },
         },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
     });
-    const coursesWithProgress: CourseWithProgressWithFaculty[] =
-      await Promise.all(
-        courses.map(async (course) => {
-          if (course.purchases.length === 0) {
-            return {
-              ...course,
-              progress: null,
-            };
-          }
-          const progressPercentage = await getProgress(userId, course.id);
-          return {
-            ...course,
-            progress: progressPercentage,
-          };
-        })
-      );
-    return coursesWithProgress;
+    const coursesWithCourse: CoursesWithCourse[] = await Promise.all(
+      courses.map(async (course) => {
+        return {
+          ...course,
+          course: course, // add the 'course' property as required by the type
+          tutors: course.tutors
+            ? course.tutors.map((tutor) => ({ id: tutor.id }))
+            : [],
+        };
+      })
+    );
+    return coursesWithCourse;
   } catch (error) {
     console.log("[GET_COURSES]", error);
     return [];

@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { FileUpload } from "@/components/file-upload";
 import { Attachment,  Noticeboard } from "@prisma/client";
 
-interface NoticeAttachmentFormProps {
+interface NoticeboardAttachmentFormProps {
   initialData: Noticeboard & { attachments: Attachment[] };
   facultyId: string;
   noticeboardId: string;  
@@ -20,11 +20,11 @@ const formSchema = z.object({
   url: z.string().min(1),
 });
 
-export const NoticeAttachmentForm = ({
+export const NoticeboardAttachmentForm = ({
   initialData,
   facultyId,
   noticeboardId,
-}: NoticeAttachmentFormProps) => {
+}: NoticeboardAttachmentFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const toggleEdit = () => setIsEditing((current) => !current);
@@ -33,7 +33,7 @@ export const NoticeAttachmentForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.post(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/attachments`, values);
-      toast.success("NoticeBoard updated.");
+      toast.success("Noticeboard updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -44,7 +44,7 @@ export const NoticeAttachmentForm = ({
     try {
       setDeletingId(id);
       await axios.delete(`/api/create-faculties/${facultyId}/noticeboards/attachment/${id}`);
-      toast.success("Notice attachment deleted");
+      toast.success("Noticeboard attachment deleted");
       router.refresh();
     } catch {
       toast.error("Something went wrong");
@@ -55,7 +55,7 @@ export const NoticeAttachmentForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Notice attachments
+        Noticeboard attachments
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing && <>Cancel</>}
           {!isEditing && (
@@ -112,7 +112,7 @@ export const NoticeAttachmentForm = ({
             }}
           />
           <div className="text-xs text-muted-foreground mt-4">
-            Add resources to aid your NoticeBoard communications.
+            Add resources to aid your Noticeboard communications.
           </div>
         </div>
       )}

@@ -5,11 +5,11 @@ import { LayoutDashboard, File } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { NoticeboardImageForm } from "./_components/noticeboard-image-form";
 import { NoticeboardFacultyForm } from "./_components/noticeboard-faculty-form";
-import { NoticeboardAttachmentForm } from "./_components/noticeboard-attachment-form";
 import { Banner } from "@/components/banner";
 import { NoticeboardActions } from "./_components/noticeboard-actions";
 import { NoticeboardTitleForm } from "./_components/noticeboard-title-form";
 import { NoticeboardDescriptionForm } from "./_components/noticeboard-description-form";
+import { NoticeboardAttachmentForm } from "./_components/noticeboard-attachment-form";
 
 
 const NoticeboardIdPage = async ({
@@ -48,8 +48,7 @@ const NoticeboardIdPage = async ({
   }
   const requiredFields = [
     noticeboard.title,
-    noticeboard.description,
-    noticeboard.imageUrl,
+    noticeboard.description,   
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
@@ -122,6 +121,7 @@ const NoticeboardIdPage = async ({
                 <NoticeboardAttachmentForm
                   initialData={noticeboard}
                   noticeboardId={noticeboard.id}
+                  facultyId={noticeboard.facultyId || ""}
                 />
               </div>
             </div>
