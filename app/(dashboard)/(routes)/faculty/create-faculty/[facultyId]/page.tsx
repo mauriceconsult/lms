@@ -45,6 +45,7 @@ const FacultyIdPage = async ({
         },
       },
       noticeboards: true,
+      courseworks: true,
     },
   });
   const school = await db.school.findMany({
@@ -64,6 +65,7 @@ const FacultyIdPage = async ({
   ];
   const optionalFields = [
     faculty.noticeboards.length > 0,
+    faculty.courseworks.length > 0,
     faculty.attachments.length > 0,
   ];
   const totalFields = requiredFields.length + optionalFields.length;

@@ -48,7 +48,22 @@ const CreateFaculty = () => {
       <div>
         <h1 className="text-2xl">Faculty Creation</h1>
         <p className="text-sm text-slate-600">
-          Please give the Faculty a name. Don&apos;t worry, you can change the name later.
+          <span>
+            {" "}
+            Please give your Faculty a name. Don&apos;t worry, you can change the
+            name later. The Faculty enables you to develop a broader and deeper
+            (teaching and learning) vision.
+          </span>
+          <span>
+            {" "}
+            A Faculty can have one Course (or Subject), or a series of
+            related Courses (or Subjects).
+          </span>
+          <span>
+            {" "}
+            Each Course can have one Topic (or Lesson), or a
+            series of related Topics (or Lessons).
+          </span>
         </p>
         <Form {...form}>
           <form
@@ -69,7 +84,7 @@ const CreateFaculty = () => {
                     />
                   </FormControl>
                   <FormDescription>
-                    What is the scope of this faculty?
+                    What is the scope of this Faculty?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

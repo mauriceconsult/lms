@@ -64,7 +64,7 @@ const CreateCourse = () => {
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Education'"
+                      placeholder="e.g., 'Sociology of Education'"
                       {...field}
                     />
                   </FormControl>

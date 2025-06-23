@@ -7,27 +7,27 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import qs from "query-string";
 
-export const FacultySearchInput = () => {
+export const FacultyIdSearchInput = () => {
   const [value, setValue] = useState("");
   const debouncedValue = useDebounce(value);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const currentFacultyId = searchParams.get("facultyId");
+  const currentId = searchParams.get("schoolId");
 
   useEffect(() => {
     const url = qs.stringifyUrl(
       {
         url: pathname,
         query: {
-          facultyId: currentFacultyId,
+          schoolId: currentId,
           title: debouncedValue,
         },
       },
       { skipEmptyString: true, skipNull: true }
     );
     router.push(url);
-  }, [debouncedValue, currentFacultyId, router, pathname]);
+  }, [debouncedValue, currentId, router, pathname]);
 
   return (
     <div className="relative">

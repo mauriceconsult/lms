@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
-import { columns } from "@/app/(dashboard)/(routes)/faculty/faculties/_components/columns";
-import { DataTable } from "@/app/(dashboard)/(routes)/faculty/faculties/_components/data-table";
+import { columns } from "@/app/(dashboard)/(routes)/faculty/faculties/_components/faculties-columns";
+import { DataTable } from "@/app/(dashboard)/(routes)/faculty/faculties/_components/faculties-data-table";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 
