@@ -1,12 +1,12 @@
 import { db } from "@/lib/db";
-import { NoticeboardSearchInput } from "./_components/notice-search-input";
+import { NoticeboardSearchInput } from "./_components/noticeboard-search-input";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { NoticesList } from "./_components/notices-list";
 import { getNoticeboards } from "@/actions/get-notices";
-import { Faculties } from "../../../../search/_components/faculties";
+import { Faculties } from "../../../search/_components/faculties";
+import { NoticeboardsList } from "./_components/noticeboards-list";
 
-interface NoticeboardSearchPageProps {
+interface NoticeboardIdSearchPageProps {
   searchParams: {
     title: string;
     facultyId: string;
@@ -14,7 +14,7 @@ interface NoticeboardSearchPageProps {
 }
 const NoticeboardSearchPage = async ({
   searchParams,
-}: NoticeboardSearchPageProps) => {
+}: NoticeboardIdSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
@@ -24,7 +24,7 @@ const NoticeboardSearchPage = async ({
       title: "asc",
     },
   });
-  const notices = await getNoticeboards({
+  const noticeboards = await getNoticeboards({
     userId,
     ...searchParams,
   });
@@ -36,7 +36,7 @@ const NoticeboardSearchPage = async ({
       </div>
       <div className="p-6 space-y-4">
         <Faculties items={faculties} />
-        <NoticesList items={notices} />
+        <NoticeboardsList items={noticeboards} />
       </div>
     </>
   );

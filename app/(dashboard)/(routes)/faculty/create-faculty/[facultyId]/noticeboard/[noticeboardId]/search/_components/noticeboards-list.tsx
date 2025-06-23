@@ -1,15 +1,15 @@
 import { NoticeboardCard } from "@/components/noticeboard-card copy";
 import { Faculty, Noticeboard } from "@prisma/client";
 
-type NoticesWithFaculty = Noticeboard & {
+type NoticeboardsWithFaculty = Noticeboard & {
   faculty: Faculty | null;
   courses: { id: string }[];
  
 };
-interface NoticesListProps {
-  items: NoticesWithFaculty[];
+interface NoticeboardsListProps {
+  items: NoticeboardsWithFaculty[];
 }
-export const NoticesList = ({ items }: NoticesListProps) => {
+export const NoticeboardsList = ({ items }: NoticeboardsListProps) => {
   return (
     <div>
       <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
@@ -25,7 +25,7 @@ export const NoticesList = ({ items }: NoticesListProps) => {
       </div>
       {items.length === 0 && (
         <div className="text-center text-sm text-muted-foreground mt-10">
-          No Notices found.
+          No Noticeboards found.
         </div>
       )}
     </div>

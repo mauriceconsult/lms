@@ -21,7 +21,7 @@ const facultyRoutes = [
     icon: List,
     label: "Faculties",
     href: "/faculty/faculties",
-  },
+  },  
   {
     icon: Compass,
     label: "Browse Faculties",
@@ -67,17 +67,38 @@ const tutorRoutes = [
     href: "/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/analytics",
   },
 ];
+const noticeRoutes = [
+  {
+    icon: List,
+    label: "Notices",
+    href: "/faculty/create-faculty/${facultyId}/notice/notices",
+  },
+  {
+    icon: Compass,
+    label: "Browse Notices",
+    href: "/faculty/create-faculty/${facultyId}/notice/${noticeId}/search",
+  },
+  {
+    icon: BarChart,
+    label: "Analytics",
+    href: "/faculty/create-faculty/${facultyId}/notice/analytics",
+  },
+];
 
 export const SidebarRoutes = () => {
   const pathname = usePathname();
   const isFacultyPage = pathname?.includes("/faculty");
   const isCoursePage = pathname?.includes("/course");
   const isTutorPage = pathname?.includes("/tutor");
+  const isNoticePage = pathname?.includes("/notice");
   let routes;
-  if (isTutorPage) {
+  if 
+  (isTutorPage) {
     routes = tutorRoutes;
   } else if (isCoursePage) {
     routes = courseRoutes;
+  } else if (isNoticePage) {
+    routes = noticeRoutes;
   } else if (isFacultyPage) {
     routes = facultyRoutes;
   } else {

@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     });
     return NextResponse.json(notice);
   } catch (error) {
-    console.log("[CREATE_NOTICES]", error);
+    console.log("[CREATE_NOTICEBOARDS]", error);
     return new NextResponse("Internal error", { status: 500 });
   }
 }

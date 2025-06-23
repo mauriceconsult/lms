@@ -37,7 +37,7 @@ const CreateNotice = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axios.post("/api/create-notices", values);
-      router.push(`/notice/create-notice/${response.data.id}`);
+      router.push(`/faculty/create-faculty/notice/create-notice/${response.data.id}`);
       toast.success("Notice created!");
     } catch {
       toast.error("Something went wrong!");
@@ -46,10 +46,9 @@ const CreateNotice = () => {
   return (
     <div className="max-w-5xl mx-auto flex md:items-center md:justify-center h-full p-6">
       <div>
-        <h1 className="text-2xl">Notice Creation</h1>
+        <h1 className="text-2xl">Name your Notice</h1>
         <p className="text-sm text-slate-600">
-          Please give the Notice a name. Don&apos;t worry, you can change the
-          name later.
+          Please give a name to your Notice. Don&apos;t worry, you can change the name later.
         </p>
         <Form {...form}>
           <form
@@ -65,12 +64,12 @@ const CreateNotice = () => {
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'New Semester Notice'"
+                      placeholder="New Notice"
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    What is the scope of this notice?
+                    This is the name of your Notice. It will be visible to all users.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

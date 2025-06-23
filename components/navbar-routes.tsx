@@ -9,6 +9,7 @@ import { FacultySearchInput } from "@/app/(dashboard)/(routes)/faculty/create-fa
 import { CourseSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/search/_components/course-search-input";
 import { TutorSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/search/_components/tutor-search-input";
 import React, { FC, ReactElement } from "react";
+import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
 
 type SearchInputComponent = FC<object>;
 
@@ -16,20 +17,22 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   const pathname: string | null = usePathname();
   const isFacultyPage = pathname?.startsWith("/faculty");
   const isTutorPage = pathname?.includes("/tutor");
-  const isCoursePage = pathname?.includes("/courses");
+  const isCoursePage = pathname?.includes("/course");
   const isNoticePage = pathname?.includes("/notice");
-  
+
   let isSearchPages: SearchInputComponent | undefined;
   if (isTutorPage) {
     isSearchPages = TutorSearchInput;
   } else if (isCoursePage) {
     isSearchPages = CourseSearchInput;
+  } else if (isNoticePage) {
+    isSearchPages = NoticeboardSearchInput;
   } else if (isFacultyPage) {
     isSearchPages = FacultySearchInput;
   }
   return (
     <>
-      {(isFacultyPage || isCoursePage || isTutorPage) && (
+      {(isFacultyPage || isCoursePage || isTutorPage || isNoticePage) && (
         <div className="mt-16 hidden md:block">
           {isSearchPages && React.createElement(isSearchPages)}
         </div>
@@ -62,11 +65,11 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
           </Button>
         </Link>
 
-        <Link href="/doc/create-doc">
+        {/* <Link href="/doc/create-doc">
           <Button size="sm" variant="ghost">
             Docs
           </Button>
-        </Link>
+        </Link> */}
 
         <Link href="/faculty/create-faculty/${facultyId}/notice/notices">
           <Button size="sm" variant="ghost">

@@ -22,8 +22,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-// import Link from "next/link";
-// import { PlusCircle } from "lucide-react";
+import Link from "next/link";
+import { PlusCircle } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -64,12 +64,12 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
-        {/* <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}">
+        <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}">
           <Button>
             <PlusCircle className="h-4 w-4 mr-2" />
             New Topic
           </Button>
-        </Link> */}
+        </Link>
       </div>
       <div className="rounded-md border">
         <Table>
