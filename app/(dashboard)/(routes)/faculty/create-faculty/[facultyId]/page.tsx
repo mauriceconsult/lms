@@ -2,11 +2,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { FacultyTitleForm } from "./_components/faculty-title-form";
-import {
-  LayoutDashboard,
-  ListChecks,
-  File,
-} from "lucide-react";
+import { LayoutDashboard, ListChecks, File } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { FacultyImageForm } from "./_components/faculty-image-form";
 import { FacultyDescriptionForm } from "./_components/faculty-description-form";
@@ -15,6 +11,8 @@ import { FacultyCourseForm } from "./_components/faculty-course-form";
 import { FacultyAttachmentForm } from "./_components/faculty-attachment-form";
 import { Banner } from "@/components/banner";
 import { FacultyActions } from "./_components/faculty-actions";
+import { FacultyNoticeboardForm } from "./_components/faculty-noticeboard-form";
+import { FacultyCourseworkForm } from "./_components/faculty-coursework-form";
 
 const FacultyIdPage = async ({
   params,
@@ -61,7 +59,7 @@ const FacultyIdPage = async ({
     faculty.description,
     faculty.imageUrl,
     faculty.schoolId,
-    faculty.courses.length > 0, 
+    faculty.courses.length > 0,
   ];
   const optionalFields = [
     faculty.noticeboards.length > 0,
@@ -137,6 +135,26 @@ const FacultyIdPage = async ({
                   <h2 className="text-xl">Faculty Courses</h2>
                 </div>
                 <FacultyCourseForm
+                  initialData={faculty}
+                  facultyId={faculty.id}
+                />
+              </div>
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={ListChecks} />
+                  <h2 className="text-xl">Faculty Noticeboard</h2>
+                </div>
+                <FacultyNoticeboardForm
+                  initialData={faculty}
+                  facultyId={faculty.id}
+                />
+              </div>
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={ListChecks} />
+                  <h2 className="text-xl">Faculty Coursework</h2>
+                </div>
+                <FacultyCourseworkForm
                   initialData={faculty}
                   facultyId={faculty.id}
                 />
