@@ -76,7 +76,7 @@ export const FacultyDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {initialData.description || "No description"}
+          {initialData.description || "What is the vision of this Faculty?"}
         </p>
       )}
       {isEditing && (

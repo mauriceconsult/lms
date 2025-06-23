@@ -111,7 +111,7 @@ export const FacultyCourseForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Artificial Intelligence'"
+                      placeholder="Name of the Course, e.g., 'Ethics in Teaching'"
                       {...field}
                     />
                   </FormControl>
@@ -132,11 +132,11 @@ export const FacultyCourseForm = ({
             !initialData.courses && "text-slate-500 italic"
           )}
         >
-          {!initialData.courses.length && "No Courses"}
+          {!initialData.courses.length && "Add your Courses here."}
           <FacultyCourseList
             onEdit={onEdit}
             onReorder={onReorder}
-            items={(initialData.courses || [])}
+            items={initialData.courses || []}
           />
         </div>
       )}

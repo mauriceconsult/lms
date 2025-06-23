@@ -7,6 +7,7 @@ import { FacultiesList } from "@/app/(dashboard)/(routes)/search/_components/fac
 import { FacultyIdSearchInput } from "./_components/facultyId-search-input";
 
 
+
 interface FacultySearchPageProps {
   searchParams: {
     title: string;

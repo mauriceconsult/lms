@@ -68,7 +68,7 @@ export const FacultyAttachmentForm = ({
         <>
           {initialData.attachments.length === 0 && (
             <p className="text-sm mt-2 text-slate-500 italic">
-              No attachments yet
+              Any Faculty attachments will appear hear.
             </p>
           )}
           {initialData.attachments.length > 0 && (
