@@ -16,63 +16,57 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Combobox } from "@/components/ui/combobox";
+import { Textarea } from "@/components/ui/textarea";
 import { Noticeboard } from "@prisma/client";
 
-interface NoticeFacultyFormProps {
+
+interface NoticeboardDescriptionProps {
   initialData: Noticeboard;
-  noticeId: string;
   facultyId: string;
-  options: { label: string; value: string }[];
+  noticeboardId: string;
 }
 const formSchema = z.object({
-  facultyId: z.string().min(1),
+  description: z.string().min(1, {
+    message: "Description is required.",
+  }),
 });
 
-export const NoticeFacultyForm = ({
+export const NoticeboardDescriptionForm = ({
   initialData,
   facultyId,
-  noticeId,
-  options,
-}: NoticeFacultyFormProps) => {
+  noticeboardId,
+}: NoticeboardDescriptionProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      facultyId: initialData?.id || "",
+      description: initialData?.description || "",
     },
   });
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(
-        `/api/create-faculties/${facultyId}/notices/${noticeId}/notice`,
-        values
-      );
-      toast.success("Faculty updated.");
+      await axios.patch(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/descriptions`, values);
+      toast.success("Noticeboard description updated.");
       toggleEdit();
       router.refresh();
     } catch {
       toast.error("Something went wrong.");
     }
   };
-  const selectedOption = options.find(
-    (option) => option.value === initialData.facultyId
-  );
-
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Faculty
+        Noticeboard description
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit Faculty
+              Edit Noticeboard description
             </>
           )}
         </Button>
@@ -81,10 +75,10 @@ export const NoticeFacultyForm = ({
         <p
           className={cn(
             "text-sm mt-2",
-            !initialData.title && "text-slate-500 italic"
+            !initialData.description && "text-slate-500 italic"
           )}
         >
-          {selectedOption?.label || "No Faculty"}
+          {initialData.description || "No description"}
         </p>
       )}
       {isEditing && (
@@ -95,11 +89,15 @@ export const NoticeFacultyForm = ({
           >
             <FormField
               control={form.control}
-              name="facultyId"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Combobox options={[...options]} {...field} />
+                    <Textarea
+                      disabled={isSubmitting}
+                      placeholder="e.g., 'This noticeboard is about...'"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -116,4 +114,3 @@ export const NoticeFacultyForm = ({
     </div>
   );
 };
-

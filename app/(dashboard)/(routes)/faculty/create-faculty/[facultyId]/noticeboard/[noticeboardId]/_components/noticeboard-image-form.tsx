@@ -10,24 +10,25 @@ import { Noticeboard } from "@prisma/client";
 import Image from "next/image";
 import { FileUpload } from "@/components/file-upload";
 
-interface NoticeImageFormProps {
+interface NoticeboardImageFormProps {
   initialData: Noticeboard;
-  noticeId: string;
+  facultyId: string;
+  noticeboardId: string;
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const formSchema = z.object({
   imageUrl: z.string().min(1),
 });
 
-export const NoticeImageForm = ({ initialData, noticeId }: NoticeImageFormProps) => {
+export const NoticeboardImageForm = ({ initialData, facultyId, noticeboardId }: NoticeboardImageFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-notices/${noticeId}/image`, values);
-      toast.success("Notice image updated.");
+      await axios.patch(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/image`, values);
+      toast.success("Noticeboard image updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -37,19 +38,19 @@ export const NoticeImageForm = ({ initialData, noticeId }: NoticeImageFormProps)
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Notice image
+        Noticeboard image
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing && <>Cancel</>}
           {!isEditing && !initialData.imageUrl && (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Notice image
+              Add a Noticeboard image
             </>
           )}
           {!isEditing && initialData.imageUrl && (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit Notice image
+              Edit Noticeboard image
             </>
           )}
         </Button>

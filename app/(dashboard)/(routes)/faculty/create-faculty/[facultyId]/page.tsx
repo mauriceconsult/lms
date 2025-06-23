@@ -44,6 +44,7 @@ const FacultyIdPage = async ({
           position: "asc",
         },
       },
+      noticeboards: true,
     },
   });
   const school = await db.school.findMany({
@@ -59,10 +60,13 @@ const FacultyIdPage = async ({
     faculty.description,
     faculty.imageUrl,
     faculty.schoolId,
-    faculty.courses.length > 0,
+    faculty.courses.length > 0, 
+  ];
+  const optionalFields = [
+    faculty.noticeboards.length > 0,
     faculty.attachments.length > 0,
   ];
-  const totalFields = requiredFields.length;
+  const totalFields = requiredFields.length + optionalFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);

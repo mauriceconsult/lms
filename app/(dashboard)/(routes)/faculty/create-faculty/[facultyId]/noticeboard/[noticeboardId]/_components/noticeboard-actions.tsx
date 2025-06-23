@@ -8,27 +8,27 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-interface NoticeActionsProps {
+interface NoticeboardActionsProps {
   disabled: boolean;
-  noticeId: string;
+  noticeboardId: string;
   isPublished: boolean;
 }
-export const NoticeActions = ({
+export const NoticeboardActions = ({
   disabled,
-  noticeId,
+  noticeboardId,
   isPublished,
-}: NoticeActionsProps) => {
+}: NoticeboardActionsProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const onClick = async () => {
     try {
       setIsLoading(true);
       if (isPublished) {
-        await axios.patch(`/api/create-notices/${noticeId}/unpublish`);
-        toast.success("Faculty unpublished");
+        await axios.patch(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/unpublish`);
+        toast.success("Noticeboard unpublished");
       } else {
-        await axios.patch(`/api/create-notices/${noticeId}/publish`);
-        toast.success("Faculty published");
+        await axios.patch(`/api/create-noticeboards/${noticeboardId}/publish`);
+        toast.success("Noticeboard published");
       }
       router.refresh();
     } catch {
@@ -40,10 +40,10 @@ export const NoticeActions = ({
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await axios.delete(`/api/create-notices/${noticeId}`);
-      toast.success("Faculty deleted");
+      await axios.delete(`/api/create-noticeboards/${noticeboardId}`);
+      toast.success("Noticeboard deleted");
       router.refresh();
-      router.push(`/notice/create-notice`);
+      router.push(`/noticeboard/create-noticeboard`);
     } catch {
       toast.error("Something went wrong");
     } finally {

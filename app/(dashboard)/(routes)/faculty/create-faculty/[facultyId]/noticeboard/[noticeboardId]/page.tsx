@@ -1,21 +1,23 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { NoticeTitleForm } from "./_components/notice-title-form";
 import { LayoutDashboard, File } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
-import { NoticeImageForm } from "./_components/notice-image-form";
-import { NoticeDescriptionForm } from "./_components/notice-description-form";
-import { NoticeFacultyForm } from "./_components/notice-faculty-form";
-import { NoticeAttachmentForm } from "./_components/notice-attachment-form";
+import { NoticeboardImageForm } from "./_components/noticeboard-image-form";
+import { NoticeboardFacultyForm } from "./_components/noticeboard-faculty-form";
+import { NoticeboardAttachmentForm } from "./_components/noticeboard-attachment-form";
 import { Banner } from "@/components/banner";
-import { NoticeActions } from "./_components/notice-actions";
+import { NoticeboardActions } from "./_components/noticeboard-actions";
+import { NoticeboardTitleForm } from "./_components/noticeboard-title-form";
+import { NoticeboardDescriptionForm } from "./_components/noticeboard-description-form";
 
-const NoticeIdPage = async ({
+
+const NoticeboardIdPage = async ({
   params,
 }: {
   params: {
-    noticeId: string;
+    facultyId: string;
+    noticeboardId: string;
   };
 }) => {
   const { userId } = await auth();
@@ -23,9 +25,9 @@ const NoticeIdPage = async ({
     return redirect("/");
   }
 
-  const notice = await db.noticeboard.findFirst({
+  const noticeboard = await db.noticeboard.findFirst({
     where: {
-      id: params.noticeId,
+      id: params.noticeboardId,
       userId,
     },
     include: {
@@ -33,7 +35,7 @@ const NoticeIdPage = async ({
         orderBy: {
           createdAt: "desc",
         },
-      },      
+      },
     },
   });
   const faculty = await db.faculty.findMany({
@@ -41,20 +43,24 @@ const NoticeIdPage = async ({
       title: "asc",
     },
   });
-  if (!notice || !faculty) {
+  if (!noticeboard || !faculty) {
     return redirect("/");
   }
-  const requiredFields = [notice.title, notice.description, notice.imageUrl];
+  const requiredFields = [
+    noticeboard.title,
+    noticeboard.description,
+    noticeboard.imageUrl,
+  ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
   return (
     <>
-      {!notice.isPublished && (
+      {!noticeboard.isPublished && (
         <Banner
           variant="warning"
-          label="This Notice is unpublished. It will not be visible to the Faculty."
+          label="This Noticeboard is unpublished. It will not be visible to the Faculty."
         />
       )}
       <div className="p-6">
@@ -62,15 +68,15 @@ const NoticeIdPage = async ({
           <div className="w-full">
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Notice creation</h1>
+                <h1 className="text-2xl font-medium">Noticeboard creation</h1>
                 <span className="text-sm text-slate-700">
                   Complete all fields {completionText}
                 </span>
               </div>
-              <NoticeActions
+              <NoticeboardActions
                 disabled={!isComplete}
-                noticeId={params.noticeId}
-                isPublished={notice.isPublished}
+                noticeboardId={params.noticeboardId}
+                isPublished={noticeboard.isPublished}
               />
             </div>
           </div>
@@ -80,23 +86,32 @@ const NoticeIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Enter the Notice details</h2>
+                <h2 className="text-xl">Enter the Noticeboard details</h2>
               </div>
-              <NoticeTitleForm initialData={notice} noticeId={notice.id} />
-              <NoticeFacultyForm
-                initialData={notice}
-                noticeId={notice.id}
-                facultyId={notice.facultyId || ""}
+              <NoticeboardTitleForm
+                initialData={noticeboard}
+                noticeboardId={noticeboard.id}
+                facultyId={noticeboard.facultyId || ""}
+              />
+              <NoticeboardFacultyForm
+                initialData={noticeboard}
+                noticeboardId={noticeboard.id}
+                facultyId={noticeboard.facultyId || ""}
                 options={faculty.map((cat) => ({
                   label: cat.title,
                   value: cat.id,
                 }))}
               />
-              <NoticeDescriptionForm
-                initialData={notice}
-                noticeId={notice.id}
+              <NoticeboardDescriptionForm
+                initialData={noticeboard}
+                noticeboardId={noticeboard.id}
+                facultyId={noticeboard.facultyId || ""}
               />
-              <NoticeImageForm initialData={notice} noticeId={notice.id} />
+              <NoticeboardImageForm
+                initialData={noticeboard}
+                noticeboardId={noticeboard.id}
+                facultyId={noticeboard.facultyId || ""}
+              />
             </div>
             <div className="space-y-6">
               <div>
@@ -104,9 +119,9 @@ const NoticeIdPage = async ({
                   <IconBadge icon={File} />
                   <h2 className="text-xl">Resources & Attachments</h2>
                 </div>
-                <NoticeAttachmentForm
-                  initialData={notice}
-                  noticeId={notice.id}
+                <NoticeboardAttachmentForm
+                  initialData={noticeboard}
+                  noticeboardId={noticeboard.id}
                 />
               </div>
             </div>
@@ -117,4 +132,4 @@ const NoticeIdPage = async ({
   );
 };
 
-export default NoticeIdPage;
+export default NoticeboardIdPage;

@@ -9,10 +9,10 @@ import {
   ListChecks,
 } from "lucide-react";
 import { redirect } from "next/navigation";
-import { CourseDescriptionForm } from "../../course/[courseId]/_components/course-description-form";
-import { CourseImageForm } from "../../course/[courseId]/_components/course-image-form";
-import { CourseFacultyForm } from "../../course/[courseId]/_components/course-faculty-form";
-import { CourseAttachmentForm } from "../../course/[courseId]/_components/course-attachment-form";
+import { CourseDescriptionForm } from "./_components/course-description-form";
+import { CourseImageForm } from "./_components/course-image-form";
+import { CourseFacultyForm } from "./_components/course-faculty-form";
+import { CourseAttachmentForm } from "./_components/course-attachment-form";
 import { CourseAmountForm } from "./_components/course-amount-form";
 import { CourseTutorForm } from "./_components/course-tutor-form";
 import Link from "next/link";
