@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import {
   ArrowLeft,
-  Eye,
+  // Eye,
   File,
   LayoutDashboard,
   ListChecks,
@@ -16,7 +16,7 @@ import { CourseAttachmentForm } from "./_components/course-attachment-form";
 import { CourseAmountForm } from "./_components/course-amount-form";
 import { CourseTutorForm } from "./_components/course-tutor-form";
 import Link from "next/link";
-import { CourseAccessForm } from "./_components/course-access-form";
+// import { CourseAccessForm } from "./_components/course-access-form";
 import { Banner } from "@/components/banner";
 import { CourseActions } from "./_components/course-actions";
 import { CourseTitleForm } from "./_components/course-title-form";
@@ -154,7 +154,7 @@ const CourseIdPage = async ({
               facultyId={course.facultyId || ""}
             />
           </div>
-          <div>
+          {/* <div>
             <div className="flex items-center gap-x-2">
               <IconBadge icon={Eye} />
               <h2 className="text-xl">Access Settings</h2>
@@ -164,14 +164,13 @@ const CourseIdPage = async ({
               courseId={params.courseId}
               facultyId={course.facultyId || ""}
             />
-          </div>
+          </div> */}
           <div className="space-y-6">
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={File} />
                 <h2 className="text-xl">Resources & Attachments</h2>
               </div>
-
               <CourseAttachmentForm
                 initialData={course}
                 courseId={course.id}

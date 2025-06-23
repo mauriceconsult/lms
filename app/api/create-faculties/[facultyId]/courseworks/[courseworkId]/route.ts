@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string } }
+  { params }: { params: { facultyId: string; courseworkId: string; } }
 ) {
   try {
     const { userId } = await auth();
@@ -12,66 +12,56 @@ export async function POST(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const courseOwner = db.course.findUnique({
+    const courseworkOwner = db.coursework.findUnique({
       where: {
-        id: params.courseId,
+        id: params.courseworkId,
         userId: userId,
       },
     });
-    if (!courseOwner) {
+    if (!courseworkOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const lastCourse = await db.course.findFirst({
+    const lastCoursework = await db.coursework.findFirst({
       where: {
-        id: params.courseId,
+        id: params.courseworkId,
       },
       orderBy: {
         position: "desc",
       },
     });
-    const newPosition = lastCourse ? (lastCourse.position ?? 0) + 1 : 1;
-    const course = await db.course.create({
+    const newPosition = lastCoursework ? (lastCoursework.position ?? 0) + 1 : 1;
+    const coursework = await db.coursework.create({
       data: {
         title,
-        id: params.courseId,
+        id: params.courseworkId,
         position: newPosition,
         userId,
       },
     });
 
-    return NextResponse.json(course);
+    return NextResponse.json(coursework);
   } catch (error) {
-    console.log("[COURSE]", error);
+    console.log("[COURSEWORK]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string } }
+  { params }: { params: { facultyId: string; courseworkId: string } }
 ) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const courseOwner = await db.course.findUnique({
+    const courseworkOwner = db.coursework.findUnique({
       where: {
-        id: params.courseId,
+        id: params.facultyId,
         userId: userId,
       },
-      include: {
-        tutors: {
-          where: {
-            isPublished: true,
-          },
-          include: {
-            muxData: true,
-          },
-        },
-      },
     });
-    if (!courseOwner) {
+    if (!courseworkOwner) {
       return new NextResponse("Not found", { status: 404 });
     }
     const deletedFaculty = await db.faculty.delete({
@@ -82,7 +72,7 @@ export async function DELETE(
     });
     return NextResponse.json(deletedFaculty);
   } catch (error) {
-    console.log("[COURSE_ID_DELETE]", error);
+    console.log("[COURSEWORK_ID_DELETE]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

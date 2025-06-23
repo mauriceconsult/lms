@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string; }}
+  { params }: { params: { facultyId: string; courseworkId: string; }}
 ) {
   try {
     const userId = await auth();
@@ -14,26 +14,23 @@ export async function POST(
     }
     const facultyOwner = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,               
+        id: params.facultyId, 
       }
     });
     if (!facultyOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    if (!facultyOwner) {
-      return new NextResponse("Faculty ID is missing", { status: 400 });
-    }
     const attachment = await db.attachment.create({
       data: {
         url,
         name: url.split("/").pop(),
-        courseId: params.courseId,
+        courseworkId: params.courseworkId,
         facultyId: params.facultyId,
       }
     });
     return NextResponse.json(attachment)
   } catch (error) {
-    console.log("COURSE_ID_ATTACHMENT", error);
+    console.log("NOTICEBOARD_ID_ATTACHMENT", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

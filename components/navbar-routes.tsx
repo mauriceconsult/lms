@@ -16,29 +16,32 @@ type SearchInputComponent = FC<object>;
 export const NavbarRoutes: FC<object> = (): ReactElement => {
   const pathname: string | null = usePathname();
   const isFacultyPage = pathname?.startsWith("/faculty");
-  const isTutorPage = pathname?.includes("/tutor");
   const isCoursePage = pathname?.includes("/course");
-  const isNoticePage = pathname?.includes("/notice");
+  const isNoticeboardPage = pathname?.includes("/noticeboard");
+  const isCourseworkPage = pathname?.includes("/coursework");
+  const isTutorPage = pathname?.includes("/tutor");
 
   let isSearchPages: SearchInputComponent | undefined;
   if (isTutorPage) {
     isSearchPages = TutorSearchInput;
   } else if (isCoursePage) {
     isSearchPages = CourseSearchInput;
-  } else if (isNoticePage) {
+  } else if (isNoticeboardPage) {
     isSearchPages = NoticeboardSearchInput;
+  } else if (isCourseworkPage) {
+    isSearchPages = CourseworkSearchInput;
   } else if (isFacultyPage) {
     isSearchPages = FacultyIdSearchInput;
   }
   return (
     <>
-      {(isFacultyPage || isCoursePage || isTutorPage || isNoticePage) && (
+      {(isFacultyPage || isCoursePage || isTutorPage || isNoticeboardPage) && (
         <div className="mt-16 hidden md:block">
           {isSearchPages && React.createElement(isSearchPages)}
         </div>
       )}
       <div className="flex gap-x-2 ml-auto">
-        {isFacultyPage || isTutorPage || isCoursePage || isNoticePage ? (
+        {isFacultyPage || isTutorPage || isCoursePage || isNoticeboardPage ? (
           <Link href="/">
             <Button size="sm" variant="ghost">
               <LogOut className="h-4 w-4 mr-2" />
@@ -71,9 +74,9 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
           </Button>
         </Link> */}
 
-        <Link href="/faculty/create-faculty/${facultyId}/notice/notices">
+        <Link href="/faculty/create-faculty/${facultyId}/noticeboard/noticeboards">
           <Button size="sm" variant="ghost">
-            Notice
+            Noticeboard
           </Button>
         </Link>
 

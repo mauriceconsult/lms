@@ -7,11 +7,12 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileUpload } from "@/components/file-upload";
-import { Attachment,  Noticeboard } from "@prisma/client";
+import { Attachment,  Coursework } from "@prisma/client";
 
-interface NoticeAttachmentFormProps {
-  initialData: Noticeboard & { attachments: Attachment[] };
-  noticeId: string;  
+interface CourseworkAttachmentFormProps {
+  initialData: Coursework & { attachments: Attachment[] };
+  facultyId: string;
+  courseworkId: string;  
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -19,10 +20,11 @@ const formSchema = z.object({
   url: z.string().min(1),
 });
 
-export const NoticeAttachmentForm = ({
+export const CourseworkAttachmentForm = ({
   initialData,
-  noticeId,
-}: NoticeAttachmentFormProps) => {
+  facultyId,
+  courseworkId,
+}: CourseworkAttachmentFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const toggleEdit = () => setIsEditing((current) => !current);
@@ -30,8 +32,8 @@ export const NoticeAttachmentForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-notices/${noticeId}/attachment`, values);
-      toast.success("NoticeBoard updated.");
+      await axios.post(`/api/create-faculties/${facultyId}/courseworks/${courseworkId}/attachments`, values);
+      toast.success("CourseworkBoard updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -41,8 +43,10 @@ export const NoticeAttachmentForm = ({
   const onDelete = async (id: string) => {
     try {
       setDeletingId(id);
-      await axios.delete(`/api/create-notices/${noticeId}/attachment/${id}`);
-      toast.success("Notice attachment deleted");
+      await axios.delete(
+        `/api/create-faculties/${facultyId}/courseworks/${courseworkId}/attachments/${id}`
+      );
+      toast.success("Coursework attachment deleted");
       router.refresh();
     } catch {
       toast.error("Something went wrong");
@@ -53,7 +57,7 @@ export const NoticeAttachmentForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Notice attachments
+        Coursework attachments
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing && <>Cancel</>}
           {!isEditing && (
@@ -110,7 +114,7 @@ export const NoticeAttachmentForm = ({
             }}
           />
           <div className="text-xs text-muted-foreground mt-4">
-            Add resources to aid your NoticeBoard communications.
+            Add resources to aid your CourseworkBoard communications.
           </div>
         </div>
       )}
