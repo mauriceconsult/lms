@@ -30,8 +30,8 @@ export const FacultyAttachmentForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/attachment`, values);
-      toast.success("Faculty updated.");
+      await axios.post(`/api/create-faculties/${facultyId}/attachments`, values);
+      toast.success("Faculty Attachments updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -41,7 +41,7 @@ export const FacultyAttachmentForm = ({
   const onDelete = async (id: string) => {
     try {
       setDeletingId(id);
-      await axios.delete(`/api/create-faculties/${facultyId}/attachment/${id}`);
+      await axios.delete(`/api/create-faculties/${facultyId}/attachments/${id}`);
       toast.success("Attachment deleted");
       router.refresh();
     } catch {
@@ -68,7 +68,7 @@ export const FacultyAttachmentForm = ({
         <>
           {initialData.attachments.length === 0 && (
             <p className="text-sm mt-2 text-slate-500 italic">
-              Any Faculty attachments will appear hear.
+              All the Faculty attachments will appear hear.
             </p>
           )}
           {initialData.attachments.length > 0 && (

@@ -111,7 +111,7 @@ export const FacultyCourseForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="Name of the Course, e.g., 'Ethics in Teaching'"
+                      placeholder="Course name, e.g., 'Principles of Design'"
                       {...field}
                     />
                   </FormControl>
@@ -142,7 +142,7 @@ export const FacultyCourseForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the courses
+          Drag and drop to reorder the Courses
         </p>
       )}
     </div>

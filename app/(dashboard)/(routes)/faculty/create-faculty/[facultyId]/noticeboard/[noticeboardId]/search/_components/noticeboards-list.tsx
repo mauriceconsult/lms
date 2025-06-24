@@ -2,9 +2,7 @@ import { NoticeboardCard } from "@/components/noticeboard-card";
 import { Faculty, Noticeboard } from "@prisma/client";
 
 type NoticeboardsWithFaculty = Noticeboard & {
-  faculty: Faculty | null;
-  // noticeboards: { id: string }[];
- 
+  faculty: Faculty | null; 
 };
 interface NoticeboardsListProps {
   items: NoticeboardsWithFaculty[];

@@ -20,7 +20,7 @@ export const CourseworkSearchInput = () => {
       {
         url: pathname,
         query: {
-          courseId: currentId,
+          facultyId: currentId,
           title: debouncedValue,
         },
       },

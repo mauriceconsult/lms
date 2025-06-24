@@ -92,7 +92,7 @@ export const FacultyNoticeboardForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Noticeboard
+              Add a Notice
             </>
           )}
         </Button>
@@ -112,7 +112,7 @@ export const FacultyNoticeboardForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="Name of the Noticeboard, e.g., 'Ethics in Teaching'"
+                      placeholder="Notice title, e.g., 'New Course available'"
                       {...field}
                     />
                   </FormControl>

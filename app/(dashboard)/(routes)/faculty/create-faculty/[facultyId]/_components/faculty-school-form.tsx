@@ -45,7 +45,7 @@ export const FacultySchoolForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/school`, values);
+      await axios.patch(`/api/create-faculties/${facultyId}/schools`, values);
       toast.success("School updated.");
       toggleEdit();
       router.refresh();

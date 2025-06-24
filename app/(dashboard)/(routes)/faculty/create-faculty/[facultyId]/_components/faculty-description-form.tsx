@@ -46,7 +46,7 @@ export const FacultyDescriptionForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/description`, values);
+      await axios.patch(`/api/create-faculties/${facultyId}/descriptions`, values);
       toast.success("Faculty description updated.");
       toggleEdit();
       router.refresh();
@@ -93,7 +93,7 @@ export const FacultyDescriptionForm = ({
                   <FormControl>
                     <Textarea
                       disabled={isSubmitting}
-                      placeholder="e.g., 'This faculty is about...'"
+                      placeholder="e.g., 'We train artisans for the Fashion Industry...'"
                       {...field}
                     />
                   </FormControl>

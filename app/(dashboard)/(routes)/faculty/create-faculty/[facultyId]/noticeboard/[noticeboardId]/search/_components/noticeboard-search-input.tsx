@@ -20,7 +20,7 @@ export const NoticeboardSearchInput = () => {
       {
         url: pathname,
         query: {
-          courseId: currentId,
+          facultyId: currentId,
           title: debouncedValue,
         },
       },

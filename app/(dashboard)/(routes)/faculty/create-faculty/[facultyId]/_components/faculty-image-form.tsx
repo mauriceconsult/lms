@@ -26,7 +26,7 @@ export const FacultyImageForm = ({ initialData, facultyId }: FacultyImageFormPro
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/image`, values);
+      await axios.patch(`/api/create-faculties/${facultyId}/images`, values);
       toast.success("Faculty image updated.");
       toggleEdit();
       router.refresh();

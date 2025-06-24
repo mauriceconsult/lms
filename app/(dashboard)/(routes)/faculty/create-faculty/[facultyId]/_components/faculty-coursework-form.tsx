@@ -113,7 +113,7 @@ export const FacultyCourseworkForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="Name of the Coursework, e.g., 'Ethics in Teaching'"
+                      placeholder="Coursework title, e.g., 'Principles of Design Coursework'"
                       {...field}
                     />
                   </FormControl>

@@ -40,7 +40,7 @@ export const FacultyTitleForm = ({ initialData, facultyId }: FacultyTitleFormPro
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/title`, values);
+      await axios.patch(`/api/create-faculties/${facultyId}/titles`, values);
       toast.success("Faculty created.");
       toggleEdit();
       router.refresh();
@@ -78,7 +78,7 @@ export const FacultyTitleForm = ({ initialData, facultyId }: FacultyTitleFormPro
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Technology'"
+                      placeholder="e.g., 'Fashion & Design'"
                       {...field}
                     />
                   </FormControl>

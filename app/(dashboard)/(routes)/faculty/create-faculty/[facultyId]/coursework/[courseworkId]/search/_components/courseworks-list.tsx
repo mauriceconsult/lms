@@ -2,9 +2,7 @@ import { CourseworkCard } from "@/components/coursework-card";
 import { Faculty, Coursework } from "@prisma/client";
 
 type CourseworksWithFaculty = Coursework & {
-  faculty: Faculty | null;
-  // courseworks: { id: string }[];
- 
+  faculty: Faculty | null;  
 };
 interface CourseworksListProps {
   items: CourseworksWithFaculty[];

@@ -10,6 +10,7 @@ import { CourseSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-fac
 import { TutorSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/search/_components/tutor-search-input";
 import React, { FC, ReactElement } from "react";
 import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
+import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/coursework/[courseworkId]/search/_components/coursework-search-input";
 
 type SearchInputComponent = FC<object>;
 
@@ -35,13 +36,21 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   }
   return (
     <>
-      {(isFacultyPage || isCoursePage || isTutorPage || isNoticeboardPage) && (
+      {(isFacultyPage ||
+        isCoursePage ||
+        isTutorPage ||
+        isNoticeboardPage ||
+        isCourseworkPage) && (
         <div className="mt-16 hidden md:block">
           {isSearchPages && React.createElement(isSearchPages)}
         </div>
       )}
       <div className="flex gap-x-2 ml-auto">
-        {isFacultyPage || isTutorPage || isCoursePage || isNoticeboardPage ? (
+        {isFacultyPage ||
+        isTutorPage ||
+        isCoursePage ||
+        isCourseworkPage ||
+        isNoticeboardPage ? (
           <Link href="/">
             <Button size="sm" variant="ghost">
               <LogOut className="h-4 w-4 mr-2" />
@@ -68,15 +77,15 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
           </Button>
         </Link>
 
-        {/* <Link href="/doc/create-doc">
-          <Button size="sm" variant="ghost">
-            Docs
-          </Button>
-        </Link> */}
-
         <Link href="/faculty/create-faculty/${facultyId}/noticeboard/noticeboards">
           <Button size="sm" variant="ghost">
             Noticeboard
+          </Button>
+        </Link>
+
+        <Link href="/faculty/create-faculty/${facultyId}/coursework/courseworks">
+          <Button size="sm" variant="ghost">
+            Coursework
           </Button>
         </Link>
 
