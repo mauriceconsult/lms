@@ -7,20 +7,20 @@ import { usePathname, useRouter } from "next/navigation";
 interface NoticeboardSidebarItemProps {
   label: string;
   id: string;
-  noticeId: string;
+  noticeboardId: string;
 }
 
 export const NoticeboardSidebarItem = ({
   label,
   id,
-  noticeId,
+  noticeboardId,
 }: NoticeboardSidebarItemProps) => {
   const pathname = usePathname();
   const router = useRouter();
   const Icon = PlayCircle;
   const isActive = pathname?.includes(id);
   const onClick = () => {
-    router.push(`/notice/${noticeId}/courses/${id}`);
+    router.push(`/noticeboard/${noticeboardId}/courses/${id}`);
   };
   return (
     <button

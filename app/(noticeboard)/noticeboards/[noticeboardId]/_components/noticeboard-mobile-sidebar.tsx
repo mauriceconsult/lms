@@ -1,16 +1,13 @@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Course } from "@prisma/client";
 import { Menu } from "lucide-react";
 import NoticeboardSidebar from "./noticeboard-sidebar";
 import { Noticeboard } from "@prisma/client";
 
 interface NoticeboardNavbarProps {
-    noticeBoard: Noticeboard & {
-        courses: (Course)[];
+    noticeboard: Noticeboard[];
     }
-}
 export const NoticeboardMobileSidebar = ({
-    noticeBoard,
+    noticeboard,
 }: NoticeboardNavbarProps) => {
   return (
     <Sheet>
@@ -18,7 +15,7 @@ export const NoticeboardMobileSidebar = ({
         <Menu />
       </SheetTrigger>
       <SheetContent side={"left"} className="p-0 bg-white w-72">
-        <NoticeboardSidebar noticeBoard={noticeBoard} />
+        <NoticeboardSidebar noticeboard={noticeboard} />
       </SheetContent>
     </Sheet>
   );

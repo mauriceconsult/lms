@@ -1,20 +1,17 @@
 import { NavbarRoutes } from "@/components/navbar-routes";
-import { Course, Noticeboard } from "@prisma/client";
+import { Noticeboard } from "@prisma/client";
 import { NoticeboardMobileSidebar } from "./noticeboard-mobile-sidebar";
 
 interface NoticeboardNavbarProps {
-    noticeBoard: Noticeboard & {
-        courses: (Course)[];
+    noticeboard: Noticeboard[];
     }
-}
 
 export const NoticeboardNavbar = ({
-    noticeBoard,
+    noticeboard,
 }: NoticeboardNavbarProps) => {
     return <div className="p-4 border-b h-full flex items-center bg-white shadow-sm">
         <NoticeboardMobileSidebar
-            noticeBoard={noticeBoard}
-            
+            noticeboard={noticeboard}            
         />
         <NavbarRoutes />      
   </div>
