@@ -118,6 +118,23 @@ const assignmentRoutes = [
     href: "/faculty/create-faculty/${facultyId}/assignment/analytics",
   },
 ];
+const courseNoticeboardRoutes = [
+  {
+    icon: List,
+    label: "Course Notices",
+    href: "/faculty/create-faculty/${facultyId}/courseNoticeboard/courseNoticeboards",
+  },
+  {
+    icon: Compass,
+    label: "Browse Course Notices",
+    href: "/faculty/create-faculty/${facultyId}/courseNoticeboard/${courseNoticeboardId}/search",
+  },
+  {
+    icon: BarChart,
+    label: "Analytics",
+    href: "/faculty/create-faculty/${facultyId}/courseNoticeboard/analytics",
+  },
+];
 
 export const SidebarRoutes = () => {
   const pathname = usePathname();
@@ -126,18 +143,22 @@ export const SidebarRoutes = () => {
   const isTutorPage = pathname?.includes("/tutor");
   const isNoticeboardPage = pathname?.includes("/noticeboard");
   const isCourseworkPage = pathname?.includes("/coursework");
+  const isCourseNoticeboardPage = pathname?.includes("/courseNoticeboard");
   const isAssignmentPage = pathname?.includes("/assignment");
+
   let routes;
   if (isTutorPage) {
     routes = tutorRoutes;
-  } else if (isCoursePage) {
-    routes = courseRoutes;
   } else if (isNoticeboardPage) {
     routes = noticeboardRoutes;
+  } else if (isCourseNoticeboardPage) {
+    routes = courseNoticeboardRoutes;
   } else if (isCourseworkPage) {
     routes = courseworkRoutes;
   } else if (isAssignmentPage) {
     routes = assignmentRoutes;
+  } else if (isCoursePage) {
+    routes = courseRoutes;
   } else if (isFacultyPage) {
     routes = facultyRoutes;
   } else {
