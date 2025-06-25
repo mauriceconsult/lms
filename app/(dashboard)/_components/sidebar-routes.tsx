@@ -21,7 +21,7 @@ const facultyRoutes = [
     icon: List,
     label: "Faculties",
     href: "/faculty/faculties",
-  },  
+  },
   {
     icon: Compass,
     label: "Browse Faculties",
@@ -67,21 +67,55 @@ const tutorRoutes = [
     href: "/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/analytics",
   },
 ];
-const noticeRoutes = [
+const noticeboardRoutes = [
   {
     icon: List,
-    label: "Notices",
-    href: "/faculty/create-faculty/${facultyId}/notice/notices",
+    label: "Noticeboards",
+    href: "/faculty/create-faculty/${facultyId}/noticeboard/noticeboards",
   },
   {
     icon: Compass,
-    label: "Browse Notices",
-    href: "/faculty/create-faculty/${facultyId}/notice/${noticeId}/search",
+    label: "Browse Faculty Noticeboards",
+    href: "/faculty/create-faculty/${facultyId}/noticeboard/${noticeboardId}/search",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: "/faculty/create-faculty/${facultyId}/notice/analytics",
+    href: "/faculty/create-faculty/${facultyId}/noticeboard/analytics",
+  },
+];
+const courseworkRoutes = [
+  {
+    icon: List,
+    label: "Courseworks",
+    href: "/faculty/create-faculty/${facultyId}/coursework/courseworks",
+  },
+  {
+    icon: Compass,
+    label: "Browse Courseworks",
+    href: "/faculty/create-faculty/${facultyId}/coursework/${courseworkId}/search",
+  },
+  {
+    icon: BarChart,
+    label: "Analytics",
+    href: "/faculty/create-faculty/${facultyId}/coursework/analytics",
+  },
+];
+const assignmentRoutes = [
+  {
+    icon: List,
+    label: "Assignments",
+    href: "/faculty/create-faculty/${facultyId}/assignment/assignments",
+  },
+  {
+    icon: Compass,
+    label: "Browse Assignments",
+    href: "/faculty/create-faculty/${facultyId}/assignment/${assignmentId}/search",
+  },
+  {
+    icon: BarChart,
+    label: "Analytics",
+    href: "/faculty/create-faculty/${facultyId}/assignment/analytics",
   },
 ];
 
@@ -90,15 +124,20 @@ export const SidebarRoutes = () => {
   const isFacultyPage = pathname?.includes("/faculty");
   const isCoursePage = pathname?.includes("/course");
   const isTutorPage = pathname?.includes("/tutor");
-  const isNoticePage = pathname?.includes("/notice");
+  const isNoticeboardPage = pathname?.includes("/noticeboard");
+  const isCourseworkPage = pathname?.includes("/coursework");
+  const isAssignmentPage = pathname?.includes("/assignment");
   let routes;
-  if 
-  (isTutorPage) {
+  if (isTutorPage) {
     routes = tutorRoutes;
   } else if (isCoursePage) {
     routes = courseRoutes;
-  } else if (isNoticePage) {
-    routes = noticeRoutes;
+  } else if (isNoticeboardPage) {
+    routes = noticeboardRoutes;
+  } else if (isCourseworkPage) {
+    routes = courseworkRoutes;
+  } else if (isAssignmentPage) {
+    routes = assignmentRoutes;
   } else if (isFacultyPage) {
     routes = facultyRoutes;
   } else {
