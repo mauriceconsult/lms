@@ -75,7 +75,7 @@ const noticeboardRoutes = [
   },
   {
     icon: Compass,
-    label: "Browse Faculty Noticeboards",
+    label: "Browse Faculty Notices",
     href: "/faculty/create-faculty/${facultyId}/noticeboard/${noticeboardId}/search",
   },
   {

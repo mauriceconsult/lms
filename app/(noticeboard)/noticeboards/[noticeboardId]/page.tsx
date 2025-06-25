@@ -1,26 +1,16 @@
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 
-const NoticeboardPage = async ({ params }: { params: { facultyId: string } }) => {
-  const faculty = await db.faculty.findUnique({
+const NoticeboardIdPage = async ({ params }: { params: { noticeboardId: string } }) => {
+  const noticeboard = await db.noticeboard.findUnique({
     where: {
-      id: params.facultyId,
-    },
-    include: {
-      courses: {
-        where: {
-          isPublished: true,
-        },
-        orderBy: {
-          position: "asc",
-        },
-      },
+      id: params.noticeboardId,
     },
   });
-  if (!faculty) {
+  if (!noticeboard) {
     return redirect("/");
   }
-return redirect(`/faculties/${faculty.id}/courses/${faculty.courses[0].id}`);
+return redirect(`/faculties/${noticeboard.id}`);
 };
 
-export default NoticeboardPage;
+export default NoticeboardIdPage;

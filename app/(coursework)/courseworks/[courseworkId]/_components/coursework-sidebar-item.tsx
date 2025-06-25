@@ -4,22 +4,22 @@ import { cn } from "@/lib/utils";
 import { PlayCircle } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
-interface NoticeboardSidebarItemProps {
+interface CourseworkSidebarItemProps {
   label: string;
   id: string;
-  noticeboardId: string;
+  courseworkId: string;
 }
 
-export const NoticeboardSidebarItem = ({
+export const CourseworkSidebarItem = ({
   label,
   id,
-}: NoticeboardSidebarItemProps) => {
+}: CourseworkSidebarItemProps) => {
   const pathname = usePathname();
   const router = useRouter();
   const Icon = PlayCircle;
   const isActive = pathname?.includes(id);
   const onClick = () => {
-    router.push(`/noticeboards/${id}`);
+    router.push(`/courseworks/${id}`);
   };
   return (
     <button
