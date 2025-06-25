@@ -46,14 +46,15 @@ model Tuition {
 }
 
 model CourseNoticeboard {
-  id          String  @id @default(uuid())
+  id          String       @id @default(uuid())
   userId      String
-  title       String  @db.Text
+  title       String       @db.Text
   partyId     String?
   courseId    String?
   position    Int?
-  isPublished Boolean @default(false)
-  course      Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  attachments Attachment[]
+  isPublished Boolean      @default(false)
+  course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -172,23 +173,25 @@ model UserProgress {
 }
 
 model Attachment {
-  id            String       @id @default(uuid())
-  name          String
-  url           String       @db.Text
-  schoolId      String?
-  school        School?      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  facultyId     String?
-  faculty       Faculty?     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  courseId      String?
-  course        Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  Noticeboard   Noticeboard? @relation(fields: [noticeboardId], references: [id], onDelete: Cascade)
-  noticeboardId String?
-  Coursework    Coursework?  @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
-  courseworkId  String?
-  Assignment    Assignment?  @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId  String?
+  id                  String             @id @default(uuid())
+  name                String
+  url                 String             @db.Text
+  schoolId            String?
+  school              School?            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  facultyId           String?
+  faculty             Faculty?           @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  courseId            String?
+  course              Course?            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  Noticeboard         Noticeboard?       @relation(fields: [noticeboardId], references: [id], onDelete: Cascade)
+  noticeboardId       String?
+  Coursework          Coursework?        @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
+  courseworkId        String?
+  Assignment          Assignment?        @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId        String?
+  CourseNoticeboard   CourseNoticeboard? @relation(fields: [courseNoticeboardId], references: [id], onDelete: Cascade)
+  courseNoticeboardId String?
 
   @@index([facultyId])
 }
