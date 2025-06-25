@@ -20,6 +20,8 @@ import Link from "next/link";
 import { Banner } from "@/components/banner";
 import { CourseActions } from "./_components/course-actions";
 import { CourseTitleForm } from "./_components/course-title-form";
+import { CourseCourseNoticeboardForm } from "./courseNoticeboard/[courseNoticeboardId]/_components/courseNoticeboard-course-form";
+
 
 const CourseIdPage = async ({
   params,
@@ -40,6 +42,8 @@ const CourseIdPage = async ({
       userId,
     },
     include: {
+      courseNoticeboards: true,
+      assignments: true,
       tutors: {
         orderBy: {
           position: "asc",
@@ -72,11 +76,16 @@ const CourseIdPage = async ({
     course.facultyId,
     course.imageUrl,
     course.amount,
-    course.attachments.length > 0,
     course.tutors.length > 0,
     // course.purchases.length > 0,
   ];
-  const totalFields = requiredFields.length;
+  const optionalFields = [
+    course.attachments.length > 0,
+    course.tutors.length > 0,
+    course.courseNoticeboards.length > 0,
+    course.assignments.length > 0,
+  ]
+  const totalFields = requiredFields.length + optionalFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
@@ -126,7 +135,7 @@ const CourseIdPage = async ({
             <CourseTitleForm
               initialData={course}
               facultyId={course.facultyId || ""}
-              courseId={course.id}       
+              courseId={course.id}
             />
 
             <CourseFacultyForm
@@ -183,6 +192,28 @@ const CourseIdPage = async ({
                 <h2 className="text-xl">Course Topics </h2>
               </div>
               <CourseTutorForm
+                initialData={course}
+                facultyId={course.facultyId || ""}
+                courseId={course.id}
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={ListChecks} />
+                <h2 className="text-xl">Course Notices </h2>
+              </div>
+              <CourseCourseNoticeboardForm
+                initialData={course}
+                facultyId={course.facultyId || ""}
+                courseId={course.id}
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={ListChecks} />
+                <h2 className="text-xl">Course Assignments </h2>
+              </div>
+              <CourseAssignmentForm
                 initialData={course}
                 facultyId={course.facultyId || ""}
                 courseId={course.id}

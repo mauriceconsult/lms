@@ -30,7 +30,7 @@ TutorSearchPageProps) => {
       </div>
       <div className="p-6 space-y-4">
         <Courses items={courses} />
-        {/* <TutorsList items={tutors} /> */}
+        <TutorsList items={tutors} />
       </div>
     </>
   );

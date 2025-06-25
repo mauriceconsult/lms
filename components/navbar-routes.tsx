@@ -21,6 +21,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   const isNoticeboardPage = pathname?.includes("/noticeboard");
   const isCourseworkPage = pathname?.includes("/coursework");
   const isTutorPage = pathname?.includes("/tutor");
+  const isAssignmentPage = pathname?.includes("/assignment");
 
   let isSearchPages: SearchInputComponent | undefined;
   if (isTutorPage) {
@@ -31,6 +32,8 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
     isSearchPages = NoticeboardSearchInput;
   } else if (isCourseworkPage) {
     isSearchPages = CourseworkSearchInput;
+  } else if (isAssignmentPage) {
+    isSearchPages = AssignmentSearchInput;
   } else if (isFacultyPage) {
     isSearchPages = FacultyIdSearchInput;
   }

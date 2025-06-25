@@ -1,9 +1,10 @@
 import { db } from "@/lib/db";
-import { Course } from "@prisma/client";
+import { Course, Faculty } from "@prisma/client";
 
-type CoursesWithCourse = Course & {
-  course: Course | null;
+type CourseWithProgressWithFaculty = Course & {
+  faculty: Faculty | null;
   tutors: { id: string }[];
+  progress: number | null;
 };
 
 type GetCourses = {
@@ -14,7 +15,7 @@ type GetCourses = {
 export const getCourses = async ({
   title,
   facultyId,
-}: GetCourses): Promise<CoursesWithCourse[]> => {
+}: GetCourses): Promise<CourseWithProgressWithFaculty[]> => {
   try {
     const courses = await db.course.findMany({
       where: {
@@ -28,7 +29,7 @@ export const getCourses = async ({
         faculty: true,
         tutors: {
           where: {
-            isPublished: true,
+            isPublished: true,         
           },
           select: {
             id: true,
@@ -39,18 +40,18 @@ export const getCourses = async ({
         },
       },
     });
-    const coursesWithCourse: CoursesWithCourse[] = await Promise.all(
+    const coursesWithProgressWithFaculty: CourseWithProgressWithFaculty[] = await Promise.all(
       courses.map(async (course) => {
         return {
           ...course,
-          course: course, // add the 'course' property as required by the type
           tutors: course.tutors
             ? course.tutors.map((tutor) => ({ id: tutor.id }))
             : [],
+          progress: null, // or calculate actual progress if available
         };
       })
     );
-    return coursesWithCourse;
+    return coursesWithProgressWithFaculty;
   } catch (error) {
     console.log("[GET_COURSES]", error);
     return [];
