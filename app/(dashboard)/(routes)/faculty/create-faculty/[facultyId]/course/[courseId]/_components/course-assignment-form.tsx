@@ -17,27 +17,27 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Course, Faculty } from "@prisma/client";
-import { FacultyCourseList } from "./faculty-course-list";
+import { Course, Assignment } from "@prisma/client";
+import { CourseAssignmentList } from "./course-assignment-list";
 
-interface FacultyCourseFormProps {
-  initialData: Faculty & {courses: Course[]} 
+
+interface CourseAssignmentFormProps {
+  initialData: Course & { assignments: Assignment[] }
   facultyId: string;
+  courseId: string;
 }
 
 const formSchema = z.object({
   title: z.string().min(1),
 });
 
-export const FacultyCourseForm = ({
+export const CourseAssignmentForm = ({
   initialData,
   facultyId,
-}: FacultyCourseFormProps) => {
+  courseId,
+}: CourseAssignmentFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [
-    isUpdating,
-    setIsUpdating
-  ] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const toggleCreating = () => {
     setIsCreating((current) => !current);
   };
@@ -47,12 +47,12 @@ export const FacultyCourseForm = ({
     defaultValues: {
       title: "",
     },
-  });
+  });  
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/courses`, values);
-      toast.success("Course created.");
+      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/assignments`, values);
+      toast.success("Course Topic created.");
       toggleCreating();
       router.refresh();
     } catch {
@@ -62,10 +62,10 @@ export const FacultyCourseForm = ({
   const onReorder = async (updateData: { id: string; position: number }[]) => {
     try {
       setIsUpdating(true);
-      await axios.put(`/api/create-faculties/${facultyId}/courses/reorder`, {
+      await axios.put(`/api/create-faculties/${facultyId}/courses/${courseId}/assignments/reorder`, {
         list: updateData,
       });
-      toast.success("Courses reordered");
+      toast.success("Course Topics reordered");
       router.refresh();
     } catch {
       toast.error("Something went wrong");
@@ -74,24 +74,27 @@ export const FacultyCourseForm = ({
     }
   };
   const onEdit = (id: string) => {
-    router.push(`/faculty/create-faculty/${facultyId}/course/${id}`);
+    router.push(
+      `/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/${id}`
+    );
   };
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
+
       {isUpdating && (
         <div className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center">
           <Loader2 className="animate-spin h-6 w-6 text-sky-700" />
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Faculty Courses
+        Course Assignment
         <Button onClick={toggleCreating} variant="ghost">
           {isCreating ? (
             <>Cancel</>
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Course
+              Add an Assignment
             </>
           )}
         </Button>
@@ -111,7 +114,7 @@ export const FacultyCourseForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="Course name, e.g., 'Principles of Fashion Design'"
+                      placeholder="e.g., 'Design Principles assignment'"
                       {...field}
                     />
                   </FormControl>
@@ -129,20 +132,20 @@ export const FacultyCourseForm = ({
         <div
           className={cn(
             "text-sm mt-2",
-            !initialData.courses && "text-slate-500 italic"
+            !initialData.assignments.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.courses.length && "Add your Courses here."}
-          <FacultyCourseList
+          {!initialData.assignments.length && "No Assignments yet"}
+          <CourseAssignmentList
             onEdit={onEdit}
             onReorder={onReorder}
-            items={initialData.courses || []}
+            items={initialData.assignments || []}
           />
         </div>
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Courses
+          Drag and drop to reorder the Assignments
         </p>
       )}
     </div>

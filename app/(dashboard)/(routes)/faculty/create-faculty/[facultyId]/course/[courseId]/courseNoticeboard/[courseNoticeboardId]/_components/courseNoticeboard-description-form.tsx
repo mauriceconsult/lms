@@ -15,44 +15,45 @@ import { Pencil } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { Course } from "@prisma/client";
 import { Editor } from "@/components/editor";
+import { CourseNoticeboard } from "@prisma/client";
+import { cn } from "@/lib/utils";
 import { Preview } from "@/components/preview";
 
-interface CourseDescriptionFormProps {
-  initialData: Course;
+interface CourseNoticeboardDescriptionFormProps { 
+  initialData: CourseNoticeboard
   facultyId: string;
   courseId: string;
+  courseNoticeboardId: string;
 }
+
 const formSchema = z.object({
   description: z.string().min(1, {
-    message: "Course description is required.",
+    message: "Course Noticeboard description is required.",
   }),
 });
 
-export const CourseDescriptionForm = ({
+export const CourseNoticeboardDescriptionForm = ({
   initialData,
   facultyId,
   courseId,
-}: CourseDescriptionFormProps) => {
+  courseNoticeboardId,
+}: CourseNoticeboardDescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      description: initialData?.description || "",
-    },
-  });
+   const form = useForm<z.infer<typeof formSchema>>({
+     resolver: zodResolver(formSchema),
+     defaultValues: {
+       description: initialData?.description || "",
+     },
+   });
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+   
     try {
-      await axios.patch(
-        `/api/create-faculties/${facultyId}/courses/${courseId}/description`,
-        values
-      );
-      toast.success("Course updated.");
+      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards/${courseNoticeboardId}/descriptions`, values);
+      toast.success("CourseNoticeboard Description updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -62,31 +63,29 @@ export const CourseDescriptionForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Course description*
+        Course Noticeboard description
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit topic description
+              Edit Course Notice description
             </>
           )}
         </Button>
       </div>
       {!isEditing && (
-        <div
-          className={cn(
-            "text-sm mt-2",
-            !initialData.description && "text-slate-500 italic"
-          )}
-        >
+        <div className={cn(
+          "text-sm mt-2",
+          !initialData.description && "text-slate-500 italic"
+        )}>
           {!initialData.description && "No description"}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}
         </div>
-      )}
+      )}        
       {isEditing && (
         <Form {...form}>
           <form

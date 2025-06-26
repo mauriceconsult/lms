@@ -85,7 +85,7 @@ export const FacultyNoticeboardForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Faculty Noticeboards
+        Faculty Noticeboard
         <Button onClick={toggleCreating} variant="ghost">
           {isCreating ? (
             <>Cancel</>
@@ -112,7 +112,7 @@ export const FacultyNoticeboardForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="Notice title, e.g., 'New Course available'"
+                      placeholder="Notice title, e.g., 'Coursework due date announcement'"
                       {...field}
                     />
                   </FormControl>

@@ -66,8 +66,9 @@ const FacultyIdPage = async ({
     faculty.courseworks.length > 0,
     faculty.attachments.length > 0,
   ];
-  const totalFields = requiredFields.length + optionalFields.length;
-  const completedFields = requiredFields.filter(Boolean).length;
+  const allFields = [...requiredFields, ...optionalFields];
+  const totalFields = allFields.length;
+  const completedFields = allFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
   return (
@@ -84,9 +85,12 @@ const FacultyIdPage = async ({
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">Faculty creation</h1>
-                <span className="text-sm text-slate-700">
-                  Complete all fields {completionText}
-                </span>
+                <div className="text-sm text-slate-700">
+                  <div>Completed fields {completionText}</div>
+                  <span>
+                    At least one published Course is required for this Faculty to be published.
+                  </span>
+                </div>
               </div>
               <FacultyActions
                 disabled={!isComplete}

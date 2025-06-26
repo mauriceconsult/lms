@@ -20,8 +20,8 @@ import Link from "next/link";
 import { Banner } from "@/components/banner";
 import { CourseActions } from "./_components/course-actions";
 import { CourseTitleForm } from "./_components/course-title-form";
-import { CourseCourseNoticeboardForm } from "./courseNoticeboard/[courseNoticeboardId]/_components/courseNoticeboard-course-form";
-
+import { CourseAssignmentForm } from "./_components/course-assignment-form";
+import { CourseCourseNoticeboardCourseForm } from "./courseNoticeboard/[courseNoticeboardId]/_components/courseNoticeboard-course-form";
 
 const CourseIdPage = async ({
   params,
@@ -71,7 +71,7 @@ const CourseIdPage = async ({
   if (!faculty || !course) {
     return redirect("/");
   }
-  const requiredFields = [ 
+  const requiredFields = [
     course.description,
     course.facultyId,
     course.imageUrl,
@@ -84,9 +84,10 @@ const CourseIdPage = async ({
     course.tutors.length > 0,
     course.courseNoticeboards.length > 0,
     course.assignments.length > 0,
-  ]
-  const totalFields = requiredFields.length + optionalFields.length;
-  const completedFields = requiredFields.filter(Boolean).length;
+  ];
+  const allFields = [...requiredFields, ...optionalFields];
+  const totalFields = allFields.length;
+  const completedFields = allFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
 
@@ -95,7 +96,7 @@ const CourseIdPage = async ({
       {!course.isPublished && (
         <Banner
           variant="warning"
-          label="This topic is unpublished. It will not be visible to the students."
+          label="This Course is unpublished. It will not be visible to the learners."
         />
       )}
       <div className="p-6">
@@ -111,9 +112,12 @@ const CourseIdPage = async ({
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">Course creation</h1>
-                <span className="text-sm text-slate-700">
-                  Complete all fields {completionText}
-                </span>
+                <div className="text-sm text-slate-700">
+                  <div>Completed fields {completionText}</div>
+                  <span>
+                    At least one published Topic is required for a Course to be published.
+                  </span>
+                </div>
               </div>
               <CourseActions
                 disabled={!isComplete}
@@ -202,10 +206,15 @@ const CourseIdPage = async ({
                 <IconBadge icon={ListChecks} />
                 <h2 className="text-xl">Course Notices </h2>
               </div>
-              <CourseCourseNoticeboardForm
-                initialData={course}
+              <CourseCourseNoticeboardCourseForm
+                initialData={course.courseNoticeboards[0]}
                 facultyId={course.facultyId || ""}
                 courseId={course.id}
+                courseNoticeboardId={course.courseNoticeboards[0]?.id || ""}
+                options={course.courseNoticeboards.map((courseNoticeboard) => ({
+                  label: courseNoticeboard.title,
+                  value: courseNoticeboard.id,
+                }))}
               />
             </div>
             <div>

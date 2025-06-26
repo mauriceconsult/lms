@@ -56,7 +56,7 @@ const AssignmentIdPage = async ({
       {!assignment.isPublished && (
         <Banner
           variant="warning"
-          label="This topic is unpublished. It will not be visible to the students."
+          label="This assignment is unpublished. It will not be visible to the students."
         />
       )}
       <div className="p-6">
@@ -71,7 +71,7 @@ const AssignmentIdPage = async ({
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Topic creation</h1>
+                <h1 className="text-2xl font-medium">Assignment creation</h1>
                 <span className="text-sm text-slate-700">
                   Complete all fields {completionText}
                 </span>
@@ -91,7 +91,7 @@ const AssignmentIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Customize your topic</h2>
+                <h2 className="text-xl">Customize your assignment</h2>
               </div>
             </div>
             <AssignmentTitleForm

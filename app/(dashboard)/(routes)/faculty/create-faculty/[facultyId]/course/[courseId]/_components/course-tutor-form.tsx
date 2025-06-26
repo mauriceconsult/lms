@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { Course, Tutor } from "@prisma/client";
 import { CourseTutorList } from "./course-tutor-list";
 
+
 interface CourseTutorFormProps {
   initialData: Course & { tutors: Tutor[] }
   facultyId: string;
@@ -86,7 +87,7 @@ export const CourseTutorForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course Topics
+        Course Topics*
         <Button onClick={toggleCreating} variant="ghost">
           {isCreating ? (
             <>Cancel</>

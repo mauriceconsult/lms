@@ -1,22 +1,12 @@
 import { Banner } from "@/components/banner";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-// import { CourseNoticeboardActions } from "./_components/course-actions";
 import { redirect } from "next/navigation";
 import { IconBadge } from "@/components/icon-badge";
-import {
-  ArrowLeft,
-  Eye,
-  LayoutDashboard,
-  Video,
-  //   ListChecks
-} from "lucide-react";
+import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import { CourseNoticeboardDescriptionForm } from "./_components/courseNoticeboard-description-form";
-import { CourseNoticeboardCourseForm } from "./_components/courseNoticeboard-course-form";
-import { CourseNoticeboardObjectiveForm } from "./_components/courseNoticeboard-objective-form";
+import { CourseCourseNoticeboardCourseForm } from "./_components/courseNoticeboard-course-form";
 import Link from "next/link";
-import { CourseNoticeboardAccessForm } from "./_components/courseNoticeboard-access-form";
-import { CourseNoticeboardVideoForm } from "./_components/courseNoticeboard-video-form";
 import { CourseNoticeboardActions } from "./_components/courseNoticeboard-actions";
 import { CourseNoticeboardTitleForm } from "./_components/courseNoticeboard-title-form";
 
@@ -38,7 +28,7 @@ const CourseNoticeboardIdPage = async ({
       id: params.courseNoticeboardId,
       courseId: params.courseId,
       userId,
-    },   
+    },
   });
   const course = await db.course.findMany({
     orderBy: {
@@ -50,11 +40,9 @@ const CourseNoticeboardIdPage = async ({
     return redirect("/");
   }
   const requiredFields = [
+    courseNoticeboard.title,
     courseNoticeboard.courseId,
-    courseNoticeboard.objective,
     courseNoticeboard.description,
-    courseNoticeboard.videoUrl,
-    courseNoticeboard.courseId,
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
@@ -66,7 +54,7 @@ const CourseNoticeboardIdPage = async ({
       {!courseNoticeboard.isPublished && (
         <Banner
           variant="warning"
-          label="This topic is unpublished. It will not be visible to the students."
+          label="This Course Notice is unpublished. It will not be visible to the students."
         />
       )}
       <div className="p-6">
@@ -81,7 +69,9 @@ const CourseNoticeboardIdPage = async ({
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Topic creation</h1>
+                <h1 className="text-2xl font-medium">
+                  Course Noticeboard creation
+                </h1>
                 <span className="text-sm text-slate-700">
                   Complete all fields {completionText}
                 </span>
@@ -110,7 +100,7 @@ const CourseNoticeboardIdPage = async ({
               courseId={courseNoticeboard.courseId || ""}
               courseNoticeboardId={courseNoticeboard.id}
             />
-            <CourseNoticeboardCourseForm
+            <CourseCourseNoticeboardCourseForm
               initialData={courseNoticeboard}
               facultyId={params.facultyId}
               courseNoticeboardId={courseNoticeboard.id}
@@ -120,12 +110,6 @@ const CourseNoticeboardIdPage = async ({
                 value: cat.id,
               }))}
             />
-            <CourseNoticeboardObjectiveForm
-              initialData={courseNoticeboard}
-              facultyId={params.facultyId}
-              courseNoticeboardId={courseNoticeboard.id}
-              courseId={courseNoticeboard.courseId || ""}
-            />
             <CourseNoticeboardDescriptionForm
               initialData={courseNoticeboard}
               facultyId={params.facultyId}
@@ -133,29 +117,7 @@ const CourseNoticeboardIdPage = async ({
               courseId={courseNoticeboard.courseId || ""}
             />
           </div>
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={Eye} />
-              <h2 className="text-xl">Access Settings</h2>
-            </div>
-            <CourseNoticeboardAccessForm
-              initialData={courseNoticeboard}
-              facultyId={params.facultyId}
-              courseNoticeboardId={courseNoticeboard.id}
-              courseId={courseNoticeboard.courseId || ""}
-            />
-          </div>
         </div>
-        <div className="flex items-center gap-x-2">
-          <IconBadge icon={Video} />
-          <h2 className="text-xl">Add a video</h2>
-        </div>
-        <CourseNoticeboardVideoForm
-          initialData={courseNoticeboard}
-          facultyId={params.facultyId}
-          courseNoticeboardId={courseNoticeboard.id}
-          courseId={courseNoticeboard.courseId || ""}
-        />
       </div>
     </>
   );
