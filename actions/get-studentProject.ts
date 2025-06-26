@@ -3,13 +3,11 @@ import { Attachment, StudentProject } from "@prisma/client";
 
 interface GetStudentProjectProps {
   userId: string;
-  facultyId: string;
   courseworkId: string;
   studentProjectId: string;
 }
 export const getStudentProject = async ({
   userId,
-  facultyId,
   courseworkId,
   studentProjectId,
 }: GetStudentProjectProps) => {
@@ -17,8 +15,7 @@ export const getStudentProject = async ({
     const coursework = await db.coursework.findUnique({
       where: {
         isPublished: true,
-        id: courseworkId,
-        facultyId
+        id: courseworkId,    
       },     
     });
     const studentProject = await db.studentProject.findUnique({
@@ -30,7 +27,7 @@ export const getStudentProject = async ({
       },
     });
     if (!coursework || !studentProject) {
-      throw new Error("Purchase, Course or StudentProject not found");
+      throw new Error("Coursework or StudentProject not found");
     }
     const attachments: Attachment[] = [];
     let nextStudentProject: StudentProject | null = null;

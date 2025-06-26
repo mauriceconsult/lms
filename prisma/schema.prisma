@@ -86,7 +86,7 @@ model StudentProject {
   id          String       @id @default(uuid())
   userId      String
   title       String       @db.Text
-  objective   String?      @db.Text
+  abstract   String?      @db.Text
   description String?      @db.Text
   partyId     String?
   courseId    String?
