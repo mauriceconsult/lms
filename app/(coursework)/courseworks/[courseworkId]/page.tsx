@@ -6,11 +6,14 @@ const CourseworkIdPage = async ({ params }: { params: { courseworkId: string } }
     where: {
       id: params.courseworkId,
     },
+    include: {
+      studentProjects: true,
+    },
   });
   if (!coursework) {
     return redirect("/");
   }
-return redirect(`/faculties/${coursework.id}`);
+return redirect(`/courseworks/${coursework.id}/studentProjects/${coursework.studentProjects[0].id}`);
 };
 
-export default CourseworkIdPage;
+export default CourseworkIdPage

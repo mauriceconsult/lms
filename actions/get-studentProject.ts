@@ -22,12 +22,12 @@ export const getStudentProject = async ({
       where: {
         id: studentProjectId,
 
-        isPublished: true,
+        isSubmitted: true,
         userId,
       },
     });
     if (!coursework || !studentProject) {
-      throw new Error("Coursework or StudentProject not found");
+      throw new Error("Coursework or Student Project not found");
     }
     const attachments: Attachment[] = [];
     let nextStudentProject: StudentProject | null = null;
@@ -36,7 +36,7 @@ export const getStudentProject = async ({
       nextStudentProject = await db.studentProject.findFirst({
         where: {
           courseworkId: courseworkId,
-          isPublished: true,
+          isSubmitted: true,
           position: {
             gt: studentProject?.position ?? 0,
           },

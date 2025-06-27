@@ -83,18 +83,18 @@ model Assignment {
 }
 
 model StudentProject {
-  id          String       @id @default(uuid())
-  userId      String
-  title       String       @db.Text
-  abstract   String?      @db.Text
-  description String?      @db.Text
-  partyId     String?
-  courseId    String?
-  position    Int?
-  attachments Attachment[]
-  isSubmitted Boolean      @default(false)
+  id           String       @id @default(uuid())
+  userId       String
+  title        String       @db.Text
+  abstract     String?      @db.Text
+  description  String?      @db.Text
+  partyId      String?
+  courseId     String?
+  position     Int?
+  attachments  Attachment[]
+  isSubmitted  Boolean      @default(false)
   courseworkId String?
-  coursework  Coursework?  @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
+  coursework   Coursework?  @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -213,7 +213,7 @@ model Attachment {
   assignmentId        String?
   CourseNoticeboard   CourseNoticeboard? @relation(fields: [courseNoticeboardId], references: [id], onDelete: Cascade)
   courseNoticeboardId String?
-  StudentProject      StudentProject?    @relation(fields: [studentProjectId], references: [id])
+  studentProject      StudentProject?    @relation(fields: [studentProjectId], references: [id])
   studentProjectId    String?
 
   @@index([facultyId])
@@ -236,18 +236,18 @@ model Noticeboard {
 }
 
 model Coursework {
-  id             String           @id @default(uuid())
-  title          String
-  userId         String
-  description    String?          @db.Text
-  facultyId      String?
-  faculty        Faculty?         @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  position       Int?
-  attachments    Attachment[]
-  isPublished    Boolean          @default(false)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  studentProject StudentProject[]
+  id              String           @id @default(uuid())
+  title           String
+  userId          String
+  description     String?          @db.Text
+  facultyId       String?
+  faculty         Faculty?         @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  position        Int?
+  attachments     Attachment[]
+  isPublished     Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  studentProjects StudentProject[]
 
   @@index([facultyId])
 }
