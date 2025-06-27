@@ -25,13 +25,13 @@ const StudentProjectIdPage = async ({
     <div>
       {coursework?.userId && (
         <Banner
-          label="You have successfully published this Student Project"
+          label="You have successfully submitted this Student Project"
           variant="success"
         />
       )}
       {isLocked && (
         <Banner
-          label="You need to publish this StudentProject to manage it"
+          label="You need to submit this Student Project to manage this page"
           variant="warning"
         />
       )}
@@ -39,6 +39,7 @@ const StudentProjectIdPage = async ({
         <div>
           <h1 className="font-bold mb-4">Coursework Name: {coursework.title}</h1>
           <p className="text-base text-slate-600 mb-6">
+            
             Coursework description: {}
             {coursework.description || "No description available."}
           </p>

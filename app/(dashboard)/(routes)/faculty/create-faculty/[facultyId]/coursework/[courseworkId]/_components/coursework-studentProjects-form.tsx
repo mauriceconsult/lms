@@ -18,11 +18,11 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Coursework, StudentProject } from "@prisma/client";
-import { CourseworkStudentProjectList } from "./coursework-studentProject-list";
+import { CourseworkStudentProjectList } from "./coursework-studentProjects-list";
 
 
 interface CourseworkStudentProjectFormProps {
-  initialData: Coursework & { studentProject: StudentProject[] }
+  initialData: Coursework & { studentProjects: StudentProject[] }
   facultyId: string;
   courseworkId: string;
 }
@@ -132,14 +132,14 @@ export const CourseworkStudentProjectForm = ({
         <div
           className={cn(
             "text-sm mt-2",
-            !initialData.studentProject.length && "text-slate-500 italic"
+            !initialData.studentProjects.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.studentProject.length && "No student projects yet."}
+          {!initialData.studentProjects.length && "No student projects yet."}
           <CourseworkStudentProjectList
             onEdit={onEdit}
             onReorder={onReorder}
-            items={initialData.studentProject || []}
+            items={initialData.studentProjects || []}
           />
         </div>
       )}

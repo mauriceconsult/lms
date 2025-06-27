@@ -9,7 +9,7 @@ import { CourseworkDescriptionForm } from "./_components/coursework-description-
 import { CourseworkTitleForm } from "./_components/coursework-title-form";
 import { CourseworkAttachmentForm } from "./_components/coursework-attachment-form";
 import { CourseworkActions } from "./_components/coursework-actions";
-import { CourseworkStudentProjectForm } from "./_components/coursework-studentProject-form";
+import { CourseworkStudentProjectForm } from "./_components/coursework-studentProjects-form";
 import Link from "next/link";
 
 const CourseworkIdPage = async ({
@@ -31,7 +31,7 @@ const CourseworkIdPage = async ({
       userId,
     },
     include: {
-      studentProject: true,
+      studentProjects: true,
       attachments: {
         orderBy: {
           createdAt: "desc",
@@ -50,7 +50,7 @@ const CourseworkIdPage = async ({
   const requiredFields = [
     coursework.title,
     coursework.description,
-    coursework.studentProject.length > 0,
+    coursework.studentProjects.length > 0,
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
