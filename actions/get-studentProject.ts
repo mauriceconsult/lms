@@ -15,13 +15,13 @@ export const getStudentProject = async ({
     const coursework = await db.coursework.findUnique({
       where: {
         isPublished: true,
-        id: courseworkId,    
-      },     
+        id: courseworkId,
+      },
     });
     const studentProject = await db.studentProject.findUnique({
       where: {
         id: studentProjectId,
-        
+
         isPublished: true,
         userId,
       },
@@ -32,7 +32,7 @@ export const getStudentProject = async ({
     const attachments: Attachment[] = [];
     let nextStudentProject: StudentProject | null = null;
 
-    if (studentProject.userId) {  
+    if (studentProject.userId) {
       nextStudentProject = await db.studentProject.findFirst({
         where: {
           courseworkId: courseworkId,
@@ -45,10 +45,10 @@ export const getStudentProject = async ({
           position: "asc",
         },
       });
-    }  
+    }
     return {
       studentProject,
-      coursework,    
+      coursework,
       attachments,
       nextStudentProject,
     };
@@ -56,10 +56,9 @@ export const getStudentProject = async ({
     console.log("[GET_STUDENT_PROJECT_ERROR]", error);
     return {
       studentProject: null,
-      coursework: null, 
+      coursework: null,
       attachments: [],
-      nextStudentProject: null,   
-      purchase: null,
+      nextStudentProject: null,
     };
   }
 };
