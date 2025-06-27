@@ -92,7 +92,7 @@ model StudentProject {
   courseId    String?
   position    Int?
   attachments Attachment[]
-  isPublished Boolean      @default(false)
+  isSubmitted Boolean      @default(false)
   courseworkId String?
   coursework  Coursework?  @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
 

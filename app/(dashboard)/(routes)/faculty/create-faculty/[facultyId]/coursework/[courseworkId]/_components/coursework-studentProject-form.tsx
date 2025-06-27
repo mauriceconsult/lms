@@ -52,7 +52,7 @@ export const CourseworkStudentProjectForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.post(`/api/create-faculties/${facultyId}/courseworks/${courseworkId}/studentProjects`, values);
-      toast.success("Student Projects created.");
+      toast.success("Student Project created.");
       toggleCreating();
       router.refresh();
     } catch {
