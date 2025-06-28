@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import CourseworkSidebar from "./_components/coursework-sidebar";
 import { CourseworkNavbar } from "./_components/coursework-navbar";
+import { redirect } from "next/navigation";
 
 const CourseworkLayout = async ({
   children,
@@ -12,7 +13,7 @@ const CourseworkLayout = async ({
 }) => {
   const { userId } = await auth();
   if (!userId) {
-    return <div>Please log in to view this page.</div>;
+    redirect("/");
   }
 
   const coursework = await db.coursework.findUnique({

@@ -7,7 +7,7 @@
 // import { useRouter } from "next/navigation";
 import {
     Loader2,
-    // Lock
+//     // Lock
 } from "lucide-react";
 // import { cn } from "@/lib/utils";
 
@@ -23,12 +23,12 @@ interface VideoPlayerProps {
 export const VideoPlayer = ({
     // playbackId,
     // title,
-    // tutorId,
+    // TutorId,
     // courseId,
     // nextTutorId,
     isLocked,
     // completeOnEnd,
-}: VideoPlayerProps) => { 
+}: VideoPlayerProps) => {    
     return (
         <div className="relative aspect-video">
             {!isLocked && (

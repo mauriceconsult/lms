@@ -7,7 +7,14 @@ const CourseworkIdPage = async ({ params }: { params: { courseworkId: string } }
       id: params.courseworkId,
     },
     include: {
-      studentProjects: true,
+      studentProjects: {
+        where: {
+          isSubmitted: true,
+        },
+        orderBy: {
+          position: "asc"
+        }
+      },
     },
   });
   if (!coursework) {

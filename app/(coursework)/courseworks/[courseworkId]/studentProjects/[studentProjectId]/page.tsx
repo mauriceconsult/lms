@@ -1,8 +1,13 @@
 import { getStudentProject } from "@/actions/get-studentProject";
 import { Banner } from "@/components/banner";
 import { auth } from "@clerk/nextjs/server";
-import { Attachment } from "@prisma/client";
+// import { Attachment } from "@prisma/client";
 import { redirect } from "next/navigation";
+import { CourseworkRegisterButton } from "./_components/coursework-register-button";
+import { Separator } from "@/components/ui/separator";
+import { Preview } from "@/components/preview";
+import { File } from "lucide-react";
+
 const StudentProjectIdPage = async ({
   params,
 }: {
@@ -12,12 +17,23 @@ const StudentProjectIdPage = async ({
   if (!userId) {
     return redirect("/");
   }
-  const { coursework, attachments } = await getStudentProject({
+  const {
+    coursework,
+    studentProject,
+    attachments,
+    // nextStudentProject
+  } = await getStudentProject({
     userId,
     courseworkId: params.courseworkId,
     studentProjectId: params.studentProjectId,
   });
-  if (!coursework) {
+  if (
+    !coursework
+    // ||
+    // !studentProject ||
+    // !attachments ||
+    // !nextStudentProject
+  ) {
     return redirect("/");
   }
   const isLocked = !coursework.userId;
@@ -35,24 +51,56 @@ const StudentProjectIdPage = async ({
           variant="warning"
         />
       )}
-      <div className="space-y-4">
-        <div>
-          <h1 className="font-bold mb-4">Coursework Name: {coursework.title}</h1>
-          <p className="text-base text-slate-600 mb-6">
-            
-            Coursework description: {}
-            {coursework.description || "No description available."}
-          </p>
-            {attachments.map((attachment: Attachment) => (
-            <div key={attachment.id} className="p-4 border rounded-md">
-              <h2 className="text-sm text-slate-500">
-              Attachment(s) Id: {attachment.courseworkId}
-              </h2>
+      <div className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="w-full">
+            <div className="flex items-center justify-between w-full">
+              <div className="max-w-5xl mx-auto flex md:items-center md:justify-center h-full p-6">
+                <div>
+                  <h1 className="text-2xl">Student Project Creation</h1>
+                  <span>
+                    At least one published Coursework is required for a Student
+                    Project to be publishable.
+                  </span>
+                </div>
+              </div>
             </div>
-            ))}
+            <div>
+              <div className="p-4 flex flex-col md:flex-row items-center justify-between">
+                <h2 className="text-2xl font-semibold mb-2">
+                  {coursework.title}
+                </h2>
+                <CourseworkRegisterButton
+                  courseworkId={params.courseworkId}
+                  userId={userId}
+                />
+              </div>
+              <Separator />
+              <div>
+                <Preview value={studentProject.title!} />
+              </div>
+              {!!attachments.length && (
+                <>
+                  <Separator />
+                  <div className="p-4">
+                    {attachments.map((attachment) => (
+                      <a
+                        href={attachment.url}
+                        target="_blank"
+                        key={attachment.id}
+                        className="flex items-center p-3 w-full bg-sky-200 border text-sky-700 rounded-md hover:underline"
+                      >
+                        <File />
+                        <p className="line-clamp-1">{attachment.name}</p>
+                      </a>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-      {/* Add more components or functionality as needed */}
     </div>
   );
 };

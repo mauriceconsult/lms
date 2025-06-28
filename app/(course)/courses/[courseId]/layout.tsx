@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import CourseSidebar from "./_components/course-sidebar";
 import { CourseNavbar } from "./_components/course-navbar";
+import { redirect } from "next/navigation";
 
 const CourseLayout = async ({
   children,
@@ -13,7 +14,7 @@ const CourseLayout = async ({
 }) => {
   const { userId } = await auth();
   if (!userId) {
-    return <div>Please log in to view this page.</div>;
+    return redirect("/");
   }
 
   const course = await db.course.findUnique({
@@ -46,10 +47,7 @@ const CourseLayout = async ({
   return (
     <div className="h-full">
       <div className="h-[80px] md:pl-80 fixed inset-y-0 w-full z-50">
-        <CourseNavbar
-          course={course}
-          progressCount={progressCount}
-        />
+        <CourseNavbar course={course} progressCount={progressCount} />
       </div>
       <div className="hidden md:flex h-full w-80 flex-col inset-y-0 z-50">
         <CourseSidebar course={course} progressCount={progressCount} />

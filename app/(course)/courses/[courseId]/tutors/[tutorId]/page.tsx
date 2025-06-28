@@ -4,6 +4,7 @@ import { getTutor } from "@/actions/get-tutor";
 import { Banner } from "@/components/banner";
 import { VideoPlayer } from "./_components/video-player";
 
+
 const TutorIdPage = async ({
   params,
 }: {

@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import FacultySidebar from "./_components/faculty-sidebar";
 import { FacultyNavbar } from "./_components/faculty-navbar";
+import { redirect } from "next/navigation";
 
 const FacultyLayout = async ({
   children,
@@ -12,7 +13,7 @@ const FacultyLayout = async ({
 }) => {
   const { userId } = await auth();
   if (!userId) {
-    return <div>Please log in to view this page.</div>;
+    redirect("/");
   }
 
   const faculty = await db.faculty.findUnique({
@@ -23,8 +24,8 @@ const FacultyLayout = async ({
       courses: {
         where: {
           isPublished: true,
-            },
-            include: {
+        },
+        include: {
           attachments: true,
         },
         orderBy: {
