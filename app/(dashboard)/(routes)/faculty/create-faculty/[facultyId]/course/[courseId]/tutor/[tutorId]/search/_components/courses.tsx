@@ -1,18 +1,18 @@
 "use client";
 
-import { Tutor } from "@prisma/client";
-import { TutorItem } from "./tutor-item";
+import { Course } from "@prisma/client";
+import { CourseItem } from "./course-item";
 
-interface TutorsProps {
-    items: Tutor[];
+interface CoursesProps {
+    items: Course[];
 }
-export const Tutors = ({
+export const Courses = ({
 items,
-}: TutorsProps) => {
+}: CoursesProps) => {
     return (
       <div className="flex items-center gap-x-2 overflow-x-auto pb-2">
         {items.map((item) => (
-          <TutorItem
+          <CourseItem
             key={item.id}
             label={item.title}            
             value={item.id}

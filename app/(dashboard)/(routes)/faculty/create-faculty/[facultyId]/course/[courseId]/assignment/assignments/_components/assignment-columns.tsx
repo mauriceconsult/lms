@@ -29,23 +29,23 @@ export const columns: ColumnDef<Assignment>[] = [
     },
   },
   {
-    accessorKey: "isPublished",
+    accessorKey: "isSubmitted",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Published
+          Submitted
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const isPublished = row.getValue("isPublished") || false;
+      const isSubmitted = row.getValue("isSubmitted") || false;
       return (
-        <Badge className={cn("bg-slate-500", isPublished && "bg-sky-700")}>
-          {isPublished ? "Published" : "Draft"}
+        <Badge className={cn("bg-slate-500", isSubmitted && "bg-sky-700")}>
+          {isSubmitted ? "Submitted" : "Draft"}
         </Badge>
       );
     },
@@ -63,7 +63,7 @@ export const columns: ColumnDef<Assignment>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <Link href={`/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/${id}`}>
+            <Link href={`/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/${id}`}>
               <DropdownMenuItem>
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit

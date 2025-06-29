@@ -1,6 +1,6 @@
 "use client";
 
-import { StudentProject} from "@prisma/client";
+import { TutorAssignment} from "@prisma/client";
 import { useEffect, useState } from "react";
 import {
   DragDropContext,
@@ -9,46 +9,43 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import {
-  Grip,
-  // Pencil
-} from "lucide-react";
+import { Grip, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-interface CourseworkStudentProjectListProps {
-  items: StudentProject[];
+interface AssignmentTutorAssignmentListProps {
+  items: TutorAssignment[];
   onReorder: (updateData: { id: string; position: number }[]) => void;
-  // onEdit: (id: string) => void;
+  onEdit: (id: string) => void;
 }
-export const CourseworkStudentProjectList = ({
+export const AssignmentTutorAssignmentList = ({
   items,
   onReorder,
-  // onEdit,
-}: CourseworkStudentProjectListProps) => {
+  onEdit,
+}: AssignmentTutorAssignmentListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [courseworkStudentProjects, setCourseworkStudentProject] = useState(items);
+  const [courseNoticeboards, setAssignmentTutorAssignment] = useState(items);
   useEffect(() => {
     setIsMounted(true);
   }, []);
   useEffect(() => {
-    setCourseworkStudentProject(items);
+    setAssignmentTutorAssignment(items);
   }, [items]);
 
   const onDragend = (result: DropResult) => {
     if (!result.destination) return;
-    const items = Array.from(courseworkStudentProjects);
+    const items = Array.from(courseNoticeboards);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
     const startIndex = Math.min(result.source.index, result.destination.index);
     const endIndex = Math.max(result.source.index, result.destination.index);
 
-    const updatedCourseworkStudentProject = items.splice(startIndex, endIndex + 1);
+    const updatedAssignmentTutorAssignment = items.splice(startIndex, endIndex + 1);
 
-    setCourseworkStudentProject(items);
-    const bulkUpdateData = updatedCourseworkStudentProject.map((courseworkStudentProject) => ({
-      id: courseworkStudentProject.id,
-      position: items.findIndex((item) => item.id === courseworkStudentProject.id),
+    setAssignmentTutorAssignment(items);
+    const bulkUpdateData = updatedAssignmentTutorAssignment.map((courseNoticeboard) => ({
+      id: courseNoticeboard.id,
+      position: items.findIndex((item) => item.id === courseNoticeboard.id),
     }));
     onReorder(bulkUpdateData);
   };
@@ -58,20 +55,20 @@ export const CourseworkStudentProjectList = ({
   }
   return (
     <DragDropContext onDragEnd={onDragend}>
-      <Droppable droppableId="courseworkStudentProjects">
+      <Droppable droppableId="courseNoticeboards">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            {courseworkStudentProjects.map((courseworkStudentProject, index) => (
+            {courseNoticeboards.map((courseNoticeboard, index) => (
               <Draggable
-                key={courseworkStudentProject.id}
-                draggableId="courseworkStudentProject.id"
+                key={courseNoticeboard.id}
+                draggableId="courseNoticeboard.id"
                 index={index}
               >
                 {(provided) => (
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      courseworkStudentProject.isSubmitted &&
+                      courseNoticeboard.isSubmitted &&
                         "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
@@ -80,28 +77,28 @@ export const CourseworkStudentProjectList = ({
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        courseworkStudentProject.isSubmitted &&
+                        courseNoticeboard.isSubmitted &&
                           "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
                     >
                       <Grip className="h-5 w-5" />
                     </div>
-                    {courseworkStudentProject.title}
+                    {courseNoticeboard.title}
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
-                      {/* {courseworkStudentProject.isFree && <Badge>Free</Badge>} */}
+                      {/* {courseNoticeboard.isFree && <Badge>Free</Badge>} */}
                       <Badge
                         className={cn(
                           "bg-slate-500",
-                          courseworkStudentProject.isSubmitted && "bg-sky-700"
+                          courseNoticeboard.isSubmitted && "bg-sky-700"
                         )}
                       >
-                        {courseworkStudentProject.isSubmitted ? "Published" : "Draft"}
+                        {courseNoticeboard.isSubmitted ? "Published" : "Draft"}
                       </Badge>
-                      {/* <Pencil
-                        onClick={() => onEdit(courseworkStudentProject.id)}
+                      <Pencil
+                        onClick={() => onEdit(courseNoticeboard.id)}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
-                      /> */}
+                      />
                     </div>
                   </div>
                 )}

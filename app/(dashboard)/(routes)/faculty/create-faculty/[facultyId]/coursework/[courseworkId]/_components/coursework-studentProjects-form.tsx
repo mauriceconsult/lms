@@ -73,11 +73,11 @@ export const CourseworkStudentProjectForm = ({
       setIsUpdating(false);
     }
   };
-  const onEdit = (id: string) => {
-    router.push(
-      `/faculty/create-faculty/${facultyId}/coursework/${courseworkId}/studentProjects/${id}`
-    );
-  };
+  // const onEdit = (id: string) => {
+  //   router.push(
+  //     `/faculty/create-faculty/${facultyId}/coursework/${courseworkId}/studentProjects/${id}`
+  //   );
+  // };
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
 
@@ -137,7 +137,7 @@ export const CourseworkStudentProjectForm = ({
         >
           {!initialData.studentProjects.length && "No student projects yet."}
           <CourseworkStudentProjectList
-            onEdit={onEdit}
+            // onEdit={onEdit}
             onReorder={onReorder}
             items={initialData.studentProjects || []}
           />

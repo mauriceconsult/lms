@@ -21,19 +21,13 @@ const StudentProjectIdPage = async ({
     coursework,
     studentProject,
     attachments,
-    // nextStudentProject
+    nextStudentProject
   } = await getStudentProject({
     userId,
     courseworkId: params.courseworkId,
     studentProjectId: params.studentProjectId,
   });
-  if (
-    !coursework
-    // ||
-    // !studentProject ||
-    // !attachments ||
-    // !nextStudentProject
-  ) {
+  if (!coursework || !studentProject || !attachments || !nextStudentProject) {
     return redirect("/");
   }
   const isLocked = !coursework.userId;

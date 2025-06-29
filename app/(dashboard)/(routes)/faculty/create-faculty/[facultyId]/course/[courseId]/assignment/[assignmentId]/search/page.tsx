@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-// import { Courses } from "../../../search/_components/assignments";
 import { AssignmentSearchInput } from "./_components/assignment-search-input";
 import { AssignmentsList } from "./_components/assignments-list";
 import { Courses } from "./_components/courses";

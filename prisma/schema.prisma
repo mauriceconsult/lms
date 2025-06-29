@@ -64,22 +64,42 @@ model CourseNoticeboard {
 }
 
 model Assignment {
-  id          String       @id @default(uuid())
-  userId      String
-  title       String       @db.Text
-  objective   String?      @db.Text
-  description String?      @db.Text
-  partyId     String?
-  courseId    String?
-  position    Int?
-  attachments Attachment[]
-  isPublished Boolean      @default(false)
-  course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id               String            @id @default(uuid())
+  userId           String
+  title            String            @db.Text
+  objective        String?           @db.Text
+  description      String?           @db.Text
+  partyId          String?
+  courseId         String?
+  position         Int?
+  attachments      Attachment[]
+  tutorAssignments TutorAssignment[]
+  isPublished      Boolean           @default(false)
+  course           Course?           @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([courseId])
+}
+
+model TutorAssignment {
+  id           String      @id @default(uuid())
+  userId       String
+  title        String      @db.Text
+  objective    String?     @db.Text
+  description  String?     @db.Text
+  position     Int?
+  assignmentId String?
+  assignment   Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  attachments Attachment[]
+  isSubmitted Boolean      @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([assignmentId])
 }
 
 model StudentProject {
@@ -88,7 +108,6 @@ model StudentProject {
   title        String       @db.Text
   abstract     String?      @db.Text
   description  String?      @db.Text
-  partyId      String?
   courseId     String?
   position     Int?
   attachments  Attachment[]
@@ -156,6 +175,7 @@ model Tutor {
   topicAssignment String?        @db.Text
   videoUrl        String?        @db.Text
   position        Int?
+  attachments     Attachment[]
   userProgress    UserProgress[]
   isPublished     Boolean        @default(false)
   isFree          Boolean?       @default(false)
@@ -215,6 +235,10 @@ model Attachment {
   courseNoticeboardId String?
   studentProject      StudentProject?    @relation(fields: [studentProjectId], references: [id])
   studentProjectId    String?
+  tutorAssignment     TutorAssignment?   @relation(fields: [tutorAssignmentId], references: [id])
+  tutorAssignmentId   String?
+  tutor               Tutor?             @relation(fields: [tutorId], references: [id])
+  tutorId             String?
 
   @@index([facultyId])
 }

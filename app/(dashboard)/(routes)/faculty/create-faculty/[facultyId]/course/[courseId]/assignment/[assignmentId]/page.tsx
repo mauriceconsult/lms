@@ -4,11 +4,10 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { IconBadge } from "@/components/icon-badge";
 import { ArrowLeft, LayoutDashboard } from "lucide-react";
+import { AssignmentDescriptionForm } from "./_components/assignment-description-form";
 import Link from "next/link";
 import { AssignmentActions } from "./_components/assignment-actions";
 import { AssignmentTitleForm } from "./_components/assignment-title-form";
-import { AssignmentDescriptionForm } from "./_components/assignment-description-form";
-import { AssignmentObjectiveForm } from "./_components/assignment-objective-form";
 import { AssignmentCourseForm } from "./_components/assignment-course-form";
 
 const AssignmentIdPage = async ({
@@ -41,10 +40,9 @@ const AssignmentIdPage = async ({
     return redirect("/");
   }
   const requiredFields = [
+    assignment.title,
     assignment.courseId,
-    assignment.objective,
     assignment.description,
-    assignment.courseId,
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
@@ -56,7 +54,7 @@ const AssignmentIdPage = async ({
       {!assignment.isPublished && (
         <Banner
           variant="warning"
-          label="This assignment is unpublished. It will not be visible to the students."
+          label="This Assignment is unpublished. It will not be visible to the Tutor."
         />
       )}
       <div className="p-6">
@@ -91,7 +89,7 @@ const AssignmentIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Customize your assignment</h2>
+                <h2 className="text-xl">Customize your topic</h2>
               </div>
             </div>
             <AssignmentTitleForm
@@ -109,12 +107,6 @@ const AssignmentIdPage = async ({
                 label: cat.title,
                 value: cat.id,
               }))}
-            />
-            <AssignmentObjectiveForm
-              initialData={assignment}
-              facultyId={params.facultyId}
-              assignmentId={assignment.id}
-              courseId={assignment.courseId || ""}
             />
             <AssignmentDescriptionForm
               initialData={assignment}

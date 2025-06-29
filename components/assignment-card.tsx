@@ -10,7 +10,7 @@ interface AssignmentCardProps {
   assignmentsLength: number;
   amount: number;
   progress: number | null;
-  course: string;
+  assignment: string;
 }
 
 export const AssignmentCard = ({
@@ -19,10 +19,10 @@ export const AssignmentCard = ({
   assignmentsLength,
   amount,
   progress,
-  course,
+  assignment,
 }: AssignmentCardProps) => {
   return (
-    <Link href={`/courses/${id}`}>
+    <Link href={`/assignments/${id}`}>
       <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
         <div className="relative w-full aspect-video rounded-md overflow-hidden">
           <Image
@@ -36,7 +36,7 @@ export const AssignmentCard = ({
           <div className="text-lg md:text-base font-medium group-hover:text-sky-700 transition line-clamp-2">
             {title}
           </div>
-          <p className="text-xs text-muted-foreground">{course}</p>
+          <p className="text-xs text-muted-foreground">{assignment}</p>
           <div className="my-3 flex items-center gap-x-2 text-sm md:text-xs">
             <div className="flex items-center gap-x-1 text-slate-500">
               <IconBadge size={"sm"} icon={BookOpen} />

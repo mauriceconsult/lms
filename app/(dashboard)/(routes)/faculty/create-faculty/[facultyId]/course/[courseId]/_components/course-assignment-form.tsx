@@ -52,7 +52,7 @@ export const CourseAssignmentForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/assignments`, values);
-      toast.success("Course Topic created.");
+      toast.success("Course Assignment created.");
       toggleCreating();
       router.refresh();
     } catch {
@@ -65,7 +65,7 @@ export const CourseAssignmentForm = ({
       await axios.put(`/api/create-faculties/${facultyId}/courses/${courseId}/assignments/reorder`, {
         list: updateData,
       });
-      toast.success("Course Topics reordered");
+      toast.success("Course Assignments reordered");
       router.refresh();
     } catch {
       toast.error("Something went wrong");

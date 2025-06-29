@@ -25,6 +25,7 @@ export const CourseworkRegisterButton = ({
             setIsLoading(false);
         }
     }
+    /**`/faculty/create-faculty/${facultyId}/coursework/${courseworkId}/studentProjects/${id}` */
     return (
       <Button onClick={onClick} disabled={isLoading} size={"sm"} className="w-full md:w-auto">
         Register your Project

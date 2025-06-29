@@ -115,7 +115,8 @@ const CourseIdPage = async ({
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
                   <span>
-                    At least one published Topic is required for a Course to be published.
+                    At least one published Topic is required for a Course to be
+                    published.
                   </span>
                 </div>
               </div>
@@ -228,6 +229,17 @@ const CourseIdPage = async ({
                 courseId={course.id}
               />
             </div>
+            {/* <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={ListChecks} />
+                <h2 className="text-xl">Course Tuitions </h2>
+              </div>
+              <CourseTuitionForm
+                initialData={course}
+                facultyId={course.facultyId || ""}
+                courseId={course.id}
+              />
+            </div> */}
           </div>
         </div>
       </div>

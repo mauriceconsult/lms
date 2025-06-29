@@ -2,17 +2,20 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { TutorSearchInput } from "./_components/tutor-search-input";
-import { Courses } from "../../../search/_components/courses";
+import { TutorsList } from "./_components/tutors-list";
+import { Courses } from "./_components/courses";
+import { getTutors } from "@/actions/get-tutors";
 
 
 interface TutorSearchPageProps {
   searchParams: {
     title: string;
-    tutorId: string;
+    courseId: string;
   };
 }
-const TutorSearchPage = async ({}: // searchParams
-TutorSearchPageProps) => {
+const TutorSearchPage = async ({
+  searchParams,
+}: TutorSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
@@ -22,7 +25,11 @@ TutorSearchPageProps) => {
       title: "asc",
     },
   });
-  
+  const tutors = await getTutors({
+    userId,
+    ...searchParams
+  })
+
   return (
     <>
       <div className="px-6 pt-6 md:hidden md:mb-0 block">

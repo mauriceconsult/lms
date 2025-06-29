@@ -12,15 +12,19 @@ const CourseworkIdPage = async ({ params }: { params: { courseworkId: string } }
           isSubmitted: true,
         },
         orderBy: {
-          position: "asc"
-        }
+          position: "asc",
+        },
       },
     },
   });
   if (!coursework) {
     return redirect("/");
   }
-return redirect(`/courseworks/${coursework.id}/studentProjects/${coursework.studentProjects[0].id}`);
+  /**`/faculty/create-faculty/${facultyId}/coursework/${courseworkId}/studentProjects/${id}` */
+  return redirect(
+    // `/courseworks/${coursework.id}/studentProjects/${coursework.studentProjects[0].id}`
+      `/courseworks/${coursework.id}/studentProjects/${coursework.studentProjects}`
+  );
 };
 
 export default CourseworkIdPage
