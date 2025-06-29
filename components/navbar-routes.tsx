@@ -109,7 +109,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
 
         <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/assignments">
           <Button size="sm" variant="ghost">
-            Course Assignment
+            Tutor Assignment
           </Button>
         </Link>
 

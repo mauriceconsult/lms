@@ -105,34 +105,34 @@ const assignmentRoutes = [
   {
     icon: List,
     label: "Assignments",
-    href: "/faculty/create-faculty/${facultyId}/assignment/assignments",
+    href: "/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/assignments",
   },
   {
     icon: Compass,
     label: "Browse Assignments",
-    href: "/faculty/create-faculty/${facultyId}/assignment/${assignmentId}/search",
+    href: "/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/${assignmentId}/search",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: "/faculty/create-faculty/${facultyId}/assignment/analytics",
+    href: "/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/analytics",
   },
 ];
 const courseNoticeboardRoutes = [
   {
     icon: List,
     label: "Course Notices",
-    href: "/faculty/create-faculty/${facultyId}/courseNoticeboard/courseNoticeboards",
+    href: "/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/courseNoticeboards",
   },
   {
     icon: Compass,
     label: "Browse Course Notices",
-    href: "/faculty/create-faculty/${facultyId}/courseNoticeboard/${courseNoticeboardId}/search",
+    href: "/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/${courseNoticeboardId}/search",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: "/faculty/create-faculty/${facultyId}/courseNoticeboard/analytics",
+    href: "/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/analytics",
   },
 ];
 

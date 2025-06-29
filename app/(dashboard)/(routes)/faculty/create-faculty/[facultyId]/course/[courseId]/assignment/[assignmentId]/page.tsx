@@ -3,12 +3,13 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { IconBadge } from "@/components/icon-badge";
-import { ArrowLeft, LayoutDashboard } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, ListChecks } from "lucide-react";
 import { AssignmentDescriptionForm } from "./_components/assignment-description-form";
 import Link from "next/link";
 import { AssignmentActions } from "./_components/assignment-actions";
 import { AssignmentTitleForm } from "./_components/assignment-title-form";
 import { AssignmentCourseForm } from "./_components/assignment-course-form";
+import { AssignmentTutorAssignmentForm } from "./_components/assignment-tutorAssignment-form";
 
 const AssignmentIdPage = async ({
   params,
@@ -29,6 +30,14 @@ const AssignmentIdPage = async ({
       courseId: params.courseId,
       userId,
     },
+    include: {
+      tutorAssignments: true,
+      attachments: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
   });
   const course = await db.course.findMany({
     orderBy: {
@@ -43,6 +52,7 @@ const AssignmentIdPage = async ({
     assignment.title,
     assignment.courseId,
     assignment.description,
+    assignment.tutorAssignments.length > 0,
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
@@ -113,6 +123,19 @@ const AssignmentIdPage = async ({
               facultyId={params.facultyId}
               assignmentId={assignment.id}
               courseId={assignment.courseId || ""}
+            />
+          </div>
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={ListChecks} />
+              <h2 className="text-xl">Tutor Assignments</h2>
+            </div>
+            <AssignmentTutorAssignmentForm
+              initialData={assignment}
+              facultyId={params.facultyId}
+              assignmentId={assignment.id}
+              courseId={assignment.courseId || ""}
+              tutorAssignmentId={params.assignmentId}
             />
           </div>
         </div>
