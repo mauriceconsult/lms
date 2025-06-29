@@ -29,7 +29,7 @@ export const getCourse = async ({
     }
     let attachments: Attachment[] = [];
     let nextCourse: Course | null = null;
-    if (course.isFree || userId) {
+    if (userId) {
       attachments = await db.attachment.findMany({
         where: {
           courseId: courseId,

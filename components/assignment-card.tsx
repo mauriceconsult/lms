@@ -2,14 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { IconBadge } from "./icon-badge";
 import { BookOpen } from "lucide-react";
-import { formatAmount } from "@/lib/format";
 
 interface AssignmentCardProps {
   id: string;
   title: string;
   assignmentsLength: number;
-  amount: number;
-  progress: number | null;
+  // progress: number | null;
   assignment: string;
 }
 
@@ -17,8 +15,7 @@ export const AssignmentCard = ({
   id,
   title,
   assignmentsLength,
-  amount,
-  progress,
+  // progress,
   assignment,
 }: AssignmentCardProps) => {
   return (
@@ -46,13 +43,13 @@ export const AssignmentCard = ({
               </span>
             </div>
           </div>
-          {progress !== null ? (
+          {/* {progress !== null ? (
             <div>TODO: Progress component</div>
           ) : (
             <p className="text-md md:text-sm font-medium text-slate-700">
               {formatAmount(amount.toString())}
             </p>
-          )}
+          )} */}
         </div>
       </div>
     </Link>

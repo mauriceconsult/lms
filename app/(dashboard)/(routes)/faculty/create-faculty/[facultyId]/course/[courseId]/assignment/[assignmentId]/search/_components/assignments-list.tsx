@@ -16,11 +16,9 @@ export const AssignmentsList = ({ items }: AssignmentsListProps) => {
           <AssignmentCard
             key={item.id}
             id={item.id}
-            title={item.title}           
-            course={item?.course?.title ?? ""}
-            assignmentsLength={0}
-            amount={0}
-            progress={null}
+            title={item.title}
+            assignmentsLength={0} assignment={""}
+            // progress={null}
           />
         ))}
       </div>

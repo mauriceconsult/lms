@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { LayoutDashboard, File } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
-import { NoticeboardImageForm } from "./_components/noticeboard-image-form";
+// import { NoticeboardImageForm } from "./_components/noticeboard-image-form";
 import { NoticeboardFacultyForm } from "./_components/noticeboard-faculty-form";
 import { Banner } from "@/components/banner";
 import { NoticeboardActions } from "./_components/noticeboard-actions";
@@ -76,7 +76,7 @@ const NoticeboardIdPage = async ({
                 disabled={!isComplete}
                 noticeboardId={params.noticeboardId}
                 isPublished={noticeboard.isPublished}
-              />
+                facultyId={params.facultyId} />
             </div>
           </div>
         </div>
@@ -106,11 +106,11 @@ const NoticeboardIdPage = async ({
                 noticeboardId={noticeboard.id}
                 facultyId={noticeboard.facultyId || ""}
               />
-              <NoticeboardImageForm
+              {/* <NoticeboardImageForm
                 initialData={noticeboard}
                 noticeboardId={noticeboard.id}
                 facultyId={noticeboard.facultyId || ""}
-              />
+              /> */}
             </div>
             <div className="space-y-6">
               <div>

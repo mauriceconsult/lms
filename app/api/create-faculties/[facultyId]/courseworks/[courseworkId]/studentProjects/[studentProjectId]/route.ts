@@ -81,7 +81,7 @@ export async function DELETE(
   const publishedStudentProjects = await db.studentProject.findMany({
     where: {
       id: params.studentProjectId,
-      isPublished: true,
+      isSubmitted: true,
     },
   });
   if (publishedStudentProjects.length === 0) {

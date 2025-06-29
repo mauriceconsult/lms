@@ -10,11 +10,13 @@ import toast from "react-hot-toast";
 
 interface NoticeboardActionsProps {
   disabled: boolean;
+  facultyId: string;
   noticeboardId: string;
   isPublished: boolean;
 }
 export const NoticeboardActions = ({
   disabled,
+  facultyId,
   noticeboardId,
   isPublished,
 }: NoticeboardActionsProps) => {
