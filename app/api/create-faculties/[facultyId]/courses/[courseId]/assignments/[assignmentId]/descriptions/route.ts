@@ -14,6 +14,24 @@ export async function POST(
   if (!description || description.length === 0) {
     return new Response("No data provided", { status: 400 });
   }
+  const faculty = await db.faculty.findUnique({
+    where: {
+      id: params.facultyId,
+      userId,
+    },
+  });
+  if (!faculty) {
+    return new Response("Assignment not found", { status: 404 });
+  }
+  const course = await db.course.findUnique({
+    where: {
+      id: params.courseId,
+      userId,
+    },
+  });
+  if (!course) {
+    return new Response("Assignment not found", { status: 404 });
+  }
   const assignment = await db.assignment.findUnique({
     where: {
       id: params.assignmentId,

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string; } }
+  { params }: { params: { facultyId: string; courseId: string } }
 ) {
   try {
     const { userId } = await auth();
@@ -18,8 +18,18 @@ export async function POST(
         userId,
       },
     });
-    
+
     if (!facultyOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const courseOwner = await db.course.findUnique({
+      where: {
+        id: params.courseId,
+        userId,
+      },
+    });
+
+    if (!courseOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const lastCourse = await db.course.findFirst({
@@ -27,12 +37,12 @@ export async function POST(
         facultyId: params.facultyId,
       },
       orderBy: {
-        position: "desc"
-      }
+        position: "desc",
+      },
     });
-    const newPosition = lastCourse ? ((lastCourse.position ?? 0) + 1) : 1;
+    const newPosition = lastCourse ? (lastCourse.position ?? 0) + 1 : 1;
 
-    const course = await db.course.create({   
+    const course = await db.course.create({
       data: {
         title,
         facultyId: params.facultyId,
@@ -47,8 +57,3 @@ export async function POST(
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
-
-
-
-
-

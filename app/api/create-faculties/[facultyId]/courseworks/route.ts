@@ -22,6 +22,16 @@ export async function POST(
     if (!facultyOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    const courseworkOwner = await db.coursework.findUnique({
+      where: {
+        id: params.courseworkId,
+        userId,
+      },
+    });
+
+    if (!courseworkOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
     const lastCoursework = await db.coursework.findFirst({
       where: {
         facultyId: params.facultyId,

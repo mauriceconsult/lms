@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; noticeboardId: string; } }
+  { params }: { params: { facultyId: string; noticeboardId: string } }
 ) {
   try {
     const { userId } = await auth();
@@ -18,8 +18,18 @@ export async function POST(
         userId,
       },
     });
-    
+
     if (!facultyOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const noticeOwner = await db.noticeboard.findUnique({
+      where: {
+        id: params.noticeboardId,
+        userId,
+      },
+    });
+
+    if (!noticeOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const lastNoticeboard = await db.noticeboard.findFirst({
@@ -27,12 +37,14 @@ export async function POST(
         facultyId: params.facultyId,
       },
       orderBy: {
-        position: "desc"
-      }
+        position: "desc",
+      },
     });
-    const newPosition = lastNoticeboard ? ((lastNoticeboard.position ?? 0) + 1) : 1;
+    const newPosition = lastNoticeboard
+      ? (lastNoticeboard.position ?? 0) + 1
+      : 1;
 
-    const noticeboard = await db.noticeboard.create({   
+    const noticeboard = await db.noticeboard.create({
       data: {
         title,
         facultyId: params.facultyId,
@@ -47,8 +59,3 @@ export async function POST(
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
-
-
-
-
-

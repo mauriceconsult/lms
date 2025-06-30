@@ -4,12 +4,31 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string; assignmentId: string; tutorAssignmentId: string; } }
+  {
+    params,
+  }: {
+    params: {
+      facultyId: string;
+      courseId: string;
+      assignmentId: string;
+      tutorAssignmentId: string;
+    };
+  }
 ) {
   try {
     const { userId } = await auth();
     const { title } = await req.json();
     if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const facultyOwner = await db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId,
+      },
+    });
+
+    if (!facultyOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const courseOwner = await db.course.findUnique({
@@ -18,8 +37,28 @@ export async function POST(
         userId,
       },
     });
-    
+
     if (!courseOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const assignmentOwner = await db.assignment.findUnique({
+      where: {
+        id: params.assignmentId,
+        userId,
+      },
+    });
+
+    if (!assignmentOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const tutorAssignmentOwner = await db.tutorAssignment.findUnique({
+      where: {
+        id: params.tutorAssignmentId,
+        userId,
+      },
+    });
+
+    if (!tutorAssignmentOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const lastTutorAssignment = await db.tutorAssignment.findFirst({
@@ -27,12 +66,14 @@ export async function POST(
         assignmentId: params.assignmentId,
       },
       orderBy: {
-        position: "desc"
-      }
+        position: "desc",
+      },
     });
-    const newPosition = lastTutorAssignment ? ((lastTutorAssignment.position ?? 0) + 1) : 1;
+    const newPosition = lastTutorAssignment
+      ? (lastTutorAssignment.position ?? 0) + 1
+      : 1;
 
-    const tutorAssignment = await db.tutorAssignment.create({   
+    const tutorAssignment = await db.tutorAssignment.create({
       data: {
         title,
         assignmentId: params.assignmentId,
@@ -47,8 +88,3 @@ export async function POST(
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
-
-
-
-
-

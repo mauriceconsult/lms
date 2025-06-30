@@ -4,12 +4,21 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { courseId: string; } }
+  { params }: { params: { facultyId: string; courseId: string } }
 ) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const faculty = await db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId: userId,
+      },
+    });
+    if (!faculty) {
+      return new NextResponse("Not found", { status: 404 });
     }
     const course = await db.course.findUnique({
       where: {
@@ -27,14 +36,14 @@ export async function DELETE(
     });
     return NextResponse.json(deletedCourse);
   } catch (error) {
-    console.log("[FACULTY_ID_DELETE]", error);
+    console.log("[COURSE_ID_DELETE]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { courseId: string; } }
+  { params }: { params: { facultyId: string; courseId: string } }
 ) {
   try {
     const { userId } = await auth();
@@ -43,6 +52,16 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unathorized", { status: 401 });
     }
+    const faculty = await db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId: userId,
+      },
+    });
+    if (!faculty) {
+      return new NextResponse("Not found", { status: 404 });
+    }
+
     const course = await db.course.update({
       where: {
         id: courseId,
@@ -54,7 +73,7 @@ export async function PATCH(
     });
     return NextResponse.json(course);
   } catch (error) {
-    console.log("[FACULTY_ID]", error);
+    console.log("[COURSE_ID]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

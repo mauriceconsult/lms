@@ -4,31 +4,31 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { courseId: string; attachmentId: string } }
+  { params }: { params: { facultyId: string; attachmentId: string } }
 ) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const courseOwner = await db.course.findUnique({
+    const facultyOwner = await db.faculty.findUnique({
       where: {
-        id: params.courseId,
+        id: params.facultyId,
         userId: userId,
       },
     });
-    if (!courseOwner) {
+    if (!facultyOwner) {
       return new NextResponse("Unathorized", { status: 401 });
     }
     const attachment = await db.attachment.delete({
       where: {
-        courseId: params.courseId,
+        facultyId: params.facultyId,
         id: params.attachmentId,
       },
     });
     return NextResponse.json(attachment);
   } catch (error) {
-    console.log("ATTACHMENT_ID", error);
+    console.log("FACULTY_ATTACHMENT_ID", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

@@ -13,13 +13,31 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const ownTopic = await db.assignment.findUnique({
+    const ownFaculty = await db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId,
+      },
+    });
+    if (!ownFaculty) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const ownCourse = await db.course.findUnique({
+      where: {
+        id: params.courseId,
+        userId,
+      },
+    });
+    if (!ownCourse) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const ownAssignment = await db.assignment.findUnique({
       where: {
         id: params.assignmentId,
         userId,
       },
     });
-    if (!ownTopic) {
+    if (!ownAssignment) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 

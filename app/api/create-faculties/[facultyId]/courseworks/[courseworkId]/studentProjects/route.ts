@@ -4,12 +4,30 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; courseworkId: string; studentProjectId: string; } }
+  {
+    params,
+  }: {
+    params: {
+      facultyId: string;
+      courseworkId: string;
+      studentProjectId: string;
+    };
+  }
 ) {
   try {
     const { userId } = await auth();
     const { title } = await req.json();
     if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const facultyOwner = await db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId,
+      },
+    });
+
+    if (!facultyOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const courseworkOwner = await db.coursework.findUnique({
@@ -18,8 +36,18 @@ export async function POST(
         userId,
       },
     });
-    
+
     if (!courseworkOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const studentProjectOwner = await db.studentProject.findUnique({
+      where: {
+        id: params.studentProjectId,
+        userId,
+      },
+    });
+
+    if (!studentProjectOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const lastStudentProject = await db.studentProject.findFirst({
@@ -27,12 +55,14 @@ export async function POST(
         courseworkId: params.courseworkId,
       },
       orderBy: {
-        position: "desc"
-      }
+        position: "desc",
+      },
     });
-    const newPosition = lastStudentProject ? ((lastStudentProject.position ?? 0) + 1) : 1;
+    const newPosition = lastStudentProject
+      ? (lastStudentProject.position ?? 0) + 1
+      : 1;
 
-    const studentProject = await db.studentProject.create({   
+    const studentProject = await db.studentProject.create({
       data: {
         title,
         courseworkId: params.courseworkId,
@@ -47,8 +77,3 @@ export async function POST(
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
-
-
-
-
-

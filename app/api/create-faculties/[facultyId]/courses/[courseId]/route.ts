@@ -12,6 +12,15 @@ export async function POST(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    const facultyOwner = db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId: userId,
+      },
+    });
+    if (!facultyOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
     const courseOwner = db.course.findUnique({
       where: {
         id: params.courseId,
@@ -38,7 +47,6 @@ export async function POST(
         userId,
       },
     });
-
     return NextResponse.json(course);
   } catch (error) {
     console.log("[COURSE]", error);
@@ -55,7 +63,25 @@ export async function DELETE(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const courseOwner = await db.course.findUnique({
+    const facultyOwner = db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId: userId,
+      },
+    });
+    if (!facultyOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const courseOwner = db.course.findUnique({
+      where: {
+        id: params.courseId,
+        userId: userId,
+      },
+    });
+    if (!courseOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const course = await db.course.findUnique({
       where: {
         id: params.courseId,
         userId: userId,
@@ -71,7 +97,7 @@ export async function DELETE(
         },
       },
     });
-    if (!courseOwner) {
+    if (!course) {
       return new NextResponse("Not found", { status: 404 });
     }
     const deletedFaculty = await db.faculty.delete({

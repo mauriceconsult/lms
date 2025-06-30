@@ -20,6 +20,15 @@ export async function PATCH(
     if (!ownFaculty) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    const ownNotice = await db.noticeboard.findUnique({
+      where: {
+        id: params.noticeboardId,
+        userId,
+      },
+    });
+    if (!ownNotice) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
     const unpublishedNoticeboard = await db.noticeboard.update({
       where: {

@@ -29,7 +29,9 @@ export async function POST(
         position: "desc",
       },
     });
-    const newPosition = lastNoticeboard ? (lastNoticeboard.position ?? 0) + 1 : 1;
+    const newPosition = lastNoticeboard
+      ? (lastNoticeboard.position ?? 0) + 1
+      : 1;
     const noticeboard = await db.noticeboard.create({
       data: {
         title,
@@ -55,9 +57,18 @@ export async function DELETE(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const noticeboardOwner = db.noticeboard.findUnique({
+    const facultyOwner = db.faculty.findUnique({
       where: {
         id: params.facultyId,
+        userId: userId,
+      },
+    });
+    if (!facultyOwner) {
+      return new NextResponse("Not found", { status: 404 });
+    }
+    const noticeboardOwner = db.noticeboard.findUnique({
+      where: {
+        id: params.noticeboardId,
         userId: userId,
       },
     });

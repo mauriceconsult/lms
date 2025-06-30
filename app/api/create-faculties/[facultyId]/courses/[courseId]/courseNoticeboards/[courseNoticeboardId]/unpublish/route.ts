@@ -6,20 +6,44 @@ export async function PATCH(
   request: Request,
   {
     params,
-  }: { params: { facultyId: string; courseId: string; courseNoticeboardId: string } }
+  }: {
+    params: {
+      facultyId: string;
+      courseId: string;
+      courseNoticeboardId: string;
+    };
+  }
 ) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const ownTopic = await db.courseNoticeboard.findUnique({
+    const ownFaculty = await db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId,
+      },
+    });
+    if (!ownFaculty) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const ownCourse = await db.course.findUnique({
+      where: {
+        id: params.courseId,
+        userId,
+      },
+    });
+    if (!ownCourse) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const ownCourseNotice = await db.courseNoticeboard.findUnique({
       where: {
         id: params.courseNoticeboardId,
         userId,
       },
     });
-    if (!ownTopic) {
+    if (!ownCourseNotice) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 

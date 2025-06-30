@@ -20,7 +20,7 @@ export async function PUT(
     });
     if (!facultyOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
-    }
+    }    
     for (const item of list) {
       await db.course.update({
         where: {
@@ -33,7 +33,7 @@ export async function PUT(
     }
     return new NextResponse("Success", { status: 200 });
   } catch (error) {
-    console.log("[REORDER]", error);
+    console.log("[COURSES_REORDER]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

@@ -20,6 +20,15 @@ export async function PATCH(
     if (!ownFaculty) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    const ownCoursework = await db.coursework.findUnique({
+      where: {
+        id: params.courseworkId,
+        userId,
+      },
+    });
+    if (!ownCoursework) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
     const unpublishedCoursework = await db.coursework.update({
       where: {

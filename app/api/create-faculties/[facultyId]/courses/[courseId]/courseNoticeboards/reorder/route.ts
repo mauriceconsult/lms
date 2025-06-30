@@ -4,7 +4,15 @@ import { NextResponse } from "next/server";
 
 export async function PUT(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string; courseNoticeboardId: string; } }
+  {
+    params,
+  }: {
+    params: {
+      facultyId: string;
+      courseId: string;
+      courseNoticeboardId: string;
+    };
+  }
 ) {
   try {
     const { userId } = await auth();
@@ -12,6 +20,15 @@ export async function PUT(
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const { list } = await req.json();
+    const facultyOwner = db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId: userId,
+      },
+    });
+    if (!facultyOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
     const courseOwner = db.course.findUnique({
       where: {
         id: params.courseId,
@@ -19,6 +36,15 @@ export async function PUT(
       },
     });
     if (!courseOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const courseNoticeOwner = db.courseNoticeboard.findUnique({
+      where: {
+        id: params.courseNoticeboardId,
+        userId: userId,
+      },
+    });
+    if (!courseNoticeOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     for (const item of list) {

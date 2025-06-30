@@ -4,12 +4,30 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string; courseNoticeboardId: string; } }
+  {
+    params,
+  }: {
+    params: {
+      facultyId: string;
+      courseId: string;
+      courseNoticeboardId: string;
+    };
+  }
 ) {
   try {
     const { userId } = await auth();
     const { title } = await req.json();
     if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const facultyOwner = await db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId,
+      },
+    });
+
+    if (!facultyOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const courseOwner = await db.course.findUnique({
@@ -18,8 +36,18 @@ export async function POST(
         userId,
       },
     });
-    
+
     if (!courseOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const courseNoticeOwner = await db.courseNoticeboard.findUnique({
+      where: {
+        id: params.courseNoticeboardId,
+        userId,
+      },
+    });
+
+    if (!courseNoticeOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const lastCourseNotice = await db.courseNoticeboard.findFirst({
@@ -27,12 +55,14 @@ export async function POST(
         courseId: params.courseId,
       },
       orderBy: {
-        position: "desc"
-      }
+        position: "desc",
+      },
     });
-    const newPosition = lastCourseNotice ? ((lastCourseNotice.position ?? 0) + 1) : 1;
+    const newPosition = lastCourseNotice
+      ? (lastCourseNotice.position ?? 0) + 1
+      : 1;
 
-    const courseNoticeboard = await db.courseNoticeboard.create({   
+    const courseNoticeboard = await db.courseNoticeboard.create({
       data: {
         title,
         courseId: params.courseId,
@@ -47,8 +77,3 @@ export async function POST(
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
-
-
-
-
-
