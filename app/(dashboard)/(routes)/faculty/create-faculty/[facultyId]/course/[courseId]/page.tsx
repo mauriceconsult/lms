@@ -21,8 +21,8 @@ import { Banner } from "@/components/banner";
 import { CourseActions } from "./_components/course-actions";
 import { CourseTitleForm } from "./_components/course-title-form";
 import { CourseAssignmentForm } from "./_components/course-assignment-form";
-import { CourseCourseNoticeboardCourseForm } from "./courseNoticeboard/[courseNoticeboardId]/_components/courseNoticeboard-course-form";
 import { CourseTuitionForm } from "./_components/course-tuition-form";
+import { CourseCourseNoticeboardForm } from "./_components/course-courseNoticeboard-form";
 
 const CourseIdPage = async ({
   params,
@@ -209,15 +209,10 @@ const CourseIdPage = async ({
                 <IconBadge icon={ListChecks} />
                 <h2 className="text-xl">Course Notices </h2>
               </div>
-              <CourseCourseNoticeboardCourseForm
-                initialData={course.courseNoticeboards[0]}
+              <CourseCourseNoticeboardForm
+                initialData={course}
                 facultyId={course.facultyId || ""}
                 courseId={course.id}
-                courseNoticeboardId={course.courseNoticeboards[0]?.id || ""}
-                options={course.courseNoticeboards.map((courseNoticeboard) => ({
-                  label: courseNoticeboard.title,
-                  value: courseNoticeboard.id,
-                }))}
               />
             </div>
             <div>

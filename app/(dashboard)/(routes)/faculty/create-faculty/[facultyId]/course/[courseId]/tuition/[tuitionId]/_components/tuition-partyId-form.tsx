@@ -17,7 +17,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-interface TuitionTitleFormProps {
+interface TuitionPartyIdFormProps {
   initialData: {
     title: string;
   };
@@ -27,11 +27,16 @@ interface TuitionTitleFormProps {
 }
 const formSchema = z.object({
   title: z.string().min(1, {
-    message: "Tuition title is required.",
+    message: "Tuition payment phone number is required.",
   }),
 });
 
-export const TuitionTitleForm = ({ initialData, facultyId, courseId, tuitionId }: TuitionTitleFormProps) => {
+export const TuitionPartyIdForm = ({
+  initialData,
+  facultyId,
+  courseId,
+  tuitionId,
+}: TuitionPartyIdFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
@@ -42,7 +47,10 @@ export const TuitionTitleForm = ({ initialData, facultyId, courseId, tuitionId }
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/tuitions/${tuitionId}/titles`, values);
+      await axios.patch(
+        `/api/create-faculties/${facultyId}/courses/${courseId}/tuitions/${tuitionId}/titles`,
+        values
+      );
       toast.success("Tuition created.");
       toggleEdit();
       router.refresh();
@@ -53,14 +61,14 @@ export const TuitionTitleForm = ({ initialData, facultyId, courseId, tuitionId }
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Username
+       Payment phone number
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit username
+              Edit the phone number
             </>
           )}
         </Button>
@@ -80,7 +88,7 @@ export const TuitionTitleForm = ({ initialData, facultyId, courseId, tuitionId }
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'John Doe'"
+                      placeholder="e.g., 'Design Principles Tuition'"
                       {...field}
                     />
                   </FormControl>

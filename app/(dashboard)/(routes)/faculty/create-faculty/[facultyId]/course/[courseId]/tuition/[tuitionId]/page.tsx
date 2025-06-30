@@ -9,6 +9,7 @@ import Link from "next/link";
 import { TuitionActions } from "./_components/tuition-actions";
 import { TuitionTitleForm } from "./_components/tuition-title-form";
 import { TuitionCourseForm } from "./_components/tuition-course-form";
+import { TuitionPartyIdForm } from "./_components/tuition-partyId-form";
 
 
 const TuitionIdPage = async ({
@@ -56,7 +57,7 @@ const TuitionIdPage = async ({
       {!tuition.isPaid && (
         <Banner
           variant="warning"
-          label="This Tuition is unpublished. It will not be visible to the Tutor."
+          label="This Tuition is unpaid. It will not be visible to the Tutor."
         />
       )}
       <div className="p-6">
@@ -110,9 +111,13 @@ const TuitionIdPage = async ({
                 value: cat.id,
               }))}
             />
-        
+            <TuitionPartyIdForm
+              initialData={tuition}
+              facultyId={params.facultyId}
+              courseId={tuition.courseId || ""}
+              tuitionId={tuition.id}
+            />
           </div>
-    
         </div>
       </div>
     </>
