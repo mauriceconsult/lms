@@ -22,6 +22,7 @@ import { CourseActions } from "./_components/course-actions";
 import { CourseTitleForm } from "./_components/course-title-form";
 import { CourseAssignmentForm } from "./_components/course-assignment-form";
 import { CourseCourseNoticeboardCourseForm } from "./courseNoticeboard/[courseNoticeboardId]/_components/courseNoticeboard-course-form";
+import { CourseTuitionForm } from "./_components/course-tuition-form";
 
 const CourseIdPage = async ({
   params,
@@ -44,6 +45,7 @@ const CourseIdPage = async ({
     include: {
       courseNoticeboards: true,
       assignments: true,
+      tuitions: true,
       tutors: {
         orderBy: {
           position: "asc",
@@ -229,7 +231,7 @@ const CourseIdPage = async ({
                 courseId={course.id}
               />
             </div>
-            {/* <div>
+            <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={ListChecks} />
                 <h2 className="text-xl">Course Tuitions </h2>
@@ -239,7 +241,7 @@ const CourseIdPage = async ({
                 facultyId={course.facultyId || ""}
                 courseId={course.id}
               />
-            </div> */}
+            </div>
           </div>
         </div>
       </div>

@@ -31,13 +31,15 @@ model Payroll {
 }
 
 model Tuition {
-  id       String  @id @default(uuid())
-  userId   String
-  title    String  @db.Text
-  partyId  String?
-  courseId String?
-  position Int?
-  course   Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id          String       @id @default(uuid())
+  userId      String
+  title       String       @db.Text
+  partyId     String?
+  position    Int?
+  isPaid      Boolean      @default(false)
+  attachments Attachment[]
+  courseId    String?
+  course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -150,6 +152,7 @@ model Course {
   imageUrl           String?             @db.Text
   amount             String?             @db.Text
   attachments        Attachment[]
+  tuitions           Tuition[]
   tutors             Tutor[]
   purchases          Purchase[]
   courseNoticeboards CourseNoticeboard[]
@@ -159,9 +162,8 @@ model Course {
   position           Int?
   isPublished        Boolean             @default(false)
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  Tuition   Tuition[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([facultyId])
 }
@@ -239,6 +241,8 @@ model Attachment {
   tutorAssignmentId   String?
   tutor               Tutor?             @relation(fields: [tutorId], references: [id])
   tutorId             String?
+  tuition             Tuition?           @relation(fields: [tuitionId], references: [id])
+  tuitionId           String?
 
   @@index([facultyId])
 }
