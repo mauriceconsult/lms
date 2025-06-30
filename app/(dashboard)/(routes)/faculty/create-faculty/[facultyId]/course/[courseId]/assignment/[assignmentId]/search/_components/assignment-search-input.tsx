@@ -13,21 +13,21 @@ export const AssignmentSearchInput = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const currentCourseId = searchParams.get("courseId");
+  const currentId = searchParams.get("courseId");
 
   useEffect(() => {
     const url = qs.stringifyUrl(
       {
         url: pathname,
         query: {
-          courseId: currentCourseId,
+          courseId: currentId,
           title: debouncedValue,
         },
       },
       { skipEmptyString: true, skipNull: true }
     );
     router.push(url);
-  }, [debouncedValue, currentCourseId, router, pathname]);
+  }, [debouncedValue, currentId, router, pathname]);
 
   return (
     <div className="relative">
@@ -36,7 +36,7 @@ export const AssignmentSearchInput = () => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className="w-full md:w-[300px] pl-9 rounded-full bg-slate-100 focus-visible:ring-slate-200"
-        placeholder="Search Topics ..."
+        placeholder="Search Assignments ..."
       />
     </div>
   );
