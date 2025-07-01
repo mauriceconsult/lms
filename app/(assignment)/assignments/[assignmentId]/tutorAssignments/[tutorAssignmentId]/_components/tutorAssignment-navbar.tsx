@@ -1,25 +1,19 @@
 import { NavbarRoutes } from "@/components/navbar-routes";
-import { TutorAssignment, UserProgress } from "@prisma/client"
+import { TutorAssignment } from "@prisma/client";
 import { TutorAssignmentMobileSidebar } from "./tutorAssignment-mobile-sidebar";
 
+
 interface TutorAssignmentNavbarProps {
-    assignment: TutorAssignment & {
-        tutorAssignments: (TutorAssignment & {
-            userProgress: UserProgress[] | null;
-        })[];
-    };
-    progressCount: number;
-}
+    tutorAssignment: TutorAssignment[];
+    }
 
 export const TutorAssignmentNavbar = ({
-    assignment,
-    progressCount,
+    tutorAssignment,
 }: TutorAssignmentNavbarProps) => {
-   return <div className="p-4 border-b h-full flex items-center bg-white shadow-sm">
-       <TutorAssignmentMobileSidebar
-           assignment={assignment}
-           progressCount={progressCount}
-       /> 
-       <NavbarRoutes />      
+    return <div className="p-4 border-b h-full flex items-center bg-white shadow-sm">
+        <TutorAssignmentMobileSidebar
+            tutorAssignment={tutorAssignment}            
+        />
+        <NavbarRoutes />      
   </div>
 };
