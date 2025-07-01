@@ -1,7 +1,6 @@
 import { Banner } from "@/components/banner";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-// import { TutorActions } from "./_components/course-actions";
 import { redirect } from "next/navigation";
 import { IconBadge } from "@/components/icon-badge";
 import {

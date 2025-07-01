@@ -61,7 +61,7 @@ const CourseworkIdPage = async ({
       {!coursework.isPublished && (
         <Banner
           variant="warning"
-          label="This Coursework is unpublished. It will not be visible to the students."
+          label="This Coursework is unpublished. A published Student Project is required for this Coursework to be publishable."
         />
       )}
       <div className="p-6">
@@ -78,11 +78,7 @@ const CourseworkIdPage = async ({
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">Coursework creation</h1>
                 <div className="text-sm text-slate-700">
-                  <div>Completed fields {completionText}</div>
-                  <span>
-                    At least one published student project is required for a Coursework to be
-                    published.
-                  </span>
+                  <div>Completed fields {completionText}</div>                
                 </div>
               </div>
               <CourseworkActions

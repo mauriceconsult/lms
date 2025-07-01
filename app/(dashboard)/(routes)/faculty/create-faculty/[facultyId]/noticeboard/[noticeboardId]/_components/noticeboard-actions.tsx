@@ -29,7 +29,9 @@ export const NoticeboardActions = ({
         await axios.patch(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/unpublish`);
         toast.success("Noticeboard unpublished");
       } else {
-        await axios.patch(`/api/create-noticeboards/${noticeboardId}/publish`);
+        await axios.patch(
+          `/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/publish`
+        );
         toast.success("Noticeboard published");
       }
       router.refresh();

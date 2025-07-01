@@ -76,7 +76,7 @@ const FacultyIdPage = async ({
       {!faculty.isPublished && (
         <Banner
           variant="warning"
-          label="This Faculty is unpublished. It will not be visible to the Faculty."
+          label="This Faculty is unpublished. A published Course is required for this Faculty to be publishable."
         />
       )}
       <div className="p-6">
@@ -87,9 +87,6 @@ const FacultyIdPage = async ({
                 <h1 className="text-2xl font-medium">Faculty creation</h1>
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
-                  <span>
-                    At least one published Course is required for this Faculty to be published.
-                  </span>
                 </div>
               </div>
               <FacultyActions

@@ -98,7 +98,7 @@ const CourseIdPage = async ({
       {!course.isPublished && (
         <Banner
           variant="warning"
-          label="This Course is unpublished. It will not be visible to the learners."
+          label="This Course is unpublished. A published Topic is required for this Course to be publishable."
         />
       )}
       <div className="p-6">
@@ -115,11 +115,7 @@ const CourseIdPage = async ({
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">Course creation</h1>
                 <div className="text-sm text-slate-700">
-                  <div>Completed fields {completionText}</div>
-                  <span>
-                    At least one published Topic is required for a Course to be
-                    published.
-                  </span>
+                  <div>Completed fields {completionText}</div>             
                 </div>
               </div>
               <CourseActions

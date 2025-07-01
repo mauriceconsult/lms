@@ -4,13 +4,11 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { IconBadge } from "@/components/icon-badge";
 import { ArrowLeft, LayoutDashboard } from "lucide-react";
-
 import Link from "next/link";
 import { TuitionActions } from "./_components/tuition-actions";
 import { TuitionTitleForm } from "./_components/tuition-title-form";
 import { TuitionCourseForm } from "./_components/tuition-course-form";
 import { TuitionPartyIdForm } from "./_components/tuition-partyId-form";
-
 
 const TuitionIdPage = async ({
   params,
