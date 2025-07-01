@@ -31,6 +31,7 @@ const formSchema = z.object({
 
 export const CourseAmountForm = ({
   initialData,
+  facultyId,
   courseId,
 }: CourseAmountFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -45,7 +46,7 @@ export const CourseAmountForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-courses/${courseId}/amount`, values);
+      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/amounts`, values);
       toast.success("Amount updated.");
       toggleEdit();
       router.refresh();

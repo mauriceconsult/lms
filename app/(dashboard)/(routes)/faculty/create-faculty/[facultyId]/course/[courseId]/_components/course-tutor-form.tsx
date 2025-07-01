@@ -51,7 +51,7 @@ export const CourseTutorForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/tutor`, values);
+      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/tutors`, values);
       toast.success("Topic created.");
       toggleCreating();
       router.refresh();
@@ -62,7 +62,7 @@ export const CourseTutorForm = ({
   const onReorder = async (updateData: { id: string; position: number }[]) => {
     try {
       setIsUpdating(true);
-      await axios.put(`/api/create-faculties/${facultyId}/courses/${courseId}/tutor/reorder`, {
+      await axios.put(`/api/create-faculties/${facultyId}/courses/${courseId}/tutors/reorder`, {
         list: updateData,
       });
       toast.success("Topics reordered");
@@ -114,7 +114,7 @@ export const CourseTutorForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Basic Instincts'"
+                      placeholder="e.g., 'Trends in F & D'"
                       {...field}
                     />
                   </FormControl>

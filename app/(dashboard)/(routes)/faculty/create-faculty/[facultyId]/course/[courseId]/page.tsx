@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import {
   ArrowLeft,
+  CircleDollarSign,
   // Eye,
   File,
   LayoutDashboard,
@@ -16,7 +17,6 @@ import { CourseAttachmentForm } from "./_components/course-attachment-form";
 import { CourseAmountForm } from "./_components/course-amount-form";
 import { CourseTutorForm } from "./_components/course-tutor-form";
 import Link from "next/link";
-// import { CourseAccessForm } from "./_components/course-access-form";
 import { Banner } from "@/components/banner";
 import { CourseActions } from "./_components/course-actions";
 import { CourseTitleForm } from "./_components/course-title-form";
@@ -78,14 +78,14 @@ const CourseIdPage = async ({
     course.facultyId,
     course.imageUrl,
     course.amount,
-    course.tutors.length > 0,
-    // course.purchases.length > 0,
+    course.tutors.length > 0,    
   ];
   const optionalFields = [
     course.attachments.length > 0,
     course.tutors.length > 0,
     course.courseNoticeboards.length > 0,
     course.assignments.length > 0,
+    course.tuitions.length > 0,
   ];
   const allFields = [...requiredFields, ...optionalFields];
   const totalFields = allFields.length;
@@ -115,7 +115,7 @@ const CourseIdPage = async ({
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">Course creation</h1>
                 <div className="text-sm text-slate-700">
-                  <div>Completed fields {completionText}</div>             
+                  <div>Completed fields {completionText}</div>
                 </div>
               </div>
               <CourseActions
@@ -160,24 +160,19 @@ const CourseIdPage = async ({
               courseId={course.id}
               facultyId={course.facultyId || ""}
             />
-            <CourseAmountForm
-              initialData={course}
-              courseId={course.id}
-              facultyId={course.facultyId || ""}
-            />
           </div>
-          {/* <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={Eye} />
-              <h2 className="text-xl">Access Settings</h2>
-            </div>
-            <CourseAccessForm
-              initialData={course}
-              courseId={params.courseId}
-              facultyId={course.facultyId || ""}
-            />
-          </div> */}
           <div className="space-y-6">
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={CircleDollarSign} />
+                <h2 className="text-xl">Sell your Course</h2>
+              </div>
+              <CourseAmountForm
+                initialData={course}
+                courseId={course.id}
+                facultyId={course.facultyId || ""}
+              />
+            </div>
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={File} />

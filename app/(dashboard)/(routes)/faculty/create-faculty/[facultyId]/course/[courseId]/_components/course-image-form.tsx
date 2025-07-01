@@ -33,7 +33,7 @@ export const CourseImageForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(
-        `/api/create-faculties/${facultyId}/courses/${courseId}/image`,
+        `/api/create-faculties/${facultyId}/courses/${courseId}/images`,
         values
       );
       toast.success("Course image updated.");
