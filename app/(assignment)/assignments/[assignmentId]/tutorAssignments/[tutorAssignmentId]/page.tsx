@@ -1,4 +1,4 @@
-import { getStudentProject } from "@/actions/get-studentProject";
+import { getTutorAssignment } from "@/actions/get-tutorAssignment";
 import { Banner } from "@/components/banner";
 import { auth } from "@clerk/nextjs/server";
 // import { Attachment } from "@prisma/client";
@@ -7,32 +7,28 @@ import { Separator } from "@/components/ui/separator";
 import { Preview } from "@/components/preview";
 import { File } from "lucide-react";
 
-const StudentProjectIdPage = async ({
+const TutorAssignmentIdPage = async ({
   params,
 }: {
-  params: { courseworkId: string; studentProjectId: string };
+  params: { assignmentId: string; tutorAssignmentId: string };
 }) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
   }
-  const {
-    coursework,
-    studentProject,
-    attachments,
-    nextStudentProject
-  } = await getStudentProject({
-    userId,
-    courseworkId: params.courseworkId,
-    studentProjectId: params.studentProjectId,
-  });
-  if (!coursework || !studentProject || !attachments || !nextStudentProject) {
+  const { assignment, tutorAssignment, attachments, nextTutorAssignment } =
+    await getTutorAssignment({
+      userId,
+      assignmentId: params.assignmentId,
+      tutorAssignmentId: params.tutorAssignmentId,
+    });
+  if (!assignment || !tutorAssignment || !attachments || !nextTutorAssignment) {
     return redirect("/");
   }
-  const isLocked = !coursework.userId;
+  const isLocked = !assignment.userId;
   return (
     <div>
-      {coursework?.userId && (
+      {assignment?.userId && (
         <Banner
           label="You have successfully submitted this Student Project"
           variant="success"
@@ -61,16 +57,16 @@ const StudentProjectIdPage = async ({
             <div>
               <div className="p-4 flex flex-col md:flex-row items-center justify-between">
                 <h2 className="text-2xl font-semibold mb-2">
-                  {coursework.title}
+                  {assignment.title}
                 </h2>
                 {/* <CourseworkRegisterButton
-                  courseworkId={params.courseworkId}
+                  assignmentId={params.assignmentId}
                   userId={userId}
                 /> */}
               </div>
               <Separator />
               <div>
-                <Preview value={studentProject.title!} />
+                <Preview value={tutorAssignment.title!} />
               </div>
               {!!attachments.length && (
                 <>
@@ -98,4 +94,4 @@ const StudentProjectIdPage = async ({
   );
 };
 
-export default StudentProjectIdPage;
+export default TutorAssignmentIdPage;
