@@ -16,6 +16,15 @@ export async function PATCH(
   if (!isFree || isFree.length === 0) {
     return new Response("No data provided", { status: 400 });
   }
+  const ownFaculty = await db.faculty.findUnique({
+    where: {
+      id: params.facultyId,
+      userId,
+    },
+  });
+  if (!ownFaculty) {
+    return new Response("Faculty not found", { status: 404 });
+  }
   const ownCourse = await db.course.findUnique({
     where: {
       id: params.courseId,
@@ -57,20 +66,39 @@ export async function DELETE(
   if (!userId) {
     return new Response("Unauthorized", { status: 401 });
   }
-  const topic = await db.tutor.findUnique({
+  const ownFaculty = await db.faculty.findUnique({
     where: {
-      id: params.tutorId,
-      courseId: params.courseId,      
+      id: params.facultyId,
       userId,
     },
   });
-  if (!topic) {
+  if (!ownFaculty) {
+    return new Response("Faculty not found", { status: 404 });
+  }
+  const ownCourse = await db.course.findUnique({
+    where: {
+      id: params.courseId,
+      facultyId: params.facultyId,
+      userId,
+    },
+  });
+  if (!ownCourse) {
+    return new Response("Course not found", { status: 404 });
+  }
+  const tutor = await db.tutor.findUnique({
+    where: {
+      id: params.tutorId,
+      courseId: params.courseId,
+      userId,
+    },
+  });
+  if (!tutor) {
     return new Response("Topic not found", { status: 404 });
   }
-  if (topic.videoUrl) {
+  if (tutor.videoUrl) {
     const existingMuxData = await db.muxData.findFirst({
       where: {
-        tutorId: topic.id,
+        tutorId: tutor.id,
       },
     });
     if (existingMuxData) {
@@ -83,7 +111,7 @@ export async function DELETE(
   }
   await db.tutor.delete({
     where: {
-      id: topic.id,
+      id: tutor.id,
     },
   });
   const publishedTutors = await db.tutor.findMany({

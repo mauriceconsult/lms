@@ -52,7 +52,7 @@ export const TutorDescriptionForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
    
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/tutor/${tutorId}/description`, values);
+      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}/descriptions`, values);
       toast.success("Topic Description updated.");
       toggleEdit();
       router.refresh();

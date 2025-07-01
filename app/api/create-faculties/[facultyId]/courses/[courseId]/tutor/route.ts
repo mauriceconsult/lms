@@ -4,12 +4,24 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string; tutorId: string; } }
+  {
+    params,
+  }: { params: { facultyId: string; courseId: string; tutorId: string } }
 ) {
   try {
     const { userId } = await auth();
     const { title } = await req.json();
     if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const facultyOwner = await db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId,
+      },
+    });
+
+    if (!facultyOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const courseOwner = await db.course.findUnique({
@@ -18,8 +30,18 @@ export async function POST(
         userId,
       },
     });
-    
+
     if (!courseOwner) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const tutorOwner = await db.tutor.findUnique({
+      where: {
+        id: params.tutorId,
+        userId,
+      },
+    });
+
+    if (!tutorOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const lastTopic = await db.tutor.findFirst({
@@ -27,12 +49,12 @@ export async function POST(
         courseId: params.courseId,
       },
       orderBy: {
-        position: "desc"
-      }
+        position: "desc",
+      },
     });
-    const newPosition = lastTopic ? ((lastTopic.position ?? 0) + 1) : 1;
+    const newPosition = lastTopic ? (lastTopic.position ?? 0) + 1 : 1;
 
-    const tutor = await db.tutor.create({   
+    const tutor = await db.tutor.create({
       data: {
         title,
         courseId: params.courseId,
@@ -47,8 +69,3 @@ export async function POST(
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
-
-
-
-
-

@@ -13,17 +13,35 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const ownTopic = await db.tutor.findUnique({
+    const ownFaculty = await db.faculty.findUnique({
+      where: {
+        id: params.facultyId,
+        userId,
+      },
+    });
+    if (!ownFaculty) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const ownCourse = await db.course.findUnique({
+      where: {
+        id: params.courseId,
+        userId,
+      },
+    });
+    if (!ownCourse) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const ownTutor = await db.tutor.findUnique({
       where: {
         id: params.tutorId,
         userId,
       },
     });
-    if (!ownTopic) {
+    if (!ownTutor) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const unpublishedTopic = await db.tutor.update({
+    const unpublishedTutor = await db.tutor.update({
       where: {
         id: params.tutorId,
         courseId: params.courseId,
@@ -33,14 +51,14 @@ export async function PATCH(
         isPublished: true,
       },
     });
-    const publishedTopics = await db.tutor.findMany({
+    const publishedTutors = await db.tutor.findMany({
       where: {
         id: params.tutorId,
         courseId: params.courseId,
         isPublished: true,
       },
     });
-    if (!publishedTopics.length) {
+    if (!publishedTutors.length) {
       await db.tutor.update({
         where: {
           id: params.tutorId,
@@ -50,7 +68,7 @@ export async function PATCH(
         },
       });
     }
-    return NextResponse.json(unpublishedTopic);
+    return NextResponse.json(unpublishedTutor);
   } catch (error) {
     console.log("[TUTOR_PUBLISH]", error);
     return new NextResponse("Internal Error", { status: 500 });

@@ -49,7 +49,7 @@ export const TutorAccessForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(
-        `/api/create-faculties/${facultyId}/courses/${courseId}/tutor/${tutorId}`,
+        `/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}`,
         values
       );
       toast.success("Tutor updated.");

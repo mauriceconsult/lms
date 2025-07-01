@@ -30,12 +30,12 @@ export const TutorActions = ({
       setIsLoading(true);
       if (isPublished) {
         await axios.patch(
-          `/api/create-faculties/${facultyId}/courses/${courseId}/tutor/${tutorId}/unpublish`
+          `/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}/unpublish`
         );
         toast.success("Tutor unpublished");
       } else {
         await axios.patch(
-          `/api/create-faculties/${facultyId}/courses/${courseId}/tutor/${tutorId}/publish`
+          `/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}/publish`
         );
         
         toast.success("Topic published");
@@ -50,7 +50,7 @@ export const TutorActions = ({
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await axios.delete(`/api/create-faculties/${facultyId}/courses/${courseId}/tutor/${tutorId}`);
+      await axios.delete(`/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}`);
       toast.success("Topic deleted");
       router.refresh();
       router.push(`/faculty/create-faculty/${facultyId}/course/${courseId}/tutor`);

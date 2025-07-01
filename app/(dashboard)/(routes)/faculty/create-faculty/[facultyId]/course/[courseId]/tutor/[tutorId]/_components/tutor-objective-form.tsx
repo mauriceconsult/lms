@@ -49,7 +49,7 @@ export const TutorObjectiveForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/tutor/${tutorId}/objective`, values);
+      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}/objectives`, values);
       toast.success("Tutor Objective updated.");
       toggleEdit();
       router.refresh();

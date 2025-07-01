@@ -22,6 +22,15 @@ export async function PATCH(
   if (!videoUrl || videoUrl.length === 0) {
     return new Response("No data provided", { status: 400 });
   }
+  const ownFaculty = await db.faculty.findUnique({
+    where: {
+      id: params.facultyId,
+      userId,
+    },
+  });
+  if (!ownFaculty) {
+    return new Response("Course not found", { status: 404 });
+  }
   const ownCourse = await db.course.findUnique({
     where: {
       id: params.courseId,
