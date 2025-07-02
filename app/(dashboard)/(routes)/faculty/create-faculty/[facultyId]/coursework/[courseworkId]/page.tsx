@@ -78,7 +78,7 @@ const CourseworkIdPage = async ({
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">Coursework creation</h1>
                 <div className="text-sm text-slate-700">
-                  <div>Completed fields {completionText}</div>                
+                  <div>Completed fields {completionText}</div>
                 </div>
               </div>
               <CourseworkActions

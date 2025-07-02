@@ -2,14 +2,14 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { PayrollTitleForm } from "./_components/payroll-title-form";
-import { LayoutDashboard, ListChecks, File } from "lucide-react";
+import { LayoutDashboard, ListChecks, File, ArrowLeft } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { PayrollSchoolForm } from "./_components/payroll-school-form";
 import { PayrollAttachmentForm } from "./_components/payroll-attachment-form";
 import { Banner } from "@/components/banner";
 import { PayrollActions } from "./_components/payroll-actions";
 import { PayrollFacultyPayrollForm } from "./_components/payroll-facultyPayroll-form";
-
+import Link from "next/link";
 
 const PayrollIdPage = async ({
   params,
@@ -71,6 +71,13 @@ const PayrollIdPage = async ({
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="w-full">
+            <Link
+              className="flex items-center text-sm hover:opacity-75 transition mb-6"
+              href={`/payroll/create-payroll/${params.payrollId}`}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Payroll creation.
+            </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">Payroll creation</h1>

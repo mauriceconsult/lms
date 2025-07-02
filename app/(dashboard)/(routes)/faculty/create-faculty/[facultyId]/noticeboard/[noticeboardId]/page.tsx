@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, File } from "lucide-react";
+import { LayoutDashboard, File, ArrowLeft } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 // import { NoticeboardImageForm } from "./_components/noticeboard-image-form";
 import { NoticeboardFacultyForm } from "./_components/noticeboard-faculty-form";
@@ -10,7 +10,7 @@ import { NoticeboardActions } from "./_components/noticeboard-actions";
 import { NoticeboardTitleForm } from "./_components/noticeboard-title-form";
 import { NoticeboardDescriptionForm } from "./_components/noticeboard-description-form";
 import { NoticeboardAttachmentForm } from "./_components/noticeboard-attachment-form";
-
+import Link from "next/link";
 
 const NoticeboardIdPage = async ({
   params,
@@ -46,10 +46,7 @@ const NoticeboardIdPage = async ({
   if (!noticeboard || !faculty) {
     return redirect("/");
   }
-  const requiredFields = [
-    noticeboard.title,
-    noticeboard.description,   
-  ];
+  const requiredFields = [noticeboard.title, noticeboard.description];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
@@ -65,6 +62,13 @@ const NoticeboardIdPage = async ({
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="w-full">
+            <Link
+              className="flex items-center text-sm hover:opacity-75 transition mb-6"
+              href={`/faculty/create-faculty/${params.facultyId}`}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Faculty creation.
+            </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">Noticeboard creation</h1>
@@ -76,7 +80,8 @@ const NoticeboardIdPage = async ({
                 disabled={!isComplete}
                 noticeboardId={params.noticeboardId}
                 isPublished={noticeboard.isPublished}
-                facultyId={params.facultyId} />
+                facultyId={params.facultyId}
+              />
             </div>
           </div>
         </div>
