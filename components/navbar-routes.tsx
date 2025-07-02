@@ -14,6 +14,7 @@ import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/faculty/create
 import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/assignment/[assignmentId]/search/_components/assignment-search-input";
 import { CourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/courseNoticeboard/[courseNoticeboardId]/search/_components/courseNoticeboard-search-input";
 import { TuitionSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tuition/[tuitionId]/search/_components/tuition-search-input";
+import { PayrollIdSearchInput } from "@/app/(dashboard)/(routes)/payroll/create-payroll/[payrollId]/search/_components/payrollId-search-input";
 
 type SearchInputComponent = FC<object>;
 
@@ -27,6 +28,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   const isAssignmentPage = pathname?.includes("/assignment");
   const isCourseNoticeboardPage = pathname?.includes("/courseNoticeboard");
   const isTuitionPage = pathname?.includes("/tuition");
+  const isPayrollPage = pathname?.includes("/payroll");
 
   let isSearchPages: SearchInputComponent | undefined;
   if (isTutorPage) {
@@ -43,6 +45,8 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
     isSearchPages = CourseNoticeboardSearchInput;
   } else if (isTuitionPage) {
     isSearchPages = TuitionSearchInput;
+  } else if (isPayrollPage) {
+    isSearchPages = PayrollIdSearchInput;
   } else if (isFacultyPage) {
     isSearchPages = FacultyIdSearchInput;
   }
@@ -55,6 +59,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
         isCourseworkPage ||
         isAssignmentPage ||
         isTuitionPage ||
+        isPayrollPage ||
         isCourseNoticeboardPage) && (
         <div className="mt-16 hidden md:block">
           {isSearchPages && React.createElement(isSearchPages)}
@@ -67,6 +72,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
         isNoticeboardPage ||
         isCourseworkPage ||
         isAssignmentPage ||
+        isPayrollPage ||
         isTuitionPage ||
         isCourseNoticeboardPage ? (
           <Link href="/">
@@ -82,6 +88,11 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
             </Button>
           </Link>
         )}
+        <Link href="/payroll/payrolls">
+          <Button size="sm" variant="ghost">
+            Payroll
+          </Button>
+        </Link>
 
         <Link href="/faculty/create-faculty/${facultyId}/course/courses">
           <Button size="sm" variant="ghost">

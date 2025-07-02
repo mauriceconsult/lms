@@ -33,6 +33,23 @@ const facultyRoutes = [
     href: "/faculty/analytics",
   },
 ];
+const payrollRoutes = [
+  {
+    icon: List,
+    label: "Payrolls",
+    href: "/payroll/payrolls",
+  },
+  {
+    icon: Compass,
+    label: "Browse Payrolls",
+    href: "/payroll/create-payroll/${payrollId}/search",
+  },
+  {
+    icon: BarChart,
+    label: "Analytics",
+    href: "/payroll/analytics",
+  },
+];
 const courseRoutes = [
   {
     icon: List,
@@ -163,6 +180,7 @@ export const SidebarRoutes = () => {
   const isCourseNoticeboardPage = pathname?.includes("/courseNoticeboard");
   const isAssignmentPage = pathname?.includes("/assignment");
   const isTuitionPage = pathname?.includes("/tuition");
+  const isPayrollPage = pathname?.includes("/payroll");
 
   let routes;
   if (isTutorPage) {
@@ -177,6 +195,8 @@ export const SidebarRoutes = () => {
     routes = assignmentRoutes;
   } else if (isTuitionPage) {
     routes = tuitionRoutes;
+  } else if (isPayrollPage) {
+    routes = payrollRoutes;
   } else if (isCoursePage) {
     routes = courseRoutes;
   } else if (isFacultyPage) {
