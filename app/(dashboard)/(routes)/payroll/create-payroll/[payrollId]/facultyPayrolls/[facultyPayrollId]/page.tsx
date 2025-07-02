@@ -5,9 +5,9 @@ import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Banner } from "@/components/banner";
-import { FacultyPayrollActions } from "../../facultyPayroll/[facultyPayrollId]/_components/facultyPayroll-actions";
-import { FacultyPayrollTitleForm } from "../../facultyPayroll/[facultyPayrollId]/_components/facultyPayroll-title-form";
-import { FacultyPayrollForm } from "../../facultyPayroll/[facultyPayrollId]/_components/facultyPayroll-payroll-form";
+import { FacultyPayrollActions } from "./_components/facultyPayroll-actions";
+import { FacultyPayrollTitleForm } from "./_components/facultyPayroll-title-form";
+import { FacultyPayrollForm } from "./_components/facultyPayroll-payroll-form";
 
 const FacultyPayrollIdPage = async ({
   params,
