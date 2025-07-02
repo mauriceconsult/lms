@@ -21,6 +21,7 @@ model Payroll {
   title           String           @db.Text
   partyId         String?
   position        Int?
+  isPublished          Boolean          @default(false)
   attachments     Attachment[]
   facultyPayrolls FacultyPayroll[]
   schoolId        String?
