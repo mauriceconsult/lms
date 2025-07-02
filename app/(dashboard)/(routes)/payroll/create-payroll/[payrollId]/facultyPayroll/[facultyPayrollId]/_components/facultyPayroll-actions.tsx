@@ -47,10 +47,10 @@ export const FacultyPayrollActions = ({
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await axios.delete(`/api/create-payrolls/${payrollId}/payrolls/${payrollId}`);
+      await axios.delete(`/api/create-payrolls/${payrollId}/facultyPayrolls/${facultyPayrollId}`);
       toast.success("FacultyPayroll deleted");
       router.refresh();
-      router.push(`/faculty/create-faculty/${payrollId}/payroll`);
+      router.push(`/payroll/create-payroll/${payrollId}/facultyPayroll`);
     } catch {
       toast.error("Something went wrong");
     } finally {

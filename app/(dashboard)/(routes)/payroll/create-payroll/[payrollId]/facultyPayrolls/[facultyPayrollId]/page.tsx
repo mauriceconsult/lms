@@ -1,17 +1,13 @@
 import { IconBadge } from "@/components/icon-badge";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import {
-  ArrowLeft,
-  LayoutDashboard,
-} from "lucide-react";
+import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Banner } from "@/components/banner";
-import { FacultyPayrollActions } from "./_components/facultyPayroll-actions";
-import { FacultyPayrollTitleForm } from "./_components/facultyPayroll-title-form";
-import { FacultyPayrollForm } from "./_components/facultyPayroll-payroll-form";
-
+import { FacultyPayrollActions } from "../../facultyPayroll/[facultyPayrollId]/_components/facultyPayroll-actions";
+import { FacultyPayrollTitleForm } from "../../facultyPayroll/[facultyPayrollId]/_components/facultyPayroll-title-form";
+import { FacultyPayrollForm } from "../../facultyPayroll/[facultyPayrollId]/_components/facultyPayroll-payroll-form";
 
 const FacultyPayrollIdPage = async ({
   params,
@@ -45,13 +41,8 @@ const FacultyPayrollIdPage = async ({
   if (!payroll || !facultyPayroll) {
     return redirect("/");
   }
-  const requiredFields = [
-    facultyPayroll.payrollId,
-    facultyPayroll.title,
-  ];
-  const optionalFields = [
-    facultyPayroll.attachments.length > 0,
-  ];
+  const requiredFields = [facultyPayroll.payrollId, facultyPayroll.title];
+  const optionalFields = [facultyPayroll.attachments.length > 0];
   const allFields = [...requiredFields, ...optionalFields];
   const totalFields = allFields.length;
   const completedFields = allFields.filter(Boolean).length;
