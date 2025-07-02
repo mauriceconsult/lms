@@ -16,14 +16,15 @@ model School {
 }
 
 model Payroll {
-  id             String           @id @default(uuid())
-  userId         String
-  title          String           @db.Text
-  partyId        String?
-  attachments    Attachment[]
-  facultyPayroll FacultyPayroll[]
-  schoolId       String?
-  school         School?          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  id              String           @id @default(uuid())
+  userId          String
+  title           String           @db.Text
+  partyId         String?
+  position        Int?
+  attachments     Attachment[]
+  facultyPayrolls FacultyPayroll[]
+  schoolId        String?
+  school          School?          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -37,8 +38,12 @@ model FacultyPayroll {
   title        String         @db.Text
   partyId      String?
   userProgress UserProgress[]
-  payrollId    String?
-  payroll      Payroll?       @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  attachments  Attachment[]
+  position     Int?
+  isPaid       Boolean        @default(false)
+
+  payrollId String?
+  payroll   Payroll? @relation(fields: [payrollId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -103,14 +108,14 @@ model CourseNoticeboard {
 }
 
 model Assignment {
-  id               String            @id @default(uuid())
-  userId           String
-  title            String            @db.Text
-  objective        String?           @db.Text
-  description      String?           @db.Text
-  partyId          String?
-  courseId         String?
-  position         Int?
+  id          String  @id @default(uuid())
+  userId      String
+  title       String  @db.Text
+  objective   String? @db.Text
+  description String? @db.Text
+  partyId     String?
+  courseId    String?
+  position    Int?
 
   attachments      Attachment[]
   tutorAssignments TutorAssignment[]
@@ -260,11 +265,11 @@ model MuxData {
 }
 
 model UserProgress {
-  id                String          @id @default(uuid())
-  userId            String
-  tutors            Tutor           @relation(fields: [tutorId], references: [id], onDelete: Cascade)
-  tutorId           String
-  
+  id      String @id @default(uuid())
+  userId  String
+  tutors  Tutor  @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  tutorId String
+
   courseTuitions    CourseTuition   @relation(fields: [courseTuitionId], references: [id], onDelete: Cascade)
   courseTuitionId   String
   studentProjectId  String
@@ -309,7 +314,9 @@ model Attachment {
   tuitionId           String?
   courseTuition       CourseTuition?     @relation(fields: [courseTuitionId], references: [id])
   courseTuitionId     String?
-  payroll             Payroll?           @relation(fields: [payrollId], references: [id])
+  facultyPayroll      FacultyPayroll?    @relation(fields: [facultyPayrollId], references: [id])
+  facultyPayrollId    String?
+  Payroll             Payroll?           @relation(fields: [payrollId], references: [id])
   payrollId           String?
 
   @@index([facultyId])
