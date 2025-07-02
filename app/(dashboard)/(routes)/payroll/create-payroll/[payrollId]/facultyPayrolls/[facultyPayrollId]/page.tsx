@@ -8,6 +8,7 @@ import { Banner } from "@/components/banner";
 import { FacultyPayrollActions } from "./_components/facultyPayroll-actions";
 import { FacultyPayrollTitleForm } from "./_components/facultyPayroll-title-form";
 import { FacultyPayrollForm } from "./_components/facultyPayroll-payroll-form";
+import { FacultyPayrollPartyIdForm } from "../../_components/payroll-partyId-form";
 
 const FacultyPayrollIdPage = async ({
   params,
@@ -41,7 +42,11 @@ const FacultyPayrollIdPage = async ({
   if (!payroll || !facultyPayroll) {
     return redirect("/");
   }
-  const requiredFields = [facultyPayroll.payrollId, facultyPayroll.title];
+  const requiredFields = [
+    facultyPayroll.payrollId,
+    facultyPayroll.title,
+    facultyPayroll.partyId
+  ];
   const optionalFields = [facultyPayroll.attachments.length > 0];
   const allFields = [...requiredFields, ...optionalFields];
   const totalFields = allFields.length;
@@ -54,7 +59,7 @@ const FacultyPayrollIdPage = async ({
       {!facultyPayroll.isPaid && (
         <Banner
           variant="warning"
-          label="This FacultyPayroll is unpaid. Please pay to publish it."
+          label="This Faculty Payroll is unpaid. Please pay to publish it."
         />
       )}
       <div className="p-6">
@@ -65,12 +70,12 @@ const FacultyPayrollIdPage = async ({
               href={`/payroll/create-payroll/${params.payrollId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Faculty creation.
+              Back to Payroll creation.
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">
-                  FacultyPayroll creation
+                  Faculty Payroll creation
                 </h1>
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
@@ -90,7 +95,7 @@ const FacultyPayrollIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Customize your facultyPayroll</h2>
+                <h2 className="text-xl">Customize your faculty Payroll</h2>
               </div>
             </div>
             <FacultyPayrollTitleForm
@@ -98,7 +103,6 @@ const FacultyPayrollIdPage = async ({
               payrollId={facultyPayroll.payrollId || ""}
               facultyPayrollId={facultyPayroll.id}
             />
-
             <FacultyPayrollForm
               initialData={facultyPayroll}
               facultyPayrollId={facultyPayroll.id}
@@ -107,6 +111,11 @@ const FacultyPayrollIdPage = async ({
                 label: cat.title,
                 value: cat.id,
               }))}
+            />
+            <FacultyPayrollPartyIdForm
+              initialData={facultyPayroll}
+              payrollId={facultyPayroll.payrollId || ""}
+              facultyPayrollId={facultyPayroll.id}
             />
           </div>
         </div>

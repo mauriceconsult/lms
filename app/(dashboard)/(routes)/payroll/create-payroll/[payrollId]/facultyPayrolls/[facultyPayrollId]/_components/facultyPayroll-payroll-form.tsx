@@ -48,7 +48,7 @@ export const FacultyPayrollForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(
-        `/api/create-faculties/${payrollId}/facultyPayrolls/${facultyPayrollId}/faculties`,
+        `/api/create-payrolls/${payrollId}/facultyPayrolls/${facultyPayrollId}/payrolls`,
         values
       );
       toast.success("Payroll updated.");

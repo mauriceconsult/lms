@@ -114,7 +114,7 @@ const PayrollIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={File} />
-                  <h2 className="text-xl">Resources & Attachments</h2>
+                  <h2 className="text-xl">Payroll Resources & Attachments</h2>
                 </div>
                 <PayrollAttachmentForm
                   initialData={payroll}
@@ -124,7 +124,7 @@ const PayrollIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Payroll Courses</h2>
+                  <h2 className="text-xl">Faculty Payrolls</h2>
                 </div>
                 <PayrollFacultyPayrollForm
                   initialData={payroll}

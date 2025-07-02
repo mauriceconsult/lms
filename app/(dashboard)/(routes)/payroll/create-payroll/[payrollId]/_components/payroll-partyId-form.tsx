@@ -17,26 +17,24 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-interface TuitionPartyIdFormProps {
+interface FacultyPayrollPartyIdFormProps {
   initialData: {
     title: string;
   };
-  facultyId: string;
-  courseId: string;
-  tuitionId: string;
+  payrollId: string;
+  facultyPayrollId: string;  
 }
 const formSchema = z.object({
   title: z.string().min(1, {
-    message: "Tuition payment phone number is required.",
+    message: "Payroll payment phone number is required.",
   }),
 });
 
-export const TuitionPartyIdForm = ({
+export const FacultyPayrollPartyIdForm = ({
   initialData,
-  facultyId,
-  courseId,
-  tuitionId,
-}: TuitionPartyIdFormProps) => {
+  payrollId,
+  facultyPayrollId,
+}: FacultyPayrollPartyIdFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
@@ -48,10 +46,10 @@ export const TuitionPartyIdForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(
-        `/api/create-faculties/${facultyId}/courses/${courseId}/tuitions/${tuitionId}/titles`,
+        `/api/create-payrolls/${payrollId}/partyId/${facultyPayrollId}`,
         values
       );
-      toast.success("Tuition created.");
+      toast.success("Payroll created.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -88,7 +86,7 @@ export const TuitionPartyIdForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Design Principles Tuition'"
+                      placeholder="e.g., 'Design Principles Payroll'"
                       {...field}
                     />
                   </FormControl>

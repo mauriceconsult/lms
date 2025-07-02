@@ -20,9 +20,8 @@ import { cn } from "@/lib/utils";
 import { FacultyPayroll, Payroll } from "@prisma/client";
 import { PayrollFacultyPayrollList } from "./payroll-facultyPayroll-list";
 
-
 interface PayrollFacultyPayrollFormProps {
-  initialData: Payroll & {facultyPayrolls: FacultyPayroll[]} 
+  initialData: Payroll & { facultyPayrolls: FacultyPayroll[] };
   payrollId: string;
 }
 
@@ -35,10 +34,7 @@ export const PayrollFacultyPayrollForm = ({
   payrollId,
 }: PayrollFacultyPayrollFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [
-    isUpdating,
-    setIsUpdating
-  ] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const toggleCreating = () => {
     setIsCreating((current) => !current);
   };
@@ -52,8 +48,11 @@ export const PayrollFacultyPayrollForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-payrolls/${payrollId}/facultyPayrolls`, values);
-      toast.success("FacultyPayroll created.");
+      await axios.post(
+        `/api/create-payrolls/${payrollId}/facultyPayrolls`,
+        values
+      );
+      toast.success("Faculty Payroll created.");
       toggleCreating();
       router.refresh();
     } catch {
@@ -63,10 +62,13 @@ export const PayrollFacultyPayrollForm = ({
   const onReorder = async (updateData: { id: string; position: number }[]) => {
     try {
       setIsUpdating(true);
-      await axios.put(`/api/create-payrolls/${payrollId}/facultyPayrolls/reorder`, {
-        list: updateData,
-      });
-      toast.success("FacultyPayrolls reordered");
+      await axios.put(
+        `/api/create-payrolls/${payrollId}/facultyPayrolls/reorder`,
+        {
+          list: updateData,
+        }
+      );
+      toast.success("Faculty Payrolls reordered");
       router.refresh();
     } catch {
       toast.error("Something went wrong");
@@ -75,7 +77,7 @@ export const PayrollFacultyPayrollForm = ({
     }
   };
   const onEdit = (id: string) => {
-    router.push(`/payroll/create-payroll/${payrollId}/facultyPayroll/${id}`);
+    router.push(`/payroll/create-payroll/${payrollId}/facultyPayrolls/${id}`);
   };
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
@@ -112,7 +114,7 @@ export const PayrollFacultyPayrollForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="FacultyPayroll name, e.g., 'Fashion Design payroll'"
+                      placeholder="FacultyPayroll name, e.g., 'Fashion Design Faculty payroll'"
                       {...field}
                     />
                   </FormControl>
@@ -133,7 +135,8 @@ export const PayrollFacultyPayrollForm = ({
             !initialData.facultyPayrolls && "text-slate-500 italic"
           )}
         >
-          {!initialData.facultyPayrolls.length && "Add your Faculty Payrolls here."}
+          {!initialData.facultyPayrolls.length &&
+            "Add your Faculty Payrolls here."}
           <PayrollFacultyPayrollList
             onEdit={onEdit}
             onReorder={onReorder}
