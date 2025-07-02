@@ -64,7 +64,7 @@ const FacultyIdPage = async ({
   const optionalFields = [
     faculty.noticeboards.length > 0,
     faculty.courseworks.length > 0,
-    faculty.attachments.length > 0,
+    faculty.attachments.length > 0,    
   ];
   const allFields = [...requiredFields, ...optionalFields];
   const totalFields = allFields.length;

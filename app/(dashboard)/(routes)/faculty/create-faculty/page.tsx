@@ -50,20 +50,12 @@ const CreateFaculty = () => {
         <p className="text-sm text-slate-600">
           <span>
             {" "}
-            Please give your Faculty a name. Don&apos;t worry, you can change the
-            name later. The Faculty enables you to develop a broader and deeper
-            (teaching and learning) vision.
+            Please give your Faculty a name. Don&apos;t worry, you can change
+            the name later. The Faculty is a strategic level for your teaching
+            and learning.
           </span>
-          <span>
-            {" "}
-            A Faculty can have one Course (or Subject), or a series of
-            related Courses (or Subjects).
-          </span>
-          <span>
-            {" "}
-            Each Course can have one Topic (or Lesson), or a
-            series of related Topics (or Lessons).
-          </span>
+          <span> The Course is an operational level.</span>
+          <span> At the Topic level, upload a teaching video for each Topic in a Course.</span>
         </p>
         <Form {...form}>
           <form
@@ -79,7 +71,7 @@ const CreateFaculty = () => {
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Education'"
+                      placeholder="e.g., 'Fashion Design'"
                       {...field}
                     />
                   </FormControl>
