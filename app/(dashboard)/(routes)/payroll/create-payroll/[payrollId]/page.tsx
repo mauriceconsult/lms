@@ -54,10 +54,8 @@ const PayrollIdPage = async ({
     payroll.schoolId,
     payroll.facultyPayrolls.length > 0,
   ];
-  const optionalFields = [payroll.attachments.length > 0];
-  const allFields = [...requiredFields, ...optionalFields];
-  const totalFields = allFields.length;
-  const completedFields = allFields.filter(Boolean).length;
+  const totalFields = requiredFields.length;
+  const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
   return (

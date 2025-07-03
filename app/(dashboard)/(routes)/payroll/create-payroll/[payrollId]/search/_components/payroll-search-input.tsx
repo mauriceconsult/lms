@@ -7,7 +7,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import qs from "query-string";
 
-export const PayrollIdSearchInput = () => {
+export const PayrollSearchInput = () => {
   const [value, setValue] = useState("");
   const debouncedValue = useDebounce(value);
   const searchParams = useSearchParams();

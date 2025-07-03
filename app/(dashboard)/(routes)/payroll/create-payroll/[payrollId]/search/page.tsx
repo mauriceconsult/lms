@@ -3,8 +3,8 @@ import { Schools } from "@/app/(dashboard)/(routes)/search/_components/schools";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getPayrolls } from "@/actions/get-payrolls";
-import { PayrollIdSearchInput } from "./_components/payrollId-search-input";
 import { SchoolsList } from "./_components/schools-list";
+import { PayrollSearchInput } from "./_components/payroll-search-input";
 
 interface PayrollSearchPageProps {
   searchParams: {
@@ -29,7 +29,7 @@ const PayrollSearchPage = async ({ searchParams }: PayrollSearchPageProps) => {
   return (
     <>
       <div className="px-6 pt-6 md:hidden md:mb-0 block">
-        <PayrollIdSearchInput />
+        <PayrollSearchInput />
       </div>
       <div className="p-6 space-y-4">
         <Schools items={schools} />
