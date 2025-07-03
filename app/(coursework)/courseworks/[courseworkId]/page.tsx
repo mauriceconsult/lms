@@ -19,10 +19,8 @@ const CourseworkIdPage = async ({ params }: { params: { courseworkId: string } }
   });
   if (!coursework) {
     return redirect("/");
-  }
-  /**`/faculty/create-faculty/${facultyId}/coursework/${courseworkId}/studentProjects/${id}` */
-  return redirect(
-    // `/courseworks/${coursework.id}/studentProjects/${coursework.studentProjects[0].id}`
+  }  
+  return redirect(   
       `/courseworks/${coursework.id}/studentProjects/${coursework.studentProjects}`
   );
 };

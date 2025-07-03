@@ -14,7 +14,7 @@ import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/faculty/create
 import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/assignment/[assignmentId]/search/_components/assignment-search-input";
 import { CourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/courseNoticeboard/[courseNoticeboardId]/search/_components/courseNoticeboard-search-input";
 import { TuitionSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tuition/[tuitionId]/search/_components/tuition-search-input";
-import { PayrollIdSearchInput } from "@/app/(dashboard)/(routes)/payroll/create-payroll/[payrollId]/search/_components/payroll-search-input";
+import { PayrollSearchInput } from "@/app/(dashboard)/(routes)/payroll/create-payroll/[payrollId]/search/_components/payroll-search-input";
 
 type SearchInputComponent = FC<object>;
 
@@ -46,7 +46,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   } else if (isTuitionPage) {
     isSearchPages = TuitionSearchInput;
   } else if (isPayrollPage) {
-    isSearchPages = PayrollIdSearchInput;
+    isSearchPages = PayrollSearchInput;
   } else if (isFacultyPage) {
     isSearchPages = FacultyIdSearchInput;
   }

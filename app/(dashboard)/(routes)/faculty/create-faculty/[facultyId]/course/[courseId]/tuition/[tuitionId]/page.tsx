@@ -8,7 +8,8 @@ import Link from "next/link";
 import { TuitionActions } from "./_components/tuition-actions";
 import { TuitionTitleForm } from "./_components/tuition-title-form";
 import { TuitionCourseForm } from "./_components/tuition-course-form";
-import { TuitionPartyIdForm } from "../../../../../../../payroll/create-payroll/[payrollId]/_components/payroll-partyId-form";
+import { TuitionPartyIdForm } from "./_components/tuition-partyId-form";
+
 
 const TuitionIdPage = async ({
   params,
