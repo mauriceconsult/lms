@@ -20,7 +20,9 @@ const AssignmentIdpage = async ({ params }: { params: { assignmentId: string } }
   if (!assignment) {
     return redirect("/")
   }
- return redirect(`/assignments/${assignment.id}/tutorAssignments/${assignment.tutorAssignments[0].id}`);
+  return redirect(
+    `/assignments/${assignment.id}/tutorAssignments/${assignment.tutorAssignments}`
+  );
 };
 
 export default AssignmentIdpage;
