@@ -1,5 +1,5 @@
 "use client";
-import { Assignment } from "@prisma/client";
+import { TutorAssignment } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export const columns: ColumnDef<Assignment>[] = [
+export const columns: ColumnDef<TutorAssignment>[] = [
   {
     accessorKey: "title",
     header: ({ column }) => {
@@ -53,7 +53,7 @@ export const columns: ColumnDef<Assignment>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const { id, facultyId, courseId } = row.original as Assignment & { facultyId?: string; courseId?: string; assignmentId?: string };
+      const { id, facultyId, courseId } = row.original as TutorAssignment & { facultyId?: string; courseId?: string; assignmentId?: string };
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -63,7 +63,7 @@ export const columns: ColumnDef<Assignment>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <Link href={`/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/${id}/tutorAssignment/${id}`}>
+            <Link href={`/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/${id}/tutorTutorAssignment/${id}`}>
               <DropdownMenuItem>
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit

@@ -18,7 +18,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Assignment, TutorAssignment } from "@prisma/client";
-import { AssignmentTutorAssignmentList } from "./assignment-tutorAssignment-list";
+import { AssignmentTutorAssignmentList } from "../../../tutorAssignments/[tutorAssignmentId]/_components/assignment-tutorAssignment-list";
 
 
 interface AssignmentTutorAssignmentFormProps {
