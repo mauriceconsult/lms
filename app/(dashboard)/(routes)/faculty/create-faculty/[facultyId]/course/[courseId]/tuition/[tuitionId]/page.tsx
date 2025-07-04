@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { IconBadge } from "@/components/icon-badge";
-import { ArrowLeft, LayoutDashboard } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, ListChecks } from "lucide-react";
 import Link from "next/link";
 import { TuitionActions } from "./_components/tuition-actions";
 import { TuitionTitleForm } from "./_components/tuition-title-form";
@@ -29,7 +29,10 @@ const TuitionIdPage = async ({
       id: params.tuitionId,
       courseId: params.courseId,
       userId,
-    },  
+    },
+    include: {
+      courseTuitions: true,
+    },
   });
   const course = await db.course.findMany({
     orderBy: {
@@ -43,7 +46,7 @@ const TuitionIdPage = async ({
   const requiredFields = [
     tuition.title,
     tuition.courseId,
-    tuition.partyId,
+    tuition.courseTuitions.length > 0,
    
   ];
   const totalFields = requiredFields.length;
@@ -56,7 +59,7 @@ const TuitionIdPage = async ({
       {!tuition.isPaid && (
         <Banner
           variant="warning"
-          label="This Tuition is unpaid. It will not be visible to the Tutor."
+          label="This Tuition is unpublished. A paid Course Tuition is required for this Tuition to be publishable."
         />
       )}
       <div className="p-6">
@@ -110,12 +113,19 @@ const TuitionIdPage = async ({
                 value: cat.id,
               }))}
             />
-            <TuitionPartyIdForm
-              initialData={tuition}
-              facultyId={params.facultyId}
-              courseId={tuition.courseId || ""}
-              tuitionId={tuition.id}
-            />
+            <div>
+              {" "}
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={ListChecks} />
+                <h2 className="text-xl">Tuition PartyIds</h2>
+              </div>
+              <TuitionPartyIdForm
+                initialData={tuition}
+                facultyId={params.facultyId}
+                courseId={tuition.courseId || ""}
+                tuitionId={tuition.id}
+              />
+            </div>
           </div>
         </div>
       </div>

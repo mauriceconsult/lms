@@ -108,7 +108,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
 
         <Link href="/faculty/create-faculty/${facultyId}/noticeboard/noticeboards">
           <Button size="sm" variant="ghost">
-            Noticeboard
+            Faculty Notice
           </Button>
         </Link>
 
@@ -120,19 +120,19 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
 
         <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/courseNoticeboards">
           <Button size="sm" variant="ghost">
-            Course Noticeboard
+            Course Notice
           </Button>
         </Link>
 
         <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/assignments">
           <Button size="sm" variant="ghost">
-            Tutor Assignment
+            Assignment
           </Button>
         </Link>
 
         <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/tuition/tuitions">
           <Button size="sm" variant="ghost">
-            Course Tuition
+            Tuition
           </Button>
         </Link>
 

@@ -10,12 +10,13 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import PhoneInput from "@/components/phone-input";
 
 interface TuitionPartyIdFormProps {
   initialData: {
@@ -86,11 +87,7 @@ export const TuitionPartyIdForm = ({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
-                      disabled={isSubmitting}
-                      placeholder="e.g., 'Design Principles Tuition'"
-                      {...field}
-                    />
+                   <PhoneInput {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
