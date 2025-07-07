@@ -53,7 +53,10 @@ export const columns: ColumnDef<CourseNoticeboard>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const { id, facultyId, courseId } = row.original as CourseNoticeboard & { facultyId?: string; courseId?: string };
+      const { id, facultyId, courseId } = row.original as CourseNoticeboard & {
+        facultyId?: string;
+        courseId?: string;
+      };
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -63,7 +66,9 @@ export const columns: ColumnDef<CourseNoticeboard>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <Link href={`/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/${id}`}>
+            <Link
+              href={`/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/${id}`}
+            >
               <DropdownMenuItem>
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit

@@ -29,8 +29,7 @@ const CourseworkIdPage = async ({
       id: params.courseworkId,
       userId,
     },
-    include: {
-      studentProjects: true,
+    include: {  
       attachments: {
         orderBy: {
           createdAt: "desc",
@@ -48,8 +47,7 @@ const CourseworkIdPage = async ({
   }
   const requiredFields = [
     coursework.title,
-    coursework.description,
-    coursework.studentProjects.length > 0,
+    coursework.description,    
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;

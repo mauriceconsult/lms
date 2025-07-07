@@ -29,23 +29,23 @@ export const columns: ColumnDef<Assignment>[] = [
     },
   },
   {
-    accessorKey: "isSubmitted",
+    accessorKey: "isPublished",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Submitted
+          Published
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const isSubmitted = row.getValue("isSubmitted") || false;
+      const isPublished = row.getValue("isPublished") || false;
       return (
-        <Badge className={cn("bg-slate-500", isSubmitted && "bg-sky-700")}>
-          {isSubmitted ? "Submitted" : "Draft"}
+        <Badge className={cn("bg-slate-500", isPublished && "bg-sky-700")}>
+          {isPublished ? "Published" : "Draft"}
         </Badge>
       );
     },
@@ -53,7 +53,7 @@ export const columns: ColumnDef<Assignment>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const { id, facultyId, courseId } = row.original as Assignment & { facultyId?: string; courseId?: string; assignmentId?: string };
+      const { id, facultyId, courseId } = row.original as Assignment & { facultyId?: string; courseId?: string };
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -63,7 +63,7 @@ export const columns: ColumnDef<Assignment>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <Link href={`/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/${id}/tutorAssignment/${id}`}>
+            <Link href={`/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/${id}`}>
               <DropdownMenuItem>
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit
