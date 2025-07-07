@@ -76,7 +76,7 @@ const FacultyIdPage = async ({
       {!faculty.isPublished && (
         <Banner
           variant="warning"
-          label="This Faculty is unpublished. A published Course is required for this Faculty to be publishable."
+          label="This Faculty is unpublished. It will not be visible to the Faculty."
         />
       )}
       <div className="p-6">

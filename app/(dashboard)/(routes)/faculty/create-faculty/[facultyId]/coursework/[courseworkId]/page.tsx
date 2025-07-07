@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, File, ListChecks, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, File, ArrowLeft } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { CourseworkFacultyForm } from "./_components/coursework-faculty-form";
 import { Banner } from "@/components/banner";
@@ -9,7 +9,6 @@ import { CourseworkDescriptionForm } from "./_components/coursework-description-
 import { CourseworkTitleForm } from "./_components/coursework-title-form";
 import { CourseworkAttachmentForm } from "./_components/coursework-attachment-form";
 import { CourseworkActions } from "./_components/coursework-actions";
-import { CourseworkStudentProjectForm } from "./_components/coursework-studentProjects-form";
 import Link from "next/link";
 
 const CourseworkIdPage = async ({
@@ -61,7 +60,7 @@ const CourseworkIdPage = async ({
       {!coursework.isPublished && (
         <Banner
           variant="warning"
-          label="This Coursework is unpublished. A published Student Project is required for this Coursework to be publishable."
+          label="This Coursework is unpublished. It will not be visible to the Faculty."
         />
       )}
       <div className="p-6">
@@ -124,17 +123,6 @@ const CourseworkIdPage = async ({
                   <h2 className="text-xl">Resources & Attachments</h2>
                 </div>
                 <CourseworkAttachmentForm
-                  initialData={coursework}
-                  courseworkId={coursework.id}
-                  facultyId={coursework.facultyId || ""}
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-x-2">
-                  <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Student Projects</h2>
-                </div>
-                <CourseworkStudentProjectForm
                   initialData={coursework}
                   courseworkId={coursework.id}
                   facultyId={coursework.facultyId || ""}
