@@ -7,20 +7,13 @@ const PayrollIdpage = async ({ params }: { params: { payrollId: string } }) => {
       id: params.payrollId,
     },
     include: {
-      facultyPayrolls: {
-        where: {
-          isPaid: true,
-        },
-        orderBy: {
-          position: "asc",
-        },
-      },
+      attachments: true,
     },
   });
   if (!payroll) {
     return redirect("/")
   }
- return redirect(`/payrolls/${payroll.id}/facultyPayrolls/${payroll.facultyPayrolls[0].id}`);
+ return redirect(`/payrolls/${payroll.id}`);
 };
 
 export default PayrollIdpage;

@@ -51,11 +51,6 @@ const CourseIdPage = async ({
           position: "asc",
         },
       },
-      purchases: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
       attachments: {
         orderBy: {
           createdAt: "desc",

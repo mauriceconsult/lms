@@ -3,13 +3,12 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { IconBadge } from "@/components/icon-badge";
-import { ArrowLeft, LayoutDashboard, ListChecks } from "lucide-react";
+import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { TuitionActions } from "./_components/tuition-actions";
 import { TuitionTitleForm } from "./_components/tuition-title-form";
 import { TuitionCourseForm } from "./_components/tuition-course-form";
 import { TuitionPartyIdForm } from "./_components/tuition-partyId-form";
-
 
 const TuitionIdPage = async ({
   params,
@@ -30,9 +29,6 @@ const TuitionIdPage = async ({
       courseId: params.courseId,
       userId,
     },
-    include: {
-      courseTuitions: true,
-    },
   });
   const course = await db.course.findMany({
     orderBy: {
@@ -43,12 +39,7 @@ const TuitionIdPage = async ({
   if (!course || !tuition) {
     return redirect("/");
   }
-  const requiredFields = [
-    tuition.title,
-    tuition.courseId,
-    tuition.courseTuitions.length > 0,
-   
-  ];
+  const requiredFields = [tuition.title, tuition.courseId, tuition.partyId];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
@@ -59,7 +50,7 @@ const TuitionIdPage = async ({
       {!tuition.isPaid && (
         <Banner
           variant="warning"
-          label="This Tuition is unpublished. A paid Course Tuition is required for this Tuition to be publishable."
+          label="This Tuition is unpaid. Please pay for the Tuition to be publishable."
         />
       )}
       <div className="p-6">
@@ -113,19 +104,12 @@ const TuitionIdPage = async ({
                 value: cat.id,
               }))}
             />
-            <div>
-              {" "}
-              <div className="flex items-center gap-x-2">
-                <IconBadge icon={ListChecks} />
-                <h2 className="text-xl">Tuition PartyIds</h2>
-              </div>
-              <TuitionPartyIdForm
-                initialData={tuition}
-                facultyId={params.facultyId}
-                courseId={tuition.courseId || ""}
-                tuitionId={tuition.id}
-              />
-            </div>
+            <TuitionPartyIdForm
+              initialData={tuition}
+              facultyId={params.facultyId}
+              courseId={tuition.courseId || ""}
+              tuitionId={tuition.id}
+            />
           </div>
         </div>
       </div>

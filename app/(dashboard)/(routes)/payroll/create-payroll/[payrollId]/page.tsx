@@ -2,13 +2,12 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { PayrollTitleForm } from "./_components/payroll-title-form";
-import { LayoutDashboard, ListChecks, File, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, File, ArrowLeft } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { PayrollSchoolForm } from "./_components/payroll-school-form";
 import { PayrollAttachmentForm } from "./_components/payroll-attachment-form";
 import { Banner } from "@/components/banner";
 import { PayrollActions } from "./_components/payroll-actions";
-import { PayrollFacultyPayrollForm } from "./_components/payroll-facultyPayroll-form";
 import Link from "next/link";
 
 const PayrollIdPage = async ({
@@ -33,13 +32,8 @@ const PayrollIdPage = async ({
         orderBy: {
           createdAt: "desc",
         },
-      },
-      facultyPayrolls: {
-        orderBy: {
-          position: "asc",
-        },
-      },
-    },
+      },    
+      },    
   });
   const school = await db.school.findMany({
     orderBy: {
@@ -51,8 +45,7 @@ const PayrollIdPage = async ({
   }
   const requiredFields = [
     payroll.title,
-    payroll.schoolId,
-    payroll.facultyPayrolls.length > 0,
+    payroll.schoolId,    
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
@@ -63,7 +56,7 @@ const PayrollIdPage = async ({
       {!payroll.isPublished && (
         <Banner
           variant="warning"
-          label="This Payroll is unpublished. A paid Faculty Payroll is required for this Payroll to be publishable."
+          label="This Payroll is unpublished. Please publish for it to be visible to faculty."
         />
       )}
       <div className="p-6">
@@ -119,16 +112,7 @@ const PayrollIdPage = async ({
                   payrollId={payroll.id}
                 />
               </div>
-              <div>
-                <div className="flex items-center gap-x-2">
-                  <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Faculty Payrolls</h2>
-                </div>
-                <PayrollFacultyPayrollForm
-                  initialData={payroll}
-                  payrollId={payroll.id}
-                />
-              </div>
+             
             </div>
           </div>
         </div>

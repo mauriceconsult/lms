@@ -32,12 +32,12 @@ export async function PATCH(
         userId,
       },
       include: {
-        facultyPayrolls: true,
+        attachments: true,
       },
     });
     const hasPublishedPayroll =
-      payroll && payroll.facultyPayrolls
-        ? payroll.facultyPayrolls.some((facultyPayroll) => facultyPayroll.isPaid)
+      payroll && payroll.isPublished
+        ? payroll.isPublished
         : false;
     if (
       !payroll ||   
