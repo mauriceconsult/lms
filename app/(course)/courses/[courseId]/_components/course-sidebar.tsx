@@ -19,7 +19,7 @@ export const CourseSidebar = async ({
   if (!userId) {
     return <div>Please log in to view this page.</div>;
   }
-  const purchase = await db.purchase.findUnique({
+  const tuition = await db.tuition.findUnique({
     where: {
       userId_courseId: {
         userId,
@@ -31,7 +31,7 @@ export const CourseSidebar = async ({
     <div className="h-full border-r flex flex-col overflow-y-auto shadow-sm">
       <div className="p-8 flex flex-col border-b">
               <h1 className="font-semibold">{course.title}</h1>
-              {/**TODO: Check purchase and add progress */}
+              {/**TODO: Check tuition and add progress */}
           </div>
           <div className="flex flex-col w-full">
               {course.tutors.map((tutor) => (
@@ -41,7 +41,7 @@ export const CourseSidebar = async ({
                       label={tutor.title}
                       isCompleted={!!tutor.userProgress?.[0]?.isCompleted}
                       courseId={course.id}
-                      isLocked={!tutor.isFree && !purchase}
+                      isLocked={!tutor.isFree && !tuition}
                   />
               ))}              
           </div>

@@ -21,7 +21,7 @@ const TutorIdPage = async ({
     // attachments,
     nextTutor,
     userProgress,
-    purchase,
+    tuition,
   } = await getTutor({
     userId,
     courseId: params.courseId,
@@ -30,8 +30,8 @@ const TutorIdPage = async ({
   if (!tutor || !course) {
     return redirect("/");
   }
-  const isLocked = !tutor.isFree && !purchase;
-  const completeOnEnd = !!purchase && !userProgress?.isCompleted;
+  const isLocked = !tutor.isFree && !tuition;
+  const completeOnEnd = !!tuition && !userProgress?.isCompleted;
   return (
     <div>
       {userProgress?.isCompleted && (
@@ -39,7 +39,7 @@ const TutorIdPage = async ({
       )}
       {isLocked && (
         <Banner
-          label="You need to purchase this Course to watch this Topic"
+          label="You need to tuition this Course to watch this Topic"
           variant="warning"
         />
       )}

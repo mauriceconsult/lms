@@ -12,7 +12,7 @@ export const getTutor = async ({
   tutorId,
 }: GetTutorProps) => {
   try {
-    const purchase = await db.purchase.findUnique({
+    const tuition = await db.tuition.findUnique({
       where: {
         userId_courseId: {
           userId,
@@ -41,14 +41,14 @@ export const getTutor = async ({
     let muxData = null;
     let attachments: Attachment[] = [];
     let nextTutor: Tutor | null = null;
-    if (purchase) {
+    if (tuition) {
       attachments = await db.attachment.findMany({
         where: {
           courseId: courseId,
         },
       });
     }
-    if (tutor.isFree || purchase) {
+    if (tutor.isFree || tuition) {
       muxData = await db.muxData.findUnique({
         where: {
           tutorId: tutorId,
@@ -82,7 +82,7 @@ export const getTutor = async ({
       attachments,
       nextTutor,
       userProgress,
-      purchase,
+      tuition,
     };
   } catch (error) {
     console.log("[GET_TUTOR_ERROR]", error);
@@ -93,7 +93,7 @@ export const getTutor = async ({
       attachments: [],
       nextTutor: null,
       userProgress: null,
-      purchase: null,
+      tuition: null,
     };
   }
 };

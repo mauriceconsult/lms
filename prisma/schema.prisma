@@ -46,6 +46,7 @@ model Tuition {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, courseId])
   @@index([courseId])
 }
 
@@ -199,6 +200,8 @@ model UserProgress {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, tutorId])
+  @@unique([userId, assignmentId])
+  @@unique([userId, courseworkId])
   @@index([tutorId])
 }
 
