@@ -73,11 +73,11 @@ const CourseIdPage = async ({
     course.facultyId,
     course.imageUrl,
     course.amount,
-    course.tutors.length > 0,    
+    course.tutors.length > 0,
     course.assignments.length > 0,
   ];
   const optionalFields = [
-    course.attachments.length > 0,    
+    course.attachments.length > 0,
     course.courseNoticeboards.length > 0,
     course.tuitions.length > 0,
   ];
