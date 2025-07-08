@@ -53,7 +53,7 @@ export const FacultyAttachmentForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Faculty attachments
+        Attachments
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing && <>Cancel</>}
           {!isEditing && (
@@ -68,7 +68,7 @@ export const FacultyAttachmentForm = ({
         <>
           {initialData.attachments.length === 0 && (
             <p className="text-sm mt-2 text-slate-500 italic">
-              All the Faculty attachments will appear hear.
+              All the Attachments will appear hear.
             </p>
           )}
           {initialData.attachments.length > 0 && (

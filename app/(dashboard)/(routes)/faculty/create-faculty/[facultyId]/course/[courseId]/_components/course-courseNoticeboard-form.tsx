@@ -52,7 +52,7 @@ export const CourseCourseNoticeboardForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards`, values);
-      toast.success("Course CourseNoticeboard created.");
+      toast.success("Course Notice created.");
       toggleCreating();
       router.refresh();
     } catch {
@@ -65,7 +65,7 @@ export const CourseCourseNoticeboardForm = ({
       await axios.put(`/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards/reorder`, {
         list: updateData,
       });
-      toast.success("Course CourseNoticeboards reordered");
+      toast.success("Course Noticeboards reordered");
       router.refresh();
     } catch {
       toast.error("Something went wrong");
@@ -87,14 +87,14 @@ export const CourseCourseNoticeboardForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course Notice
+        Notice
         <Button onClick={toggleCreating} variant="ghost">
           {isCreating ? (
             <>Cancel</>
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Course Notice
+              Add a Notice
             </>
           )}
         </Button>

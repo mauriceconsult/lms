@@ -87,14 +87,14 @@ export const CourseTuitionForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course Tuition
+        Tuition
         <Button onClick={toggleCreating} variant="ghost">
           {isCreating ? (
             <>Cancel</>
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add an Tuition
+              Add a Tuition
             </>
           )}
         </Button>

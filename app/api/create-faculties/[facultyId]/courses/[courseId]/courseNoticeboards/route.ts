@@ -9,8 +9,7 @@ export async function POST(
   }: {
     params: {
       facultyId: string;
-      courseId: string;
-      courseNoticeboardId: string;
+      courseId: string;     
     };
   }
 ) {
@@ -38,16 +37,6 @@ export async function POST(
     });
 
     if (!courseOwner) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-    const courseNoticeOwner = await db.courseNoticeboard.findUnique({
-      where: {
-        id: params.courseNoticeboardId,
-        userId,
-      },
-    });
-
-    if (!courseNoticeOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const lastCourseNotice = await db.courseNoticeboard.findFirst({

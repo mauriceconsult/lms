@@ -6,7 +6,7 @@ export async function POST(
   req: Request,
   {
     params,
-  }: { params: { facultyId: string; courseId: string; tutorId: string } }
+  }: { params: { facultyId: string; courseId: string; } }
 ) {
   try {
     const { userId } = await auth();
@@ -33,17 +33,7 @@ export async function POST(
 
     if (!courseOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
-    }
-    const tutorOwner = await db.tutor.findUnique({
-      where: {
-        id: params.tutorId,
-        userId,
-      },
-    });
-
-    if (!tutorOwner) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+    } 
     const lastTopic = await db.tutor.findFirst({
       where: {
         courseId: params.courseId,

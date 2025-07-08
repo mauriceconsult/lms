@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; courseworkId: string; } }
+  { params }: { params: { facultyId: string; } }
 ) {
   try {
     const { userId } = await auth();
@@ -21,17 +21,7 @@ export async function POST(
     
     if (!facultyOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
-    }
-    const courseworkOwner = await db.coursework.findUnique({
-      where: {
-        id: params.courseworkId,
-        userId,
-      },
-    });
-
-    if (!courseworkOwner) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+    }    
     const lastCoursework = await db.coursework.findFirst({
       where: {
         facultyId: params.facultyId,

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string; tuitionId: string; } }
+  { params }: { params: { facultyId: string; courseId: string; } }
 ) {
   try {
     const { userId } = await auth();
