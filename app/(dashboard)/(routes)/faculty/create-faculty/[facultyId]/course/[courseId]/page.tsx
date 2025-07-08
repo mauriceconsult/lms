@@ -74,12 +74,11 @@ const CourseIdPage = async ({
     course.imageUrl,
     course.amount,
     course.tutors.length > 0,    
+    course.assignments.length > 0,
   ];
   const optionalFields = [
-    course.attachments.length > 0,
-    course.tutors.length > 0,
+    course.attachments.length > 0,    
     course.courseNoticeboards.length > 0,
-    course.assignments.length > 0,
     course.tuitions.length > 0,
   ];
   const allFields = [...requiredFields, ...optionalFields];
@@ -93,7 +92,7 @@ const CourseIdPage = async ({
       {!course.isPublished && (
         <Banner
           variant="warning"
-          label="This Course is unpublished. A published Topic is required for this Course to be publishable."
+          label="This course is not published yet. You can publish it once you have completed all required fields."
         />
       )}
       <div className="p-6">

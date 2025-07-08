@@ -85,7 +85,7 @@ export const FacultyNoticeboardForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Faculty Noticeboard
+        Notice
         <Button onClick={toggleCreating} variant="ghost">
           {isCreating ? (
             <>Cancel</>
@@ -133,7 +133,7 @@ export const FacultyNoticeboardForm = ({
             !initialData.noticeboards && "text-slate-500 italic"
           )}
         >
-          {!initialData.noticeboards.length && "Add your Noticeboards here."}
+          {!initialData.noticeboards.length && "Your notices appear here."}
           <FacultyNoticeboardList
             onEdit={onEdit}
             onReorder={onReorder}
@@ -143,7 +143,7 @@ export const FacultyNoticeboardForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the noticeboards
+          Drag and drop to reorder the Noticeboards
         </p>
       )}
     </div>
