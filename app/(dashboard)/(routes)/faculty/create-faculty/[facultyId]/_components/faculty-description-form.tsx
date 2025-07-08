@@ -19,7 +19,6 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Faculty } from "@prisma/client";
 
-
 interface DescriptionFormProps {
   initialData: Faculty;
   facultyId: string;
@@ -46,7 +45,10 @@ export const FacultyDescriptionForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/descriptions`, values);
+      await axios.patch(
+        `/api/create-faculties/${facultyId}/descriptions`,
+        values
+      );
       toast.success("Faculty description updated.");
       toggleEdit();
       router.refresh();
@@ -57,7 +59,7 @@ export const FacultyDescriptionForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Faculty description
+        Faculty description*
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>

@@ -59,12 +59,12 @@ const FacultyIdPage = async ({
     faculty.description,
     faculty.imageUrl,
     faculty.schoolId,
+    faculty.courseworks.length > 0,
     faculty.courses.length > 0,
   ];
   const optionalFields = [
     faculty.noticeboards.length > 0,
-    faculty.courseworks.length > 0,
-    faculty.attachments.length > 0,    
+    faculty.attachments.length > 0,
   ];
   const allFields = [...requiredFields, ...optionalFields];
   const totalFields = allFields.length;
@@ -76,7 +76,7 @@ const FacultyIdPage = async ({
       {!faculty.isPublished && (
         <Banner
           variant="warning"
-          label="This Faculty is unpublished. It will not be visible to the Faculty."
+          label="This faculty is not published yet. You can publish it once you have completed all required fields."
         />
       )}
       <div className="p-6">
@@ -143,9 +143,9 @@ const FacultyIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Faculty Noticeboard</h2>
+                  <h2 className="text-xl">Faculty Coursework</h2>
                 </div>
-                <FacultyNoticeboardForm
+                <FacultyCourseworkForm
                   initialData={faculty}
                   facultyId={faculty.id}
                 />
@@ -153,9 +153,9 @@ const FacultyIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Faculty Coursework</h2>
+                  <h2 className="text-xl">Faculty Noticeboard</h2>
                 </div>
-                <FacultyCourseworkForm
+                <FacultyNoticeboardForm
                   initialData={faculty}
                   facultyId={faculty.id}
                 />
