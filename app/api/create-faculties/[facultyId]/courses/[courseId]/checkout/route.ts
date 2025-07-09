@@ -43,7 +43,7 @@ export async function POST(
     const amount = course.amount;
     const currency = "EUR";
     const externalId = `${user.id}-${params.courseId}`;
-      const partyIdType = process.env.MOMO_PARTY_ID_TYPE as string;
+    const partyIdType = process.env.MOMO_PARTY_ID_TYPE as string;
     const partyId = user.emailAddresses?.[0]?.emailAddress || user.id;
     const payerMessage = `Tuition payment ${course?.title}`;
     const payeeNote = `Tuition payment ${course?.title}`;
@@ -72,11 +72,12 @@ export async function POST(
       externalId,
       payer: {
         partyIdType,
-          partyId,
+        partyId,
       },
       payerMessage,
       payeeNote,
-    };
+      }; 
+
     const momoRequestToPayResponse = await fetch(momoRequestToPayUrl, {
       method: "POST",
       headers: {
@@ -91,13 +92,15 @@ export async function POST(
     });
     if (!momoRequestToPayResponse.ok) {
       return new NextResponse("Failed to request payment", { status: 500 });
-    }
-    await db.tuition.create({
-      data: {
-        userId: user.id,        
-        courseId: params.courseId,     
-      },
-    });
+      }   
+          
+      
+    // await db.tuition.create({
+    //   data: {
+    //     userId: user.id,
+    //     courseId: params.courseId,
+    //   },
+    // });
   } catch (error) {
     console.log("COURSE CHECKOUT ERROR", error);
     return new NextResponse("Internal Server Error", { status: 500 });

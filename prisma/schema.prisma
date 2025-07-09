@@ -33,20 +33,36 @@ model Payroll {
 }
 
 model Tuition {
-  id          String       @id @default(uuid())
-  userId      String
-  title       String?       @db.Text
-  partyId     String?
-  position    Int?
-  isPaid      Boolean      @default(false)
-  attachments Attachment[]
-  courseId    String?
-  course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id                String             @id @default(uuid())
+  userId            String
+  title             String?            @db.Text
+  partyId           String?
+  position          Int?
+  isPaid            Boolean            @default(false)
+  attachments       Attachment[]
+  courseEnrollments CourseEnrollment[]
+  courseId          String?
+  course            Course?            @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([userId, courseId])
+  @@index([courseId])
+}
+
+model CourseEnrollment {
+  id        String   @id @default(uuid())
+  userId    String
+  courseId  String
+  isActive  Boolean  @default(true)
+  isPaid    Boolean  @default(false)
+  tuitionId String?
+  tuition   Tuition? @relation(fields: [tuitionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([courseId])
 }
 
