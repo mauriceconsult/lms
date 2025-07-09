@@ -10,6 +10,7 @@ import { TuitionTitleForm } from "./_components/tuition-title-form";
 import { TuitionCourseForm } from "./_components/tuition-course-form";
 import { TuitionPartyIdForm } from "./_components/tuition-partyId-form";
 
+
 const TuitionIdPage = async ({
   params,
 }: {

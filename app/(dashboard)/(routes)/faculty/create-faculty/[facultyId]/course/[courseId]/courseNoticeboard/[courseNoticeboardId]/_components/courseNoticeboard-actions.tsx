@@ -32,13 +32,13 @@ export const CourseNoticeboardActions = ({
         await axios.patch(
           `/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards/${courseNoticeboardId}/unpublish`
         );
-        toast.success("CourseNoticeboard unpublished");
+        toast.success("Course notice unpublished");
       } else {
         await axios.patch(
           `/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards/${courseNoticeboardId}/publish`
         );
         
-        toast.success("CourseNoticeboard published");
+        toast.success("Course notice published");
       }
         router.refresh();
     } catch {
@@ -51,7 +51,7 @@ export const CourseNoticeboardActions = ({
     try {
       setIsLoading(true);
       await axios.delete(`/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards/${courseNoticeboardId}`);
-      toast.success("CourseNoticeboard deleted");
+      toast.success("Course notice deleted");
       router.refresh();
       router.push(`/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard`);
     } catch {

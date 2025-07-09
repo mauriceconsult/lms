@@ -9,6 +9,7 @@ import Link from "next/link";
 import { AssignmentActions } from "./_components/assignment-actions";
 import { AssignmentTitleForm } from "./_components/assignment-title-form";
 import { AssignmentCourseForm } from "./_components/assignment-course-form";
+import { AssignmentObjectiveForm } from "./_components/assignment-objective-form";
 
 const AssignmentIdPage = async ({
   params,
@@ -49,6 +50,7 @@ const AssignmentIdPage = async ({
   const requiredFields = [
     assignment.title,
     assignment.courseId,
+    assignment.objective,
     assignment.description,
   ];
   const totalFields = requiredFields.length;
@@ -114,6 +116,12 @@ const AssignmentIdPage = async ({
                 label: cat.title,
                 value: cat.id,
               }))}
+            />
+             <AssignmentObjectiveForm
+              initialData={assignment}
+              facultyId={params.facultyId}
+              courseId={assignment.courseId || ""}
+              assignmentId={assignment.id}
             />
             <AssignmentDescriptionForm
               initialData={assignment}

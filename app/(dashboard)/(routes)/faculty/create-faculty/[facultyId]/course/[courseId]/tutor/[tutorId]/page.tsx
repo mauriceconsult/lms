@@ -3,18 +3,11 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { IconBadge } from "@/components/icon-badge";
-import {
-  ArrowLeft,
-  Eye,
-  LayoutDashboard,
-  Video,
-  //   ListChecks
-} from "lucide-react";
+import { ArrowLeft, LayoutDashboard, Video } from "lucide-react";
 import { TutorDescriptionForm } from "./_components/tutor-description-form";
 import { TutorCourseForm } from "./_components/tutor-course-form";
 import { TutorObjectiveForm } from "./_components/tutor-objective-form";
 import Link from "next/link";
-import { TutorAccessForm } from "./_components/tutor-access-form";
 import { TutorVideoForm } from "./_components/tutor-video-form";
 import { TutorActions } from "./_components/tutor-actions";
 import { TutorTitleForm } from "./_components/tutor-title-form";
@@ -68,7 +61,7 @@ const TutorIdPage = async ({
       {!tutor.isPublished && (
         <Banner
           variant="warning"
-          label="This topic is unpublished. It will not be visible to the students."
+          label="This topic is not published yet. You can continue editing it, but it won't be visible to students until you publish it."
         />
       )}
       <div className="p-6">
@@ -129,18 +122,6 @@ const TutorIdPage = async ({
               courseId={tutor.courseId || ""}
             />
             <TutorDescriptionForm
-              initialData={tutor}
-              facultyId={params.facultyId}
-              tutorId={tutor.id}
-              courseId={tutor.courseId || ""}
-            />
-          </div>
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={Eye} />
-              <h2 className="text-xl">Access Settings</h2>
-            </div>
-            <TutorAccessForm
               initialData={tutor}
               facultyId={params.facultyId}
               tutorId={tutor.id}

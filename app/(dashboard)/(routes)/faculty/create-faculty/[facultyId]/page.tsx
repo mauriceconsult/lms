@@ -133,7 +133,7 @@ const FacultyIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Faculty Courses</h2>
+                  <h2 className="text-xl">Courses</h2>
                 </div>
                 <FacultyCourseForm
                   initialData={faculty}
@@ -143,7 +143,7 @@ const FacultyIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Faculty Coursework</h2>
+                  <h2 className="text-xl">Courseworks</h2>
                 </div>
                 <FacultyCourseworkForm
                   initialData={faculty}
@@ -153,7 +153,7 @@ const FacultyIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Faculty Noticeboard</h2>
+                  <h2 className="text-xl">Noticeboards</h2>
                 </div>
                 <FacultyNoticeboardForm
                   initialData={faculty}

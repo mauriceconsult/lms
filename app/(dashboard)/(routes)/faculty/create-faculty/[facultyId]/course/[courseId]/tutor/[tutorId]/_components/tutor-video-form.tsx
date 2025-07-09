@@ -47,13 +47,13 @@ export const TutorVideoForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Topic video
+        Topic video*
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing && <>Cancel</>}
           {!isEditing && !initialData.videoUrl && (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Topic video
+              Add a video
             </>
           )}
           {!isEditing && initialData.videoUrl && (

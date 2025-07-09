@@ -10,13 +10,12 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-// import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import PhoneInput from "@/components/phone-input";
 
 interface TuitionPartyIdFormProps {
   initialData: {
@@ -24,20 +23,15 @@ interface TuitionPartyIdFormProps {
   };
   facultyId: string;
   courseId: string;
-  tuitionId: string;  
+  tuitionId: string;
 }
 const formSchema = z.object({
   title: z.string().min(1, {
-    message: "Tuition payment phone number is required.",
+    message: "Topic title is required.",
   }),
 });
 
-export const TuitionPartyIdForm = ({
-  initialData,
-  facultyId,
-  courseId,
-  tuitionId,
-}: TuitionPartyIdFormProps) => {
+export const TuitionPartyIdForm = ({ initialData, facultyId, courseId, tuitionId }: TuitionPartyIdFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
@@ -48,10 +42,7 @@ export const TuitionPartyIdForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(
-        `/api/create-faculties/${facultyId}/courses/${courseId}/tuitions/${tuitionId}/partyId`,
-        values
-      );
+      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/tuitions/${tuitionId}/partyIds`, values);
       toast.success("Tuition created.");
       toggleEdit();
       router.refresh();
@@ -62,14 +53,14 @@ export const TuitionPartyIdForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-       Payment phone number
+        PartyId*
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit the phone number
+              Edit the topic title
             </>
           )}
         </Button>
@@ -87,7 +78,11 @@ export const TuitionPartyIdForm = ({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                   <PhoneInput {...field} />
+                    <Input
+                      disabled={isSubmitting}
+                      placeholder="e.g., 'Phone'"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

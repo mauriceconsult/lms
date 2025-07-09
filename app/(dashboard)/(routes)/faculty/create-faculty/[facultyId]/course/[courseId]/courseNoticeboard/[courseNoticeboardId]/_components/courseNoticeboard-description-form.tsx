@@ -29,7 +29,7 @@ interface CourseNoticeboardDescriptionFormProps {
 
 const formSchema = z.object({
   description: z.string().min(1, {
-    message: "Course Noticeboard description is required.",
+    message: "Notice description is required.",
   }),
 });
 
@@ -53,7 +53,7 @@ export const CourseNoticeboardDescriptionForm = ({
    
     try {
       await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards/${courseNoticeboardId}/descriptions`, values);
-      toast.success("CourseNoticeboard Description updated.");
+      toast.success("Course notice description updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -63,14 +63,14 @@ export const CourseNoticeboardDescriptionForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Course Noticeboard description
+       Description*
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit Course Notice description
+              Edit notice description
             </>
           )}
         </Button>

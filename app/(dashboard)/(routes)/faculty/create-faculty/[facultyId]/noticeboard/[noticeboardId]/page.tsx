@@ -110,12 +110,7 @@ const NoticeboardIdPage = async ({
                 initialData={noticeboard}
                 noticeboardId={noticeboard.id}
                 facultyId={noticeboard.facultyId || ""}
-              />
-              {/* <NoticeboardImageForm
-                initialData={noticeboard}
-                noticeboardId={noticeboard.id}
-                facultyId={noticeboard.facultyId || ""}
-              /> */}
+              />     
             </div>
             <div className="space-y-6">
               <div>
