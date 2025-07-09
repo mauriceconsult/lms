@@ -11,12 +11,12 @@ export const getNoticeboard = async ({
   facultyId,
   noticeboardId,
 }: GetNoticeboardProps) => {
-  try {   
+  try {
     const faculty = await db.faculty.findUnique({
       where: {
         isPublished: true,
         id: facultyId,
-      },   
+      },
     });
     const noticeboard = await db.noticeboard.findUnique({
       where: {
@@ -36,7 +36,7 @@ export const getNoticeboard = async ({
         },
       });
     }
-    if (noticeboard.userId || userId) {    
+    if (noticeboard.userId || userId) {
       nextNoticeboard = await db.noticeboard.findFirst({
         where: {
           facultyId: facultyId,
@@ -52,17 +52,17 @@ export const getNoticeboard = async ({
     }
     return {
       noticeboard,
-      faculty,      
+      faculty,
       attachments,
-      nextNoticeboard,      
+      nextNoticeboard,
     };
   } catch (error) {
-    console.log("[GET_TUTOR_ERROR]", error);
+    console.log("[GET_NOTICEBOARD_ERROR]", error);
     return {
       noticeboard: null,
-      faculty: null,      
+      faculty: null,
       attachments: [],
-      nextNoticeboard: null,        
+      nextNoticeboard: null,
     };
   }
 };

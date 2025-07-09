@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 import { getTutor } from "@/actions/get-tutor";
 import { Banner } from "@/components/banner";
 import { VideoPlayer } from "./_components/video-player";
-
+import { CourseEnrollButton } from "./_components/course-enroll-button";
+import { Separator } from "@/components/ui/separator";
+import { Preview } from "@/components/preview";
+import { File } from "lucide-react";
 
 const TutorIdPage = async ({
   params,
@@ -18,7 +21,7 @@ const TutorIdPage = async ({
     tutor,
     course,
     muxData,
-    // attachments,
+    attachments,
     nextTutor,
     userProgress,
     tuition,
@@ -39,7 +42,7 @@ const TutorIdPage = async ({
       )}
       {isLocked && (
         <Banner
-          label="You need to tuition this Course to watch this Topic"
+          label="This topic is locked. Please enroll in the course to access it."
           variant="warning"
         />
       )}
@@ -49,11 +52,46 @@ const TutorIdPage = async ({
             tutorId={tutor.id}
             title={tutor.title}
             courseId={params.courseId}
-            nextTutorId={nextTutor?.id}            
+            nextTutorId={nextTutor?.id}
             playbackId={muxData?.playbackId ?? null}
             isLocked={isLocked}
             completeOnEnd={completeOnEnd}
           />
+        </div>
+        <div>
+          <div className="p-4 flex flex-col md:flex-row items-center justify-between">
+            <h2 className="text-2xl font-semibold mb-2">{tutor.title}</h2>
+            {tuition ? (
+              <div>{/** //TODO: Course Progress button */}</div>
+            ) : (
+              <CourseEnrollButton
+                courseId={params.courseId}
+                amount={course.amount!}
+              />
+            )}
+          </div>
+          <Separator />
+          <div>
+            <Preview value={tutor.description!} />
+          </div>
+          {!!attachments.length && (
+            <>
+              <Separator />
+              <div className="p-4">
+                {attachments.map((attachment) => (
+                  <a
+                    target="_blank"
+                    href={attachment.url}
+                    key={attachment.id}
+                    className="flex items-center p-3 w-full bg-sky-200 border text-sky-700 rounded-md hover:underline"
+                  >
+                    <File />
+                    <p className="line-clamp-1">{attachment.name}</p>
+                  </a>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

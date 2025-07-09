@@ -35,7 +35,7 @@ model Payroll {
 model Tuition {
   id          String       @id @default(uuid())
   userId      String
-  title       String       @db.Text
+  title       String?       @db.Text
   partyId     String?
   position    Int?
   isPaid      Boolean      @default(false)

@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { Course, Tutor, UserProgress} from "@prisma/client";
 import { CourseSidebarItem } from "./course-sidebar-item";
+import { redirect } from "next/navigation";
 
 interface CourseSidebarProps {
   course: Course & {
@@ -17,7 +18,7 @@ export const CourseSidebar = async ({
 }: CourseSidebarProps) => {
   const { userId } = await auth();
   if (!userId) {
-    return <div>Please log in to view this page.</div>;
+    return redirect("/");
   }
   const tuition = await db.tuition.findUnique({
     where: {
