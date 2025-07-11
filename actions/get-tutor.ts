@@ -36,7 +36,7 @@ export const getTutor = async ({
       },
     });
     if (!course || !tutor) {
-      throw new Error("Purchase, Course or Tutor not found");
+      throw new Error("Tuition, Course or Tutor not found");
     }
     let muxData = null;
     let attachments: Attachment[] = [];
