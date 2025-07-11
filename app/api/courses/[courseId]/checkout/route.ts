@@ -91,20 +91,20 @@ export async function POST(
         payerMessage,
         payeeNote,
       })
-      .then((transactionId) => {
+      .then((transactionId: string) => {
         console.log({ transactionId });
 
         // Get transaction status
         return collections.getTransaction(transactionId);
       })
-      .then((transaction) => {
+      .then((transaction: string) => {
         console.log({ transaction });
 
         // Get account balance
         return collections.getBalance();
       })
-      .then((accountBalance) => console.log({ accountBalance }))
-      .catch((error) => {
+      .then((accountBalance: string) => console.log({ accountBalance }))
+      .catch((error: string) => {
         console.log(error);
       });
 

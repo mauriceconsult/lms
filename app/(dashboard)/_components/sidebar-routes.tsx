@@ -135,23 +135,23 @@ const assignmentRoutes = [
     href: "/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/analytics",
   },
 ];
-const tuitionRoutes = [
-  {
-    icon: List,
-    label: "Tuitions",
-    href: "/faculty/create-faculty/${facultyId}/course/${courseId}/tuition/tuitions",
-  },
-  {
-    icon: Compass,
-    label: "Browse Tuitions",
-    href: "/faculty/create-faculty/${facultyId}/course/${courseId}/tuition/${tuitionId}/search",
-  },
-  {
-    icon: BarChart,
-    label: "Analytics",
-    href: "/faculty/create-faculty/${facultyId}/course/${courseId}/tuition/analytics",
-  },
-];
+// const tuitionRoutes = [
+//   {
+//     icon: List,
+//     label: "Tuitions",
+//     href: "/faculty/create-faculty/${facultyId}/course/${courseId}/tuition/tuitions",
+//   },
+//   {
+//     icon: Compass,
+//     label: "Browse Tuitions",
+//     href: "/faculty/create-faculty/${facultyId}/course/${courseId}/tuition/${tuitionId}/search",
+//   },
+//   {
+//     icon: BarChart,
+//     label: "Analytics",
+//     href: "/faculty/create-faculty/${facultyId}/course/${courseId}/tuition/analytics",
+//   },
+// ];
 const courseNoticeboardRoutes = [
   {
     icon: List,
@@ -179,7 +179,7 @@ export const SidebarRoutes = () => {
   const isCourseworkPage = pathname?.includes("/coursework");
   const isCourseNoticeboardPage = pathname?.includes("/courseNoticeboard");
   const isAssignmentPage = pathname?.includes("/assignment");
-  const isTuitionPage = pathname?.includes("/tuition");
+  // const isTuitionPage = pathname?.includes("/tuition");
   const isPayrollPage = pathname?.includes("/payroll");
 
   let routes;
@@ -193,8 +193,8 @@ export const SidebarRoutes = () => {
     routes = courseworkRoutes;
   } else if (isAssignmentPage) {
     routes = assignmentRoutes;
-  } else if (isTuitionPage) {
-    routes = tuitionRoutes;
+  // } else if (isTuitionPage) {
+  //   routes = tuitionRoutes;
   } else if (isPayrollPage) {
     routes = payrollRoutes;
   } else if (isCoursePage) {

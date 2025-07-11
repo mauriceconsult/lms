@@ -9,16 +9,16 @@ export async function POST(req: Request) {
     if (!userId) {
       return new NextResponse("Unauthorized!", { status: 401 });
     }
-    const courseEnrollment = await db.courseEnrollment.create({
+    const tuition = await db.tuition.create({
       data: {
         userId,
         partyId,
         courseId: req.headers.get("courseId") || "",
       },
     });
-    return NextResponse.json(courseEnrollment);
+    return NextResponse.json(tuition);
   } catch (error) {
-    console.log("[CREATE_COURSE_ENROLLMENT]", error);
+    console.log("[CREATE_TUITION]", error);
     return new NextResponse("Internal error", { status: 500 });
   }
 }

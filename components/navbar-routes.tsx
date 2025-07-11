@@ -13,7 +13,6 @@ import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/creat
 import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/coursework/[courseworkId]/search/_components/coursework-search-input";
 import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/assignment/[assignmentId]/search/_components/assignment-search-input";
 import { CourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/courseNoticeboard/[courseNoticeboardId]/search/_components/courseNoticeboard-search-input";
-import { TuitionSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tuition/[tuitionId]/search/_components/tuition-search-input";
 import { PayrollSearchInput } from "@/app/(dashboard)/(routes)/payroll/create-payroll/[payrollId]/search/_components/payroll-search-input";
 
 type SearchInputComponent = FC<object>;
@@ -26,8 +25,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   const isCourseworkPage = pathname?.includes("/coursework");
   const isTutorPage = pathname?.includes("/tutor");
   const isAssignmentPage = pathname?.includes("/assignment");
-  const isCourseNoticeboardPage = pathname?.includes("/courseNoticeboard");
-  const isTuitionPage = pathname?.includes("/tuition");
+  const isCourseNoticeboardPage = pathname?.includes("/courseNoticeboard"); 
   const isPayrollPage = pathname?.includes("/payroll");
 
   let isSearchPages: SearchInputComponent | undefined;
@@ -42,9 +40,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   } else if (isAssignmentPage) {
     isSearchPages = AssignmentSearchInput;
   } else if (isCourseNoticeboardPage) {
-    isSearchPages = CourseNoticeboardSearchInput;
-  } else if (isTuitionPage) {
-    isSearchPages = TuitionSearchInput;
+    isSearchPages = CourseNoticeboardSearchInput;  
   } else if (isPayrollPage) {
     isSearchPages = PayrollSearchInput;
   } else if (isFacultyPage) {
@@ -57,8 +53,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
         isTutorPage ||
         isNoticeboardPage ||
         isCourseworkPage ||
-        isAssignmentPage ||
-        isTuitionPage ||
+        isAssignmentPage ||       
         isPayrollPage ||
         isCourseNoticeboardPage) && (
         <div className="mt-16 hidden md:block">
@@ -72,8 +67,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
         isNoticeboardPage ||
         isCourseworkPage ||
         isAssignmentPage ||
-        isPayrollPage ||
-        isTuitionPage ||
+        isPayrollPage ||  
         isCourseNoticeboardPage ? (
           <Link href="/">
             <Button size="sm" variant="ghost">
@@ -127,12 +121,6 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
         <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/assignments">
           <Button size="sm" variant="ghost">
             Assignment
-          </Button>
-        </Link>
-
-        <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/tuition/tuitions">
-          <Button size="sm" variant="ghost">
-            Tuition
           </Button>
         </Link>
 

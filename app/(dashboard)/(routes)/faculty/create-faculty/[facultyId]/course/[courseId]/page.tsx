@@ -3,8 +3,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import {
   ArrowLeft,
-  CircleDollarSign,
-  // Eye,
+  CircleDollarSign,  
   File,
   LayoutDashboard,
   ListChecks,
@@ -21,7 +20,6 @@ import { Banner } from "@/components/banner";
 import { CourseActions } from "./_components/course-actions";
 import { CourseTitleForm } from "./_components/course-title-form";
 import { CourseAssignmentForm } from "./_components/course-assignment-form";
-import { CourseTuitionForm } from "./_components/course-tuition-form";
 import { CourseCourseNoticeboardForm } from "./_components/course-courseNoticeboard-form";
 
 const CourseIdPage = async ({
@@ -78,8 +76,7 @@ const CourseIdPage = async ({
   ];
   const optionalFields = [
     course.attachments.length > 0,
-    course.courseNoticeboards.length > 0,
-    course.tuitions.length > 0,
+    course.courseNoticeboards.length > 0,    
   ];
   const allFields = [...requiredFields, ...optionalFields];
   const totalFields = allFields.length;
@@ -210,18 +207,7 @@ const CourseIdPage = async ({
                 facultyId={course.facultyId || ""}
                 courseId={course.id}
               />
-            </div>
-            <div>
-              <div className="flex items-center gap-x-2">
-                <IconBadge icon={ListChecks} />
-                <h2 className="text-xl">Course Tuitions </h2>
-              </div>
-              <CourseTuitionForm
-                initialData={course}
-                facultyId={course.facultyId || ""}
-                courseId={course.id}
-              />
-            </div>
+            </div>          
           </div>
         </div>
       </div>
