@@ -6,7 +6,9 @@ import { VideoPlayer } from "./_components/video-player";
 import { CourseEnrollButton } from "./_components/course-enroll-button";
 import { Separator } from "@/components/ui/separator";
 import { Preview } from "@/components/preview";
-import { File } from "lucide-react";
+import { File, LayoutDashboard } from "lucide-react";
+import { IconBadge } from "@/components/icon-badge";
+import { PartyIdForm } from "./_components/partyId-form";
 
 const TutorIdPage = async ({
   params,
@@ -58,9 +60,28 @@ const TutorIdPage = async ({
             completeOnEnd={completeOnEnd}
           />
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={LayoutDashboard} />
+                <h2 className="text-xl">Pay with MTN MoMo</h2>
+              </div>
+              <PartyIdForm
+                initialData={{
+                  partyId: "",
+                }}
+                courseId={params.courseId}
+                tutorId={params.tutorId}
+              />
+            </div>
+          </div>
+        </div>
+
         <div>
           <div className="p-4 flex flex-col md:flex-row items-center justify-between">
             <h2 className="text-2xl font-semibold mb-2">{tutor.title}</h2>
+
             {tuition ? (
               <div>{/** //TODO: Course Progress button */}</div>
             ) : (
