@@ -23,13 +23,14 @@ model Payroll {
   position    Int?
   isPublished Boolean      @default(false)
   attachments Attachment[]
-  schoolId    String?
   school      School?      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  schoolId    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([schoolId])
+  @@unique([userId, schoolId])
 }
 
 model Tuition {
@@ -41,8 +42,7 @@ model Tuition {
   attachments Attachment[]
 
   isActive  Boolean @default(true)
-  isPaid    Boolean @default(false)
-  tuitionId String?
+  isPaid    Boolean @default(false)  
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

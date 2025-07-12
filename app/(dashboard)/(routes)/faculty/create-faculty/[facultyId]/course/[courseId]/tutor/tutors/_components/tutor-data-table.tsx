@@ -22,8 +22,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { PlusCircle } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -63,13 +61,7 @@ export function DataTable<TData, TValue>({
             table.getColumn("title")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
-        />
-        <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}">
-          <Button>
-            <PlusCircle className="h-4 w-4 mr-2" />
-            New Topic
-          </Button>
-        </Link>
+        />      
       </div>
       <div className="rounded-md border">
         <Table>
