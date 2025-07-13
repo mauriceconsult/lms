@@ -35,14 +35,9 @@ export async function PATCH(
         attachments: true,
       },
     });
-    const hasPublishedPayroll =
-      payroll && payroll.isPublished
-        ? payroll.isPublished
-        : false;
     if (
       !payroll ||   
-      !payroll.title ||   
-      !hasPublishedPayroll
+      !payroll.title     
     ) {
       return new NextResponse("Missing credentials", { status: 400 });
     }

@@ -16,21 +16,43 @@ model School {
 }
 
 model Payroll {
-  id          String       @id @default(uuid())
-  userId      String
-  title       String       @db.Text
-  partyId     String?
-  position    Int?
-  isPublished Boolean      @default(false)
-  attachments Attachment[]
-  school      School?      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  schoolId    String?
+  id              String           @id @default(uuid())
+  userId          String
+  title           String           @db.Text
+  partyId         String?
+  position        Int?
+  isPublished     Boolean          @default(false)
+  attachments     Attachment[]
+  facultyPayrolls FacultyPayroll[]
+  school          School?          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  schoolId        String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([schoolId])
   @@unique([userId, schoolId])
+  @@index([schoolId])
+}
+
+model FacultyPayroll {
+  id          String       @id @default(uuid())
+  userId      String
+  title       String       @db.Text
+  payrollId   String
+  facultyId   String
+  position    Int?
+  isPublished Boolean      @default(false)
+  isPaid      Boolean      @default(false)
+  attachments Attachment[]
+  payroll     Payroll      @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, payrollId, facultyId])
+  @@index([payrollId])
+  @@index([facultyId])
+  @@index([userId])
 }
 
 model Tuition {
@@ -41,8 +63,8 @@ model Tuition {
   course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   attachments Attachment[]
 
-  isActive  Boolean @default(true)
-  isPaid    Boolean @default(false)  
+  isActive Boolean @default(true)
+  isPaid   Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -230,6 +252,8 @@ model Attachment {
   tuitionId           String?
   Payroll             Payroll?           @relation(fields: [payrollId], references: [id])
   payrollId           String?
+  FacultyPayroll      FacultyPayroll?    @relation(fields: [facultyPayrollId], references: [id])
+  facultyPayrollId    String?
 
   @@index([facultyId])
 }

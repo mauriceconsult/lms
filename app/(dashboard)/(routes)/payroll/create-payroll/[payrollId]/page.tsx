@@ -2,13 +2,14 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { PayrollTitleForm } from "./_components/payroll-title-form";
-import { LayoutDashboard, File, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, File, ArrowLeft, ListChecks } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { PayrollSchoolForm } from "./_components/payroll-school-form";
 import { PayrollAttachmentForm } from "./_components/payroll-attachment-form";
 import { Banner } from "@/components/banner";
 import { PayrollActions } from "./_components/payroll-actions";
 import Link from "next/link";
+import { PayrollFacultyPayrollForm } from "./_components/payroll-faculty-form";
 
 const PayrollIdPage = async ({
   params,
@@ -22,19 +23,24 @@ const PayrollIdPage = async ({
     return redirect("/");
   }
 
-  const payroll = await db.payroll.findUnique({
-    where: {
-      id: params.payrollId,
-      userId,
-    },
-    include: {
-      attachments: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },    
-      },    
-  });
+   const payroll = await db.payroll.findUnique({
+     where: {
+       id: params.payrollId,
+       userId,
+     },
+     include: {
+       attachments: {
+         orderBy: {
+           createdAt: "desc",
+         },
+       },
+       facultyPayrolls: {
+         orderBy: {
+           position: "asc",
+         },
+       },   
+     },
+   });
   const school = await db.school.findMany({
     orderBy: {
       name: "asc",
@@ -45,7 +51,8 @@ const PayrollIdPage = async ({
   }
   const requiredFields = [
     payroll.title,
-    payroll.schoolId,    
+    payroll.schoolId,
+    payroll.facultyPayrolls.length > 0,
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
@@ -56,7 +63,7 @@ const PayrollIdPage = async ({
       {!payroll.isPublished && (
         <Banner
           variant="warning"
-          label="This Payroll is unpublished. Please publish for it to be visible to faculty."
+          label="This Payroll is unpublished. Please publish for it to make it available for Faculty Payroll processing."
         />
       )}
       <div className="p-6">
@@ -101,6 +108,13 @@ const PayrollIdPage = async ({
                 }))}
               />
             </div>
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={ListChecks} />
+                <h2 className="text-xl">Faculty Payrolls</h2>
+              </div>
+              <PayrollFacultyPayrollForm initialData={payroll} payrollId={payroll.id} />
+            </div>
             <div className="space-y-6">
               <div>
                 <div className="flex items-center gap-x-2">
@@ -112,7 +126,6 @@ const PayrollIdPage = async ({
                   payrollId={payroll.id}
                 />
               </div>
-             
             </div>
           </div>
         </div>
