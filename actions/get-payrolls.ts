@@ -12,6 +12,7 @@ type GetPayrolls = {
   schoolId?: string;
 };
 export const getPayrolls = async ({
+  userId,
   title,
   schoolId,
 }: GetPayrolls): Promise<PayrollWithSchool[]> => {
@@ -21,6 +22,7 @@ export const getPayrolls = async ({
         isPublished: true,
         title: title ? { contains: title } : undefined,
         schoolId,
+        userId,
       },
       include: {
         school: true,

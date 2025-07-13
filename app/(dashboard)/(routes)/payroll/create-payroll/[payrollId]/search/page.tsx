@@ -12,6 +12,7 @@ interface PayrollSearchPageProps {
     schoolId: string;
   };
 }
+
 const PayrollSearchPage = async ({ searchParams }: PayrollSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
@@ -24,7 +25,7 @@ const PayrollSearchPage = async ({ searchParams }: PayrollSearchPageProps) => {
   });
   const payrolls = await getPayrolls({
     userId,
-    ...searchParams,
+    ...(await searchParams),
   });
   return (
     <>
