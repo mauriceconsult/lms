@@ -7,12 +7,11 @@ import { SchoolsList } from "./_components/schools-list";
 import { PayrollSearchInput } from "./_components/payroll-search-input";
 
 interface PayrollSearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     title: string;
     schoolId: string;
-  };
+  }>;
 }
-
 const PayrollSearchPage = async ({ searchParams }: PayrollSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {

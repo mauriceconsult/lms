@@ -14,9 +14,9 @@ import { PayrollFacultyPayrollForm } from "./_components/payroll-faculty-form";
 const PayrollIdPage = async ({
   params,
 }: {
-  params: {
+  params: Promise<{
     payrollId: string;
-  };
+  }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
@@ -25,7 +25,7 @@ const PayrollIdPage = async ({
 
    const payroll = await db.payroll.findUnique({
      where: {
-       id: params.payrollId,
+       id: (await params).payrollId,
        userId,
      },
      include: {
@@ -38,7 +38,7 @@ const PayrollIdPage = async ({
          orderBy: {
            position: "asc",
          },
-       },   
+       },
      },
    });
   const school = await db.school.findMany({
@@ -71,7 +71,7 @@ const PayrollIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/payroll/create-payroll/${params.payrollId}`}
+              href={`/payroll/create-payroll/${(await params).payrollId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Payroll creation.
@@ -85,7 +85,7 @@ const PayrollIdPage = async ({
               </div>
               <PayrollActions
                 disabled={!isComplete}
-                payrollId={params.payrollId}
+                payrollId={(await params).payrollId}
                 isPublished={payroll.isPublished}
               />
             </div>
@@ -113,7 +113,10 @@ const PayrollIdPage = async ({
                 <IconBadge icon={ListChecks} />
                 <h2 className="text-xl">Faculty Payrolls</h2>
               </div>
-              <PayrollFacultyPayrollForm initialData={payroll} payrollId={payroll.id} />
+              <PayrollFacultyPayrollForm
+                initialData={payroll}
+                payrollId={payroll.id}
+              />
             </div>
             <div className="space-y-6">
               <div>
