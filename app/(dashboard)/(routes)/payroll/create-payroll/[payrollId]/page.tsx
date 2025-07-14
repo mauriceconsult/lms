@@ -63,7 +63,7 @@ const PayrollIdPage = async ({
       {!payroll.isPublished && (
         <Banner
           variant="warning"
-          label="This Payroll is unpublished. Please publish for it to make it available for Faculty Payroll processing."
+          label="This Payroll is unpublished. Once published, it available for Faculty Payroll processing."
         />
       )}
       <div className="p-6">

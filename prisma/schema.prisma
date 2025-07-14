@@ -41,7 +41,6 @@ model FacultyPayroll {
   payrollId   String
   facultyId   String
   position    Int?
-  isPublished Boolean      @default(false)
   isPaid      Boolean      @default(false)
   attachments Attachment[]
   payroll     Payroll      @relation(fields: [payrollId], references: [id], onDelete: Cascade)

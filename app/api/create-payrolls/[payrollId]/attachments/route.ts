@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { payrollId: string; }}
+  { params }: { params: Promise<{ payrollId: string; }>}
 ) {
   try {
     const userId = await auth();
@@ -14,8 +14,8 @@ export async function POST(
     }
     const payrollOwner = await db.payroll.findUnique({
       where: {
-        id: params.payrollId,        
-      }
+        id: (await params).payrollId,
+      },
     });
     if (!payrollOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -25,8 +25,8 @@ export async function POST(
       data: {
         url,
         name: url.split("/").pop(),
-        payrollId: params.payrollId,
-      }
+        payrollId: (await params).payrollId,
+      },
     });
     return NextResponse.json(attachment)
   } catch (error) {

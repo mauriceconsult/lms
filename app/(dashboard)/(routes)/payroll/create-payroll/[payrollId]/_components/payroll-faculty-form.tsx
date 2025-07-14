@@ -1,6 +1,7 @@
+// components/PayrollFacultyPayrollForm.tsx
 "use client";
+
 import * as z from "zod";
-import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -18,16 +19,16 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { FacultyPayroll, Payroll } from "@prisma/client";
-import PayrollFacultyPayrollList from "./payroll-facultyPayroll-list";
-
+import { createFacultyPayroll, onEditAction, onReorderAction } from "../actions";
+import FacultyPayrollList from "./payroll-facultyPayroll-list";
 
 interface PayrollFacultyPayrollFormProps {
-  initialData: Payroll & {facultyPayrolls: FacultyPayroll[]} 
+  initialData: Payroll & { facultyPayrolls: FacultyPayroll[] };
   payrollId: string;
 }
 
 const formSchema = z.object({
-  title: z.string().min(1),
+  title: z.string().min(1, "Title is required"),
 });
 
 export const PayrollFacultyPayrollForm = ({
@@ -47,39 +48,18 @@ export const PayrollFacultyPayrollForm = ({
     },
   });
   const { isSubmitting, isValid } = form.formState;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      await axios.post(
-        `/api/create-faculties/${payrollId}/facultyPayrolls`,
-        values
-      );
-      toast.success("Faculty payroll created.");
+    const { success, message } = await createFacultyPayroll(payrollId, values);
+    if (success) {
+      toast.success(message);
       toggleCreating();
       router.refresh();
-    } catch {
-      toast.error("Something went wrong.");
+    } else {
+      toast.error(message);
     }
   };
-  const onReorder = async (updateData: { id: string; position: number }[]) => {
-    try {
-      setIsUpdating(true);
-      await axios.put(
-        `/api/create-faculties/${payrollId}/facultyPayrolls/reorder`,
-        {
-          list: updateData,
-        }
-      );
-      toast.success("Faculty Payrolls reordered");
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-  const onEdit = (id: string) => {
-    router.push(`/payroll/create-payroll/${payrollId}/facultyPayroll/${id}`);
-  };
+
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
       {isUpdating && (
@@ -133,15 +113,34 @@ export const PayrollFacultyPayrollForm = ({
         <div
           className={cn(
             "text-sm mt-2",
-            !initialData.facultyPayrolls && "text-slate-500 italic"
+            !initialData.facultyPayrolls.length && "text-slate-500 italic"
           )}
         >
           {!initialData.facultyPayrolls.length &&
             "Add your Faculty Payrolls here."}
-          <PayrollFacultyPayrollList
-            onEdit={onEdit}
-            onReorder={onReorder}
-            items={initialData.facultyPayrolls || []}
+          <FacultyPayrollList
+            onEditAction={async (id) => {
+              const result = await onEditAction(payrollId, id);
+              if (result.success) {
+                router.push(
+                  `/payroll/create-payroll/${payrollId}/facultyPayroll/${id}`
+                );
+              }
+              return result;
+            }}
+            onReorderAction={async (updateData) => {
+              setIsUpdating(true);
+              const result = await onReorderAction(payrollId, updateData);
+              setIsUpdating(false);
+              router.refresh();
+              return result;
+            }}
+            items={initialData.facultyPayrolls.map((item) => ({
+              ...item,
+              payroll: item.payrollId
+                ? { id: item.payrollId, amount: 0 }
+                : null, // Adjust based on schema
+            }))}
           />
         </div>
       )}

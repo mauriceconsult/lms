@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { payrollId: string } }
+  { params }: { params: Promise<{ payrollId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -13,7 +13,7 @@ export async function DELETE(
     }
     const payroll = await db.payroll.findUnique({
       where: {
-        id: params.payrollId,
+        id: (await params).payrollId,
         userId: userId,
       },
     });
@@ -22,7 +22,7 @@ export async function DELETE(
     }
     const deletedPayroll = await db.payroll.delete({
       where: {
-        id: params.payrollId,
+        id: (await params).payrollId,
       },
     });
     return NextResponse.json(deletedPayroll);
