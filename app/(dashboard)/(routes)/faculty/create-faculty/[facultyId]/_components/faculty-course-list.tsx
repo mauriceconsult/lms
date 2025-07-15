@@ -1,3 +1,4 @@
+// components/FacultyCourseList.tsx
 "use client";
 
 import { Course } from "@prisma/client";
@@ -11,57 +12,67 @@ import {
 import { cn } from "@/lib/utils";
 import { Grip, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import toast from "react-hot-toast";
 
 interface FacultyCourseListProps {
   items: Course[];
-  onReorder: (updateData: { id: string; position: number }[]) => void;
-  onEdit: (id: string) => void;
+  onReorderAction: (
+    updateData: { id: string; position: number }[]
+  ) => Promise<{ success: boolean; message: string }>;
+  onEditAction: (id: string) => Promise<{ success: boolean; message: string }>;
 }
+
 export const FacultyCourseList = ({
   items,
-  onReorder,
-  onEdit,
+  onReorderAction,
+  onEditAction,
 }: FacultyCourseListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [courses, setCourse] = useState(items);
+  const [courses, setCourses] = useState<Course[]>(items);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
   useEffect(() => {
-    setCourse(items);
+    setCourses(items);
   }, [items]);
 
-  const onDragend = (result: DropResult) => {
+  const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
-    const items = Array.from(courses);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
 
-    const startIndex = Math.min(result.source.index, result.destination.index);
-    const endIndex = Math.max(result.source.index, result.destination.index);
+    const newItems = Array.from(courses);
+    const [reorderedItem] = newItems.splice(result.source.index, 1);
+    newItems.splice(result.destination.index, 0, reorderedItem);
 
-    const updatedCourse = items.splice(startIndex, endIndex + 1);
+    setCourses(newItems);
 
-    setCourse(items);
-    const bulkUpdateData = updatedCourse.map((course) => ({
+    const bulkUpdateData = newItems.map((course, index) => ({
       id: course.id,
-      position: items.findIndex((item) => item.id === course.id),
+      position: index,
     }));
-    onReorder(bulkUpdateData);
+
+    const { success, message } = await onReorderAction(bulkUpdateData);
+    if (success) {
+      toast.success(message);
+    } else {
+      toast.error(message);
+    }
   };
 
   if (!isMounted) {
     return null;
   }
+
   return (
-    <DragDropContext onDragEnd={onDragend}>
+    <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="courses">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
             {courses.map((course, index) => (
               <Draggable
                 key={course.id}
-                draggableId="course.id"
+                draggableId={course.id} // Fixed: Use actual course ID
                 index={index}
               >
                 {(provided) => (
@@ -86,7 +97,6 @@ export const FacultyCourseList = ({
                     </div>
                     {course.title}
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
-                      {/* {course.isFree && <Badge>Free</Badge>} */}
                       <Badge
                         className={cn(
                           "bg-slate-500",
@@ -96,7 +106,14 @@ export const FacultyCourseList = ({
                         {course.isPublished ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
-                        onClick={() => onEdit(course.id)}
+                        onClick={async () => {
+                          const { success, message } = await onEditAction(
+                            course.id
+                          );
+                          if (!success) {
+                            toast.error(message);
+                          }
+                        }}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
                       />
                     </div>

@@ -51,11 +51,8 @@ const CreateFaculty = () => {
           <span>
             {" "}
             Please give your Faculty a name. Don&apos;t worry, you can change
-            the name later. The Faculty is a strategic level for your teaching
-            and learning.
-          </span>
-          <span> The Course is an operational level.</span>
-          <span> At the Topic level, upload a teaching video for each Topic in a Course.</span>
+            the name later. The Faculty is your strategic learning & teaching level that enables you to articulate your vision. 
+          </span>         
         </p>
         <Form {...form}>
           <form

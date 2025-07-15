@@ -17,9 +17,9 @@ import { FacultyCourseworkForm } from "./_components/faculty-coursework-form";
 const FacultyIdPage = async ({
   params,
 }: {
-  params: {
+  params: Promise<{
     facultyId: string;
-  };
+  }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
@@ -28,7 +28,7 @@ const FacultyIdPage = async ({
 
   const faculty = await db.faculty.findUnique({
     where: {
-      id: params.facultyId,
+      id: (await params).facultyId,
       userId,
     },
     include: {
@@ -91,7 +91,7 @@ const FacultyIdPage = async ({
               </div>
               <FacultyActions
                 disabled={!isComplete}
-                facultyId={params.facultyId}
+                facultyId={(await params).facultyId}
                 isPublished={faculty.isPublished}
               />
             </div>

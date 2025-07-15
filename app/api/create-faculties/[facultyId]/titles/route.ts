@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { facultyId: string } }
+  { params }: { params: Promise<{ facultyId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -13,7 +13,7 @@ export async function DELETE(
     }
     const faculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId: userId,
       },
     });
@@ -22,7 +22,7 @@ export async function DELETE(
     }
     const deletedFaculty = await db.faculty.delete({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
       },
     });
     return NextResponse.json(deletedFaculty);

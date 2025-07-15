@@ -16,8 +16,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Textarea } from "@/components/ui/textarea";
 import { Faculty } from "@prisma/client";
+import { Editor } from "@/components/editor";
 
 interface DescriptionFormProps {
   initialData: Faculty;
@@ -90,13 +90,12 @@ export const FacultyDescriptionForm = ({
             <FormField
               control={form.control}
               name="description"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormControl>
-                    <Textarea
-                      disabled={isSubmitting}
-                      placeholder="e.g., 'We train artisans for the Fashion Industry...'"
-                      {...field}
+                    <Editor onValueChangeAction={function (): void {
+                      throw new Error("Function not implemented.");
+                    } } value={undefined}                      
                     />
                   </FormControl>
                   <FormMessage />

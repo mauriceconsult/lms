@@ -1,44 +1,58 @@
+// app/faculty/create-faculty/[facultyId]/search/page.tsx
+import { Course, Faculty } from "@prisma/client";
 import { db } from "@/lib/db";
-import { Schools } from "@/app/(dashboard)/(routes)/search/_components/schools";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { getFaculties } from "@/actions/get-faculties";
-import { FacultiesList } from "@/app/(dashboard)/(routes)/search/_components/faculties-list";
-import { FacultyIdSearchInput } from "./_components/facultyId-search-input";
+import { FacultyCourseForm } from "../_components/faculty-course-form";
 
-
-interface FacultySearchPageProps {
-  searchParams: {
-    title: string;
-    schoolId: string;
-  };
-}
-const FacultySearchPage = async ({
-  searchParams
-}: FacultySearchPageProps) => {
-  const { userId } = await auth();
-  if (!userId) {
-    return redirect("/");
+async function getFaculty(
+  facultyId: string,
+  search?: string
+): Promise<(Faculty & { courses: Course[] }) | null> {
+  "use server";
+  try {
+    return await db.faculty.findUnique({
+      where: { id: facultyId },
+      include: {
+        courses: {
+          where: search
+            ? { title: { contains: search, mode: "insensitive" } }
+            : {},
+          orderBy: { position: "asc" },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Get faculty error:", error);
+    return null;
   }
-  const schools = await db.school.findMany({
-    orderBy: {
-      name: "asc",
-    },
-  });
-  const faculties = await getFaculties({
-    userId,
-    ...searchParams
-  })
+}
+
+export default async function SearchPage({
+  params,
+  searchParams,
+}: {
+  params: { facultyId: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const searchTerm =
+    typeof searchParams.search === "string" ? searchParams.search : "";
+  const faculty = await getFaculty(params.facultyId, searchTerm);
+
+  if (!faculty) {
+    return <div className="text-red-500 p-6">Faculty not found</div>;
+  }
+
   return (
-    <>
-      <div className="px-6 pt-6 md:hidden md:mb-0 block">
-        <FacultyIdSearchInput />
-      </div>
-      <div className="p-6 space-y-4">
-        <Schools items={schools} />  
-        <FacultiesList items={faculties}/>
-      </div>
-    </>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-semibold mb-4">Manage Faculty Courses</h1>
+      <p className="text-sm text-muted-foreground mb-2">
+        Faculty ID: {params.facultyId}
+      </p>
+      {searchTerm && (
+        <p className="text-sm text-muted-foreground mb-4">
+          Search Term: {searchTerm}
+        </p>
+      )}
+      <FacultyCourseForm initialData={faculty} facultyId={params.facultyId} />
+    </div>
   );
-};
-export default FacultySearchPage;
+}
