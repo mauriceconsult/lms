@@ -99,7 +99,10 @@ export const CourseDescriptionForm = ({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Editor {...field} />
+                    <Editor
+                      onChangeAction={field.onChange}
+                      value={field.value || ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

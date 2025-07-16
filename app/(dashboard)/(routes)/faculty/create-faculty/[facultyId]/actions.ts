@@ -1,8 +1,37 @@
-// app/faculty/create-faculty/[facultyId]/actions.ts
+// app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/actions.ts
 "use server";
 
 import { db } from "@/lib/db";
 import { Prisma } from "@prisma/client";
+
+export async function updateFaculty(
+  facultyId: string,
+  values: { description?: string }
+) {
+  try {
+    const faculty = await db.faculty.findUnique({
+      where: { id: facultyId },
+    });
+    if (!faculty) {
+      return { success: false, message: "Faculty not found" };
+    }
+    if (values.description && values.description.length > 5000) {
+      return { success: false, message: "Description exceeds 5000 characters" };
+    }
+
+    await db.faculty.update({
+      where: { id: facultyId },
+      data: { description: values.description || "" },
+    });
+    return {
+      success: true,
+      message: "Faculty description updated successfully",
+    };
+  } catch (error) {
+    console.error("Update faculty error:", error);
+    return { success: false, message: "Failed to update faculty description" };
+  }
+}
 
 export async function onReorderAction(
   facultyId: string,

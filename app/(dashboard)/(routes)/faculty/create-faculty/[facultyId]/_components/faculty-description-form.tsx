@@ -19,20 +19,20 @@ import { cn } from "@/lib/utils";
 import { Faculty } from "@prisma/client";
 import { Editor } from "@/components/editor";
 
-interface DescriptionFormProps {
+interface FacultyDescriptionFormProps {
   initialData: Faculty;
   facultyId: string;
 }
 const formSchema = z.object({
   description: z.string().min(1, {
-    message: "Description is required.",
+    message: "Faculty description is required.",
   }),
 });
 
 export const FacultyDescriptionForm = ({
   initialData,
   facultyId,
-}: DescriptionFormProps) => {
+}: FacultyDescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
@@ -45,11 +45,8 @@ export const FacultyDescriptionForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(
-        `/api/create-faculties/${facultyId}/descriptions`,
-        values
-      );
-      toast.success("Faculty description updated.");
+      await axios.patch(`/api/facultys/${facultyId}`, values);
+      toast.success("Topic updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -59,14 +56,14 @@ export const FacultyDescriptionForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Description*
+        Topic description
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit description
+              Edit topic description
             </>
           )}
         </Button>
@@ -78,7 +75,7 @@ export const FacultyDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {initialData.description || "What is the vision of this Faculty?"}
+          {initialData.description || "No description"}
         </p>
       )}
       {isEditing && (
@@ -90,13 +87,18 @@ export const FacultyDescriptionForm = ({
             <FormField
               control={form.control}
               name="description"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Editor onValueChangeAction={function (): void {
-                      throw new Error("Function not implemented.");
-                    } } value={undefined}                      
+                    <Editor
+                      onChangeAction={field.onChange}
+                      value={field.value || ""}
                     />
+                    {/* <Textarea
+                      disabled={isSubmitting}
+                      placeholder="e.g., 'This topic is about...'"
+                      {...field}
+                    /> */}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
