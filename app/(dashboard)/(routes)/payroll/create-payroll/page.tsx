@@ -48,7 +48,7 @@ const CreatePayroll = () => {
       <div>
         <h1 className="text-2xl">Payroll Creation</h1>
         <p className="text-sm text-slate-600">
-          Please give your Payroll a name. Don&apos;t worry, you can change the
+          Please give your Payroll a title. Don&apos;t worry, you can change the
           name later.
         </p>
         <Form {...form}>
@@ -65,7 +65,7 @@ const CreatePayroll = () => {
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Fashion Design Faculty Payroll'"
+                      placeholder="e.g., 'Fashion & Design Faculty Payroll'"
                       {...field}
                     />
                   </FormControl>

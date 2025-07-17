@@ -26,9 +26,10 @@ const FacultyIdPage = async ({
     return redirect("/");
   }
 
+  const resolvedParams = await params;
   const faculty = await db.faculty.findUnique({
     where: {
-      id: (await params).facultyId,
+      id: resolvedParams.facultyId,
       userId,
     },
     include: {
@@ -46,34 +47,48 @@ const FacultyIdPage = async ({
       courseworks: true,
     },
   });
+
   const school = await db.school.findMany({
     orderBy: {
       name: "asc",
     },
   });
-  if (!faculty || !school) {
+
+  if (!faculty || school.length === 0) {
+    console.error(
+      `[${new Date().toISOString()} FacultyIdPage] Faculty or school not found:`,
+      { facultyId: resolvedParams.facultyId, userId }
+    );
     return redirect("/");
   }
+
+  // Memoize faculty data to ensure stability
+  const initialData = {
+    ...faculty,
+    description: faculty.description ?? "", // Ensure description is never null
+  };
+
   const requiredFields = [
-    faculty.title,
-    faculty.description,
-    faculty.imageUrl,
-    faculty.schoolId,
-    faculty.courseworks.length > 0,
-    faculty.courses.length > 0,
+    initialData.title,
+    initialData.description,
+    initialData.imageUrl,
+    initialData.schoolId,
+    initialData.courseworks.length > 0,
+    initialData.courses.length > 0,
   ];
   const optionalFields = [
-    faculty.noticeboards.length > 0,
-    faculty.attachments.length > 0,
+    initialData.noticeboards.length > 0,
+    initialData.attachments.length > 0,
   ];
   const allFields = [...requiredFields, ...optionalFields];
   const totalFields = allFields.length;
   const completedFields = allFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
+
   return (
     <>
-      {!faculty.isPublished && (
+      {!initialData.isPublished && (
         <Banner
           variant="warning"
           label="This faculty is not published yet. You can publish it once you have completed all required fields."
@@ -91,8 +106,8 @@ const FacultyIdPage = async ({
               </div>
               <FacultyActions
                 disabled={!isComplete}
-                facultyId={(await params).facultyId}
-                isPublished={faculty.isPublished}
+                facultyId={resolvedParams.facultyId}
+                isPublished={initialData.isPublished}
               />
             </div>
           </div>
@@ -104,20 +119,26 @@ const FacultyIdPage = async ({
                 <IconBadge icon={LayoutDashboard} />
                 <h2 className="text-xl">Enter the Faculty details</h2>
               </div>
-              <FacultyTitleForm initialData={faculty} facultyId={faculty.id} />
+              <FacultyTitleForm
+                initialData={initialData}
+                facultyId={initialData.id}
+              />
               <FacultySchoolForm
-                initialData={faculty}
-                facultyId={faculty.id}
+                initialData={initialData}
+                facultyId={initialData.id}
                 options={school.map((cat) => ({
                   label: cat.name,
                   value: cat.id,
                 }))}
               />
               <FacultyDescriptionForm
-                initialData={faculty}
-                facultyId={faculty.id}
+                initialData={initialData}
+                facultyId={initialData.id}
               />
-              <FacultyImageForm initialData={faculty} facultyId={faculty.id} />
+              <FacultyImageForm
+                initialData={initialData}
+                facultyId={initialData.id}
+              />
             </div>
             <div className="space-y-6">
               <div>
@@ -126,8 +147,8 @@ const FacultyIdPage = async ({
                   <h2 className="text-xl">Resources & Attachments</h2>
                 </div>
                 <FacultyAttachmentForm
-                  initialData={faculty}
-                  facultyId={faculty.id}
+                  initialData={initialData}
+                  facultyId={initialData.id}
                 />
               </div>
               <div>
@@ -136,8 +157,8 @@ const FacultyIdPage = async ({
                   <h2 className="text-xl">Courses</h2>
                 </div>
                 <FacultyCourseForm
-                  initialData={faculty}
-                  facultyId={faculty.id}
+                  initialData={initialData}
+                  facultyId={initialData.id}
                 />
               </div>
               <div>
@@ -146,8 +167,8 @@ const FacultyIdPage = async ({
                   <h2 className="text-xl">Courseworks</h2>
                 </div>
                 <FacultyCourseworkForm
-                  initialData={faculty}
-                  facultyId={faculty.id}
+                  initialData={initialData}
+                  facultyId={initialData.id}
                 />
               </div>
               <div>
@@ -156,8 +177,8 @@ const FacultyIdPage = async ({
                   <h2 className="text-xl">Noticeboards</h2>
                 </div>
                 <FacultyNoticeboardForm
-                  initialData={faculty}
-                  facultyId={faculty.id}
+                  initialData={initialData}
+                  facultyId={initialData.id}
                 />
               </div>
             </div>

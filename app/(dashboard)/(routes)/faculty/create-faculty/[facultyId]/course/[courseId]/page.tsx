@@ -25,10 +25,10 @@ import { CourseCourseNoticeboardForm } from "./_components/course-courseNoticebo
 const CourseIdPage = async ({
   params,
 }: {
-  params: {
+  params: Promise<{
     facultyId: string;
     courseId: string;
-  };
+  }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
@@ -36,8 +36,8 @@ const CourseIdPage = async ({
   }
   const course = await db.course.findUnique({
     where: {
-      id: params.courseId,
-      facultyId: params.facultyId,
+      id: (await params).courseId,
+      facultyId: (await params).facultyId,
       userId,
     },
     include: {
@@ -97,7 +97,7 @@ const CourseIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${params.facultyId}`}
+              href={`/faculty/create-faculty/${(await params).facultyId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Faculty creation.
@@ -111,8 +111,8 @@ const CourseIdPage = async ({
               </div>
               <CourseActions
                 disabled={!isComplete}
-                facultyId={params.facultyId}
-                courseId={params.courseId}
+                facultyId={(await params).facultyId}
+                courseId={(await params).courseId}
                 isPublished={course.isPublished}
               />
             </div>
@@ -207,7 +207,7 @@ const CourseIdPage = async ({
                 facultyId={course.facultyId || ""}
                 courseId={course.id}
               />
-            </div>          
+            </div>
           </div>
         </div>
       </div>

@@ -13,41 +13,16 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Faculty } from "@prisma/client";
 import dynamic from "next/dynamic";
+// import { EditorProps } from "@/types/editor";
 import { updateFaculty } from "../actions";
 
-// Define EditorProps to match Editor.tsx
-interface EditorProps {
-  onChangeAction: (value: string) => void;
-  value: string | undefined;
-  onErrorAction?: (error: string) => void;
-  maxFileSize?: number;
-  allowedFileTypes?: string[];
-  debounceDelay?: number;
-  toolbarConfig?: {
-    headers?: boolean;
-    font?: boolean;
-    size?: boolean;
-    formatting?: boolean;
-    colors?: boolean;
-    lists?: boolean;
-    link?: boolean;
-    image?: boolean;
-    align?: boolean;
-    clean?: boolean;
-    blockquote?: boolean;
-    codeBlock?: boolean;
-  };
-  maxLength?: number;
-  onCharCountChangeAction?: (count: number) => void;
-}
-
-// Dynamically import Editor (let TypeScript infer the type)
-const Editor = dynamic(
+// Dynamically import Editor
+const DynamicEditor = dynamic(
   () => import("@/components/editor").then((mod) => mod.Editor),
   {
     ssr: false,
@@ -83,6 +58,13 @@ export const FacultyDescriptionForm = ({
     formState: { isSubmitting, isValid },
   } = form;
 
+  useEffect(() => {
+    console.log(
+      `[${new Date().toISOString()} FacultyDescriptionForm] initialData.description:`,
+      initialData.description
+    );
+  }, [initialData.description]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const { success, message } = await updateFaculty(facultyId, values);
@@ -95,7 +77,10 @@ export const FacultyDescriptionForm = ({
         toast.error(message);
       }
     } catch (error) {
-      console.error("Update faculty error:", error);
+      console.error(
+        `[${new Date().toISOString()} FacultyDescriptionForm] Update faculty error:`,
+        error
+      );
       toast.error("Unexpected error occurred");
     }
   };
@@ -126,39 +111,53 @@ export const FacultyDescriptionForm = ({
             <FormField
               control={form.control}
               name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Editor
-                      value={field.value}
-                      onChangeAction={field.onChange}
-                      onErrorAction={(error) =>
-                        form.setError("description", { message: error })
-                      }
-                      maxFileSize={2 * 1024 * 1024}
-                      allowedFileTypes={["image/jpeg", "image/png"]}
-                      debounceDelay={500}
-                      maxLength={5000}
-                      toolbarConfig={{
-                        headers: true,
-                        font: false, // Not supported by Tiptap StarterKit
-                        size: false, // Not supported by Tiptap StarterKit
-                        formatting: true,
-                        colors: false, // Requires additional extension
-                        lists: true,
-                        link: true,
-                        image: true,
-                        align: true,
-                        clean: true,
-                        blockquote: true,
-                        codeBlock: true,
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                console.log(
+                  `[${new Date().toISOString()} FacultyDescriptionForm] field object:`,
+                  field
+                );
+                console.log(
+                  `[${new Date().toISOString()} FacultyDescriptionForm] field.onChange type:`,
+                  typeof field.onChange
+                );
+                return (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      {typeof field.onChange === "function" ? (
+                        <DynamicEditor
+                          value={field.value}
+                          onChangeAction={field.onChange}
+                          onErrorAction={(error) =>
+                            form.setError("description", { message: error })
+                          }
+                          maxFileSize={2 * 1024 * 1024}
+                          allowedFileTypes={["image/jpeg", "image/png"]}
+                          debounceDelay={500}
+                          maxLength={5000}
+                          toolbarConfig={{
+                            headers: true,
+                            font: false,
+                            size: false,
+                            formatting: true,
+                            colors: false,
+                            lists: true,
+                            link: true,
+                            image: true,
+                            align: true,
+                            clean: true,
+                            blockquote: true,
+                            codeBlock: true,
+                          }}
+                        />
+                      ) : (
+                        <div>Loading form field...</div>
+                      )}
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <Button disabled={!isValid || isSubmitting} type="submit">
               {isSubmitting ? (

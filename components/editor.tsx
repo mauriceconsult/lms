@@ -10,7 +10,7 @@ import { createLowlight } from "lowlight";
 import ts from "highlight.js/lib/languages/typescript";
 import js from "highlight.js/lib/languages/javascript";
 import css from "highlight.js/lib/languages/css";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import sanitizeHtml from "sanitize-html";
 import toast from "react-hot-toast";
 import debounce from "lodash.debounce";
@@ -31,33 +31,10 @@ import {
   ListOrdered,
   X,
 } from "lucide-react";
-
-interface ToolbarConfig {
-  headers?: boolean;
-  font?: boolean;
-  size?: boolean;
-  formatting?: boolean;
-  colors?: boolean;
-  lists?: boolean;
-  link?: boolean;
-  image?: boolean;
-  align?: boolean;
-  clean?: boolean;
-  blockquote?: boolean;
-  codeBlock?: boolean;
-}
-
-interface EditorProps {
-  onChangeAction: (value: string) => void;
-  value: string | undefined;
-  onErrorAction?: (error: string) => void;
-  maxFileSize?: number;
-  allowedFileTypes?: string[];
-  debounceDelay?: number;
-  toolbarConfig?: ToolbarConfig;
-  maxLength?: number;
-  onCharCountChangeAction?: (count: number) => void;
-}
+import {
+  EditorProps,
+  // ToolbarConfig
+} from "@/types/editor";
 
 export const Editor = ({
   onChangeAction,
@@ -68,10 +45,10 @@ export const Editor = ({
   debounceDelay = 300,
   toolbarConfig = {
     headers: true,
-    font: false, // Tiptap StarterKit doesn't include font family
-    size: false, // Tiptap StarterKit doesn't include font size
+    font: false,
+    size: false,
     formatting: true,
-    colors: false, // Requires additional extension
+    colors: false,
     lists: true,
     link: true,
     image: true,
@@ -96,37 +73,52 @@ export const Editor = ({
     return instance;
   }, []);
 
-  const sanitizeContent = (content: string) => {
-    if (content.length > maxLength) {
-      const message = `Content exceeds ${maxLength} characters`;
-      toast.error(message);
-      onErrorAction?.(message);
-      return;
-    }
-    setIsSanitizing(true);
-    const sanitizedContent = sanitizeHtml(content, {
-      allowedTags: sanitizeHtml.defaults.allowedTags.concat([
-        "h1",
-        "h2",
-        "h3",
-        "img",
-        "blockquote",
-        "pre",
-      ]),
-      allowedAttributes: {
-        ...sanitizeHtml.defaults.allowedAttributes,
-        a: ["href"],
-        img: ["src"],
-        pre: ["class"],
-      },
-    });
-    onChangeAction(sanitizedContent);
-    setIsSanitizing(false);
-  };
+  const sanitizeContent = useCallback(
+    (content: string) => {
+      if (content.length > maxLength) {
+        const message = `Content exceeds ${maxLength} characters`;
+        toast.error(message);
+        onErrorAction?.(message);
+        return;
+      }
+      setIsSanitizing(true);
+      const sanitizedContent = sanitizeHtml(content, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+          "h1",
+          "h2",
+          "h3",
+          "img",
+          "blockquote",
+          "pre",
+        ]),
+        allowedAttributes: {
+          ...sanitizeHtml.defaults.allowedAttributes,
+          a: ["href"],
+          img: ["src"],
+          pre: ["class"],
+        },
+      });
+      console.log(
+        `[${new Date().toISOString()} Editor] sanitizeContent: onChangeAction type:`,
+        typeof onChangeAction
+      );
+      if (typeof onChangeAction === "function") {
+        onChangeAction(sanitizedContent);
+      } else {
+        console.error(
+          `[${new Date().toISOString()} Editor] onChangeAction is not a function:`,
+          onChangeAction
+        );
+        onErrorAction?.("Editor error: onChangeAction is not a function");
+      }
+      setIsSanitizing(false);
+    },
+    [maxLength, onChangeAction, onErrorAction]
+  );
 
   const debouncedSanitize = useMemo(
     () => debounce(sanitizeContent, debounceDelay),
-    [debounceDelay, maxLength]
+    [sanitizeContent, debounceDelay]
   );
 
   useEffect(() => {
@@ -142,7 +134,7 @@ export const Editor = ({
         bulletList: toolbarConfig.lists ? {} : false,
         orderedList: toolbarConfig.lists ? {} : false,
         blockquote: toolbarConfig.blockquote ? {} : false,
-        codeBlock: false, // Use CodeBlockLowlight instead
+        codeBlock: false,
       }),
       Image.configure({
         inline: true,
@@ -165,7 +157,17 @@ export const Editor = ({
       const html = editor.getHTML();
       setCharCount(html.length);
       onCharCountChangeAction?.(html.length);
-      debouncedSanitize(html);
+      if (typeof onChangeAction === "function") {
+        console.log(
+          `[${new Date().toISOString()} Editor] onUpdate: calling debouncedSanitize`
+        );
+        debouncedSanitize(html);
+      } else {
+        console.log(
+          `[${new Date().toISOString()} Editor] onUpdate: skipping debouncedSanitize, onChangeAction is`,
+          typeof onChangeAction
+        );
+      }
     },
     editorProps: {
       attributes: {
@@ -173,7 +175,7 @@ export const Editor = ({
           "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl focus:outline-none min-h-[150px] p-4",
       },
     },
-    immediatelyRender: false, // Prevent SSR rendering
+    immediatelyRender: false,
   });
 
   const handleImageUpload = () => {
@@ -216,7 +218,10 @@ export const Editor = ({
           toast.success("Image uploaded successfully");
         } catch (error) {
           const message = "Failed to upload image";
-          console.error("Image upload error:", error);
+          console.error(
+            `[${new Date().toISOString()} Editor] Image upload error:`,
+            error
+          );
           toast.error(message);
           onErrorAction?.(message);
         } finally {
