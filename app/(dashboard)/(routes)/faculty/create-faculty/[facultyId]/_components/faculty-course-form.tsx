@@ -135,7 +135,7 @@ export const FacultyCourseForm = ({
                   <FormControl>
                     <Editor
                       {...field}
-                      onValueChangeAction={field.onChange} // Updated
+                      onChangeAction={field.onChange} // Updated
                       onErrorAction={(error) =>
                         form.setError("description", { message: error })
                       } // Updated
