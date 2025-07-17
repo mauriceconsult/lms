@@ -1,45 +1,44 @@
-import { db } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { facultyId: string; courseId: string } }
-) {
-  const body = await request.json();
-  const { amount } = body;
-  const { userId } = await auth();
-  if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-  if (!amount || amount.length === 0) {
-    return new Response("No data provided", { status: 400 });
-  }
-  const faculty = await db.faculty.findUnique({
-    where: {
-      id: params.facultyId,    
-      userId,
-    },
-  });
-  if (!faculty) {
-    return new Response("Faculty not found", { status: 404 });
-  }
-  const course = await db.course.findUnique({
-    where: {
-      id: params.courseId,
-      facultyId: params.facultyId,
-      userId,
-    },
-  });
-  if (!course) {
-    return new Response("Faculty not found", { status: 404 });
-  }
-  await db.course.update({
-    where: {
-      id: course.id,
-    },
-    data: {
-      amount,
-    },
-  });
-  return new Response("Success", { status: 200 });
+const prisma = new PrismaClient();
+
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ facultyId: string; courseId: string }> }) {
+    try {
+        const { facultyId, courseId } = await params;
+        const { amount } = await req.json();
+
+        if (!facultyId || !courseId) {
+            return NextResponse.json({ message: 'Invalid facultyId or courseId' }, { status: 400 });
+        }
+
+        const course = await prisma.course.findFirst({
+            where: {
+                id: courseId,
+                facultyId,
+            },
+        });
+
+        if (!course) {
+            return NextResponse.json({ message: 'Course not found' }, { status: 404 });
+        }
+
+        if (amount !== null && (typeof amount !== 'string' || isNaN(Number(amount)))) {
+            return NextResponse.json({ message: 'Invalid amount: must be a string representing a number or null' }, { status: 400 });
+        }
+
+        const updatedCourse = await prisma.course.update({
+            where: { id: courseId },
+            data: {
+                amount: amount,
+            },
+        });
+
+        return NextResponse.json(updatedCourse, { status: 200 });
+    } catch (error) {
+        console.error('Update course amount error:', error);
+        return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    } finally {
+        await prisma.$disconnect();
+    }
 }

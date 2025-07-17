@@ -1,6 +1,32 @@
-export const formatAmount = (amount: string) => {
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "EUR",
-    }).format(Number(amount))
-}
+import { formatMoney } from 'accounting';
+
+// Original function
+export const formatAmount = (amount: string | number | null | undefined) => {
+    const numericAmount = Number(amount);
+    if (isNaN(numericAmount)) {
+        return 'Invalid amount';
+    }
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'EUR',
+    }).format(numericAmount);
+};
+
+// Enhanced function with accounting.js
+export const formatAmountWithAccounting = (amount: string | number | null | undefined) => {
+    const numericAmount = Number(amount);
+    if (isNaN(numericAmount)) {
+        return 'Invalid amount';
+    }
+    try {
+        return formatMoney(numericAmount, {
+            symbol: '€',
+            decimal: '.',
+            thousand: ',',
+            precision: 2,
+            format: '%s%v',
+        });
+    } catch {
+        return formatAmount(numericAmount); // Use numericAmount for fallback
+    }
+};

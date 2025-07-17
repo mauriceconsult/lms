@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string; } }
+  { params }: { params: Promise<{ facultyId: string; courseId: string; }> }
 ) {
   try {
     const { userId } = await auth();
@@ -13,7 +13,7 @@ export async function DELETE(
     }
     const faculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId: userId,
       },
     });
@@ -22,7 +22,7 @@ export async function DELETE(
     }
     const course = await db.course.findUnique({
       where: {
-        id: params.courseId,
+        id: (await params).courseId,
         userId: userId,
       },
     });
@@ -31,7 +31,7 @@ export async function DELETE(
     }
     const deletedCourse = await db.course.delete({
       where: {
-        id: params.courseId,
+        id: (await params).courseId,
       },
     });
     return NextResponse.json(deletedCourse);
@@ -43,11 +43,11 @@ export async function DELETE(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string; } }
+  { params }: { params: Promise<{ facultyId: string; courseId: string; }> }
 ) {
   try {
     const { userId } = await auth();
-    const { facultyId, courseId } = params;
+    const { facultyId, courseId } = await params;
     const values = await req.json();
     if (!userId) {
       return new NextResponse("Unathorized", { status: 401 });

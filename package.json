@@ -20,7 +20,7 @@
     "@mux/mux-node": "^9.0.1",
     "@mux/mux-player": "^3.1.0",
     "@mux/mux-player-react": "^3.1.0",
-    "@prisma/client": "^6.3.1",
+    "@prisma/client": "^6.12.0",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-checkbox": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.11",
@@ -40,6 +40,7 @@
     "@tiptap/react": "^3.0.6",
     "@tiptap/starter-kit": "^3.0.6",
     "@uploadthing/react": "^7.3.0",
+    "accounting": "^0.4.1",
     "axios": "^1.7.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -50,6 +51,7 @@
     "mtn-momo": "^2.0.0",
     "mtn-momo-sdk": "^1.2.1",
     "next": "^15.3.5",
+    "numeral": "^2.0.6",
     "query-string": "^9.1.1",
     "react": "^18",
     "react-dom": "^18",
@@ -68,6 +70,7 @@
     "react-quill": "2.0.0"
   },
   "devDependencies": {
+    "@types/accounting": "^0.4.5",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^24.0.13",
     "@types/react": "^19.1.8",
