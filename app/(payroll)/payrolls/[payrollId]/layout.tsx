@@ -9,7 +9,7 @@ const PayrollLayout = async ({
   params,
 }: {
   children: React.ReactNode;
-  params: { payrollId: string };
+  params: Promise<{ payrollId: string }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
@@ -18,7 +18,7 @@ const PayrollLayout = async ({
 
   const payroll = await db.payroll.findUnique({
     where: {
-      id: params.payrollId,
+      id: (await params).payrollId,
     },
     include: {
       attachments: true,

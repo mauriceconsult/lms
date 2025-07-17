@@ -7,19 +7,16 @@ import Link from "next/link";
 import { getPayroll } from "@/actions/get-payroll";
 import { Banner } from "@/components/banner";
 
-const PayrollIdpage = async ({ params }: { params: { payrollId: string } }) => {
+const PayrollIdpage = async ({ params }: { params: Promise<{ payrollId: string }> }) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
   }
 
-  const {
-    payroll,
-    school,
-  } = await getPayroll({
+  const { payroll, school } = await getPayroll({
     userId,
-    schoolId: params.payrollId,
-    payrollId: params.payrollId,
+    schoolId: (await params).payrollId,
+    payrollId: (await params).payrollId,
   });
   if (!school || !payroll) {
     return redirect("/");
