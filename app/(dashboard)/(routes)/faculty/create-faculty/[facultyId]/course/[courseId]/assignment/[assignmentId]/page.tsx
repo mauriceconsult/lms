@@ -63,7 +63,7 @@ const AssignmentIdPage = async ({
       {!assignment.isPublished && (
         <Banner
           variant="warning"
-          label="This Assignment is unpublished.It will not be visible to students until published."
+          label="This Assignment is unpublished.Once published, students can submit their Assignments."
         />
       )}
       <div className="p-6">

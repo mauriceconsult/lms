@@ -29,7 +29,9 @@ export const CourseworkActions = ({
         await axios.patch(`/api/create-faculties/${facultyId}/courseworks/${courseworkId}/unpublish`);
         toast.success("Coursework unpublished");
       } else {
-        await axios.patch(`/api/create-courseworks/${courseworkId}/publish`);
+        await axios.patch(
+          `/api/create-faculties/${facultyId}/courseworks/${courseworkId}/publish`
+        );
         toast.success("Coursework published");
       }
       router.refresh();

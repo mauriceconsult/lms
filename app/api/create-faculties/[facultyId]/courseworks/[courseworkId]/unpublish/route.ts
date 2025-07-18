@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { facultyId: string; courseworkId: string } }
+  { params }: { params: Promise<{ facultyId: string; courseworkId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -13,7 +13,7 @@ export async function PATCH(
     }
     const ownFaculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
       },
     });
@@ -22,7 +22,7 @@ export async function PATCH(
     }
     const ownCoursework = await db.coursework.findUnique({
       where: {
-        id: params.courseworkId,
+        id: (await params).courseworkId,
         userId,
       },
     });
@@ -32,8 +32,8 @@ export async function PATCH(
 
     const unpublishedCoursework = await db.coursework.update({
       where: {
-        id: params.courseworkId,
-        facultyId: params.facultyId,
+        id: (await params).courseworkId,
+        facultyId: (await params).facultyId,
         userId,
       },
       data: {
@@ -42,15 +42,15 @@ export async function PATCH(
     });
     const publishedCourseworks = await db.coursework.findMany({
       where: {
-        id: params.courseworkId,
-        facultyId: params.facultyId,
+        id: (await params).courseworkId,
+        facultyId: (await params).facultyId,
         isPublished: true,
       },
     });
     if (!publishedCourseworks.length) {
       await db.faculty.update({
         where: {
-          id: params.facultyId,
+          id: (await params).facultyId,
         },
         data: {
           isPublished: false,

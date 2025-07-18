@@ -58,7 +58,7 @@ const CourseworkIdPage = async ({
       {!coursework.isPublished && (
         <Banner
           variant="warning"
-          label="This Coursework is unpublished. It will not be visible to the Faculty."
+          label="This Coursework is unpublished. Once published, students can submit their projects."
         />
       )}
       <div className="p-6">
