@@ -31,9 +31,7 @@ interface FacultyCourseFormProps {
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z
-    .string()
-    .max(5000, "Description must be 5000 characters or less")
-    .optional(),
+    .string()   
 });
 
 export const FacultyCourseForm = ({
@@ -59,7 +57,7 @@ export const FacultyCourseForm = ({
       if (success) {
         toast.success(message);
         toggleCreating();
-        reset({ title: "", description: "" });
+        reset({ title: ""});
         router.refresh();
       } else {
         toast.error(message);

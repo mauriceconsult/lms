@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { facultyId: string; noticeboardId: string } }
+  { params }: { params: Promise<{ facultyId: string; noticeboardId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -13,7 +13,7 @@ export async function PATCH(
     }
     const ownFaculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
       },
     });
@@ -22,7 +22,7 @@ export async function PATCH(
     }
     const ownNotice = await db.noticeboard.findUnique({
       where: {
-        id: params.noticeboardId,
+        id: (await params).noticeboardId,
         userId,
       },
     });
@@ -32,8 +32,8 @@ export async function PATCH(
 
     const unpublishedNoticeboard = await db.noticeboard.update({
       where: {
-        id: params.noticeboardId,
-        facultyId: params.facultyId,
+        id: (await params).noticeboardId,
+        facultyId: (await params).facultyId,
         userId,
       },
       data: {
@@ -42,15 +42,15 @@ export async function PATCH(
     });
     const publishedNoticeboards = await db.noticeboard.findMany({
       where: {
-        id: params.noticeboardId,
-        facultyId: params.facultyId,
+        id: (await params).noticeboardId,
+        facultyId: (await params).facultyId,
         isPublished: true,
       },
     });
     if (!publishedNoticeboards.length) {
       await db.faculty.update({
         where: {
-          id: params.facultyId,
+          id: (await params).facultyId,
         },
         data: {
           isPublished: false,

@@ -7,10 +7,10 @@ export async function PATCH(
   {
     params,
   }: {
-    params: {
-      facultyId: string; 
-      courseId: string;
-    }
+    params: Promise<{
+      facultyId: string;
+      noticeboardId: string;
+    }>;
   }
 ) {
   try {
@@ -20,45 +20,29 @@ export async function PATCH(
     }
     const faculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
-      }  
+      },
     });
     if (!faculty) {
       return new NextResponse("Not found", { status: 404 });
-    } 
+    }
 
-    const course = await db.course.findUnique({
+    const noticeboard = await db.noticeboard.findUnique({
       where: {
-        id: params.courseId,
-        facultyId: params.facultyId,
-      },
-      include: {
-        tutors: true,
+        id: (await params).noticeboardId,
+        facultyId: (await params).facultyId,
       },
     });
-    const hasPublishedTopic = course?.tutors?.some((tutor) => tutor.isPublished);
+    // const hasPublishedNotice = noticeboard?.tutors?.some((tutor) => tutor.isPublished);
 
-    if (
-      !course
-      ||
-      !course.description
-      ||
-      !course.title
-      ||
-      !course.imageUrl
-      ||
-      !
-      course.amount
-      ||
-      !hasPublishedTopic
-    ) {
+    if (!noticeboard || !noticeboard.description || !noticeboard.title) {
       return new NextResponse("Missing credentials", { status: 400 });
-    }   
-    const publishedCourse = await db.course.update({
+    }
+    const publishedCourse = await db.noticeboard.update({
       where: {
-        id: params.courseId,
-        facultyId: params.facultyId,
+        id: (await params).noticeboardId,
+        facultyId: (await params).facultyId,
       },
       data: {
         isPublished: true,
@@ -66,7 +50,7 @@ export async function PATCH(
     });
     return NextResponse.json(publishedCourse);
   } catch (error) {
-    console.log("[COURSE_PUBLISH]", error);
+    console.log("[NOTICEBOARD_PUBLISH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

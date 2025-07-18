@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { facultyId: string; noticeboardId: string; } }
+  { params }: { params: Promise<{ facultyId: string; noticeboardId: string; }> }
 ) {
   try {
     const { userId } = await auth();
@@ -13,7 +13,7 @@ export async function DELETE(
     }
     const faculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId: userId,
       },
     });
@@ -22,7 +22,7 @@ export async function DELETE(
     }
     const noticeboard = await db.noticeboard.findUnique({
       where: {
-        id: params.noticeboardId,
+        id: (await params).noticeboardId,
         userId: userId,
       },
     });
@@ -31,7 +31,7 @@ export async function DELETE(
     }
     const deletedNoticeboard = await db.noticeboard.delete({
       where: {
-        id: params.noticeboardId,
+        id: (await params).noticeboardId,
       },
     });
     return NextResponse.json(deletedNoticeboard);
@@ -43,11 +43,11 @@ export async function DELETE(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { facultyId: string; noticeboardId: string; } }
+  { params }: { params: Promise<{ facultyId: string; noticeboardId: string; }> }
 ) {
   try {
     const { userId } = await auth();
-    const { facultyId, noticeboardId } = params;
+    const { facultyId, noticeboardId } = await params;
     const values = await req.json();
     if (!userId) {
       return new NextResponse("Unathorized", { status: 401 });

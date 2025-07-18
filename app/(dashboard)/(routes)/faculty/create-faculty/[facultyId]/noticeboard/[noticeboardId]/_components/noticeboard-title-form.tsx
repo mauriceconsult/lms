@@ -41,7 +41,7 @@ export const NoticeboardTitleForm = ({ initialData, facultyId, noticeboardId }: 
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/title`, values);
+      await axios.patch(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/titles`, values);
       toast.success("Noticeboard created.");
       toggleEdit();
       router.refresh();

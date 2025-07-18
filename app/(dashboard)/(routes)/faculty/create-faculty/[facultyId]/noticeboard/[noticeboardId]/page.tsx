@@ -8,17 +8,17 @@ import { NoticeboardFacultyForm } from "./_components/noticeboard-faculty-form";
 import { Banner } from "@/components/banner";
 import { NoticeboardActions } from "./_components/noticeboard-actions";
 import { NoticeboardTitleForm } from "./_components/noticeboard-title-form";
-import { NoticeboardDescriptionForm } from "./_components/noticeboard-description-form";
 import { NoticeboardAttachmentForm } from "./_components/noticeboard-attachment-form";
 import Link from "next/link";
+import { NoticeboardDescriptionForm } from "./_components/noticeboard-description-form";
 
 const NoticeboardIdPage = async ({
   params,
 }: {
-  params: {
+  params: Promise<{
     facultyId: string;
     noticeboardId: string;
-  };
+  }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
@@ -27,7 +27,7 @@ const NoticeboardIdPage = async ({
 
   const noticeboard = await db.noticeboard.findFirst({
     where: {
-      id: params.noticeboardId,
+      id: (await params).noticeboardId,
       userId,
     },
     include: {
@@ -64,7 +64,7 @@ const NoticeboardIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${params.facultyId}`}
+              href={`/faculty/create-faculty/${(await params).facultyId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Faculty creation.
@@ -78,9 +78,9 @@ const NoticeboardIdPage = async ({
               </div>
               <NoticeboardActions
                 disabled={!isComplete}
-                noticeboardId={params.noticeboardId}
+                noticeboardId={(await params).noticeboardId}
                 isPublished={noticeboard.isPublished}
-                facultyId={params.facultyId}
+                facultyId={(await params).facultyId}
               />
             </div>
           </div>

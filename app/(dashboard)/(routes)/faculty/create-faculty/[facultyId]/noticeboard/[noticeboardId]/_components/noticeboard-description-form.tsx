@@ -27,7 +27,7 @@ interface NoticeboardDescriptionProps {
 }
 const formSchema = z.object({
   description: z.string().min(1, {
-    message: "Description is required.",
+    message: "Noticeboard description is required.",
   }),
 });
 
@@ -66,7 +66,7 @@ export const NoticeboardDescriptionForm = ({
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit notice description
+              Edit Noticeboard description
             </>
           )}
         </Button>
@@ -95,7 +95,7 @@ export const NoticeboardDescriptionForm = ({
                   <FormControl>
                     <Textarea
                       disabled={isSubmitting}
-                      placeholder="e.g., 'This noticeboard is about...'"
+                      placeholder="e.g., 'This is to inform the staff that...'"
                       {...field}
                     />
                   </FormControl>
