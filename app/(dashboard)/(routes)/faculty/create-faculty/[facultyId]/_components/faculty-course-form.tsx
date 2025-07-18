@@ -21,7 +21,6 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Course, Faculty } from "@prisma/client";
 import { FacultyCourseList } from "./faculty-course-list";
-import { Editor } from "@/components/editor";
 import { createCourse, onEditAction, onReorderAction } from "../actions";
 
 interface FacultyCourseFormProps {
@@ -49,14 +48,10 @@ export const FacultyCourseForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: { title: "", description: "" },
   });
-  const {
-    watch,
+  const {  
     reset,
     formState: { isSubmitting, isValid },
-  } = form;
-
-  const description = watch("description", "");
-  const charCount = description?.length || 0;
+  } = form; 
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -125,50 +120,7 @@ export const FacultyCourseForm = ({
                   <FormMessage />
                 </FormItem>
               )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Editor
-                      {...field}
-                      onChangeAction={field.onChange} // Updated
-                      onErrorAction={(error) =>
-                        form.setError("description", { message: error })
-                      } // Updated
-                      maxFileSize={2 * 1024 * 1024}
-                      allowedFileTypes={["image/jpeg", "image/png"]}
-                      debounceDelay={500}
-                      maxLength={5000}
-                      toolbarConfig={{
-                        headers: true,
-                        font: true,
-                        size: true,
-                        formatting: true,
-                        colors: true,
-                        lists: true,
-                        link: true,
-                        image: true,
-                        align: true,
-                        clean: true,
-                        blockquote: true,
-                        codeBlock: true,
-                      }}
-                      onCharCountChangeAction={(count) =>
-                        console.log(`Char count: ${count}`)
-                      } // Updated
-                    />
-                  </FormControl>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {charCount}/{5000} characters
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            />          
             <Button disabled={!isValid || isSubmitting} type="submit">
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -210,7 +162,7 @@ export const FacultyCourseForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the courses
+          Drag and drop to reorder the Courses
         </p>
       )}
     </div>

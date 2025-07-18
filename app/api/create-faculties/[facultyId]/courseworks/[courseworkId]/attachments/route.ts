@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; courseworkId: string; }}
+  { params }: { params: Promise<{ facultyId: string; courseworkId: string; }>}
 ) {
   try {
     const userId = await auth();
@@ -14,7 +14,7 @@ export async function POST(
     }
     const facultyOwner = await db.faculty.findUnique({
       where: {
-        id: params.facultyId, 
+        id: (await params).facultyId, 
       }
     });
     if (!facultyOwner) {
@@ -24,8 +24,8 @@ export async function POST(
       data: {
         url,
         name: url.split("/").pop(),
-        courseworkId: params.courseworkId,
-        facultyId: params.facultyId,
+        courseworkId: (await params).courseworkId,
+        facultyId: (await params).facultyId,
       }
     });
     return NextResponse.json(attachment)

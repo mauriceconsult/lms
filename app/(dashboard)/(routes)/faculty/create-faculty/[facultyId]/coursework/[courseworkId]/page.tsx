@@ -14,10 +14,10 @@ import Link from "next/link";
 const CourseworkIdPage = async ({
   params,
 }: {
-  params: {
+  params: Promise<{
     facultyId: string;
     courseworkId: string;
-  };
+  }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
@@ -26,7 +26,7 @@ const CourseworkIdPage = async ({
 
   const coursework = await db.coursework.findFirst({
     where: {
-      id: params.courseworkId,
+      id: (await params).courseworkId,
       userId,
     },
     include: {  
@@ -66,7 +66,7 @@ const CourseworkIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${params.facultyId}`}
+              href={`/faculty/create-faculty/${(await params).facultyId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Faculty creation.
@@ -80,8 +80,8 @@ const CourseworkIdPage = async ({
               </div>
               <CourseworkActions
                 disabled={!isComplete}
-                courseworkId={params.courseworkId}
-                facultyId={params.facultyId}
+                courseworkId={(await params).courseworkId}
+                facultyId={(await params).facultyId}
                 isPublished={coursework.isPublished}
               />
             </div>

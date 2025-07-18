@@ -7,10 +7,10 @@ export async function POST(
   {
     params,
   }: {
-    params: {
+    params: Promise<{
       facultyId: string;
       courseId: string;     
-    };
+    }>;
   }
 ) {
   try {
@@ -21,7 +21,7 @@ export async function POST(
     }
     const facultyOwner = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
       },
     });
@@ -31,7 +31,7 @@ export async function POST(
     }
     const courseOwner = await db.course.findUnique({
       where: {
-        id: params.courseId,
+        id: (await params).courseId,
         userId,
       },
     });
@@ -41,7 +41,7 @@ export async function POST(
     }
     const lastCourseNotice = await db.courseNoticeboard.findFirst({
       where: {
-        courseId: params.courseId,
+        courseId: (await params).courseId,
       },
       orderBy: {
         position: "desc",
@@ -54,7 +54,7 @@ export async function POST(
     const courseNoticeboard = await db.courseNoticeboard.create({
       data: {
         title,
-        courseId: params.courseId,
+        courseId: (await params).courseId,
         position: newPosition,
         userId,
       },

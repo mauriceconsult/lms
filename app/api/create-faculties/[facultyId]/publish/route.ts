@@ -7,9 +7,9 @@ export async function PATCH(
   {
     params,
   }: {
-    params: {
+    params: Promise<{
       facultyId: string;
-    };
+    }>;
   }
 ) {
   try {
@@ -19,7 +19,7 @@ export async function PATCH(
     }
     const ownFaculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
       },
     });
@@ -28,7 +28,7 @@ export async function PATCH(
     }
     const faculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
       },
       include: {
@@ -51,7 +51,7 @@ export async function PATCH(
 
     const publishedfaculty = await db.faculty.update({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
       },
       data: {

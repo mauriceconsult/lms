@@ -114,7 +114,7 @@ export const CourseCourseNoticeboardForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Design Principles courseNoticeboard'"
+                      placeholder="e.g., 'Design Principles course Notice'"
                       {...field}
                     />
                   </FormControl>
@@ -135,7 +135,7 @@ export const CourseCourseNoticeboardForm = ({
             !initialData.courseNoticeboards.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.courseNoticeboards.length && "No CourseNoticeboards yet"}
+          {!initialData.courseNoticeboards.length && "No Course notices yet"}
           <CourseCourseNoticeboardList
             onEdit={onEdit}
             onReorder={onReorder}
@@ -145,7 +145,7 @@ export const CourseCourseNoticeboardForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the CourseNoticeboards
+          Drag and drop to reorder the Course notices
         </p>
       )}
     </div>

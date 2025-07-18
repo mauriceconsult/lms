@@ -7,10 +7,10 @@ export async function PATCH(
   {
     params,
   }: {
-    params: {
+    params: Promise<{
       facultyId: string; 
       courseId: string;
-    }
+    }>
   }
 ) {
   try {
@@ -20,9 +20,9 @@ export async function PATCH(
     }
     const faculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
-      }  
+      },
     });
     if (!faculty) {
       return new NextResponse("Not found", { status: 404 });
@@ -30,8 +30,8 @@ export async function PATCH(
 
     const course = await db.course.findUnique({
       where: {
-        id: params.courseId,
-        facultyId: params.facultyId,
+        id: (await params).courseId,
+        facultyId: (await params).facultyId,
       },
       include: {
         tutors: true,
@@ -57,8 +57,8 @@ export async function PATCH(
     }   
     const publishedCourse = await db.course.update({
       where: {
-        id: params.courseId,
-        facultyId: params.facultyId,
+        id: (await params).courseId,
+        facultyId: (await params).facultyId,
       },
       data: {
         isPublished: true,

@@ -7,9 +7,9 @@ export async function PATCH(
   {
     params,
   }: {
-    params: {
+    params: Promise<{
       facultyId: string; 
-    }
+    }>
   }
 ) {
   try {
@@ -19,7 +19,7 @@ export async function PATCH(
     }
     const ownFaculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
       },
     });
@@ -28,7 +28,7 @@ export async function PATCH(
     }   
     const unpublishedfaculty = await db.faculty.update({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
       },
       data: {
@@ -37,14 +37,14 @@ export async function PATCH(
     });
     const publishedfaculty = await db.faculty.findMany({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         isPublished: true,
       }
     });
     if (!publishedfaculty.length) {
       await db.faculty.update({
         where: {
-          id: params.facultyId,
+          id: (await params).facultyId,
         },
         data: {
           isPublished: false,
