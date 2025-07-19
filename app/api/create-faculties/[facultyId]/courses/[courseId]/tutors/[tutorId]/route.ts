@@ -4,7 +4,11 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ facultyId: string; courseId: string; tutorId: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{ facultyId: string; courseId: string; tutorId: string }>;
+  }
 ) {
   try {
     const { userId } = await auth();
@@ -32,4 +36,4 @@ export async function PATCH(
     console.error("[TUTOR_PATCH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
-};
+}
