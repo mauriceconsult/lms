@@ -18,14 +18,14 @@ import { CourseImageForm } from './course-image-form';
 import { CourseAttachmentForm } from './course-attachment-form';
 import { CourseTutorForm } from './course-tutor-form';
 import { CourseCourseNoticeboardForm } from './course-courseNoticeboard-form';
-import { CourseAssignmentForm } from './course-assignment-form';
+import { CourseTutorAssignmentForm } from './course-assignment-form';
 import { CourseAmountForm } from './course-amount-form';
-import { Course, Faculty, CourseNoticeboard, Attachment, Assignment, Tuition, Tutor } from '@prisma/client';
+import { Course, Faculty, CourseNoticeboard, Attachment, TutorAssignment, Tuition, Tutor } from '@prisma/client';
 
 interface CourseIdPageClientProps {
   course: Course & {
     courseNoticeboards: CourseNoticeboard[];
-    assignments: Assignment[];
+    tutorAssignments: TutorAssignment[];
     tuitions: Tuition[];
     tutors: Tutor[];
     attachments: Attachment[];
@@ -47,7 +47,7 @@ export default function CourseIdPageClient({
     course.imageUrl,
     course.amount,
     course.tutors.length > 0,
-    course.assignments.length > 0,
+    course.tutorAssignments.length > 0,
   ];
   const optionalFields = [
     course.attachments.length > 0,
@@ -176,7 +176,7 @@ export default function CourseIdPageClient({
                 <IconBadge icon={ListChecks} />
                 <h2 className="text-xl">Course Assignments</h2>
               </div>
-              <CourseAssignmentForm
+              <CourseTutorAssignmentForm
                 initialData={course}
                 facultyId={course.facultyId || ''}
                 courseId={course.id}

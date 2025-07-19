@@ -26,7 +26,7 @@ export default async function CourseIdPage({ params }: CourseIdPageProps) {
     },
     include: {
       courseNoticeboards: true,
-      assignments: true,
+      tutorAssignments: true,
       tuitions: true,
       tutors: {
         orderBy: {

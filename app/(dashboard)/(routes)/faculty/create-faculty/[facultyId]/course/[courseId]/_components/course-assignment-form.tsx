@@ -17,12 +17,12 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Course, Assignment } from "@prisma/client";
-import { CourseAssignmentList } from "./course-assignment-list";
+import { Course, TutorAssignment } from "@prisma/client";
+import { CourseTutorAssignmentList } from "./course-assignment-list";
 
 
-interface CourseAssignmentFormProps {
-  initialData: Course & { assignments: Assignment[] }
+interface CourseTutorAssignmentFormProps {
+  initialData: Course & { tutorAssignments: TutorAssignment[] }
   facultyId: string;
   courseId: string;
 }
@@ -31,11 +31,11 @@ const formSchema = z.object({
   title: z.string().min(1),
 });
 
-export const CourseAssignmentForm = ({
+export const CourseTutorAssignmentForm = ({
   initialData,
   facultyId,
   courseId,
-}: CourseAssignmentFormProps) => {
+}: CourseTutorAssignmentFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const toggleCreating = () => {
@@ -51,8 +51,8 @@ export const CourseAssignmentForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/assignments`, values);
-      toast.success("Course Assignment created.");
+      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/tutorAssignments`, values);
+      toast.success("Course TutorAssignment created.");
       toggleCreating();
       router.refresh();
     } catch {
@@ -62,10 +62,10 @@ export const CourseAssignmentForm = ({
   const onReorder = async (updateData: { id: string; position: number }[]) => {
     try {
       setIsUpdating(true);
-      await axios.put(`/api/create-faculties/${facultyId}/courses/${courseId}/assignments/reorder`, {
+      await axios.put(`/api/create-faculties/${facultyId}/courses/${courseId}/tutorAssignments/reorder`, {
         list: updateData,
       });
-      toast.success("Course Assignments reordered");
+      toast.success("Course TutorAssignments reordered");
       router.refresh();
     } catch {
       toast.error("Something went wrong");
@@ -87,14 +87,14 @@ export const CourseAssignmentForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Assignment*
+        TutorAssignment*
         <Button onClick={toggleCreating} variant="ghost">
           {isCreating ? (
             <>Cancel</>
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add an Assignment
+              Add an TutorAssignment
             </>
           )}
         </Button>
@@ -132,20 +132,20 @@ export const CourseAssignmentForm = ({
         <div
           className={cn(
             "text-sm mt-2",
-            !initialData.assignments.length && "text-slate-500 italic"
+            !initialData.tutorAssignments.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.assignments.length && "No Assignments yet"}
-          <CourseAssignmentList
+          {!initialData.tutorAssignments.length && "No TutorAssignments yet"}
+          <CourseTutorAssignmentList
             onEdit={onEdit}
             onReorder={onReorder}
-            items={initialData.assignments || []}
+            items={initialData.tutorAssignments || []}
           />
         </div>
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Assignments
+          Drag and drop to reorder the TutorAssignments
         </p>
       )}
     </div>

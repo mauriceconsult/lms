@@ -1,6 +1,6 @@
 "use client";
 
-import { Assignment} from "@prisma/client";
+import { TutorAssignment} from "@prisma/client";
 import { useEffect, useState } from "react";
 import {
   DragDropContext,
@@ -12,23 +12,23 @@ import { cn } from "@/lib/utils";
 import { Grip, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-interface CourseAssignmentListProps {
-  items: Assignment[];
+interface CourseTutorAssignmentListProps {
+  items: TutorAssignment[];
   onReorder: (updateData: { id: string; position: number }[]) => void;
   onEdit: (id: string) => void;
 }
-export const CourseAssignmentList = ({
+export const CourseTutorAssignmentList = ({
   items,
   onReorder,
   onEdit,
-}: CourseAssignmentListProps) => {
+}: CourseTutorAssignmentListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [assignments, setCourseAssignment] = useState(items);
+  const [assignments, setCourseTutorAssignment] = useState(items);
   useEffect(() => {
     setIsMounted(true);
   }, []);
   useEffect(() => {
-    setCourseAssignment(items);
+    setCourseTutorAssignment(items);
   }, [items]);
 
   const onDragend = (result: DropResult) => {
@@ -40,10 +40,10 @@ export const CourseAssignmentList = ({
     const startIndex = Math.min(result.source.index, result.destination.index);
     const endIndex = Math.max(result.source.index, result.destination.index);
 
-    const updatedCourseAssignment = items.splice(startIndex, endIndex + 1);
+    const updatedCourseTutorAssignment = items.splice(startIndex, endIndex + 1);
 
-    setCourseAssignment(items);
-    const bulkUpdateData = updatedCourseAssignment.map((assignment) => ({
+    setCourseTutorAssignment(items);
+    const bulkUpdateData = updatedCourseTutorAssignment.map((assignment) => ({
       id: assignment.id,
       position: items.findIndex((item) => item.id === assignment.id),
     }));
@@ -68,7 +68,7 @@ export const CourseAssignmentList = ({
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      assignment.isPublished &&
+                      assignment.isSubmitted &&
                         "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
@@ -77,7 +77,7 @@ export const CourseAssignmentList = ({
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        assignment.isPublished &&
+                        assignment.isSubmitted &&
                           "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
@@ -90,10 +90,10 @@ export const CourseAssignmentList = ({
                       <Badge
                         className={cn(
                           "bg-slate-500",
-                          assignment.isPublished && "bg-sky-700"
+                          assignment.isSubmitted && "bg-sky-700"
                         )}
                       >
-                        {assignment.isPublished ? "Published" : "Draft"}
+                        {assignment.isSubmitted ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
                         onClick={() => onEdit(assignment.id)}
