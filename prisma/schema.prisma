@@ -38,12 +38,12 @@ model FacultyPayroll {
   id          String       @id @default(uuid())
   userId      String
   title       String       @db.Text
-  payrollId   String
-  facultyId   String
+  payrollId   String?
+  facultyId   String?
   position    Int?
   isPaid      Boolean      @default(false)
   attachments Attachment[]
-  payroll     Payroll      @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payroll     Payroll?      @relation(fields: [payrollId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -105,8 +105,8 @@ model Assignment {
   isPublished  Boolean        @default(false)
   course       Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   tutorAssignments TutorAssignment[]
 
   @@index([courseId])
@@ -140,19 +140,19 @@ model TutorAssignment {
 }
 
 model Coursework {
-  id             String           @id @default(uuid())
-  title          String
-  userId         String
-  description    String?          @db.Text
-  facultyId      String?
-  faculty        Faculty?         @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  position       Int?
-  attachments    Attachment[]
-  userProgress   UserProgress[]
-  isCompleted    Boolean          @default(false)
-  isPublished    Boolean          @default(false)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id              String           @id @default(uuid())
+  title           String
+  userId          String
+  description     String?          @db.Text
+  facultyId       String?
+  faculty         Faculty?         @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  position        Int?
+  attachments     Attachment[]
+  userProgress    UserProgress[]
+  isCompleted     Boolean          @default(false)
+  isPublished     Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   studentProjects StudentProject[]
 
   @@index([facultyId])
@@ -202,7 +202,7 @@ model Faculty {
 }
 
 model Course {
-  id                 String              @id @default(uuid())
+  id                 String              @id @default(cuid())
   title              String
   userId             String
   description        String?             @db.Text
@@ -210,74 +210,40 @@ model Course {
   amount             String?             @db.Text
   attachments        Attachment[]
   tuitions           Tuition[]
-  tutors             Tutor[]
   courseNoticeboards CourseNoticeboard[]
-  assignments        Assignment[]
+  tutorAssignments   TutorAssignment[]
+  tutors             Tutor[]
   facultyId          String?
   faculty            Faculty?            @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   position           Int?
   isPublished        Boolean             @default(false)
-
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  TutorAssignment TutorAssignment[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  Assignment         Assignment[]
 
   @@index([facultyId])
 }
 
 model Tutor {
-  id              String         @id @default(uuid())
-  userId          String
-  title           String         @db.Text
-  description     String?        @db.Text
-  objective       String?        @db.Text
-  videoUrl        String?        @db.Text
-  position        Int?
-  attachments     Attachment[]
-  userProgress    UserProgress[]
-  isPublished     Boolean        @default(false)
-  isFree          Boolean?       @default(false)
-  courseId        String?
-  course          Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  muxData         MuxData?
-  muxDataId       String?        @db.Text
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String         @id @default(uuid())
+  userId       String
+  title        String?        @db.Text
+  description  String?        @db.Text
+  objective    String?        @db.Text
+  videoUrl     String?        @db.Text
+  position     Int?
+  attachments  Attachment[]
+  userProgress UserProgress[]
+  isPublished  Boolean        @default(false)
+  isFree       Boolean?       @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  courseId     String?
+  muxDataId    String?
+  course       Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  muxData      MuxData?       @relation(fields: [muxDataId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
-}
-
-model MuxData {
-  id         String   @id @default(uuid())
-  tutorId    String   @unique
-  tutor      Tutor    @relation(fields: [tutorId], references: [id], onDelete: Cascade)
-  playbackId String?
-  assetId    String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model UserProgress {
-  id           String     @id @default(uuid())
-  userId       String
-  tutors       Tutor      @relation(fields: [tutorId], references: [id], onDelete: Cascade)
-  tutorId      String
-  assignments  Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId String
-  courseworks  Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
-  courseworkId String
-  isCompleted  Boolean    @default(false)
-
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  TutorAssignment   TutorAssignment? @relation(fields: [tutorAssignmentId], references: [id])
-  tutorAssignmentId String?
-
-  @@unique([userId, tutorId])
-  @@unique([userId, assignmentId])
-  @@unique([userId, courseworkId])
-  @@index([tutorId])
 }
 
 model Attachment {
@@ -311,7 +277,40 @@ model Attachment {
   TutorAssignment     TutorAssignment?   @relation(fields: [tutorAssignmentId], references: [id])
   tutorAssignmentId   String?
 
-  @@index([facultyId])
+  @@index([facultyId, courseId, courseworkId, noticeboardId, courseNoticeboardId, assignmentId, payrollId, tuitionId, tutorAssignmentId, studentProjectId, tutorId])
+}
+
+model MuxData {
+  id         String   @id @default(uuid())
+  tutorId    String?  @unique
+  assetId    String
+  playbackId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt  
+
+  tutors Tutor[]
+}
+
+model UserProgress {
+  id           String     @id @default(uuid())
+  userId       String
+  tutors       Tutor      @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  tutorId      String
+  assignments  Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId String
+  courseworks  Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
+  courseworkId String
+  isCompleted  Boolean    @default(false)
+
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  TutorAssignment   TutorAssignment? @relation(fields: [tutorAssignmentId], references: [id])
+  tutorAssignmentId String?
+
+  @@unique([userId, tutorId])
+  @@unique([userId, assignmentId])
+  @@unique([userId, courseworkId])
+  @@index([tutorId])
 }
 
 model Noticeboard {

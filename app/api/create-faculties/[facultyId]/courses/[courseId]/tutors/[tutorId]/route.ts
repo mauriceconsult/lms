@@ -1,134 +1,35 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 export async function PATCH(
-  request: Request,
-  {
-    params,
-  }: { params: { facultyId: string; courseId: string; tutorId: string } }
+  req: Request,
+  { params }: { params: Promise<{ facultyId: string; courseId: string; tutorId: string }> }
 ) {
-  const body = await request.json();
-  const { isFree } = body;
-  const { userId } = await auth();
-  if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-  if (!isFree || isFree.length === 0) {
-    return new Response("No data provided", { status: 400 });
-  }
-  const ownFaculty = await db.faculty.findUnique({
-    where: {
-      id: params.facultyId,
-      userId,
-    },
-  });
-  if (!ownFaculty) {
-    return new Response("Faculty not found", { status: 404 });
-  }
-  const ownCourse = await db.course.findUnique({
-    where: {
-      id: params.courseId,
-      facultyId: params.facultyId,
-      userId,
-    },
-  });
-  if (!ownCourse) {
-    return new Response("Course not found", { status: 404 });
-  }
-  const tutor = await db.tutor.findUnique({
-    where: {
-      id: params.tutorId,
-      courseId: params.courseId,
-      userId,
-    },
-  });
-  if (!tutor) {
-    return new Response("Tutor not found", { status: 404 });
-  }
-  await db.tutor.update({
-    where: {
-      id: tutor.id,
-    },
-    data: {
-      isFree,
-    },
-  });
-  return new Response("Success", { status: 200 });
-}
+  try {
+    const { userId } = await auth();
+    const { courseId, tutorId } = await params;
 
-export async function DELETE(
-  request: Request,
-  {
-    params,
-  }: { params: { facultyId: string; courseId: string; tutorId: string } }
-) {
-  const { userId } = await auth();
-  if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-  const ownFaculty = await db.faculty.findUnique({
-    where: {
-      id: params.facultyId,
-      userId,
-    },
-  });
-  if (!ownFaculty) {
-    return new Response("Faculty not found", { status: 404 });
-  }
-  const ownCourse = await db.course.findUnique({
-    where: {
-      id: params.courseId,
-      facultyId: params.facultyId,
-      userId,
-    },
-  });
-  if (!ownCourse) {
-    return new Response("Course not found", { status: 404 });
-  }
-  const tutor = await db.tutor.findUnique({
-    where: {
-      id: params.tutorId,
-      courseId: params.courseId,
-      userId,
-    },
-  });
-  if (!tutor) {
-    return new Response("Topic not found", { status: 404 });
-  }
-  if (tutor.videoUrl) {
-    const existingMuxData = await db.muxData.findFirst({
-      where: {
-        tutorId: tutor.id,
-      },
-    });
-    if (existingMuxData) {
-      await db.muxData.delete({
-        where: {
-          id: existingMuxData.id,
-        },
-      });
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
     }
-  }
-  await db.tutor.delete({
-    where: {
-      id: tutor.id,
-    },
-  });
-  const publishedTutors = await db.tutor.findMany({
-    where: {
-      courseId: params.courseId,
-      isPublished: true,
-    },
-  });
-  if (publishedTutors.length === 0) {
-    await db.course.update({
+
+    const values = await req.json();
+
+    const tutor = await db.tutor.update({
       where: {
-        id: params.courseId,
+        id: tutorId,
+        courseId,
+        userId,
       },
       data: {
-        isPublished: false,
+        ...values,
       },
     });
+
+    return NextResponse.json(tutor);
+  } catch (error) {
+    console.error("[TUTOR_PATCH]", error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
-  return new Response("Success", { status: 200 });
-}
+};

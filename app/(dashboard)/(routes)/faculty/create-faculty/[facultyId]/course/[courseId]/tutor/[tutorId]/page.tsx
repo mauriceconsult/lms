@@ -1,8 +1,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import TutorIdPageClient from "./_components/tutor-id-page-client";
-
+import TutorIdPageClient from "./_components/tutor-id-client-page";
 
 interface TutorIdPageProps {
   params: Promise<{
@@ -26,18 +25,72 @@ export default async function TutorIdPage({ params }: TutorIdPageProps) {
       courseId,
       userId,
     },
-    include: {     
+    select: {
+      id: true,
+      userId: true,
+      title: true,
+      description: true,
+      objective: true,
+      videoUrl: true,
+      position: true,
+      isPublished: true,
+      isFree: true,
+      createdAt: true,
+      updatedAt: true,
+      courseId: true,
+      muxDataId: true,
+      muxData: {
+        select: {
+          id: true,
+          tutorId: true,
+          assetId: true,
+          playbackId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
       attachments: {
-        orderBy: {
-          createdAt: "desc",
+        select: {
+          id: true,
+          name: true,
+          url: true,
+          facultyId: true,
+          courseId: true,
+          tutorId: true,
+          noticeboardId: true,
+          courseworkId: true,
+          assignmentId: true,
+          courseNoticeboardId: true,
+          tuitionId: true,
+          tutorAssignmentId: true,
+          payrollId: true,
+          facultyPayrollId: true,
+          studentProjectId: true,
+          createdAt: true,
+          updatedAt: true,
         },
       },
     },
   });
 
-  const course = await db.course.findMany({
-    orderBy: {
-      title: "asc",
+  const course = await db.course.findUnique({
+    where: {
+      id: courseId,
+      facultyId,
+      userId,
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imageUrl: true,
+      amount: true,
+      facultyId: true,
+      position: true,
+      isPublished: true,
+      createdAt: true,
+      updatedAt: true,
+      userId: true, // Added userId
     },
   });
 
@@ -54,4 +107,4 @@ export default async function TutorIdPage({ params }: TutorIdPageProps) {
       tutorId={tutorId}
     />
   );
-}
+};

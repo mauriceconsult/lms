@@ -1,21 +1,16 @@
-"use client";
-import * as z from "zod";
-import axios from "axios";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+'use client';
+
+import * as z from 'zod';
+import axios, { type AxiosError } from 'axios';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Pencil } from 'lucide-react';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 interface TutorTitleFormProps {
   initialData: {
@@ -25,9 +20,10 @@ interface TutorTitleFormProps {
   courseId: string;
   tutorId: string;
 }
+
 const formSchema = z.object({
   title: z.string().min(1, {
-    message: "Topic title is required.",
+    message: 'Topic title is required.',
   }),
 });
 
@@ -37,19 +33,24 @@ export const TutorTitleForm = ({ initialData, facultyId, courseId, tutorId }: Tu
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      title: initialData.title || '',
+    },
   });
   const { isSubmitting, isValid } = form.formState;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}/titles`, values);
-      toast.success("Tutor created.");
+      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}`, values);
+      toast.success('Topic title updated.');
       toggleEdit();
       router.refresh();
-    } catch {
-      toast.error("Something went wrong.");
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(axiosError.response?.data?.message || 'Something went wrong.');
     }
   };
+
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
@@ -65,13 +66,10 @@ export const TutorTitleForm = ({ initialData, facultyId, courseId, tutorId }: Tu
           )}
         </Button>
       </div>
-      {!isEditing && <p className="text-sm mt-2">{initialData.title}</p>}
+      {!isEditing && <p className="text-sm mt-2">{initialData.title || 'No title'}</p>}
       {isEditing && (
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 mt-4"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
             <FormField
               control={form.control}
               name="title"

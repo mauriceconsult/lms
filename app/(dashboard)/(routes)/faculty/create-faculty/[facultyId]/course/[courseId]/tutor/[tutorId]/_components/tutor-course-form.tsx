@@ -1,33 +1,31 @@
-"use client";
-import * as z from "zod";
-import axios from "axios";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { Tutor } from "@prisma/client";
-import { Combobox } from "@/components/ui/combobox";
+'use client';
 
-interface CourseFormProps {
-  initialData: Tutor;
+import * as z from 'zod';
+import axios, { type AxiosError } from 'axios';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Pencil } from 'lucide-react';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { Tutor } from '@prisma/client';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Combobox } from '@/components/ui/combobox';
+
+interface TutorCourseFormProps {
+  initialData: Pick<Tutor, 'courseId'>;
   facultyId: string;
   courseId: string;
   tutorId: string;
   options: { label: string; value: string }[];
 }
+
 const formSchema = z.object({
-  courseId: z.string().min(1),
+  courseId: z.string().min(1, {
+    message: 'Course is required',
+  }),
 });
 
 export const TutorCourseForm = ({
@@ -36,68 +34,71 @@ export const TutorCourseForm = ({
   courseId,
   tutorId,
   options,
-}: CourseFormProps) => {
+}: TutorCourseFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      courseId: initialData?.courseId || "",
+      courseId: initialData.courseId || '',
     },
   });
+
   const { isSubmitting, isValid } = form.formState;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}/courses`, values);
-      toast.success("Tutor Course updated.");
+      await axios.patch(
+        `/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}`,
+        values
+      );
+      toast.success('Topic course updated.');
       toggleEdit();
       router.refresh();
-    } catch {
-      toast.error("Something went wrong.");
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      toast.error(axiosError.response?.data?.message || 'Something went wrong');
     }
   };
-  const selectedOption = options.find(
-    (option) => option.value === initialData.courseId
-  );
+
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Course*
-        <Button onClick={toggleEdit} variant="ghost">
+        Topic course
+        <Button onClick={toggleEdit} variant="ghost" disabled={isSubmitting}>
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit Course
+              Edit course
             </>
           )}
         </Button>
       </div>
       {!isEditing && (
-        <p
-          className={cn(
-            "text-sm mt-2",
-            !initialData.title && "text-slate-500 italic"
-          )}
-        >
-          {selectedOption?.label || "No Course"}
+        <p className={cn('text-sm mt-2', !initialData.courseId && 'text-slate-500 italic')}>
+          {options.find((option) => option.value === initialData.courseId)?.label || 'No course'}
         </p>
       )}
       {isEditing && (
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 mt-4"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
             <FormField
               control={form.control}
               name="courseId"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Course</FormLabel>
                   <FormControl>
-                    <Combobox options={[...options]} {...field} />
+                    <Combobox
+                      options={options}
+                      value={field.value}
+                      onChange={field.onChange}
+                      // disabled={isSubmitting}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
