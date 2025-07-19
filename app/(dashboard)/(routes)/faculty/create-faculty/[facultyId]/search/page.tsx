@@ -1,4 +1,3 @@
-// app/faculty/create-faculty/[facultyId]/search/page.tsx
 import { Course, Faculty } from "@prisma/client";
 import { db } from "@/lib/db";
 import { FacultyCourseForm } from "../_components/faculty-course-form";

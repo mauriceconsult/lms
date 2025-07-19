@@ -16,13 +16,13 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Combobox } from "@/components/ui/combobox";
 import { Course } from "@prisma/client";
+import { Combobox } from "@/components/ui/combobox";
 
-interface CourseFacultyFormProps {
+interface FacultyFormProps {
   initialData: Course;
-  courseId: string;
   facultyId: string;
+  courseId: string;
   options: { label: string; value: string }[];
 }
 const formSchema = z.object({
@@ -34,24 +34,21 @@ export const CourseFacultyForm = ({
   facultyId,
   courseId,
   options,
-}: CourseFacultyFormProps) => {
+}: FacultyFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      facultyId: initialData?.id || "",
+      facultyId: initialData?.facultyId || "",
     },
   });
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(
-        `/api/create-faculties/${facultyId}/courses/${courseId}/faculties`,
-        values
-      );
-      toast.success("Faculty updated.");
+      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/faculties`, values);
+      toast.success("Course faculty updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -61,7 +58,6 @@ export const CourseFacultyForm = ({
   const selectedOption = options.find(
     (option) => option.value === initialData.facultyId
   );
-
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
@@ -116,4 +112,3 @@ export const CourseFacultyForm = ({
     </div>
   );
 };
-

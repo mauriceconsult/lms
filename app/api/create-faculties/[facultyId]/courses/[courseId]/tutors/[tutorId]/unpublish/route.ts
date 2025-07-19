@@ -3,10 +3,8 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function PATCH(
-  request: Request,
-  {
-    params,
-  }: { params: { facultyId: string; courseId: string; tutorId: string } }
+  req: Request,
+  { params }: { params: Promise<{ facultyId: string; courseId: string; tutorId: string; }> }
 ) {
   try {
     const { userId } = await auth();
@@ -15,16 +13,17 @@ export async function PATCH(
     }
     const ownFaculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
       },
     });
     if (!ownFaculty) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+
     const ownCourse = await db.course.findUnique({
       where: {
-        id: params.courseId,
+        id: (await params).courseId,
         userId,
       },
     });
@@ -33,7 +32,7 @@ export async function PATCH(
     }
     const ownTutor = await db.tutor.findUnique({
       where: {
-        id: params.tutorId,
+        id: (await params).tutorId,
         userId,
       },
     });
@@ -43,34 +42,34 @@ export async function PATCH(
 
     const unpublishedTutor = await db.tutor.update({
       where: {
-        id: params.tutorId,
-        courseId: params.courseId,
+        id: (await params).tutorId,
+        courseId: (await params).courseId,
         userId,
       },
       data: {
-        isPublished: true,
+        isPublished: false,
       },
     });
     const publishedTutors = await db.tutor.findMany({
       where: {
-        id: params.tutorId,
-        courseId: params.courseId,
+        id: (await params).tutorId,
+        courseId: (await params).courseId,
         isPublished: true,
       },
     });
     if (!publishedTutors.length) {
-      await db.tutor.update({
+      await db.course.update({
         where: {
-          id: params.tutorId,
+          id: (await params).courseId,
         },
         data: {
-          isPublished: true,
+          isPublished: false,
         },
       });
     }
     return NextResponse.json(unpublishedTutor);
   } catch (error) {
-    console.log("[TUTOR_PUBLISH]", error);
+    console.log("[TUTOR_UNPUBLISH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

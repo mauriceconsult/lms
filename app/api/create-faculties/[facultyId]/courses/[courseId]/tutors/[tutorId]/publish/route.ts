@@ -4,49 +4,70 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { facultyId: string; courseId: string; tutorId: string } }
+  {
+    params,
+  }: {
+    params: Promise<{
+      facultyId: string;
+      courseId: string;
+      tutorId: string;
+    }>;
+  }
 ) {
   try {
-    const { userId } = await auth()
+    const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const ownCourse = await db.course.findUnique({
-      where: { 
-        id: params.courseId,
+    const faculty = await db.faculty.findUnique({
+      where: {
+        id: (await params).facultyId,
         userId,
-      }
+      },
     });
-    if (!ownCourse) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!faculty) {
+      return new NextResponse("Not found", { status: 404 });
     }
-    const topic = await db.tutor.findUnique({
+        const course = await db.course.findUnique({
+          where: {
+            id: (await params).courseId,
+            userId,
+          },
+        });
+        if (!course) {
+          return new NextResponse("Not found", { status: 404 });
+        }
+
+    const tutor = await db.tutor.findUnique({
       where: {
-        id: params.tutorId,
-        courseId: params.courseId,
-      }
-    });
-    const muxData = await db.muxData.findUnique({
-      where: {
-        tutorId: params.tutorId
-      }
-    });
-    if (!topic || !topic.description || !muxData || !topic.title || !topic.objective || !topic.videoUrl) {
+        id: (await params).tutorId,
+        courseId: (await params).courseId,
+      },     
+    });   
+
+    if (
+      !tutor ||
+      !tutor.description ||
+      !tutor.title ||
+      !tutor.videoUrl ||
+      !tutor.objective ||
+      !tutor.courseId
+    ) {
       return new NextResponse("Missing credentials", { status: 400 });
     }
-    const publishedTopic = await db.tutor.update({
+    const publishedTutor = await db.tutor.update({
       where: {
-        id: params.tutorId,
-        courseId: params.courseId,
+        id: (await params).tutorId,
+        courseId: (await params).courseId,
+        // tutorId: (await params).tutorId
       },
       data: {
         isPublished: true,
-      }
+      },
     });
-    return NextResponse.json(publishedTopic)
+    return NextResponse.json(publishedTutor);
   } catch (error) {
     console.log("[TUTOR_PUBLISH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
-

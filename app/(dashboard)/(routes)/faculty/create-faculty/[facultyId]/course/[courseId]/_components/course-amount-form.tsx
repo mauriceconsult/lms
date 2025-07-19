@@ -172,7 +172,7 @@ export const CourseAmountForm = ({
                 <form onSubmit={onSubmit} className="space-y-4 mt-4">
                     <div>
                         <label htmlFor="amount" className="text-sm font-medium">
-                            Amount ($)
+                            Amount (UGX)
                         </label>
                         <input
                             id="amount"

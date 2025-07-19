@@ -231,7 +231,6 @@ model Tutor {
   title           String         @db.Text
   description     String?        @db.Text
   objective       String?        @db.Text
-  topicAssignment String?        @db.Text
   videoUrl        String?        @db.Text
   position        Int?
   attachments     Attachment[]

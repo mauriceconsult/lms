@@ -8,10 +8,10 @@ import { FacultiesList } from "./_components/faculties-list";
 
 
 interface SearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     title: string;
     schoolId: string;
-  };
+  }>;
 }
 const RouteSearchPage = async ({
   searchParams
@@ -27,7 +27,7 @@ const RouteSearchPage = async ({
   });
   const faculties = await getFaculties({
     userId,
-    ...searchParams
+    ... await searchParams
   })
   return (
     <>

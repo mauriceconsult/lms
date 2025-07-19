@@ -11,7 +11,7 @@ export async function PATCH(
   request: Request,
   {
     params,
-  }: { params: { facultyId: string; courseId: string; tutorId: string } }
+  }: { params: Promise<{ facultyId: string; courseId: string; tutorId: string }> }
 ) {
   const body = await request.json();
   const { videoUrl } = body;
@@ -24,7 +24,7 @@ export async function PATCH(
   }
   const ownFaculty = await db.faculty.findUnique({
     where: {
-      id: params.facultyId,
+      id: (await params).facultyId,
       userId,
     },
   });
@@ -33,8 +33,8 @@ export async function PATCH(
   }
   const ownCourse = await db.course.findUnique({
     where: {
-      id: params.courseId,
-      facultyId: params.facultyId,
+      id: (await params).courseId,
+      facultyId: (await params).facultyId,
       userId,
     },
   });
@@ -43,7 +43,7 @@ export async function PATCH(
   }
   const tutor = await db.tutor.findUnique({
     where: {
-      id: params.tutorId,
+      id: (await params).tutorId,
       userId,
     },
   });

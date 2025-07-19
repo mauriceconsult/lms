@@ -1,9 +1,9 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 
-export async function POST(
+export async function PATCH(
   request: Request,
-  { params }: { params: { facultyId: string;  courseId: string; tutorId: string } }
+  { params }: { params: Promise<{ facultyId: string;  courseId: string; tutorId: string }> }
 ) {
   const body = await request.json();
   const { description } = body;
@@ -16,7 +16,7 @@ export async function POST(
   }
   const tutor = await db.tutor.findUnique({
     where: {
-      id: params.tutorId,
+      id: (await params).tutorId,
       userId,
     },
   });
