@@ -1,138 +1,98 @@
-import { Banner } from "@/components/banner";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { IconBadge } from "@/components/icon-badge";
-import { ArrowLeft, LayoutDashboard } from "lucide-react";
-import { AssignmentDescriptionForm } from "./_components/assignment-description-form";
-import Link from "next/link";
-import { AssignmentActions } from "./_components/assignment-actions";
-import { AssignmentTitleForm } from "./_components/assignment-title-form";
-import { AssignmentCourseForm } from "./_components/assignment-course-form";
-import { AssignmentObjectiveForm } from "./_components/assignment-objective-form";
+import AssignmentIdPageClient from "./_components/assignment-id-client-page";
 
-const AssignmentIdPage = async ({
-  params,
-}: {
-  params: {
+interface AssignmentIdPageProps {
+  params: Promise<{
     facultyId: string;
     courseId: string;
     assignmentId: string;
-  };
-}) => {
+  }>;
+}
+
+export default async function AssignmentIdPage({ params }: AssignmentIdPageProps) {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
   }
+
+  const { facultyId, courseId, assignmentId } = await params;
+
   const assignment = await db.assignment.findUnique({
     where: {
-      id: params.assignmentId,
-      courseId: params.courseId,
+      id: assignmentId,
+      courseId,
       userId,
     },
-    include: {     
+    select: {
+      id: true,
+      userId: true,
+      title: true,
+      description: true,
+      objective: true,
+      isCompleted: true,
+      position: true,
+      isPublished: true,
+      createdAt: true,
+      updatedAt: true,
+      courseId: true,
       attachments: {
-        orderBy: {
-          createdAt: "desc",
+        select: {
+          id: true,
+          name: true,
+          url: true,
+          facultyId: true,
+          courseId: true,
+          tutorId: true,
+          noticeboardId: true,
+          courseworkId: true,
+          assignmentId: true,
+          courseNoticeboardId: true,
+          tuitionId: true,
+          tutorAssignmentId: true,
+          payrollId: true,
+          facultyPayrollId: true,
+          studentProjectId: true,
+          createdAt: true,
+          updatedAt: true,
         },
       },
     },
   });
-  const course = await db.course.findMany({
-    orderBy: {
-      title: "asc",
+
+  const course = await db.course.findUnique({
+    where: {
+      id: courseId,
+      facultyId,
+      userId,
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imageUrl: true,
+      amount: true,
+      facultyId: true,
+      position: true,
+      isPublished: true,
+      createdAt: true,
+      updatedAt: true,
+      userId: true,
     },
   });
-  console.log(course);
+
   if (!course || !assignment) {
     return redirect("/");
   }
-  const requiredFields = [
-    assignment.title,
-    assignment.courseId,
-    assignment.objective,
-    assignment.description,
-  ];
-  const totalFields = requiredFields.length;
-  const completedFields = requiredFields.filter(Boolean).length;
-  const completionText = `(${completedFields} of ${totalFields})`;
-  const isComplete = requiredFields.every(Boolean);
 
   return (
-    <>
-      {!assignment.isPublished && (
-        <Banner
-          variant="warning"
-          label="This Assignment is unpublished.Once published, students can submit their Assignments."
-        />
-      )}
-      <div className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="w-full">
-            <Link
-              className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${params.facultyId}/course/${params.courseId}`}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Course creation.
-            </Link>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Assignment creation</h1>
-                <span className="text-sm text-slate-700">
-                  Complete all fields {completionText}
-                </span>
-              </div>
-              <AssignmentActions
-                disabled={!isComplete}
-                facultyId={params.facultyId}
-                courseId={params.courseId}
-                assignmentId={params.assignmentId}
-                isPublished={assignment.isPublished}
-              />
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center gap-x-2">
-                <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Customize your topic</h2>
-              </div>
-            </div>
-            <AssignmentTitleForm
-              initialData={assignment}
-              facultyId={params.facultyId}
-              courseId={assignment.courseId || ""}
-              assignmentId={assignment.id}
-            />
-            <AssignmentCourseForm
-              initialData={assignment}
-              facultyId={params.facultyId}
-              assignmentId={assignment.id}
-              courseId={assignment.courseId || ""}
-              options={course.map((cat) => ({
-                label: cat.title,
-                value: cat.id,
-              }))}
-            />
-             <AssignmentObjectiveForm
-              initialData={assignment}
-              facultyId={params.facultyId}
-              courseId={assignment.courseId || ""}
-              assignmentId={assignment.id}
-            />
-            <AssignmentDescriptionForm
-              initialData={assignment}
-              facultyId={params.facultyId}
-              assignmentId={assignment.id}
-              courseId={assignment.courseId || ""}
-            />
-          </div>   
-        </div>
-      </div>
-    </>
+    <AssignmentIdPageClient
+      assignment={assignment}
+      course={course}
+      facultyId={facultyId}
+      courseId={courseId}
+      assignmentId={assignmentId}
+    />
   );
 };
-export default AssignmentIdPage;

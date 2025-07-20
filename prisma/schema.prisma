@@ -95,8 +95,7 @@ model Assignment {
   userId       String
   title        String         @db.Text
   objective    String?        @db.Text
-  description  String?        @db.Text
-  partyId      String?
+  description  String?        @db.Text 
   courseId     String?
   position     Int?
   attachments  Attachment[]
