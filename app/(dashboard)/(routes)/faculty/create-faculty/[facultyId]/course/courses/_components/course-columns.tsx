@@ -1,5 +1,5 @@
 "use client";
-import { Course } from "@prisma/client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,56 +13,48 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
+// Define the Course type without userId to match DataTableProps
+export type Course = {
+  id: string;
+  title: string;
+  description: string | null;
+  imageUrl: string | null;
+  facultyId: string | null;
+  position: number | null;
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  amount: string | null;
+};
+
 export const columns: ColumnDef<Course>[] = [
   {
     accessorKey: "title",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Course
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Title
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
   },
   {
-    accessorKey: "amount",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Amount
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount") || "0");
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "UGX",
-      }).format(amount);
-      return <div>{formatted}</div>;
-    },
+    accessorKey: "description",
+    header: "Description",
   },
   {
     accessorKey: "isPublished",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Published
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Published
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
       const isPublished = row.getValue("isPublished") || false;
       return (
@@ -74,8 +66,12 @@ export const columns: ColumnDef<Course>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
-      const { id, facultyId } = row.original as Course & { facultyId?: string };
+    cell: ({ row, table }) => {
+      const { id } = row.original;
+      const { facultyId } = table.options.meta as { facultyId: string };
+      if (!id || !facultyId) {
+        return <span className="text-red-500">Invalid data</span>;
+      }
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
