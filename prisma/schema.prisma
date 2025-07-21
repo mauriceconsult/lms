@@ -43,7 +43,7 @@ model FacultyPayroll {
   position    Int?
   isPaid      Boolean      @default(false)
   attachments Attachment[]
-  payroll     Payroll?      @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payroll     Payroll?     @relation(fields: [payrollId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -95,7 +95,7 @@ model Assignment {
   userId       String
   title        String         @db.Text
   objective    String?        @db.Text
-  description  String?        @db.Text 
+  description  String?        @db.Text
   courseId     String?
   position     Int?
   attachments  Attachment[]
@@ -104,27 +104,27 @@ model Assignment {
   isPublished  Boolean        @default(false)
   course       Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([courseId])
 }
 
 model Coursework {
-  id              String           @id @default(uuid())
-  title           String
-  userId          String
-  description     String?          @db.Text
-  facultyId       String?
-  faculty         Faculty?         @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  position        Int?
-  attachments     Attachment[]
-  userProgress    UserProgress[]
-  isCompleted     Boolean          @default(false)
-  isPublished     Boolean          @default(false)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  
+  id           String         @id @default(uuid())
+  title        String
+  userId       String
+  description  String?        @db.Text
+  facultyId    String?
+  faculty      Faculty?       @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  position     Int?
+  attachments  Attachment[]
+  userProgress UserProgress[]
+  isCompleted  Boolean        @default(false)
+  isPublished  Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
   @@index([facultyId])
 }
 
@@ -143,9 +143,9 @@ model Faculty {
   position     Int?
   isPublished  Boolean       @default(false)
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
- 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([schoolId])
 }
 
@@ -159,7 +159,7 @@ model Course {
   attachments        Attachment[]
   tuitions           Tuition[]
   courseNoticeboards CourseNoticeboard[]
-  Assignment         Assignment[]
+  assignments        Assignment[]
   tutors             Tutor[]
   facultyId          String?
   faculty            Faculty?            @relation(fields: [facultyId], references: [id], onDelete: Cascade)
@@ -220,7 +220,6 @@ model Attachment {
   FacultyPayroll      FacultyPayroll?    @relation(fields: [facultyPayrollId], references: [id])
   facultyPayrollId    String?
 
-
   @@index([facultyId, courseId, courseworkId, noticeboardId, courseNoticeboardId, assignmentId, payrollId, tuitionId, tutorId])
 }
 
@@ -230,7 +229,7 @@ model MuxData {
   assetId    String
   playbackId String?
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt  
+  updatedAt  DateTime @updatedAt
 
   tutors Tutor[]
 }
@@ -246,9 +245,9 @@ model UserProgress {
   courseworkId String
   isCompleted  Boolean    @default(false)
 
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([userId, tutorId])
   @@unique([userId, assignmentId])
   @@unique([userId, courseworkId])
