@@ -163,7 +163,7 @@ const CourseIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Courses</h2>
+                  <h2 className="text-xl">Course Tutors</h2>
                 </div>
                 <CourseTutorForm
                   initialData={initialData}
@@ -174,7 +174,7 @@ const CourseIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Courseworks</h2>
+                  <h2 className="text-xl">Course Assignments</h2>
                 </div>
                 <CourseAssignmentForm
                   initialData={initialData}
@@ -185,7 +185,7 @@ const CourseIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Noticeboards</h2>
+                  <h2 className="text-xl">Course Noticeboard</h2>
                 </div>
                 <CourseCourseNoticeboardForm
                   initialData={initialData}

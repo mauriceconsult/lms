@@ -87,7 +87,7 @@ export const CourseCourseNoticeboardForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Notice
+        Course Notices
         <Button onClick={toggleCreating} variant="ghost">
           {isCreating ? (
             <>Cancel</>
