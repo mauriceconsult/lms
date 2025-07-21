@@ -1,218 +1,98 @@
 "use client";
 
+import { useState } from "react";
+// import { DragDropContext, Droppable, Draggable, DropResult } from "react-dnd-html5-backend";
 import { Assignment } from "@prisma/client";
-import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import * as React from "react";
-import {
-  SortingState,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { Grip, Pencil } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd";
 
-interface AssignmentWithProgress extends Assignment {
-  isSubmitted: boolean;
-}
+type AssignmentWithProgress = Assignment & { isSubmitted: boolean };
 
 interface CourseAssignmentListProps {
   items: AssignmentWithProgress[];
-  facultyId: string;
-  courseId: string;
+  onReorder: (updateData: { id: string; position: number }[]) => void;
+  onEdit: (id: string) => void;
 }
 
-export const columns: ColumnDef<AssignmentWithProgress>[] = [
-  {
-    accessorKey: "title",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Assignment
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "objective",
-    header: "Objective",
-  },
-  {
-    accessorKey: "isPublished",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Published
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const isPublished = row.getValue("isPublished") || false;
-      return (
-        <Badge className={cn("bg-slate-500", isPublished && "bg-sky-700")}>
-          {isPublished ? "Published" : "Draft"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "isCompleted",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Completed
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const isCompleted = row.getValue("isCompleted") || false;
-      return (
-        <Badge className={cn("bg-slate-500", isCompleted && "bg-green-700")}>
-          {isCompleted ? "Completed" : "Incomplete"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "isSubmitted",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Submitted
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const isSubmitted = row.getValue("isSubmitted") || false;
-      return (
-        <Badge className={cn("bg-slate-500", isSubmitted && "bg-blue-700")}>
-          {isSubmitted ? "Submitted" : "Not Submitted"}
-        </Badge>
-      );
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row, table }) => {
-      const { id } = row.original;
-      const { facultyId, courseId } = table.options.meta as { facultyId: string; courseId: string };
-      if (!id || !courseId || !facultyId) {
-        return <span className="text-red-500">Invalid data</span>;
-      }
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-4 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <Link
-              href={`/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/assignments/${id}`}
-            >
-              <DropdownMenuItem>
-                <Pencil className="h-4 w-4 mr-2" />
-                Edit
-              </DropdownMenuItem>
-            </Link>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
+export const CourseAssignmentList = ({
+  items,
+  onReorder,
+  onEdit,
+}: CourseAssignmentListProps) => {
+  const [assignments, setAssignments] = useState(items);
 
-export function CourseAssignmentList({ items, facultyId, courseId }: CourseAssignmentListProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
 
-  const table = useReactTable({
-    data: items,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    state: { sorting },
-    meta: { facultyId, courseId },
-  });
+    const updatedAssignments = Array.from(assignments);
+    const [reorderedItem] = updatedAssignments.splice(result.source.index, 1);
+    updatedAssignments.splice(result.destination.index, 0, reorderedItem);
+
+    setAssignments(updatedAssignments);
+
+    const updateData = updatedAssignments.map((assignment, index) => ({
+      id: assignment.id,
+      position: index + 1,
+    }));
+
+    onReorder(updateData);
+  };
 
   return (
-    <div className="mt-6">
-      <h2 className="text-xl font-medium mb-4">Assignments</h2>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="assignments">
+        {(provided) => (
+          <div {...provided.droppableProps} ref={provided.innerRef}>
+            {assignments.map((assignment, index) => (
+              <Draggable key={assignment.id} draggableId={assignment.id} index={index}>
+                {(provided) => (
+                  <div
+                    className={cn(
+                      "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
+                      assignment.isPublished && "bg-sky-100 border-sky-200 text-sky-700"
+                    )}
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                  >
+                    <div
+                      className={cn(
+                        "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
+                        assignment.isPublished && "border-r-sky-200 hover:bg-sky-200"
                       )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No assignments.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+                      {...provided.dragHandleProps}
+                    >
+                      <Grip className="h-5 w-5" />
+                    </div>
+                    {assignment.title}
+                    <div className="ml-auto pr-2 flex items-center gap-x-2">
+                      {assignment.isSubmitted ? (
+                        <Badge className="bg-green-700">Submitted</Badge>
+                      ) : (
+                        <Badge className="bg-slate-700">Not Submitted</Badge>
+                      )}
+                      <Badge
+                        className={cn(
+                          "bg-slate-700",
+                          assignment.isPublished && "bg-sky-700"
+                        )}
+                      >
+                        {assignment.isPublished ? "Published" : "Draft"}
+                      </Badge>
+                      <Pencil
+                        onClick={() => onEdit(assignment.id)}
+                        className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
+                      />
+                    </div>
+                  </div>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
-}
+};

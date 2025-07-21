@@ -4,123 +4,85 @@ import { redirect } from "next/navigation";
 import { LayoutDashboard, ListChecks, File } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
+import { CourseFacultyForm } from "./_components/course-faculty-form";
 import { CourseActions } from "./_components/course-actions";
 import { CourseTitleForm } from "./_components/course-title-form";
-import { CourseFacultyForm } from "./_components/course-faculty-form";
-import { CourseAttachmentForm } from "./_components/course-attachment-form";
-import { CourseCourseNoticeboardForm } from "./_components/course-courseNoticeboard-form";
 import { CourseDescriptionForm } from "./_components/course-description-form";
 import { CourseImageForm } from "./_components/course-image-form";
+import { CourseAttachmentForm } from "./_components/course-attachment-form";
 import { CourseTutorForm } from "./_components/course-tutor-form";
-import { CourseAssignmentList } from "./_components/course-assignment-list";
-import { Course, Tutor, Assignment } from "@prisma/client";
+import { CourseAssignmentForm } from "./_components/course-assignment-form";
+import { CourseCourseNoticeboardForm } from "./_components/course-courseNoticeboard-form";
 
-interface CourseIdPageProps {
+const CourseIdPage = async ({
+  params,
+}: {
   params: Promise<{
     facultyId: string;
     courseId: string;
   }>;
-}
-
-// Explicitly type the course with relations
-type CourseWithRelations = Course & {
-  courseNoticeboards: { id: string }[];
-  tuitions: { id: string }[];
-  tutors: Tutor[];
-  attachments: { id: string; name: string; url: string; createdAt: Date }[];
-  assignments: (Assignment & { userProgress: { isCompleted: boolean }[] })[];
-  faculty: { id: string; title: string } | null;
-};
-
-export default async function CourseIdPage({ params }: CourseIdPageProps) {
+}) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
   }
 
-  const { facultyId, courseId } = await params;
-
+  const resolvedParams = await params;
   const course = await db.course.findUnique({
     where: {
-      id: courseId,
-      facultyId,
+      id: resolvedParams.courseId,
       userId,
     },
     include: {
-      courseNoticeboards: true,
-      tuitions: true,
-      tutors: {
-        orderBy: {
-          position: "asc",
-        },
-      },
       attachments: {
         orderBy: {
           createdAt: "desc",
         },
       },
       assignments: {
-        select: {
-          id: true,
-          userId: true,
-          title: true,
-          objective: true,
-          description: true,
-          courseId: true,
-          position: true,
-          isCompleted: true,
-          isPublished: true,
-          createdAt: true,
-          updatedAt: true,
-          userProgress: {
-            select: {
-              isCompleted: true,
-            },
-            where: {
-              userId,
-            },
-          },
-        },
         orderBy: {
           position: "asc",
         },
       },
-      faculty: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
+      courseNoticeboards: true,
+      tuitions: true,
+      tutors: true,
     },
   });
 
-  if (!course || !course.facultyId) {
+  const faculty = await db.faculty.findMany({
+    orderBy: {
+      title: "asc",
+    },
+  });
+
+  if (!course || faculty.length === 0) {
     console.error(
-      `[${new Date().toISOString()} CourseIdPage] Course or faculty not found:`,
-      { courseId, facultyId, userId, courseExists: !!course, facultyIdExists: !!course?.facultyId }
+      `[${new Date().toISOString()} CourseIdPage] Course or school not found:`,
+      { facultyId: resolvedParams.facultyId, userId }
     );
-    return redirect(`/faculty/create-faculty/${facultyId}`);
+    return redirect("/");
   }
 
-  const facultyOptions = course.faculty
-    ? [{ label: course.faculty.title, value: course.faculty.id }]
-    : [];
-
-  const assignmentsWithProgress = course.assignments.map((assignment) => ({
-    ...assignment,
-    isSubmitted: !!assignment.userProgress[0]?.isCompleted,
-  }));
+  // Memoize faculty data to ensure stability
+  const initialData = {
+    ...course,
+    description: course.description ?? "", // Ensure description is never null
+  };
 
   const requiredFields = [
-    course.title,
-    course.description,
-    course.imageUrl,
-    course.facultyId,
-    course.tutors.length > 0,
-    course.assignments.length > 0,
-    course.tuitions.length > 0,
+    initialData.title,
+    initialData.description,
+    initialData.imageUrl,
+    initialData.amount,
+    initialData.facultyId,  
+    initialData.tutors.length > 0,
+    initialData.assignments.length > 0,
   ];
-  const optionalFields = [course.courseNoticeboards.length > 0, course.attachments.length > 0];
+  const optionalFields = [
+    initialData.courseNoticeboards.length > 0,
+    initialData.attachments.length > 0,
+  ];
   const allFields = [...requiredFields, ...optionalFields];
   const totalFields = allFields.length;
   const completedFields = allFields.filter(Boolean).length;
@@ -129,7 +91,7 @@ export default async function CourseIdPage({ params }: CourseIdPageProps) {
 
   return (
     <>
-      {!course.isPublished && (
+      {!initialData.isPublished && (
         <Banner
           variant="warning"
           label="This Course is not published yet. You can publish it once you have completed all required fields."
@@ -137,18 +99,22 @@ export default async function CourseIdPage({ params }: CourseIdPageProps) {
       )}
       <div className="p-6">
         <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-y-2">
-            <h1 className="text-2xl font-medium">Course creation</h1>
-            <span className="text-sm text-slate-700">
-              Completed fields {completionText}
-            </span>
+          <div className="w-full">
+            <div className="flex items-center justify-between w-full">
+              <div className="flex flex-col gap-y-2">
+                <h1 className="text-2xl font-medium">Course creation</h1>
+                <div className="text-sm text-slate-700">
+                  <div>Completed fields {completionText}</div>
+                </div>
+              </div>
+              <CourseActions
+                disabled={!isComplete}
+                facultyId={resolvedParams.facultyId}
+                courseId={course.id}
+                isPublished={initialData.isPublished}
+              />
+            </div>
           </div>
-          <CourseActions
-            disabled={!isComplete}
-            facultyId={facultyId}
-            courseId={courseId}
-            isPublished={course.isPublished}
-          />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
           <div className="space-y-4">
@@ -158,76 +124,81 @@ export default async function CourseIdPage({ params }: CourseIdPageProps) {
                 <h2 className="text-xl">Enter the Course details</h2>
               </div>
               <CourseTitleForm
-                initialData={course as CourseWithRelations}
-                facultyId={facultyId}
-                courseId={courseId}
+                initialData={initialData}
+                facultyId={initialData.id}
+                courseId={course.id}
               />
               <CourseFacultyForm
-                initialData={course as CourseWithRelations}
-                facultyId={facultyId}
-                courseId={courseId}
-                options={facultyOptions}
+                initialData={initialData}
+                facultyId={initialData.id}
+                courseId={course.id}
+                options={faculty.map((cat) => ({
+                  label: cat.title,
+                  value: cat.id,
+                }))}
               />
               <CourseDescriptionForm
-                initialData={course as CourseWithRelations}
-                facultyId={facultyId}
-                courseId={courseId}
+                initialData={initialData}
+                facultyId={initialData.id}
+                courseId={course.id}
               />
               <CourseImageForm
-                initialData={course as CourseWithRelations}
-                facultyId={facultyId}
-                courseId={courseId}
+                initialData={initialData}
+                facultyId={initialData.id}
+                courseId={course.id}
               />
             </div>
-            <div>
-              <div className="flex items-center gap-x-2">
-                <IconBadge icon={ListChecks} />
-                <h2 className="text-xl">Tutors</h2>
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={File} />
+                  <h2 className="text-xl">Resources & Attachments</h2>
+                </div>
+                <CourseAttachmentForm
+                  initialData={initialData}
+                  facultyId={initialData.id}
+                  courseId={course.id}
+                />
               </div>
-              <CourseTutorForm
-                initialData={course as CourseWithRelations}
-                facultyId={facultyId}
-                courseId={courseId}
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-x-2">
-                <IconBadge icon={File} />
-                <h2 className="text-xl">Resources & Attachments</h2>
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={ListChecks} />
+                  <h2 className="text-xl">Courses</h2>
+                </div>
+                <CourseTutorForm
+                  initialData={initialData}
+                  facultyId={initialData.id}
+                  courseId={course.id}
+                />
               </div>
-              <CourseAttachmentForm
-                initialData={course as CourseWithRelations}
-                facultyId={facultyId}
-                courseId={courseId}
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-x-2">
-                <IconBadge icon={ListChecks} />
-                <h2 className="text-xl">Noticeboards</h2>
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={ListChecks} />
+                  <h2 className="text-xl">Courseworks</h2>
+                </div>
+                <CourseAssignmentForm
+                  initialData={initialData}
+                  facultyId={initialData.id}
+                  courseId={course.id}
+                />
               </div>
-              <CourseCourseNoticeboardForm
-                initialData={course as CourseWithRelations}
-                facultyId={facultyId}
-                courseId={courseId}
-              />
-            </div>
-          </div>
-          <div className="space-y-6">
-            <div>
-              <div className="flex items-center gap-x-2">
-                <IconBadge icon={ListChecks} />
-                <h2 className="text-xl">Assignments</h2>
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={ListChecks} />
+                  <h2 className="text-xl">Noticeboards</h2>
+                </div>
+                <CourseCourseNoticeboardForm
+                  initialData={initialData}
+                  facultyId={initialData.id}
+                  courseId={course.id}
+                />
               </div>
-              <CourseAssignmentList
-                items={assignmentsWithProgress}
-                facultyId={facultyId}
-                courseId={courseId}
-              />
             </div>
           </div>
         </div>
       </div>
     </>
   );
-}
+};
+
+export default CourseIdPage;

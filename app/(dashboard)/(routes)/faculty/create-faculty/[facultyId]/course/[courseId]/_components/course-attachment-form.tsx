@@ -1,4 +1,5 @@
 "use client";
+
 import * as z from "zod";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
@@ -12,12 +13,11 @@ import { Attachment, Course } from "@prisma/client";
 interface CourseAttachmentFormProps {
   initialData: Course & { attachments: Attachment[] };
   facultyId: string;
-  courseId: string;
-}
+  courseId: string;}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const formSchema = z.object({
-  url: z.string().min(1),
+  url: z.string().min(1, "File URL is required"),
 });
 
 export const CourseAttachmentForm = ({
@@ -32,14 +32,18 @@ export const CourseAttachmentForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/attachments`, values);
-      toast.success("Course updated.");
+      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/attachments`, {
+        ...values,
+        name: values.url.split("/").pop() || "Attachment",
+      });
+      toast.success("Attachment added.");
       toggleEdit();
       router.refresh();
     } catch {
       toast.error("Something went wrong.");
     }
   };
+
   const onDelete = async (id: string) => {
     try {
       setDeletingId(id);
@@ -52,13 +56,13 @@ export const CourseAttachmentForm = ({
       setDeletingId(null);
     }
   };
+
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
         Course attachments
         <Button onClick={toggleEdit} variant="ghost">
-          {isEditing && <>Cancel</>}
-          {!isEditing && (
+          {isEditing ? <>Cancel</> : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
               Add a file
@@ -107,7 +111,7 @@ export const CourseAttachmentForm = ({
             endpoint="courseAttachment"
             onChange={(url) => {
               if (url) {
-                onSubmit({ url: url });
+                onSubmit({ url });
               }
             }}
           />
