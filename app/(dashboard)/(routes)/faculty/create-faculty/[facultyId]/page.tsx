@@ -55,10 +55,10 @@ const FacultyIdPage = async ({
   });
 
   if (!faculty || school.length === 0) {
-    console.error(
-      `[${new Date().toISOString()} FacultyIdPage] Faculty or school not found:`,
-      { facultyId: resolvedParams.facultyId, userId }
-    );
+    // console.error(
+    //   `[${new Date().toISOString()} FacultyIdPage] Faculty or school not found:`,
+    //   { facultyId: resolvedParams.facultyId, userId }
+    // );
     return redirect("/");
   }
 
