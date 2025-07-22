@@ -55,10 +55,10 @@ const FacultyIdPage = async ({
   });
 
   if (!faculty || school.length === 0) {
-    // console.error(
-    //   `[${new Date().toISOString()} FacultyIdPage] Faculty or school not found:`,
-    //   { facultyId: resolvedParams.facultyId, userId }
-    // );
+    console.error(
+      `[${new Date().toISOString()} FacultyIdPage] Faculty or school not found:`,
+      { facultyId: resolvedParams.facultyId, userId }
+    );
     return redirect("/");
   }
 
@@ -91,7 +91,7 @@ const FacultyIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This faculty is not published yet. You can publish it once you have completed all required fields."
+          label="This faculty is not published yet. You can publish it once you have completed all required* fields."
         />
       )}
       <div className="p-6">

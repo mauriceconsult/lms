@@ -139,7 +139,7 @@ export const CourseAmountForm = ({
                 </div>
             )}
             <div className="font-medium flex items-center justify-between">
-                Course amount
+                Course amount*
                 <Button
                     onClick={handleReset}
                     variant="default"

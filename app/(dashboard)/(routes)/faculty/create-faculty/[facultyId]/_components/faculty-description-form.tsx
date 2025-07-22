@@ -97,7 +97,7 @@ export const FacultyDescriptionForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Faculty Description
+        Faculty Description*
         <Button onClick={toggleEditing} variant="ghost" disabled={isSubmitting}>
           {isEditing ? <>Cancel</> : <>Edit Description</>}
         </Button>

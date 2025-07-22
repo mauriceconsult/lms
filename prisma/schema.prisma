@@ -49,9 +49,7 @@ model FacultyPayroll {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, payrollId, facultyId])
-  @@index([payrollId])
-  @@index([facultyId])
-  @@index([userId])
+  @@index([payrollId, facultyId, userId])
 }
 
 model Tuition {
