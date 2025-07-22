@@ -12,23 +12,20 @@ export async function POST(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const facultyOwner = await db.faculty.findUnique({
+    const courseOwner = await db.course.findUnique({
       where: {
-        id: (await params).facultyId,
+        id: (await params).courseId,
       },
     });
-    if (!facultyOwner) {
+    if (!courseOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    if (!facultyOwner) {
-      return new NextResponse("Faculty ID is missing", { status: 400 });
-    }
+    
     const attachment = await db.attachment.create({
       data: {
         url,
         name: url.split("/").pop(),
-        courseId: (await params).courseId,
-        facultyId: (await params).facultyId,
+        courseId: (await params).courseId,       
       }
     });
     return NextResponse.json(attachment)

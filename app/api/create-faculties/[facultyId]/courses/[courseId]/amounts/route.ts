@@ -14,8 +14,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ fa
 
         const course = await prisma.course.findFirst({
             where: {
-                id: courseId,
-                facultyId,
+                id: courseId,             
             },
         });
 

@@ -10,9 +10,9 @@ import { cn } from '@/lib/utils';
 import { formatAmountWithAccounting } from '@/lib/format';
 
 interface CourseAmountFormProps {
-    initialData: { amount: number | null };
-    facultyId: string;
-    courseId: string;
+  initialData: { amount: string | null }; // Accept string | null
+  facultyId: string;
+  courseId: string;
 }
 
 export const CourseAmountForm = ({

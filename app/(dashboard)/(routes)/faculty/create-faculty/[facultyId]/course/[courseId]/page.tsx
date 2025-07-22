@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, ListChecks, File } from "lucide-react";
+import { LayoutDashboard, ListChecks, File, DollarSign } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
 import { CourseFacultyForm } from "./_components/course-faculty-form";
@@ -13,6 +13,7 @@ import { CourseAttachmentForm } from "./_components/course-attachment-form";
 import { CourseTutorForm } from "./_components/course-tutor-form";
 import { CourseAssignmentForm } from "./_components/course-assignment-form";
 import { CourseCourseNoticeboardForm } from "./_components/course-courseNoticeboard-form";
+import { CourseAmountForm } from "./_components/course-amount-form";
 
 const CourseIdPage = async ({
   params,
@@ -72,10 +73,10 @@ const CourseIdPage = async ({
 
   const requiredFields = [
     initialData.title,
+    initialData.facultyId,  
     initialData.description,
     initialData.imageUrl,
     initialData.amount,
-    initialData.facultyId,  
     initialData.tutors.length > 0,
     initialData.assignments.length > 0,
   ];
@@ -149,6 +150,17 @@ const CourseIdPage = async ({
               />
             </div>
             <div className="space-y-6">
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={DollarSign} />
+                  <h2 className="text-xl">Sell Your Course</h2>
+                </div>
+                <CourseAmountForm
+                  initialData={initialData}
+                  facultyId={initialData.id}
+                  courseId={course.id}
+                />
+              </div>
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={File} />
