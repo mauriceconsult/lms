@@ -9,7 +9,7 @@ const FacultyLayout = async ({
   params,
 }: {
   children: React.ReactNode;
-  params: { facultyId: string };
+  params: Promise<{ facultyId: string }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
@@ -18,7 +18,7 @@ const FacultyLayout = async ({
 
   const faculty = await db.faculty.findUnique({
     where: {
-      id: params.facultyId,
+      id: (await params).facultyId,
     },
     include: {
       courses: {
@@ -35,7 +35,7 @@ const FacultyLayout = async ({
     },
   });
   if (!faculty) {
-    return <div>Faculty not found.</div>;
+    return redirect("/");
   }
   return (
     <div className="h-full">

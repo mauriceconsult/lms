@@ -5,28 +5,27 @@ import { redirect } from "next/navigation";
 const CourseIdPage = async ({
   params,
 }: {
-  params: { facultyId: string; courseId: string };
+  params: Promise<{ facultyId: string; courseId: string }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
   }
-  const {
-    faculty,
+  const {   
     course,   
     attachments,
   } = await getCourse({
     userId,
-    facultyId: params.facultyId,
-    courseId: params.courseId,
+    facultyId: (await params).facultyId,
+    courseId: (await params).courseId,
   });
-  if (!faculty || !course) {
+  if (!course) {
     return redirect("/");
   }
-  const isLocked = !faculty.userId;
+  const isLocked = !course.userId;
   return (
     <div>
-      {faculty?.userId && (
+      {course?.userId && (
         <Banner
           label="You have successfully published this Course"
           variant="success"
@@ -40,15 +39,15 @@ const CourseIdPage = async ({
       )}
       <div className="space-y-4">
         <div>
-          <h1 className="font-bold mb-4">Faculty Name: {faculty.title}</h1>
+          <h1 className="font-bold mb-4">Faculty Name: {course.title}</h1>
           <p className="text-base text-slate-600 mb-6">
             Faculty description: {}
-            {faculty.description || "No description available."}
+            {course.description || "No description available."}
           </p>
           {attachments.map((attachment) => (
             <div key={attachment.id} className="p-4 border rounded-md">
               <h2 className="text-sm text-slate-500">
-                Attachment(s) Id: {attachment.facultyId}
+                Attachment(s) Id: {attachment.courseId}
               </h2>
             </div>
           ))}

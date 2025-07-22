@@ -55,11 +55,7 @@ const FacultyIdPage = async ({
   });
 
   if (!faculty || school.length === 0) {
-    console.error(
-      `[${new Date().toISOString()} FacultyIdPage] Faculty or school not found:`,
-      { facultyId: resolvedParams.facultyId, userId }
-    );
-    return redirect("/");
+     throw new Error("School or Faculty not found");
   }
 
   // Memoize faculty data to ensure stability

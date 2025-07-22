@@ -12,20 +12,20 @@ export const getNoticeboard = async ({
   noticeboardId,
 }: GetNoticeboardProps) => {
   try {
-    const faculty = await db.faculty.findUnique({
-      where: {
-        isPublished: true,
-        id: facultyId,
-      },
-    });
+    // const faculty = await db.faculty.findUnique({
+    //   where: {
+    //     isPublished: true,
+    //     id: facultyId,
+    //   },
+    // });
     const noticeboard = await db.noticeboard.findUnique({
       where: {
         id: noticeboardId,
         isPublished: true,
       },
     });
-    if (!faculty || !noticeboard) {
-      throw new Error("Course or Noticeboard not found");
+    if (!facultyId || !noticeboard) {
+      throw new Error("Faculty ID or Noticeboard not found");
     }
     let attachments: Attachment[] = [];
     let nextNoticeboard: Noticeboard | null = null;
@@ -52,7 +52,7 @@ export const getNoticeboard = async ({
     }
     return {
       noticeboard,
-      faculty,
+      // faculty,
       attachments,
       nextNoticeboard,
     };
@@ -60,7 +60,7 @@ export const getNoticeboard = async ({
     console.log("[GET_NOTICEBOARD_ERROR]", error);
     return {
       noticeboard: null,
-      faculty: null,
+      // faculty: null,
       attachments: [],
       nextNoticeboard: null,
     };

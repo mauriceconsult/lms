@@ -109,21 +109,37 @@ model Assignment {
 }
 
 model Coursework {
-  id           String         @id @default(uuid())
-  title        String
-  userId       String
-  description  String?        @db.Text
-  facultyId    String?
-  faculty      Faculty?       @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  position     Int?
-  attachments  Attachment[]
-  userProgress UserProgress[]
-  isCompleted  Boolean        @default(false)
-  isPublished  Boolean        @default(false)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id             String           @id @default(uuid())
+  title          String
+  userId         String
+  description    String?          @db.Text
+  facultyId      String?
+  faculty        Faculty?         @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  position       Int?
+  attachments    Attachment[]
+  userProgress   UserProgress[]
+  studentProject StudentProject[]
+  isCompleted    Boolean          @default(false)
+  isPublished    Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@index([facultyId])
+}
+
+model StudentProject {
+  id           String      @id @default(uuid())
+  userId       String
+  title        String
+  abstract     String?     @db.Text
+  description  String?     @db.Text
+  courseworkId String?
+  coursework   Coursework? @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
+  isSubmitted  Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([courseworkId])
 }
 
 model Faculty {

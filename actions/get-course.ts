@@ -12,19 +12,13 @@ export const getCourse = async ({
   courseId,
 }: GetCourseProps) => {
   try {
-    const faculty = await db.faculty.findUnique({
-      where: {
-        isPublished: true,
-        id: facultyId,
-      },
-    });
     const course = await db.course.findUnique({
       where: {
         id: courseId,
         isPublished: true,
       },
     });
-    if (!faculty || !course) {
+    if (!facultyId || !course) {
       throw new Error("Faculty or Course not found");
     }
     let attachments: Attachment[] = [];
@@ -49,7 +43,7 @@ export const getCourse = async ({
       });
     }
     return {
-      faculty,
+      // faculty,
       course,
       attachments,
       nextCourse,
@@ -58,7 +52,7 @@ export const getCourse = async ({
     console.log("[GET_COURSE_ERROR]", error);
     return {
       course: null,
-      faculty: null,
+      // faculty: null,
       attachments: [],
       nextCourse: null,
     };

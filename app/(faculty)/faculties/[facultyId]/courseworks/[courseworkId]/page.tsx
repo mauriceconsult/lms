@@ -7,7 +7,7 @@ import { Banner } from "@/components/banner";
 const CourseworkIdPage = async ({
   params,
 }: {
-  params: { facultyId: string; courseworkId: string };
+  params: Promise<{ facultyId: string; courseworkId: string }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
@@ -18,26 +18,26 @@ const CourseworkIdPage = async ({
     faculty,
     // attachments,
     // nextCoursework,
-    userProgress,    
+    // userProgress,    
   } = await getCoursework({
     userId,
-    facultyId: params.facultyId,
-    courseworkId: params.courseworkId,
+    facultyId: (await params).facultyId,
+    courseworkId: (await params).courseworkId,
   });
   if (!coursework || !faculty) {
     return redirect("/");
   }
-  const isLocked = !coursework.userId && !coursework;
+  const isLocked = !coursework && !faculty;
   // const completeOnEnd = !userProgress?.isCompleted;
   return (
     <>
       <div>
-        {userProgress?.isCompleted && (
-          <Banner label="You have completed this Coursework" variant="success" />
+        {userId && (
+          <Banner label="Coursework successfully published." variant="success" />
         )}
         {isLocked && (
           <Banner
-            label="You need to purchase this Course to manage this Coursework"
+            label="You need to publish this Coursework to manage the page."
             variant="warning"
           />
         )}

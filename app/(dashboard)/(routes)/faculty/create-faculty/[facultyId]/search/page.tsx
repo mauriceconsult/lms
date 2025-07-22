@@ -1,6 +1,7 @@
 import { Course, Faculty } from "@prisma/client";
 import { db } from "@/lib/db";
 import { FacultyCourseForm } from "../_components/faculty-course-form";
+import { redirect } from "next/navigation";
 
 async function getFaculty(
   facultyId: string,
@@ -29,29 +30,29 @@ export default async function SearchPage({
   params,
   searchParams,
 }: {
-  params: { facultyId: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: Promise<{ facultyId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const searchTerm =
-    typeof searchParams.search === "string" ? searchParams.search : "";
-  const faculty = await getFaculty(params.facultyId, searchTerm);
+    typeof (await searchParams).search === "string" ? (await searchParams).search : "";
+  const faculty = await getFaculty((await params).facultyId);
 
   if (!faculty) {
-    return <div className="text-red-500 p-6">Faculty not found</div>;
+    return redirect("/");
   }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-semibold mb-4">Manage Faculty Courses</h1>
       <p className="text-sm text-muted-foreground mb-2">
-        Faculty ID: {params.facultyId}
+        Faculty ID: {(await params).facultyId}
       </p>
       {searchTerm && (
         <p className="text-sm text-muted-foreground mb-4">
           Search Term: {searchTerm}
         </p>
       )}
-      <FacultyCourseForm initialData={faculty} facultyId={params.facultyId} />
+      <FacultyCourseForm initialData={faculty} facultyId={(await params).facultyId} />
     </div>
   );
 }

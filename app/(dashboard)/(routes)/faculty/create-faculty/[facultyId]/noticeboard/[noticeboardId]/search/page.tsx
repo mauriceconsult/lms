@@ -7,10 +7,10 @@ import { NoticeboardsList } from "./_components/noticeboards-list";
 import { getNoticeboards } from "@/actions/get-noticeboards";
 
 interface NoticeboardIdSearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     title: string;
     facultyId: string;
-  };
+  }>;
 }
 const NoticeboardSearchPage = async ({
   searchParams,
@@ -26,7 +26,7 @@ const NoticeboardSearchPage = async ({
   });
   const noticeboards = await getNoticeboards({
     userId,
-    ...searchParams,
+    ...await searchParams,
   });
 
   return (

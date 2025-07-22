@@ -8,10 +8,10 @@ import { getTutors } from "@/actions/get-tutors";
 
 
 interface TutorSearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     title: string;
     courseId: string;
-  };
+  }>;
 }
 const TutorSearchPage = async ({
   searchParams,
@@ -27,7 +27,7 @@ const TutorSearchPage = async ({
   });
   const tutors = await getTutors({
     userId,
-    ...searchParams
+    ...await searchParams
   })
 
   return (

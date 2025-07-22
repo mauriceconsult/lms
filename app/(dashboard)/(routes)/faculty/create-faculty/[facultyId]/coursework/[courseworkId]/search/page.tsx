@@ -7,10 +7,10 @@ import { CourseworkSearchInput } from "./_components/coursework-search-input";
 import { getCourseworks } from "@/actions/get-courseworks";
 
 interface CourseworkIdSearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     title: string;
     facultyId: string;
-  };
+  }>;
 }
 const CourseworkSearchPage = async ({
   searchParams,
@@ -26,7 +26,7 @@ const CourseworkSearchPage = async ({
   });
   const courseworks = await getCourseworks({
     userId,
-    ...searchParams,
+    ...await searchParams,
   });
 
   return (

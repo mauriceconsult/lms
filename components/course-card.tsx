@@ -24,10 +24,15 @@ export const CourseCard = ({
   faculty,
 }: CourseCardProps) => {
   return (
-    <Link href={`/courses/${id}`}>
+    <Link href={`/faculties/${id}/courses/${id}`}>
       <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
         <div className="relative w-full aspect-video rounded-md overflow-hidden">
-          <Image fill className="object-cover" alt="title" src={imageUrl || "/course_cover.jpg"} />
+          <Image
+            fill
+            className="object-cover"
+            alt="title"
+            src={imageUrl || "/course_cover.jpg"}
+          />
         </div>
         <div className="flex flex-col pt-2">
           <div className="text-lg md:text-base font-medium group-hover:text-sky-700 transition line-clamp-2">
@@ -43,13 +48,11 @@ export const CourseCard = ({
             </div>
           </div>
           {progress !== null ? (
-            <div>
-              TODO: Progress component
-            </div>
+            <div>TODO: Progress component</div>
           ) : (
-              <p className="text-md md:text-sm font-medium text-slate-700">
-                {formatAmount(amount.toString())}
-              </p>
+            <p className="text-md md:text-sm font-medium text-slate-700">
+              {formatAmount(amount.toString())}
+            </p>
           )}
         </div>
       </div>

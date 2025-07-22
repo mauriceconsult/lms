@@ -8,10 +8,10 @@ import { getCourseNoticeboards } from "@/actions/get-courseNoticeboards";
 
 
 interface CourseNoticeboardSearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     title: string;
     courseId: string;
-  };
+  }>;
 }
 const CourseNoticeboardSearchPage = async ({
   searchParams,
@@ -27,7 +27,7 @@ const CourseNoticeboardSearchPage = async ({
   });
   const courseNoticeboards = await getCourseNoticeboards({
     userId,
-    ...searchParams
+    ...await searchParams
   })
 
   return (

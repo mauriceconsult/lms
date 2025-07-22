@@ -7,24 +7,24 @@ import { Banner } from "@/components/banner";
 const NoticeboardIdPage = async ({
   params,
 }: {
-  params: { facultyId: string; noticeboardId: string };
+  params: Promise<{ facultyId: string; noticeboardId: string }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
   }
   const {
-    noticeboard,
-    faculty,
+    noticeboard,    
+    // faculty,
     // attachments,
     // nextNoticeboard,
     
   } = await getNoticeboard({
     userId,
-    facultyId: params.facultyId,
-    noticeboardId: params.noticeboardId,
+    facultyId: (await params).facultyId,
+    noticeboardId: (await params).noticeboardId,
   });
-  if (!noticeboard || !faculty) {
+  if (!noticeboard) {
     return redirect("/");
   }
   const isLocked = !noticeboard.userId && !noticeboard;
