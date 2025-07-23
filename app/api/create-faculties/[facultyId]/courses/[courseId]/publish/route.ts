@@ -35,23 +35,22 @@ export async function PATCH(
       },
       include: {
         tutors: true,
+        assignments: true,
       },
     });
     const hasPublishedTopic = course?.tutors?.some((tutor) => tutor.isPublished);
+     const hasPublishedAssignment = course?.assignments?.some(
+       (assignment) => assignment.isPublished
+     );
 
     if (
-      !course
-      ||
-      !course.description
-      ||
-      !course.title
-      ||
-      !course.imageUrl
-      ||
-      !
-      course.amount
-      ||
-      !hasPublishedTopic
+      !course ||
+      !course.description ||
+      !course.title ||
+      !course.imageUrl ||
+      !course.amount ||
+      !hasPublishedTopic ||
+      !hasPublishedAssignment
     ) {
       return new NextResponse("Missing credentials", { status: 400 });
     }   

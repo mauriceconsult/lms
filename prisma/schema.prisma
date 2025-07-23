@@ -59,7 +59,6 @@ model Tuition {
   courseId    String?
   course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   attachments Attachment[]
-
   isActive Boolean @default(true)
   isPaid   Boolean @default(false)
 
@@ -118,28 +117,12 @@ model Coursework {
   position       Int?
   attachments    Attachment[]
   userProgress   UserProgress[]
-  studentProject StudentProject[]
   isCompleted    Boolean          @default(false)
   isPublished    Boolean          @default(false)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 
   @@index([facultyId])
-}
-
-model StudentProject {
-  id           String      @id @default(uuid())
-  userId       String
-  title        String
-  abstract     String?     @db.Text
-  description  String?     @db.Text
-  courseworkId String?
-  coursework   Coursework? @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
-  isSubmitted  Boolean     @default(false)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-
-  @@index([courseworkId])
 }
 
 model Faculty {
@@ -225,13 +208,13 @@ model Attachment {
   assignmentId        String?
   CourseNoticeboard   CourseNoticeboard? @relation(fields: [courseNoticeboardId], references: [id], onDelete: Cascade)
   courseNoticeboardId String?
-  tutor               Tutor?             @relation(fields: [tutorId], references: [id])
+  tutor               Tutor?             @relation(fields: [tutorId], references: [id], onDelete: Cascade)
   tutorId             String?
-  tuition             Tuition?           @relation(fields: [tuitionId], references: [id])
+  tuition             Tuition?           @relation(fields: [tuitionId], references: [id], onDelete: Cascade)
   tuitionId           String?
-  Payroll             Payroll?           @relation(fields: [payrollId], references: [id])
+  Payroll             Payroll?           @relation(fields: [payrollId], references: [id], onDelete: Cascade)
   payrollId           String?
-  FacultyPayroll      FacultyPayroll?    @relation(fields: [facultyPayrollId], references: [id])
+  FacultyPayroll      FacultyPayroll?    @relation(fields: [facultyPayrollId], references: [id], onDelete: Cascade)
   facultyPayrollId    String?
 
   @@index([facultyId, courseId, courseworkId, noticeboardId, courseNoticeboardId, assignmentId, payrollId, tuitionId, tutorId])

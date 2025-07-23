@@ -33,18 +33,24 @@ export async function PATCH(
       },
       include: {
         courses: true,
+        courseworks: true,
+        noticeboards: true,
       },
     });
-    const hasPublishedCourse =
-      faculty && faculty.courses
-        ? faculty.courses.some((course) => course.isPublished)
-        : false;
+    const hasPublishedCoursework = faculty?.courseworks?.some(
+      (coursework) => coursework.isPublished
+    );
+
+    const hasPublishedCourse = faculty?.courses.some(
+      (course) => course.isPublished
+    );
     if (
       !faculty ||
       !faculty.description ||
       !faculty.title ||
       !faculty.imageUrl ||
-      !hasPublishedCourse
+      !hasPublishedCourse ||
+      !hasPublishedCoursework
     ) {
       return new NextResponse("Missing credentials", { status: 400 });
     }
