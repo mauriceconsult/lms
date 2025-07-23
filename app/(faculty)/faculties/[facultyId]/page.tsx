@@ -7,12 +7,29 @@ const FacultyIdPage = async ({ params }: { params: { facultyId: string } }) => {
       id: params.facultyId,
     },
     include: {
+      courseworks: true,
+      attachments: true,
+      noticeboards: true,        
       courses: {
         where: {
           isPublished: true,
         },
         orderBy: {
-          position: "asc",
+          position: "desc",
+        },
+        include: {
+          courseNoticeboards: true,
+          tuitions: true,
+          tutors: true,
+          attachments: true,
+          assignments: {
+            where: {
+              isPublished: true,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
         },
       },
     },
@@ -20,7 +37,7 @@ const FacultyIdPage = async ({ params }: { params: { facultyId: string } }) => {
   if (!faculty) {
     return redirect("/");
   }
-return redirect(`/faculties/${faculty.id}/courses/${faculty.courses[0].id}`);
+  return redirect(`/faculties/${faculty.id}/courses/${faculty.courses[0].id}`);
 };
 
 export default FacultyIdPage;
