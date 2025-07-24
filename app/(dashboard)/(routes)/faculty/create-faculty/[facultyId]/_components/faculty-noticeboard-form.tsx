@@ -1,6 +1,6 @@
 "use client";
+
 import * as z from "zod";
-import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -8,6 +8,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -20,14 +21,14 @@ import { cn } from "@/lib/utils";
 import { Noticeboard, Faculty } from "@prisma/client";
 import { FacultyNoticeboardList } from "./faculty-noticeboard-list";
 
-
 interface FacultyNoticeboardFormProps {
-  initialData: Faculty & {noticeboards: Noticeboard[]} 
+  initialData: Faculty & { noticeboards: Noticeboard[] };
   facultyId: string;
 }
 
 const formSchema = z.object({
-  title: z.string().min(1),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
 });
 
 export const FacultyNoticeboardForm = ({
@@ -35,69 +36,123 @@ export const FacultyNoticeboardForm = ({
   facultyId,
 }: FacultyNoticeboardFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [
-    isUpdating,
-    setIsUpdating
-  ] = useState(false);
-  const toggleCreating = () => {
-    setIsCreating((current) => !current);
-  };
+  const [isUpdating, setIsUpdating] = useState(false);
+  const toggleCreating = () => setIsCreating((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-    },
+    defaultValues: { title: "", description: "" },
   });
-  const { isSubmitting, isValid } = form.formState;
+  const {
+    reset,
+    formState: { isSubmitting, isValid },
+  } = form;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/noticeboards`, values);
-      toast.success("Noticeboard created.");
-      toggleCreating();
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong.");
+      const response = await fetch(`/api/faculties/${facultyId}/noticeboards`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(result.message || "Noticeboard created successfully");
+        toggleCreating();
+        reset({ title: "", description: "" });
+        router.refresh();
+      } else {
+        toast.error(result.message || "Failed to create noticeboard");
+      }
+    } catch (error) {
+      console.error("Create noticeboard error:", error);
+      toast.error("Unexpected error occurred");
     }
   };
-  const onReorder = async (updateData: { id: string; position: number }[]) => {
+
+  const onEditAction = async (id: string) => {
+    try {
+      router.push(`/faculty/create-faculty/${facultyId}/noticeboard/${id}`);
+      return {
+        success: true,
+        message: `Navigating to edit noticeboard ${id}`,
+      };
+    } catch (error) {
+      console.error("Edit noticeboard error:", error);
+      return {
+        success: false,
+        message: "Failed to initiate edit",
+      };
+    }
+  };
+
+  const onReorderAction = async (
+    updateData: { id: string; position: number }[]
+  ) => {
     try {
       setIsUpdating(true);
-      await axios.put(`/api/create-faculties/${facultyId}/noticeboards/reorder`, {
-        list: updateData,
-      });
-      toast.success("Noticeboards reordered");
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+      const response = await fetch(
+        `/api/faculties/${facultyId}/noticeboards/reorder`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ list: updateData }),
+        }
+      );
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(result.message || "Noticeboards reordered successfully");
+        return {
+          success: true,
+          message: result.message || "Noticeboards reordered successfully",
+        };
+      } else {
+        toast.error(result.message || "Failed to reorder noticeboards");
+        return {
+          success: false,
+          message: result.message || "Failed to reorder noticeboards",
+        };
+      }
+    } catch (error) {
+      console.error("Reorder noticeboard error:", error);
+      toast.error("Failed to reorder noticeboards");
+      return { success: false, message: "Failed to reorder noticeboards" };
     } finally {
       setIsUpdating(false);
     }
   };
-  const onEdit = (id: string) => {
-    router.push(`/faculty/create-faculty/${facultyId}/noticeboard/${id}`);
-  };
+
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
       {isUpdating && (
-        <div className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center">
+        <div
+          className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center"
+          role="status"
+          aria-live="polite"
+        >
           <Loader2 className="animate-spin h-6 w-6 text-sky-700" />
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Notice
-        <Button onClick={toggleCreating} variant="ghost">
+        Noticeboard*
+        <Button
+          onClick={toggleCreating}
+          variant="ghost"
+          disabled={isSubmitting}
+          aria-label={
+            isCreating ? "Cancel adding noticeboard" : "Add a new noticeboard"
+          }
+        >
           {isCreating ? (
             <>Cancel</>
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Notice
+              Add a Noticeboard
             </>
           )}
         </Button>
       </div>
-
       {isCreating && (
         <Form {...form}>
           <form
@@ -109,10 +164,28 @@ export const FacultyNoticeboardForm = ({
               name="title"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="Notice title, e.g., 'Coursework due date announcement'"
+                      placeholder="e.g., 'Principles of Fashion Design'"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isSubmitting}
+                      placeholder="e.g., 'Introduction to design principles'"
                       {...field}
                     />
                   </FormControl>
@@ -121,7 +194,11 @@ export const FacultyNoticeboardForm = ({
               )}
             />
             <Button disabled={!isValid || isSubmitting} type="submit">
-              Create
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Create"
+              )}
             </Button>
           </form>
         </Form>
@@ -130,13 +207,13 @@ export const FacultyNoticeboardForm = ({
         <div
           className={cn(
             "text-sm mt-2",
-            !initialData.noticeboards && "text-slate-500 italic"
+            !initialData.noticeboards.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.noticeboards.length && "Your notices appear here."}
+          {!initialData.noticeboards.length && "No noticeboards added yet."}
           <FacultyNoticeboardList
-            onEdit={onEdit}
-            onReorder={onReorder}
+            onEditAction={onEditAction}
+            onReorderAction={onReorderAction}
             items={initialData.noticeboards || []}
           />
         </div>

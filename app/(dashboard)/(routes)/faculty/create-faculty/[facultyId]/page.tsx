@@ -57,11 +57,10 @@ const FacultyIdPage = async ({
   if (!faculty || school.length === 0) {
      throw new Error("School or Faculty not found");
   }
-
   // Memoize faculty data to ensure stability
   const initialData = {
     ...faculty,
-    description: faculty.description ?? "", // Ensure description is never null
+    description: faculty.description ?? "", 
   };
 
   const requiredFields = [
@@ -87,7 +86,7 @@ const FacultyIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This faculty is not published yet. You can publish it once you have completed all required* fields."
+          label="This faculty is not published yet. You can publish it once you have completed the required* fields."
         />
       )}
       <div className="p-6">

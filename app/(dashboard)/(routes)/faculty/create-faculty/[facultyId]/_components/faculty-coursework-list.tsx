@@ -11,57 +11,68 @@ import {
 import { cn } from "@/lib/utils";
 import { Grip, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import toast from "react-hot-toast";
 
 interface FacultyCourseworkListProps {
   items: Coursework[];
-  onReorder: (updateData: { id: string; position: number }[]) => void;
-  onEdit: (id: string) => void;
+  onEditAction: (id: string) => Promise<{ success: boolean; message: string }>;
+  onReorderAction: (updateData: { id: string; position: number }[]) => Promise<{
+    success: boolean;
+    message: string;
+  }>;
 }
+
 export const FacultyCourseworkList = ({
   items,
-  onReorder,
-  onEdit,
+  onEditAction,
+  onReorderAction,
 }: FacultyCourseworkListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [courseworks, setCoursework] = useState(items);
+  const [courseworks, setCourseworks] = useState<Coursework[]>(items);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
   useEffect(() => {
-    setCoursework(items);
+    setCourseworks(items);
   }, [items]);
 
-  const onDragend = (result: DropResult) => {
+  const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
-    const items = Array.from(courseworks);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
 
-    const startIndex = Math.min(result.source.index, result.destination.index);
-    const endIndex = Math.max(result.source.index, result.destination.index);
+    const newItems = Array.from(courseworks);
+    const [reorderedItem] = newItems.splice(result.source.index, 1);
+    newItems.splice(result.destination.index, 0, reorderedItem);
 
-    const updatedCoursework = items.splice(startIndex, endIndex + 1);
+    setCourseworks(newItems);
 
-    setCoursework(items);
-    const bulkUpdateData = updatedCoursework.map((coursework) => ({
+    const bulkUpdateData = newItems.map((coursework, index) => ({
       id: coursework.id,
-      position: items.findIndex((item) => item.id === coursework.id),
+      position: index,
     }));
-    onReorder(bulkUpdateData);
+
+    const { success, message } = await onReorderAction(bulkUpdateData);
+    if (success) {
+      toast.success(message);
+    } else {
+      toast.error(message);
+    }
   };
 
   if (!isMounted) {
     return null;
   }
+
   return (
-    <DragDropContext onDragEnd={onDragend}>
+    <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="courseworks">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
             {courseworks.map((coursework, index) => (
               <Draggable
                 key={coursework.id}
-                draggableId="coursework.id"
+                draggableId={coursework.id}
                 index={index}
               >
                 {(provided) => (
@@ -84,9 +95,10 @@ export const FacultyCourseworkList = ({
                     >
                       <Grip className="h-5 w-5" />
                     </div>
-                    {coursework.title}
+                    <span aria-label={`Coursework: ${coursework.title}`}>
+                      {coursework.title}
+                    </span>
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
-                      {/* {coursework.isFree && <Badge>Free</Badge>} */}
                       <Badge
                         className={cn(
                           "bg-slate-500",
@@ -96,8 +108,16 @@ export const FacultyCourseworkList = ({
                         {coursework.isPublished ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
-                        onClick={() => onEdit(coursework.id)}
+                        onClick={async () => {
+                          const { success, message } = await onEditAction(
+                            coursework.id
+                          );
+                          if (!success) {
+                            toast.error(message);
+                          }
+                        }}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
+                        aria-label={`Edit coursework: ${coursework.title}`}
                       />
                     </div>
                   </div>

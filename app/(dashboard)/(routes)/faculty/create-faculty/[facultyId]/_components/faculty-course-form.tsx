@@ -1,4 +1,3 @@
-// components/FacultyCourseForm.tsx
 "use client";
 
 import * as z from "zod";
@@ -30,8 +29,7 @@ interface FacultyCourseFormProps {
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z
-    .string()   
+  description: z.string(),
 });
 
 export const FacultyCourseForm = ({
@@ -46,10 +44,10 @@ export const FacultyCourseForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: { title: "", description: "" },
   });
-  const {  
+  const {
     reset,
     formState: { isSubmitting, isValid },
-  } = form; 
+  } = form;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -57,7 +55,7 @@ export const FacultyCourseForm = ({
       if (success) {
         toast.success(message);
         toggleCreating();
-        reset({ title: ""});
+        reset({ title: "" });
         router.refresh();
       } else {
         toast.error(message);
@@ -118,7 +116,7 @@ export const FacultyCourseForm = ({
                   <FormMessage />
                 </FormItem>
               )}
-            />          
+            />
             <Button disabled={!isValid || isSubmitting} type="submit">
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

@@ -11,57 +11,68 @@ import {
 import { cn } from "@/lib/utils";
 import { Grip, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import toast from "react-hot-toast";
 
 interface FacultyNoticeboardListProps {
   items: Noticeboard[];
-  onReorder: (updateData: { id: string; position: number }[]) => void;
-  onEdit: (id: string) => void;
+  onEditAction: (id: string) => Promise<{ success: boolean; message: string }>;
+  onReorderAction: (updateData: { id: string; position: number }[]) => Promise<{
+    success: boolean;
+    message: string;
+  }>;
 }
+
 export const FacultyNoticeboardList = ({
   items,
-  onReorder,
-  onEdit,
+  onEditAction,
+  onReorderAction,
 }: FacultyNoticeboardListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [noticeboards, setNoticeboard] = useState(items);
+  const [noticeboards, setNoticeboards] = useState<Noticeboard[]>(items);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
   useEffect(() => {
-    setNoticeboard(items);
+    setNoticeboards(items);
   }, [items]);
 
-  const onDragend = (result: DropResult) => {
+  const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
-    const items = Array.from(noticeboards);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
 
-    const startIndex = Math.min(result.source.index, result.destination.index);
-    const endIndex = Math.max(result.source.index, result.destination.index);
+    const newItems = Array.from(noticeboards);
+    const [reorderedItem] = newItems.splice(result.source.index, 1);
+    newItems.splice(result.destination.index, 0, reorderedItem);
 
-    const updatedNoticeboard = items.splice(startIndex, endIndex + 1);
+    setNoticeboards(newItems);
 
-    setNoticeboard(items);
-    const bulkUpdateData = updatedNoticeboard.map((noticeboard) => ({
+    const bulkUpdateData = newItems.map((noticeboard, index) => ({
       id: noticeboard.id,
-      position: items.findIndex((item) => item.id === noticeboard.id),
+      position: index,
     }));
-    onReorder(bulkUpdateData);
+
+    const { success, message } = await onReorderAction(bulkUpdateData);
+    if (success) {
+      toast.success(message);
+    } else {
+      toast.error(message);
+    }
   };
 
   if (!isMounted) {
     return null;
   }
+
   return (
-    <DragDropContext onDragEnd={onDragend}>
+    <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="noticeboards">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
             {noticeboards.map((noticeboard, index) => (
               <Draggable
                 key={noticeboard.id}
-                draggableId="noticeboard.id"
+                draggableId={noticeboard.id}
                 index={index}
               >
                 {(provided) => (
@@ -84,9 +95,10 @@ export const FacultyNoticeboardList = ({
                     >
                       <Grip className="h-5 w-5" />
                     </div>
-                    {noticeboard.title}
+                    <span aria-label={`Noticeboard: ${noticeboard.title}`}>
+                      {noticeboard.title}
+                    </span>
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
-                      {/* {noticeboard.isFree && <Badge>Free</Badge>} */}
                       <Badge
                         className={cn(
                           "bg-slate-500",
@@ -96,8 +108,16 @@ export const FacultyNoticeboardList = ({
                         {noticeboard.isPublished ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
-                        onClick={() => onEdit(noticeboard.id)}
+                        onClick={async () => {
+                          const { success, message } = await onEditAction(
+                            noticeboard.id
+                          );
+                          if (!success) {
+                            toast.error(message);
+                          }
+                        }}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
+                        aria-label={`Edit noticeboard: ${noticeboard.title}`}
                       />
                     </div>
                   </div>

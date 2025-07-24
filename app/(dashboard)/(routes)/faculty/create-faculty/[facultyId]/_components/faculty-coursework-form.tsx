@@ -1,6 +1,6 @@
 "use client";
+
 import * as z from "zod";
-import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -8,6 +8,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -20,15 +21,14 @@ import { cn } from "@/lib/utils";
 import { Coursework, Faculty } from "@prisma/client";
 import { FacultyCourseworkList } from "./faculty-coursework-list";
 
-
-
 interface FacultyCourseworkFormProps {
-  initialData: Faculty & {courseworks: Coursework[]} 
+  initialData: Faculty & { courseworks: Coursework[] };
   facultyId: string;
 }
 
 const formSchema = z.object({
-  title: z.string().min(1),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
 });
 
 export const FacultyCourseworkForm = ({
@@ -36,58 +36,113 @@ export const FacultyCourseworkForm = ({
   facultyId,
 }: FacultyCourseworkFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [
-    isUpdating,
-    setIsUpdating
-  ] = useState(false);
-  const toggleCreating = () => {
-    setIsCreating((current) => !current);
-  };
+  const [isUpdating, setIsUpdating] = useState(false);
+  const toggleCreating = () => setIsCreating((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-    },
+    defaultValues: { title: "", description: "" },
   });
-  const { isSubmitting, isValid } = form.formState;
+  const {
+    reset,
+    formState: { isSubmitting, isValid },
+  } = form;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/courseworks`, values);
-      toast.success("Coursework created.");
-      toggleCreating();
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong.");
+      const response = await fetch(`/api/faculties/${facultyId}/courseworks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(result.message || "Coursework created successfully");
+        toggleCreating();
+        reset({ title: "", description: "" });
+        router.refresh();
+      } else {
+        toast.error(result.message || "Failed to create coursework");
+      }
+    } catch (error) {
+      console.error("Create coursework error:", error);
+      toast.error("Unexpected error occurred");
     }
   };
-  const onReorder = async (updateData: { id: string; position: number }[]) => {
+
+  const onEditAction = async (id: string) => {
+    try {
+      router.push(`/faculty/create-faculty/${facultyId}/coursework/${id}`);
+      return {
+        success: true,
+        message: `Navigating to edit coursework ${id}`,
+      };
+    } catch (error) {
+      console.error("Edit coursework error:", error);
+      return {
+        success: false,
+        message: "Failed to initiate edit",
+      };
+    }
+  };
+
+  const onReorderAction = async (
+    updateData: { id: string; position: number }[]
+  ) => {
     try {
       setIsUpdating(true);
-      await axios.put(`/api/create-faculties/${facultyId}/courseworks/reorder`, {
-        list: updateData,
-      });
-      toast.success("Courseworks reordered");
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+      const response = await fetch(
+        `/api/faculties/${facultyId}/courseworks/reorder`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ list: updateData }),
+        }
+      );
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(result.message || "Courseworks reordered successfully");
+        return {
+          success: true,
+          message: result.message || "Courseworks reordered successfully",
+        };
+      } else {
+        toast.error(result.message || "Failed to reorder courseworks");
+        return {
+          success: false,
+          message: result.message || "Failed to reorder courseworks",
+        };
+      }
+    } catch (error) {
+      console.error("Reorder coursework error:", error);
+      toast.error("Failed to reorder courseworks");
+      return { success: false, message: "Failed to reorder courseworks" };
     } finally {
       setIsUpdating(false);
     }
   };
-  const onEdit = (id: string) => {
-    router.push(`/faculty/create-faculty/${facultyId}/coursework/${id}`);
-  };
+
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
       {isUpdating && (
-        <div className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center">
+        <div
+          className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center"
+          role="status"
+          aria-live="polite"
+        >
           <Loader2 className="animate-spin h-6 w-6 text-sky-700" />
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
         Coursework*
-        <Button onClick={toggleCreating} variant="ghost">
+        <Button
+          onClick={toggleCreating}
+          variant="ghost"
+          disabled={isSubmitting}
+          aria-label={
+            isCreating ? "Cancel adding coursework" : "Add a new coursework"
+          }
+        >
           {isCreating ? (
             <>Cancel</>
           ) : (
@@ -98,7 +153,6 @@ export const FacultyCourseworkForm = ({
           )}
         </Button>
       </div>
-
       {isCreating && (
         <Form {...form}>
           <form
@@ -110,10 +164,28 @@ export const FacultyCourseworkForm = ({
               name="title"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="Coursework title, e.g., 'Principles of Design Coursework'"
+                      placeholder="e.g., 'Principles of Fashion Design'"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isSubmitting}
+                      placeholder="e.g., 'Introduction to design principles'"
                       {...field}
                     />
                   </FormControl>
@@ -122,7 +194,11 @@ export const FacultyCourseworkForm = ({
               )}
             />
             <Button disabled={!isValid || isSubmitting} type="submit">
-              Create
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Create"
+              )}
             </Button>
           </form>
         </Form>
@@ -131,20 +207,20 @@ export const FacultyCourseworkForm = ({
         <div
           className={cn(
             "text-sm mt-2",
-            !initialData.courseworks && "text-slate-500 italic"
+            !initialData.courseworks.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.courseworks.length && "Add your Courseworks here."}
+          {!initialData.courseworks.length && "No courseworks added yet."}
           <FacultyCourseworkList
-            onEdit={onEdit}
-            onReorder={onReorder}
+            onEditAction={onEditAction}
+            onReorderAction={onReorderAction}
             items={initialData.courseworks || []}
           />
         </div>
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the courseworks
+          Drag and drop to reorder the Courseworks
         </p>
       )}
     </div>
