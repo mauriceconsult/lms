@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import TutorIdPageClient from "./_components/tutor-id-client-page";
+import TutorIdPageClient from "./_components/tutor-id-page-client";
 
 interface TutorIdPageProps {
   params: Promise<{

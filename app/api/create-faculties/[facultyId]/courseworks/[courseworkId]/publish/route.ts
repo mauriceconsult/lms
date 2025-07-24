@@ -32,21 +32,15 @@ export async function PATCH(
       where: {
         id: (await params).courseworkId,
         facultyId: (await params).facultyId,
-      },
-      include: {
-        studentProjects: true,
-      },
-    });
-    const hasSubmittedProject = coursework?.studentProjects?.some((studentProject) => studentProject.isSubmitted);
+      },      
+    }); 
 
     if (
       !coursework
       ||
       !coursework.description
       ||
-      !coursework.title
-      ||
-      !hasSubmittedProject
+      !coursework.title     
     ) {
       return new NextResponse("Missing credentials", { status: 400 });
     }   

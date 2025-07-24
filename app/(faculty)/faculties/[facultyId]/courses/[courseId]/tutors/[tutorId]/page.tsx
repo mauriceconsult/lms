@@ -52,7 +52,7 @@ const TutorIdPage = async ({
         <div className="p-4">
           <VideoPlayer
             tutorId={tutor.id}
-            title={tutor.title}
+            title={tutor.title || ""}
             courseId={params.courseId}
             nextTutorId={nextTutor?.id}
             playbackId={muxData?.playbackId ?? null}

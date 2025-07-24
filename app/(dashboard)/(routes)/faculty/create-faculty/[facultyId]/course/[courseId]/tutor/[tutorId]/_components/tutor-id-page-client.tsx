@@ -1,22 +1,17 @@
-'use client';
+"use client";
 
-import { IconBadge } from '@/components/icon-badge';
-import { ArrowLeft, LayoutDashboard, Video } from 'lucide-react';
-import Link from 'next/link';
-import { Banner } from '@/components/banner';
-import { TutorActions } from './tutor-actions';
-import { TutorTitleForm } from './tutor-title-form';
-import { TutorCourseForm } from './tutor-course-form';
-import { TutorObjectiveForm } from './tutor-objective-form';
-import { TutorDescriptionForm } from './tutor-description-form';
-import { TutorVideoForm } from './tutor-video-form';
-import { Course, Tutor, MuxData, Attachment } from '@prisma/client';
+import { Banner } from "@/components/banner";
+import { IconBadge } from "@/components/icon-badge";
+import { Course, Tutor, Attachment } from "@prisma/client";
+import { ArrowLeft, LayoutDashboard } from "lucide-react";
+import Link from "next/link";
+import { TutorActions } from "./tutor-actions";
+import { TutorTitleForm } from "./tutor-title-form";
+import { TutorObjectiveForm } from "./tutor-objective-form";
+import { TutorDescriptionForm } from "./tutor-description-form";
 
 interface TutorIdPageClientProps {
-  tutor: Tutor & {
-    muxData: MuxData | null;
-    attachments: Attachment[];
-  };
+  tutor: Tutor & { attachments: Attachment[] };
   course: Course;
   facultyId: string;
   courseId: string;
@@ -33,9 +28,8 @@ export default function TutorIdPageClient({
   const requiredFields = [
     tutor.title,
     tutor.courseId,
-    tutor.objective,
     tutor.description,
-    tutor.videoUrl,
+    tutor.objective,
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
@@ -47,7 +41,7 @@ export default function TutorIdPageClient({
       {!tutor.isPublished && (
         <Banner
           variant="warning"
-          label="This topic is not published yet. You can continue editing it, but it won't be visible to students until you publish it."
+          label="This tutor is not published yet. You can continue editing it, but it won't be visible to students until you publish it."
         />
       )}
       <div className="p-6">
@@ -62,9 +56,12 @@ export default function TutorIdPageClient({
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Topic creation</h1>
+                <h1 className="text-2xl font-medium">Tutor creation</h1>
                 <span className="text-sm text-slate-700">
                   Complete all fields {completionText}
+                </span>
+                <span className="text-sm text-slate-700">
+                  Course: {course.title}
                 </span>
               </div>
               <TutorActions
@@ -82,20 +79,13 @@ export default function TutorIdPageClient({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Customize your topic</h2>
+                <h2 className="text-xl">Customize your tutor</h2>
               </div>
               <TutorTitleForm
                 initialData={{ title: tutor.title || "" }}
                 facultyId={facultyId}
                 courseId={courseId}
                 tutorId={tutorId}
-              />
-              <TutorCourseForm
-                initialData={{ courseId: tutor.courseId }}
-                facultyId={facultyId}
-                courseId={courseId}
-                tutorId={tutorId}
-                options={[{ label: course.title, value: course.id }]}
               />
               <TutorObjectiveForm
                 initialData={{ objective: tutor.objective }}
@@ -105,20 +95,6 @@ export default function TutorIdPageClient({
               />
               <TutorDescriptionForm
                 initialData={{ description: tutor.description }}
-                facultyId={facultyId}
-                courseId={courseId}
-                tutorId={tutorId}
-              />
-            </div>
-          </div>
-          <div className="space-y-6">
-            <div>
-              <div className="flex items-center gap-x-2">
-                <IconBadge icon={Video} />
-                <h2 className="text-xl">Add a video</h2>
-              </div>
-              <TutorVideoForm
-                initialData={{ videoUrl: tutor.videoUrl, muxData: tutor.muxData }}
                 facultyId={facultyId}
                 courseId={courseId}
                 tutorId={tutorId}

@@ -16,7 +16,7 @@ export const TutorsList = ({ items }: TutorsListProps) => {
           <TutorCard
             key={item.id}
             id={item.id}
-            title={item.title}
+            title={item.title || ""}
             // description={item.description ?? ""}
             course={item?.course?.title ?? ""}
             tutorsLength={0}
