@@ -1,8 +1,8 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import FacultySidebar from "./_components/faculty-sidebar";
 import { FacultyNavbar } from "./_components/faculty-navbar";
 import { redirect } from "next/navigation";
+import { FacultySidebar } from "./_components/faculty-sidebar";
 
 const FacultyLayout = async ({
   children,
