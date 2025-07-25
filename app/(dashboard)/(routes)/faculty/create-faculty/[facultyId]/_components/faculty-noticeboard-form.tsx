@@ -210,7 +210,7 @@ export const FacultyNoticeboardForm = ({
             !initialData.noticeboards.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.noticeboards.length && "No noticeboards added yet."}
+          {!initialData.noticeboards.length && "Add Faculty notices here."}
           <FacultyNoticeboardList
             onEditAction={onEditAction}
             onReorderAction={onReorderAction}

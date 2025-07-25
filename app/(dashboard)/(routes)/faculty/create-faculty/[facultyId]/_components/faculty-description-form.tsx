@@ -177,7 +177,7 @@ export const FacultyDescriptionForm = ({
               dangerouslySetInnerHTML={{ __html: initialData.description }}
             />
           ) : (
-            <p className="text-slate-500 italic">No description added yet.</p>
+            <p className="text-slate-500 italic">Describe your Faculty here</p>
           )}
         </div>
       )}

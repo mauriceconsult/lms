@@ -80,7 +80,6 @@ export const CourseTutorForm = ({
   };
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
-
       {isUpdating && (
         <div className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center">
           <Loader2 className="animate-spin h-6 w-6 text-sky-700" />
@@ -135,7 +134,8 @@ export const CourseTutorForm = ({
             !initialData.tutors.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.tutors.length && "No topics"}
+          {!initialData.tutors.length &&
+            "Add Tutor/Topic(s) here. At least one Tutor/Topic is required for every Course."}
           <CourseTutorList
             onEdit={onEdit}
             onReorder={onReorder}

@@ -135,7 +135,7 @@ export const CourseCourseNoticeboardForm = ({
             !initialData.courseNoticeboards.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.courseNoticeboards.length && "No Course notices yet"}
+          {!initialData.courseNoticeboards.length && "Course notices will appear here."}
           <CourseCourseNoticeboardList
             onEdit={onEdit}
             onReorder={onReorder}

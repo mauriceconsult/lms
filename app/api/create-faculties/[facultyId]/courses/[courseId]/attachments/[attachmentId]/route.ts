@@ -11,18 +11,18 @@ export async function DELETE(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const facultyOwner = await db.faculty.findUnique({
+    const courseOwner = await db.course.findUnique({
       where: {
-        id: (await params).facultyId,
+        id: (await params).courseId,
         userId: userId,
       },
     });
-    if (!facultyOwner) {
+    if (!courseOwner) {
       return new NextResponse("Unathorized", { status: 401 });
     }
     const attachment = await db.attachment.delete({
       where: {
-        facultyId: (await params).facultyId,
+        courseId: (await params).courseId,
         id: (await params).attachmentId,
       },
     });

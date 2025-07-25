@@ -210,7 +210,7 @@ export const FacultyCourseworkForm = ({
             !initialData.courseworks.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.courseworks.length && "No courseworks added yet."}
+          {!initialData.courseworks.length && "Add Coursework(s) here. At least one Coursework is required for every Faculty."}
           <FacultyCourseworkList
             onEditAction={onEditAction}
             onReorderAction={onReorderAction}

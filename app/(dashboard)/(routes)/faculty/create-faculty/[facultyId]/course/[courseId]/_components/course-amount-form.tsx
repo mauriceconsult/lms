@@ -165,7 +165,7 @@ export const CourseAmountForm = ({
                 >
                     {initialData.amount != null
                         ? formatAmountWithAccounting(initialData.amount)
-                        : 'No amount'}
+                        : 'Set a price for your Course here.'}
                 </p>
             )}
             {isEditing && (

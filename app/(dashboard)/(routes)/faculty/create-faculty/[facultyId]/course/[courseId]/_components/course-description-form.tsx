@@ -134,7 +134,7 @@ export const CourseDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {!initialData.description && "No description"}
+          {!initialData.description && "Describe your Course here and highlight the Topics/Tutors that will be covered."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}

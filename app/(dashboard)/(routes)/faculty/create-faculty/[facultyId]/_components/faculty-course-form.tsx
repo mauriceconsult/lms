@@ -134,7 +134,8 @@ export const FacultyCourseForm = ({
             !initialData.courses.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.courses.length && "No courses added yet."}
+          {!initialData.courses.length &&
+            "Add Course(s) here. At least one Course is required for every Faculty."}
           <FacultyCourseList
             onEditAction={async (id) => {
               const result = await onEditAction(facultyId, id);

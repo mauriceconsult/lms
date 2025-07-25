@@ -78,7 +78,7 @@ export const FacultySchoolForm = ({
             !initialData.title && "text-slate-500 italic"
           )}
         >
-          {selectedOption?.label || "No School"}
+          {selectedOption?.label || "Select a School"}
         </p>
       )}
       {isEditing && (

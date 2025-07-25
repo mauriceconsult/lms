@@ -6,7 +6,7 @@ export async function PUT(
   req: Request,
   {
     params,
-  }: { params: { facultyId: string; courseId: string; assignmentId: string } }
+  }: { params: Promise<{ facultyId: string; courseId: string; assignmentId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -16,7 +16,7 @@ export async function PUT(
     const { list } = await req.json();
     const facultyOwner = db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId: userId,
       },
     });
@@ -25,7 +25,7 @@ export async function PUT(
     }
     const courseOwner = db.course.findUnique({
       where: {
-        id: params.courseId,
+        id: (await params).courseId,
         userId: userId,
       },
     });
@@ -34,7 +34,7 @@ export async function PUT(
     }
     const assignmentOwner = db.assignment.findUnique({
       where: {
-        id: params.assignmentId,
+        id: (await params).assignmentId,
         userId: userId,
       },
     });

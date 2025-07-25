@@ -138,7 +138,8 @@ export const CourseAssignmentForm = ({
             !initialData.assignments.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.assignments.length && "No Assignments yet"}
+          {!initialData.assignments.length &&
+            "Add Assignment(s) here. At least one Assignment is required for every Tutor/Topic."}
           <CourseAssignmentList
             onEdit={onEdit}
             onReorder={onReorder}

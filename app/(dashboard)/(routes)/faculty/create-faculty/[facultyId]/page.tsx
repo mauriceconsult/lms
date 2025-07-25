@@ -86,7 +86,7 @@ const FacultyIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This faculty is not published yet. You can publish it once you have completed the required* fields."
+          label="This Faculty is not published yet. To publish, completed the required* fields and ensure that you have a published Course and Coursework."
         />
       )}
       <div className="p-6">
