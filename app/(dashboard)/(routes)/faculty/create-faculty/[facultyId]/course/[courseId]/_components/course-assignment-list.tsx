@@ -1,6 +1,6 @@
 "use client";
 
-import { Assignment} from "@prisma/client";
+import { Assignment } from "@prisma/client";
 import { useEffect, useState } from "react";
 import {
   DragDropContext,
@@ -11,64 +11,75 @@ import {
 import { cn } from "@/lib/utils";
 import { Grip, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import toast from "react-hot-toast";
 
 interface CourseAssignmentListProps {
   items: Assignment[];
-  onReorder: (updateData: { id: string; position: number }[]) => void;
-  onEdit: (id: string) => void;
+  onEditAction: (id: string) => Promise<{ success: boolean; message: string }>;
+  onReorderAction: (updateData: { id: string; position: number }[]) => Promise<{
+    success: boolean;
+    message: string;
+  }>;
 }
+
 export const CourseAssignmentList = ({
   items,
-  onReorder,
-  onEdit,
+  onEditAction,
+  onReorderAction,
 }: CourseAssignmentListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [assignments, setAssignment] = useState(items);
+  const [courses, setAssignments] = useState<Assignment[]>(items);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
   useEffect(() => {
-    setAssignment(items);
+    setAssignments(items);
   }, [items]);
 
-  const onDragend = (result: DropResult) => {
+  const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
-    const items = Array.from(assignments);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
 
-    const startIndex = Math.min(result.source.index, result.destination.index);
-    const endIndex = Math.max(result.source.index, result.destination.index);
+    const newItems = Array.from(courses);
+    const [reorderedItem] = newItems.splice(result.source.index, 1);
+    newItems.splice(result.destination.index, 0, reorderedItem);
 
-    const updatedAssignment = items.splice(startIndex, endIndex + 1);
+    setAssignments(newItems);
 
-    setAssignment(items);
-    const bulkUpdateData = updatedAssignment.map((assignment) => ({
-      id: assignment.id,
-      position: items.findIndex((item) => item.id === assignment.id),
+    const bulkUpdateData = newItems.map((course, index) => ({
+      id: course.id,
+      position: index,
     }));
-    onReorder(bulkUpdateData);
+
+    const { success, message } = await onReorderAction(bulkUpdateData);
+    if (success) {
+      toast.success(message);
+    } else {
+      toast.error(message);
+    }
   };
 
   if (!isMounted) {
     return null;
   }
+
   return (
-    <DragDropContext onDragEnd={onDragend}>
-      <Droppable droppableId="assignments">
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="courses">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            {assignments.map((assignment, index) => (
+            {courses.map((course, index) => (
               <Draggable
-                key={assignment.id}
-                draggableId="assignment.id"
+                key={course.id}
+                draggableId={course.id}
                 index={index}
               >
                 {(provided) => (
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      assignment.isPublished &&
+                      course.isPublished &&
                         "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
@@ -77,27 +88,36 @@ export const CourseAssignmentList = ({
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        assignment.isPublished &&
+                        course.isPublished &&
                           "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
                     >
                       <Grip className="h-5 w-5" />
                     </div>
-                    {assignment.title}
+                    <span aria-label={`Assignment: ${course.title}`}>
+                      {course.title}
+                    </span>
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
-                      {/* {assignment.isFree && <Badge>Free</Badge>} */}
                       <Badge
                         className={cn(
                           "bg-slate-500",
-                          assignment.isPublished && "bg-sky-700"
+                          course.isPublished && "bg-sky-700"
                         )}
                       >
-                        {assignment.isPublished ? "Published" : "Draft"}
+                        {course.isPublished ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
-                        onClick={() => onEdit(assignment.id)}
+                        onClick={async () => {
+                          const { success, message } = await onEditAction(
+                            course.id
+                          );
+                          if (!success) {
+                            toast.error(message);
+                          }
+                        }}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
+                        aria-label={`Edit course: ${course.title}`}
                       />
                     </div>
                   </div>

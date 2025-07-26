@@ -1,6 +1,6 @@
 "use client";
 
-import { CourseNoticeboard} from "@prisma/client";
+import { CourseNoticeboard } from "@prisma/client";
 import { useEffect, useState } from "react";
 import {
   DragDropContext,
@@ -11,64 +11,75 @@ import {
 import { cn } from "@/lib/utils";
 import { Grip, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import toast from "react-hot-toast";
 
 interface CourseCourseNoticeboardListProps {
   items: CourseNoticeboard[];
-  onReorder: (updateData: { id: string; position: number }[]) => void;
-  onEdit: (id: string) => void;
+  onEditAction: (id: string) => Promise<{ success: boolean; message: string }>;
+  onReorderAction: (updateData: { id: string; position: number }[]) => Promise<{
+    success: boolean;
+    message: string;
+  }>;
 }
+
 export const CourseCourseNoticeboardList = ({
   items,
-  onReorder,
-  onEdit,
+  onEditAction,
+  onReorderAction,
 }: CourseCourseNoticeboardListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [courseNoticeboards, setCourseCourseNoticeboard] = useState(items);
+  const [courses, setCourseNoticeboards] = useState<CourseNoticeboard[]>(items);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
   useEffect(() => {
-    setCourseCourseNoticeboard(items);
+    setCourseNoticeboards(items);
   }, [items]);
 
-  const onDragend = (result: DropResult) => {
+  const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
-    const items = Array.from(courseNoticeboards);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
 
-    const startIndex = Math.min(result.source.index, result.destination.index);
-    const endIndex = Math.max(result.source.index, result.destination.index);
+    const newItems = Array.from(courses);
+    const [reorderedItem] = newItems.splice(result.source.index, 1);
+    newItems.splice(result.destination.index, 0, reorderedItem);
 
-    const updatedCourseCourseNoticeboard = items.splice(startIndex, endIndex + 1);
+    setCourseNoticeboards(newItems);
 
-    setCourseCourseNoticeboard(items);
-    const bulkUpdateData = updatedCourseCourseNoticeboard.map((courseNoticeboard) => ({
-      id: courseNoticeboard.id,
-      position: items.findIndex((item) => item.id === courseNoticeboard.id),
+    const bulkUpdateData = newItems.map((course, index) => ({
+      id: course.id,
+      position: index,
     }));
-    onReorder(bulkUpdateData);
+
+    const { success, message } = await onReorderAction(bulkUpdateData);
+    if (success) {
+      toast.success(message);
+    } else {
+      toast.error(message);
+    }
   };
 
   if (!isMounted) {
     return null;
   }
+
   return (
-    <DragDropContext onDragEnd={onDragend}>
-      <Droppable droppableId="courseNoticeboards">
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="courses">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            {courseNoticeboards.map((courseNoticeboard, index) => (
+            {courses.map((course, index) => (
               <Draggable
-                key={courseNoticeboard.id}
-                draggableId="courseNoticeboard.id"
+                key={course.id}
+                draggableId={course.id}
                 index={index}
               >
                 {(provided) => (
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      courseNoticeboard.isPublished &&
+                      course.isPublished &&
                         "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
@@ -77,27 +88,36 @@ export const CourseCourseNoticeboardList = ({
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        courseNoticeboard.isPublished &&
+                        course.isPublished &&
                           "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
                     >
                       <Grip className="h-5 w-5" />
                     </div>
-                    {courseNoticeboard.title}
+                    <span aria-label={`CourseNoticeboard: ${course.title}`}>
+                      {course.title}
+                    </span>
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
-                      {/* {courseNoticeboard.isFree && <Badge>Free</Badge>} */}
                       <Badge
                         className={cn(
                           "bg-slate-500",
-                          courseNoticeboard.isPublished && "bg-sky-700"
+                          course.isPublished && "bg-sky-700"
                         )}
                       >
-                        {courseNoticeboard.isPublished ? "Published" : "Draft"}
+                        {course.isPublished ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
-                        onClick={() => onEdit(courseNoticeboard.id)}
+                        onClick={async () => {
+                          const { success, message } = await onEditAction(
+                            course.id
+                          );
+                          if (!success) {
+                            toast.error(message);
+                          }
+                        }}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
+                        aria-label={`Edit course: ${course.title}`}
                       />
                     </div>
                   </div>

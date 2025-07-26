@@ -1,6 +1,6 @@
 "use client";
+
 import * as z from "zod";
-import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -8,6 +8,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -17,89 +18,141 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Course, CourseNoticeboard } from "@prisma/client";
+import { CourseNoticeboard, Course } from "@prisma/client";
 import { CourseCourseNoticeboardList } from "./course-courseNoticeboard-list";
 
-
 interface CourseCourseNoticeboardFormProps {
-  initialData: Course & { courseNoticeboards: CourseNoticeboard[] }
-  facultyId: string;
+  initialData: Course & { courseNoticeboards: CourseNoticeboard[] };
   courseId: string;
 }
 
 const formSchema = z.object({
-  title: z.string().min(1),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
 });
 
 export const CourseCourseNoticeboardForm = ({
   initialData,
-  facultyId,
   courseId,
 }: CourseCourseNoticeboardFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const toggleCreating = () => {
-    setIsCreating((current) => !current);
-  };
+  const toggleCreating = () => setIsCreating((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-    },
-  });  
-  const { isSubmitting, isValid } = form.formState;
+    defaultValues: { title: "", description: "" },
+  });
+  const {
+    reset,
+    formState: { isSubmitting, isValid },
+  } = form;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards`, values);
-      toast.success("Course Notice created.");
-      toggleCreating();
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong.");
+      const response = await fetch(`/api/faculties/${courseId}/courseNoticeboards`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(result.message || "CourseNoticeboard created successfully");
+        toggleCreating();
+        reset({ title: "", description: "" });
+        router.refresh();
+      } else {
+        toast.error(result.message || "Failed to create courseNoticeboard");
+      }
+    } catch (error) {
+      console.error("Create courseNoticeboard error:", error);
+      toast.error("Unexpected error occurred");
     }
   };
-  const onReorder = async (updateData: { id: string; position: number }[]) => {
+
+  const onEditAction = async (id: string) => {
+    try {
+      router.push(`/course/create-course/${courseId}/courseNoticeboard/${id}`);
+      return {
+        success: true,
+        message: `Navigating to edit courseNoticeboard ${id}`,
+      };
+    } catch (error) {
+      console.error("Edit courseNoticeboard error:", error);
+      return {
+        success: false,
+        message: "Failed to initiate edit",
+      };
+    }
+  };
+
+  const onReorderAction = async (
+    updateData: { id: string; position: number }[]
+  ) => {
     try {
       setIsUpdating(true);
-      await axios.put(`/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards/reorder`, {
-        list: updateData,
-      });
-      toast.success("Course Noticeboards reordered");
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong");
+      const response = await fetch(
+        `/api/faculties/${courseId}/courseNoticeboards/reorder`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ list: updateData }),
+        }
+      );
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(result.message || "CourseNoticeboards reordered successfully");
+        return {
+          success: true,
+          message: result.message || "CourseNoticeboards reordered successfully",
+        };
+      } else {
+        toast.error(result.message || "Failed to reorder courseNoticeboards");
+        return {
+          success: false,
+          message: result.message || "Failed to reorder courseNoticeboards",
+        };
+      }
+    } catch (error) {
+      console.error("Reorder courseNoticeboard error:", error);
+      toast.error("Failed to reorder courseNoticeboards");
+      return { success: false, message: "Failed to reorder courseNoticeboards" };
     } finally {
       setIsUpdating(false);
     }
   };
-  const onEdit = (id: string) => {
-    router.push(
-      `/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/${id}`
-    );
-  };
+
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
-
       {isUpdating && (
-        <div className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center">
+        <div
+          className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center"
+          role="status"
+          aria-live="polite"
+        >
           <Loader2 className="animate-spin h-6 w-6 text-sky-700" />
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course Notices
-        <Button onClick={toggleCreating} variant="ghost">
+        CourseNoticeboard*
+        <Button
+          onClick={toggleCreating}
+          variant="ghost"
+          disabled={isSubmitting}
+          aria-label={
+            isCreating ? "Cancel adding courseNoticeboard" : "Add a new courseNoticeboard"
+          }
+        >
           {isCreating ? (
             <>Cancel</>
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Notice
+              Add a CourseNoticeboard
             </>
           )}
         </Button>
       </div>
-
       {isCreating && (
         <Form {...form}>
           <form
@@ -111,10 +164,28 @@ export const CourseCourseNoticeboardForm = ({
               name="title"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Design Principles course Notice'"
+                      placeholder="e.g., 'Principles of Fashion Design'"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isSubmitting}
+                      placeholder="e.g., 'Introduction to design principles'"
                       {...field}
                     />
                   </FormControl>
@@ -123,7 +194,11 @@ export const CourseCourseNoticeboardForm = ({
               )}
             />
             <Button disabled={!isValid || isSubmitting} type="submit">
-              Create
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Create"
+              )}
             </Button>
           </form>
         </Form>
@@ -135,17 +210,17 @@ export const CourseCourseNoticeboardForm = ({
             !initialData.courseNoticeboards.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.courseNoticeboards.length && "Course notices will appear here."}
+          {!initialData.courseNoticeboards.length && "Add CourseNoticeboard(s) here. At least one CourseNoticeboard is required for every Course."}
           <CourseCourseNoticeboardList
-            onEdit={onEdit}
-            onReorder={onReorder}
+            onEditAction={onEditAction}
+            onReorderAction={onReorderAction}
             items={initialData.courseNoticeboards || []}
           />
         </div>
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Course notices
+          Drag and drop to reorder the Course Notices
         </p>
       )}
     </div>

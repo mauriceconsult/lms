@@ -28,7 +28,7 @@ export const CourseTutorList = ({
   onReorderAction,
 }: CourseTutorListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [courseworks, setTutors] = useState<Tutor[]>(items);
+  const [courses, setTutors] = useState<Tutor[]>(items);
 
   useEffect(() => {
     setIsMounted(true);
@@ -41,14 +41,14 @@ export const CourseTutorList = ({
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
 
-    const newItems = Array.from(courseworks);
+    const newItems = Array.from(courses);
     const [reorderedItem] = newItems.splice(result.source.index, 1);
     newItems.splice(result.destination.index, 0, reorderedItem);
 
     setTutors(newItems);
 
-    const bulkUpdateData = newItems.map((coursework, index) => ({
-      id: coursework.id,
+    const bulkUpdateData = newItems.map((course, index) => ({
+      id: course.id,
       position: index,
     }));
 
@@ -66,20 +66,20 @@ export const CourseTutorList = ({
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="courseworks">
+      <Droppable droppableId="courses">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            {courseworks.map((coursework, index) => (
+            {courses.map((course, index) => (
               <Draggable
-                key={coursework.id}
-                draggableId={coursework.id}
+                key={course.id}
+                draggableId={course.id}
                 index={index}
               >
                 {(provided) => (
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      coursework.isPublished &&
+                      course.isPublished &&
                         "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
@@ -88,36 +88,36 @@ export const CourseTutorList = ({
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        coursework.isPublished &&
+                        course.isPublished &&
                           "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
                     >
                       <Grip className="h-5 w-5" />
                     </div>
-                    <span aria-label={`Tutor: ${coursework.title}`}>
-                      {coursework.title}
+                    <span aria-label={`Tutor: ${course.title}`}>
+                      {course.title}
                     </span>
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
                       <Badge
                         className={cn(
                           "bg-slate-500",
-                          coursework.isPublished && "bg-sky-700"
+                          course.isPublished && "bg-sky-700"
                         )}
                       >
-                        {coursework.isPublished ? "Published" : "Draft"}
+                        {course.isPublished ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
                         onClick={async () => {
                           const { success, message } = await onEditAction(
-                            coursework.id
+                            course.id
                           );
                           if (!success) {
                             toast.error(message);
                           }
                         }}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
-                        aria-label={`Edit coursework: ${coursework.title}`}
+                        aria-label={`Edit course: ${course.title}`}
                       />
                     </div>
                   </div>
