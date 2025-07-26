@@ -15,7 +15,7 @@ const FacultyIdPage = async ({ params }: { params: Promise<{ facultyId: string }
           isPublished: true,
         },
         orderBy: {
-          position: "desc",
+          position: "asc",
         },
         include: {
           courseNoticeboards: true,
@@ -27,7 +27,7 @@ const FacultyIdPage = async ({ params }: { params: Promise<{ facultyId: string }
               isPublished: true,
             },
             orderBy: {
-              createdAt: "desc",
+              createdAt: "asc",
             },
           },
         },

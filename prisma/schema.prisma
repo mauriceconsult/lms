@@ -59,8 +59,8 @@ model Tuition {
   courseId    String?
   course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   attachments Attachment[]
-  isActive Boolean @default(true)
-  isPaid   Boolean @default(false)
+  isActive    Boolean      @default(true)
+  isPaid      Boolean      @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -108,37 +108,38 @@ model Assignment {
 }
 
 model Coursework {
-  id             String           @id @default(uuid())
-  title          String
-  userId         String
-  description    String?          @db.Text
-  facultyId      String?
-  faculty        Faculty?         @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  position       Int?
-  attachments    Attachment[]
-  userProgress   UserProgress[]
-  isCompleted    Boolean          @default(false)
-  isPublished    Boolean          @default(false)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id           String         @id @default(uuid())
+  title        String
+  userId       String
+  description  String?        @db.Text
+  facultyId    String?
+  faculty      Faculty?       @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  position     Int?
+  attachments  Attachment[]
+  userProgress UserProgress[]
+  isCompleted  Boolean        @default(false)
+  isPublished  Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   @@index([facultyId])
 }
 
 model Faculty {
-  id           String        @id @default(uuid())
+  id           String         @id @default(uuid())
   userId       String
-  title        String        @db.Text
-  description  String?       @db.Text
-  imageUrl     String?       @db.Text
+  title        String         @db.Text
+  description  String?        @db.Text
+  imageUrl     String?        @db.Text
   schoolId     String?
-  school       School?       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  school       School?        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   courses      Course[]
   attachments  Attachment[]
   noticeboards Noticeboard[]
   courseworks  Coursework[]
+  userProgress UserProgress[]
   position     Int?
-  isPublished  Boolean       @default(false)
+  isPublished  Boolean        @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -158,6 +159,7 @@ model Course {
   courseNoticeboards CourseNoticeboard[]
   assignments        Assignment[]
   tutors             Tutor[]
+  userProgress       UserProgress[]
   facultyId          String?
   faculty            Faculty?            @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   position           Int?
@@ -242,8 +244,10 @@ model UserProgress {
   courseworkId String
   isCompleted  Boolean    @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Faculty   Faculty[]
+  Course    Course[]
 
   @@unique([userId, tutorId])
   @@unique([userId, assignmentId])

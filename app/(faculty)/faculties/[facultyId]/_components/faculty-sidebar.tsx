@@ -1,9 +1,35 @@
-import { Faculty, Course, Attachment } from "@prisma/client";
+import {
+  Faculty,
+  Course,
+  Coursework,
+  Attachment,
+  Noticeboard,
+  Assignment,
+  Tutor,
+  Tuition,
+  CourseNoticeboard,
+} from "@prisma/client";
 import { FacultySidebarItem } from "./faculty-sidebar-item";
 
 interface FacultySidebarProps {
   faculty: Faculty & {
-    courses: (Course & { attachments: Attachment[] })[];
+    courses: (Course & {
+      progressCount: number;
+      courseNoticeboards: (CourseNoticeboard & {
+        attachments: Attachment[];
+      })[];
+      tuitions: (Tuition & {
+        attachments: Attachment[];
+      })[];
+      tutors: (Tutor & {
+        attachments: Attachment[];
+      })[];
+      attachments: Attachment[];
+      assignments: Assignment[];
+    })[];
+    courseworks: Coursework[];
+    attachments: Attachment[];
+    noticeboards: Noticeboard[];
   };
 }
 
