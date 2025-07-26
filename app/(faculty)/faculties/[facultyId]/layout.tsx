@@ -16,24 +16,38 @@ const FacultyLayout = async ({
     redirect("/");
   }
 
-  const faculty = await db.faculty.findUnique({
-    where: {
-      id: (await params).facultyId,
-    },
-    include: {
-      courses: {
-        where: {
-          isPublished: true,
-        },
-        include: {
-          attachments: true,
-        },
-        orderBy: {
-          position: "asc",
+const faculty = await db.faculty.findUnique({
+  where: {
+    id: (await params).facultyId,
+  },
+  include: {
+    courseworks: true,
+    attachments: true,
+    noticeboards: true,
+    courses: {
+      where: {
+        isPublished: true,
+      },
+      orderBy: {
+        position: "desc",
+      },
+      include: {
+        courseNoticeboards: true,
+        tuitions: true,
+        tutors: true,
+        attachments: true,
+        assignments: {
+          where: {
+            isPublished: true,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
         },
       },
     },
-  });
+  },
+});
   if (!faculty) {
     return redirect("/");
   }
