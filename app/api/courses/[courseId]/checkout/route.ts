@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
-import { collections } from "@/lib/momo";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { Collections } from "mtn-momo";
 import { PartyIdType } from "mtn-momo/lib/common";
 
 export async function POST(
@@ -9,19 +9,28 @@ export async function POST(
   { params }: { params: { courseId: string } }
 ) {
   try {
+    // Validate user
     const user = await currentUser();
     if (!user || !user.id || !user.emailAddresses?.[0]?.emailAddress) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
+    // Validate course
     const course = await db.course.findUnique({
       where: {
         id: params.courseId,
         isPublished: true,
       },
     });
+    if (!course) {
+      return new NextResponse("Course not found", { status: 404 });
+    }
+    if (!course.amount) {
+      return new NextResponse("Course amount not specified", { status: 400 });
+    }
 
-    const tuition = await db.tuition.findUnique({
+    // Check for existing tuition
+    const existingTuition = await db.tuition.findUnique({
       where: {
         userId_courseId: {
           userId: user.id,
@@ -29,109 +38,68 @@ export async function POST(
         },
       },
     });
-    if (tuition) {
+    if (existingTuition) {
       return new NextResponse("Tuition already exists", { status: 400 });
     }
-    if (!course) {
-      return new NextResponse("Course not found", { status: 404 });
+
+    // Initialize Momo client
+    const subscriptionKey = process.env.MOMO_PRIMARY_KEY;
+    const apiKey = process.env.MOMO_API_KEY;
+    const apiUser = process.env.MOMO_API_USER;
+    const targetEnvironment = process.env.MOMO_TARGET_ENVIRONMENT || "sandbox";
+    if (!subscriptionKey || !apiKey || !apiUser) {
+      return new NextResponse("Momo configuration missing", { status: 500 });
     }
-    const currency = "EUR";
-    const partyIdType = process.env.MOMO_PARTY_ID_TYPE as PartyIdType;
+
+    const collections = new Collections({
+      userId: apiUser,
+      userSecret: apiKey,
+      primaryKey: subscriptionKey,
+      environment: targetEnvironment as "sandbox" | "live",
+    });
+
+    // Prepare Momo payment
     const externalId = `${user.id}-${params.courseId}`;
-    const payerMessage = `Tuition payment ${course?.title}`;
-    const payeeNote = `Tuition payment ${course?.title}`;
-    const apiKey = process.env.MOMO_API_KEY as string;
-    const subscriptionKey = process.env.MOMO_PRIMARY_KEY as string;
-    const baseUrl = process.env.MOMO_BASE_URL as string;
-    const momoTokenUrl = `https://${baseUrl}/collection/token`;
-    const momoTokenResponse = await fetch(momoTokenUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": subscriptionKey,
-        Authorization: `Basic ${apiKey}`,
+    const payerMessage = `Tuition payment for ${course.title}`;
+    const payeeNote = `Tuition payment for ${course.title}`;
+    const currency = "EUR"; // Adjust based on Momo API requirements
+    const partyIdType = (process.env.MOMO_PARTY_ID_TYPE || "EMAIL") as PartyIdType;
+    const partyId = user.emailAddresses[0].emailAddress; // Use email or phone number
+
+    // Request payment
+    const transactionId = await collections.requestToPay({
+      amount: course.amount, // Already a string
+      currency,
+      externalId,
+      payer: {
+        partyIdType,
+        partyId,
       },
+      payerMessage,
+      payeeNote,
     });
-    if (!momoTokenResponse.ok) {
-      return new NextResponse("Failed to fetch Momo token", { status: 500 });
-    }
-    const momoTokenData = await momoTokenResponse.json();
-    const momoToken = momoTokenData.access_token;
 
-    const momoRequestToPayUrl = `https://${baseUrl}/collection/v1_0/requesttopay`;
-
-    const partyId = await db.tuition
-      .findUnique({
-        where: {
-          userId_courseId: {
-            userId: user.id,
-            courseId: params.courseId,
-          },
-        },
-      })
-      .then((tuition) => {
-        if (!tuition || !tuition.partyId) {
-          throw new Error("Party ID not found for the user");
-        }
-        return tuition.partyId;
-      })
-      .catch((error) => {
-        console.error("Error fetching party ID:", error);
-        throw new Error("Party ID not found");
-      });
-    const momoCustomer = await collections
-      .requestToPay({
-        amount: course?.amount!.toString(),
-        currency,
-        externalId,
-        payer: {
-          partyIdType: partyIdType as PartyIdType,
-          partyId,
-        },
-        payerMessage,
-        payeeNote,
-      })
-      .then((transactionId: string) => {
-        console.log({ transactionId });
-
-        // Get transaction status
-        return collections.getTransaction(transactionId);
-      })
-      .then((transaction: string) => {
-        console.log({ transaction });
-
-        // Get account balance
-        return collections.getBalance();
-      })
-      .then((accountBalance: string) => console.log({ accountBalance }))
-      .catch((error: string) => {
-        console.log(error);
-      });
-
-    const momoRequestToPayResponse = await fetch(momoRequestToPayUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": subscriptionKey,
-        "X-Reference-Id": externalId,
-        "api-key": apiKey,
-        "X-Target-Environment": process.env.MOMO_TARGET_ENVIRONMENT as string,
-        Authorization: `Bearer ${momoToken}`,
-      },
-      body: JSON.stringify(momoCustomer),
-    });
-    if (!momoRequestToPayResponse.ok) {
-      return new NextResponse("Failed to request payment", { status: 500 });
+    // Verify transaction (optional)
+    const transaction = await collections.getTransaction(transactionId);
+    if (transaction.status !== "SUCCESSFUL") {
+      return new NextResponse(`Payment failed: ${transaction.reason || "Unknown error"}`, { status: 400 });
     }
 
-    // await db.tuition.create({
+    // Create tuition record
+    // const tuition = await db.tuition.create({
     //   data: {
     //     userId: user.id,
     //     courseId: params.courseId,
+    //     amount: course.amount,
     //   },
     // });
+
+    return NextResponse.json({
+      transactionId,
+      // tuition
+    }, { status: 200 });
   } catch (error) {
-    console.log("COURSE CHECKOUT ERROR", error);
+    console.error("[COURSE_CHECKOUT_ERROR]", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

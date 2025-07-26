@@ -25,6 +25,7 @@ const FacultyLayout = async ({
       courseworks: true,
       attachments: true,
       noticeboards: true,
+      userProgress: true,
       courses: {
         where: {
           isPublished: true,
@@ -35,7 +36,7 @@ const FacultyLayout = async ({
         include: {
           courseNoticeboards: {
             include: {
-              attachments: true, // Include attachments
+              attachments: true,
             },
           },
           tuitions: {
@@ -48,7 +49,7 @@ const FacultyLayout = async ({
               position: "asc",
             },
             include: {
-              attachments: true, // Include attachments
+              attachments: true,
             },
           },
           attachments: true,
@@ -66,25 +67,57 @@ const FacultyLayout = async ({
   });
 
   if (!faculty) {
-    return redirect("/");
+    redirect("/");
   }
 
   // Calculate progress for each course
   const coursesWithProgress = await Promise.all(
     faculty.courses.map(async (course) => {
-      const progressCount = await getProgress(userId, course.id);
-      return { ...course, progressCount };
+      const progressCount = await getProgress(userId, course.id, "course");
+      const assignmentsWithProgress = await Promise.all(
+        course.assignments.map(async (assignment) => {
+          const progressCount = await getProgress(
+            userId,
+            assignment.id,
+            "assignment"
+          );
+          return { ...assignment, progressCount };
+        })
+      );
+      return { ...course, progressCount, assignments: assignmentsWithProgress };
+    })
+  );
+
+  // Calculate progress for each coursework
+  const courseworksWithProgress = await Promise.all(
+    faculty.courseworks.map(async (coursework) => {
+      const progressCount = await getProgress(
+        userId,
+        coursework.id,
+        "coursework"
+      );
+      return { ...coursework, progressCount };
     })
   );
 
   return (
     <div className="h-full">
       <div className="h-[80px] md:pl-80 fixed inset-y-0 w-full z-50">
-        <FacultyNavbar faculty={{ ...faculty, courses: coursesWithProgress }} />
+        <FacultyNavbar
+          faculty={{
+            ...faculty,
+            courses: coursesWithProgress,
+            courseworks: courseworksWithProgress,
+          }}
+        />
       </div>
       <div className="hidden md:flex h-full w-80 flex-col inset-y-0 z-50">
         <FacultySidebar
-          faculty={{ ...faculty, courses: coursesWithProgress }}
+          faculty={{
+            ...faculty,
+            courses: coursesWithProgress,
+            courseworks: courseworksWithProgress,
+          }}
         />
       </div>
       <main className="md:pl-80 pt-[80px] h-full">{children}</main>
