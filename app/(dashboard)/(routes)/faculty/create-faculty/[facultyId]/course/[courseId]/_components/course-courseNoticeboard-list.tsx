@@ -28,7 +28,7 @@ export const CourseCourseNoticeboardList = ({
   onReorderAction,
 }: CourseCourseNoticeboardListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [courses, setCourseNoticeboards] = useState<CourseNoticeboard[]>(items);
+  const [courseNoticeboards, setCourseNoticeboards] = useState<CourseNoticeboard[]>(items);
 
   useEffect(() => {
     setIsMounted(true);
@@ -41,14 +41,14 @@ export const CourseCourseNoticeboardList = ({
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
 
-    const newItems = Array.from(courses);
+    const newItems = Array.from(courseNoticeboards);
     const [reorderedItem] = newItems.splice(result.source.index, 1);
     newItems.splice(result.destination.index, 0, reorderedItem);
 
     setCourseNoticeboards(newItems);
 
-    const bulkUpdateData = newItems.map((course, index) => ({
-      id: course.id,
+    const bulkUpdateData = newItems.map((courseNoticeboard, index) => ({
+      id: courseNoticeboard.id,
       position: index,
     }));
 
@@ -66,20 +66,16 @@ export const CourseCourseNoticeboardList = ({
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="courses">
+      <Droppable droppableId="courseNoticeboards">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            {courses.map((course, index) => (
-              <Draggable
-                key={course.id}
-                draggableId={course.id}
-                index={index}
-              >
+            {courseNoticeboards.map((courseNoticeboard, index) => (
+              <Draggable key={courseNoticeboard.id} draggableId={courseNoticeboard.id} index={index}>
                 {(provided) => (
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      course.isPublished &&
+                      courseNoticeboard.isPublished &&
                         "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
@@ -88,36 +84,35 @@ export const CourseCourseNoticeboardList = ({
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        course.isPublished &&
-                          "border-r-sky-200 hover:bg-sky-200"
+                        courseNoticeboard.isPublished && "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
                     >
                       <Grip className="h-5 w-5" />
                     </div>
-                    <span aria-label={`CourseNoticeboard: ${course.title}`}>
-                      {course.title}
+                    <span aria-label={`CourseNoticeboard: ${courseNoticeboard.title || courseNoticeboard.id}`}>
+                      {courseNoticeboard.title || courseNoticeboard.id}
                     </span>
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
                       <Badge
                         className={cn(
                           "bg-slate-500",
-                          course.isPublished && "bg-sky-700"
+                          courseNoticeboard.isPublished && "bg-sky-700"
                         )}
                       >
-                        {course.isPublished ? "Published" : "Draft"}
+                        {courseNoticeboard.isPublished ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
                         onClick={async () => {
                           const { success, message } = await onEditAction(
-                            course.id
+                            courseNoticeboard.id
                           );
                           if (!success) {
                             toast.error(message);
                           }
                         }}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
-                        aria-label={`Edit course: ${course.title}`}
+                        aria-label={`Edit courseNoticeboard: ${courseNoticeboard.title || courseNoticeboard.id}`}
                       />
                     </div>
                   </div>

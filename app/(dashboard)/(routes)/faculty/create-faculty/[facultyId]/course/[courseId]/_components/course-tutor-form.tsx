@@ -24,16 +24,18 @@ import { CourseTutorList } from "./course-tutor-list";
 interface CourseTutorFormProps {
   initialData: Course & { tutors: Tutor[] };
   courseId: string;
+  facultyId: string; // Add facultyId
 }
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address").optional(),
 });
 
 export const CourseTutorForm = ({
   initialData,
   courseId,
+  facultyId,
 }: CourseTutorFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -41,7 +43,7 @@ export const CourseTutorForm = ({
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { title: "", description: "" },
+    defaultValues: { name: "", email: "" },
   });
   const {
     reset,
@@ -50,7 +52,7 @@ export const CourseTutorForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch(`/api/faculties/${courseId}/tutors`, {
+      const response = await fetch(`/api/courses/${courseId}/tutors`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
@@ -59,7 +61,7 @@ export const CourseTutorForm = ({
       if (response.ok) {
         toast.success(result.message || "Tutor created successfully");
         toggleCreating();
-        reset({ title: "", description: "" });
+        reset({ name: "", email: "" });
         router.refresh();
       } else {
         toast.error(result.message || "Failed to create tutor");
@@ -72,7 +74,7 @@ export const CourseTutorForm = ({
 
   const onEditAction = async (id: string) => {
     try {
-      router.push(`/course/create-course/${courseId}/tutor/${id}`);
+      router.push(`/faculties/${facultyId}/courses/${courseId}/tutors/${id}`);
       return {
         success: true,
         message: `Navigating to edit tutor ${id}`,
@@ -91,15 +93,18 @@ export const CourseTutorForm = ({
   ) => {
     try {
       setIsUpdating(true);
-      const response = await fetch(
-        `/api/faculties/${courseId}/tutors/reorder`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ list: updateData }),
-        }
-      );
-      const result = await response.json();
+      const response = await fetch(`/api/courses/${courseId}/tutors/reorder`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ list: updateData }),
+      });
+      let result;
+      try {
+        result = await response.json();
+      } catch (error) {
+        console.error("Reorder tutor error:", error);
+        throw new Error("Invalid JSON response");
+      }
       if (response.ok) {
         toast.success(result.message || "Tutors reordered successfully");
         return {
@@ -134,14 +139,12 @@ export const CourseTutorForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Tutor*
+        Tutors*
         <Button
           onClick={toggleCreating}
           variant="ghost"
           disabled={isSubmitting}
-          aria-label={
-            isCreating ? "Cancel adding tutor" : "Add a new tutor"
-          }
+          aria-label={isCreating ? "Cancel adding tutor" : "Add a new tutor"}
         >
           {isCreating ? (
             <>Cancel</>
@@ -161,14 +164,14 @@ export const CourseTutorForm = ({
           >
             <FormField
               control={form.control}
-              name="title"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Principles of Fashion Design'"
+                      placeholder="e.g., 'John Doe'"
                       {...field}
                     />
                   </FormControl>
@@ -178,14 +181,14 @@ export const CourseTutorForm = ({
             />
             <FormField
               control={form.control}
-              name="description"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Introduction to design principles'"
+                      placeholder="e.g., 'john.doe@example.com'"
                       {...field}
                     />
                   </FormControl>
@@ -210,7 +213,8 @@ export const CourseTutorForm = ({
             !initialData.tutors.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.tutors.length && "Add Tutor(s) here. At least one Tutor is required for every Course."}
+          {!initialData.tutors.length &&
+            "Add Tutor(s) here. At least one Tutor is required for every Course."}
           <CourseTutorList
             onEditAction={onEditAction}
             onReorderAction={onReorderAction}

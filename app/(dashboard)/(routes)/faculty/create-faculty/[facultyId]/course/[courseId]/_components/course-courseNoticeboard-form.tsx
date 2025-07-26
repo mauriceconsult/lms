@@ -24,16 +24,18 @@ import { CourseCourseNoticeboardList } from "./course-courseNoticeboard-list";
 interface CourseCourseNoticeboardFormProps {
   initialData: Course & { courseNoticeboards: CourseNoticeboard[] };
   courseId: string;
+  facultyId: string; // Add facultyId
 }
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address").optional(),
 });
 
 export const CourseCourseNoticeboardForm = ({
   initialData,
   courseId,
+  facultyId,
 }: CourseCourseNoticeboardFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -41,7 +43,7 @@ export const CourseCourseNoticeboardForm = ({
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { title: "", description: "" },
+    defaultValues: { name: "", email: "" },
   });
   const {
     reset,
@@ -50,7 +52,7 @@ export const CourseCourseNoticeboardForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch(`/api/faculties/${courseId}/courseNoticeboards`, {
+      const response = await fetch(`/api/courses/${courseId}/courseNoticeboards`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
@@ -59,7 +61,7 @@ export const CourseCourseNoticeboardForm = ({
       if (response.ok) {
         toast.success(result.message || "CourseNoticeboard created successfully");
         toggleCreating();
-        reset({ title: "", description: "" });
+        reset({ name: "", email: "" });
         router.refresh();
       } else {
         toast.error(result.message || "Failed to create courseNoticeboard");
@@ -72,7 +74,7 @@ export const CourseCourseNoticeboardForm = ({
 
   const onEditAction = async (id: string) => {
     try {
-      router.push(`/course/create-course/${courseId}/courseNoticeboard/${id}`);
+      router.push(`/faculties/${facultyId}/courses/${courseId}/courseNoticeboards/${id}`);
       return {
         success: true,
         message: `Navigating to edit courseNoticeboard ${id}`,
@@ -91,15 +93,18 @@ export const CourseCourseNoticeboardForm = ({
   ) => {
     try {
       setIsUpdating(true);
-      const response = await fetch(
-        `/api/faculties/${courseId}/courseNoticeboards/reorder`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ list: updateData }),
-        }
-      );
-      const result = await response.json();
+      const response = await fetch(`/api/courses/${courseId}/courseNoticeboards/reorder`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ list: updateData }),
+      });
+      let result;
+      try {
+        result = await response.json();
+      } catch (error) {
+        console.error("Reorder courseNoticeboard error:", error);
+        throw new Error("Invalid JSON response");
+      }
       if (response.ok) {
         toast.success(result.message || "CourseNoticeboards reordered successfully");
         return {
@@ -134,14 +139,12 @@ export const CourseCourseNoticeboardForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        CourseNoticeboard*
+        CourseNoticeboards*
         <Button
           onClick={toggleCreating}
           variant="ghost"
           disabled={isSubmitting}
-          aria-label={
-            isCreating ? "Cancel adding courseNoticeboard" : "Add a new courseNoticeboard"
-          }
+          aria-label={isCreating ? "Cancel adding courseNoticeboard" : "Add a new courseNoticeboard"}
         >
           {isCreating ? (
             <>Cancel</>
@@ -161,14 +164,14 @@ export const CourseCourseNoticeboardForm = ({
           >
             <FormField
               control={form.control}
-              name="title"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Principles of Fashion Design'"
+                      placeholder="e.g., 'John Doe'"
                       {...field}
                     />
                   </FormControl>
@@ -178,14 +181,14 @@ export const CourseCourseNoticeboardForm = ({
             />
             <FormField
               control={form.control}
-              name="description"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Introduction to design principles'"
+                      placeholder="e.g., 'john.doe@example.com'"
                       {...field}
                     />
                   </FormControl>
@@ -210,7 +213,8 @@ export const CourseCourseNoticeboardForm = ({
             !initialData.courseNoticeboards.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.courseNoticeboards.length && "Add CourseNoticeboard(s) here. At least one CourseNoticeboard is required for every Course."}
+          {!initialData.courseNoticeboards.length &&
+            "Add Course Notice(s) here. At least one CourseNoticeboard is required for every Course."}
           <CourseCourseNoticeboardList
             onEditAction={onEditAction}
             onReorderAction={onReorderAction}

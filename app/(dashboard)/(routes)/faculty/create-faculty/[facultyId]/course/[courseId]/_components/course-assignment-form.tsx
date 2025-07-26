@@ -24,16 +24,18 @@ import { CourseAssignmentList } from "./course-assignment-list";
 interface CourseAssignmentFormProps {
   initialData: Course & { assignments: Assignment[] };
   courseId: string;
+  facultyId: string; // Add facultyId
 }
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address").optional(),
 });
 
 export const CourseAssignmentForm = ({
   initialData,
   courseId,
+  facultyId,
 }: CourseAssignmentFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -41,7 +43,7 @@ export const CourseAssignmentForm = ({
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { title: "", description: "" },
+    defaultValues: { name: "", email: "" },
   });
   const {
     reset,
@@ -50,7 +52,7 @@ export const CourseAssignmentForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch(`/api/faculties/${courseId}/assignments`, {
+      const response = await fetch(`/api/courses/${courseId}/assignments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
@@ -59,7 +61,7 @@ export const CourseAssignmentForm = ({
       if (response.ok) {
         toast.success(result.message || "Assignment created successfully");
         toggleCreating();
-        reset({ title: "", description: "" });
+        reset({ name: "", email: "" });
         router.refresh();
       } else {
         toast.error(result.message || "Failed to create assignment");
@@ -72,7 +74,7 @@ export const CourseAssignmentForm = ({
 
   const onEditAction = async (id: string) => {
     try {
-      router.push(`/course/create-course/${courseId}/assignment/${id}`);
+      router.push(`/faculties/${facultyId}/courses/${courseId}/assignments/${id}`);
       return {
         success: true,
         message: `Navigating to edit assignment ${id}`,
@@ -91,15 +93,18 @@ export const CourseAssignmentForm = ({
   ) => {
     try {
       setIsUpdating(true);
-      const response = await fetch(
-        `/api/faculties/${courseId}/assignments/reorder`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ list: updateData }),
-        }
-      );
-      const result = await response.json();
+      const response = await fetch(`/api/courses/${courseId}/assignments/reorder`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ list: updateData }),
+      });
+      let result;
+      try {
+        result = await response.json();
+      } catch (error) {
+        console.error("Reorder assignment error:", error);
+        throw new Error("Invalid JSON response");
+      }
       if (response.ok) {
         toast.success(result.message || "Assignments reordered successfully");
         return {
@@ -134,14 +139,12 @@ export const CourseAssignmentForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Assignment*
+        Assignments*
         <Button
           onClick={toggleCreating}
           variant="ghost"
           disabled={isSubmitting}
-          aria-label={
-            isCreating ? "Cancel adding assignment" : "Add a new assignment"
-          }
+          aria-label={isCreating ? "Cancel adding assignment" : "Add a new assignment"}
         >
           {isCreating ? (
             <>Cancel</>
@@ -161,14 +164,14 @@ export const CourseAssignmentForm = ({
           >
             <FormField
               control={form.control}
-              name="title"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Principles of Fashion Design'"
+                      placeholder="e.g., 'John Doe'"
                       {...field}
                     />
                   </FormControl>
@@ -178,14 +181,14 @@ export const CourseAssignmentForm = ({
             />
             <FormField
               control={form.control}
-              name="description"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Introduction to design principles'"
+                      placeholder="e.g., 'john.doe@example.com'"
                       {...field}
                     />
                   </FormControl>
@@ -210,7 +213,8 @@ export const CourseAssignmentForm = ({
             !initialData.assignments.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.assignments.length && "Add Assignment(s) here. At least one Assignment is required for every Course."}
+          {!initialData.assignments.length &&
+            "Add Course Notice(s) here. At least one Assignment is required for every Course."}
           <CourseAssignmentList
             onEditAction={onEditAction}
             onReorderAction={onReorderAction}
@@ -220,7 +224,7 @@ export const CourseAssignmentForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Assignments
+          Drag and drop to reorder the Course Notices
         </p>
       )}
     </div>
