@@ -1,15 +1,15 @@
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 
-const FacultyIdPage = async ({ params }: { params: { facultyId: string } }) => {
+const FacultyIdPage = async ({ params }: { params: Promise<{ facultyId: string }> }) => {
   const faculty = await db.faculty.findUnique({
     where: {
-      id: params.facultyId,
+      id: (await params).facultyId,
     },
     include: {
       courseworks: true,
       attachments: true,
-      noticeboards: true,        
+      noticeboards: true,
       courses: {
         where: {
           isPublished: true,

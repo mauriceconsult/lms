@@ -1,7 +1,13 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, ListChecks, File, DollarSign } from "lucide-react";
+import {
+  LayoutDashboard,
+  ListChecks,
+  File,
+  DollarSign,
+  ArrowLeft,
+} from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
 import { CourseFacultyForm } from "./_components/course-faculty-form";
@@ -14,6 +20,7 @@ import { CourseTutorForm } from "./_components/course-tutor-form";
 import { CourseAssignmentForm } from "./_components/course-assignment-form";
 import { CourseCourseNoticeboardForm } from "./_components/course-courseNoticeboard-form";
 import { CourseAmountForm } from "./_components/course-amount-form";
+import Link from "next/link";
 
 const CourseIdPage = async ({
   params,
@@ -73,7 +80,7 @@ const CourseIdPage = async ({
 
   const requiredFields = [
     initialData.title,
-    initialData.facultyId,  
+    initialData.facultyId,
     initialData.description,
     initialData.imageUrl,
     initialData.amount,
@@ -95,12 +102,19 @@ const CourseIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Course is not published yet. To publish, complete the required* fields and ensure that you have at least a Published Tutor/Topic and Assignment."
+          label="This Course is not published yet. To publish, complete the required* fields. Ensure that you have at least a Published Tutor/Topic and an Assignment."
         />
       )}
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="w-full">
+            <Link
+              className="flex items-center text-sm hover:opacity-75 transition mb-6"
+              href={`/faculty/create-faculty/${(await params).facultyId}`}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Faculty creation.
+            </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">Course creation</h1>

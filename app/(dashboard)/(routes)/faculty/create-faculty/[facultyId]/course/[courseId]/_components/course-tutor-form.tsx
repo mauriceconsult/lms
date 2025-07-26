@@ -20,22 +20,26 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Tutor, Course } from "@prisma/client";
 import { CourseTutorList } from "./course-tutor-list";
+import {
+  createTutor,
+  onEditAction,
+  onReorderAction,
+} from "../tutor/[tutorId]/actions";
 
 interface CourseTutorFormProps {
   initialData: Course & { tutors: Tutor[] };
   courseId: string;
-  facultyId: string; // Add facultyId
+  facultyId: string;
 }
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address").optional(),
+  title: z.string().min(1, "Title is required"),
+  // description: z.string(),
 });
 
 export const CourseTutorForm = ({
   initialData,
   courseId,
-  facultyId,
 }: CourseTutorFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -43,7 +47,10 @@ export const CourseTutorForm = ({
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", email: "" },
+    defaultValues: {
+      title: "",
+      // description: ""
+    },
   });
   const {
     reset,
@@ -52,78 +59,18 @@ export const CourseTutorForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch(`/api/courses/${courseId}/tutors`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      const result = await response.json();
-      if (response.ok) {
-        toast.success(result.message || "Tutor created successfully");
+      const { success, message } = await createTutor(courseId, values);
+      if (success) {
+        toast.success(message);
         toggleCreating();
-        reset({ name: "", email: "" });
+        reset({ title: "" });
         router.refresh();
       } else {
-        toast.error(result.message || "Failed to create tutor");
+        toast.error(message);
       }
     } catch (error) {
       console.error("Create tutor error:", error);
       toast.error("Unexpected error occurred");
-    }
-  };
-
-  const onEditAction = async (id: string) => {
-    try {
-      router.push(`/faculties/${facultyId}/courses/${courseId}/tutors/${id}`);
-      return {
-        success: true,
-        message: `Navigating to edit tutor ${id}`,
-      };
-    } catch (error) {
-      console.error("Edit tutor error:", error);
-      return {
-        success: false,
-        message: "Failed to initiate edit",
-      };
-    }
-  };
-
-  const onReorderAction = async (
-    updateData: { id: string; position: number }[]
-  ) => {
-    try {
-      setIsUpdating(true);
-      const response = await fetch(`/api/courses/${courseId}/tutors/reorder`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ list: updateData }),
-      });
-      let result;
-      try {
-        result = await response.json();
-      } catch (error) {
-        console.error("Reorder tutor error:", error);
-        throw new Error("Invalid JSON response");
-      }
-      if (response.ok) {
-        toast.success(result.message || "Tutors reordered successfully");
-        return {
-          success: true,
-          message: result.message || "Tutors reordered successfully",
-        };
-      } else {
-        toast.error(result.message || "Failed to reorder tutors");
-        return {
-          success: false,
-          message: result.message || "Failed to reorder tutors",
-        };
-      }
-    } catch (error) {
-      console.error("Reorder tutor error:", error);
-      toast.error("Failed to reorder tutors");
-      return { success: false, message: "Failed to reorder tutors" };
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -139,12 +86,11 @@ export const CourseTutorForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Tutors*
+        Tutor*
         <Button
           onClick={toggleCreating}
           variant="ghost"
           disabled={isSubmitting}
-          aria-label={isCreating ? "Cancel adding tutor" : "Add a new tutor"}
         >
           {isCreating ? (
             <>Cancel</>
@@ -164,31 +110,14 @@ export const CourseTutorForm = ({
           >
             <FormField
               control={form.control}
-              name="name"
+              name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'John Doe'"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isSubmitting}
-                      placeholder="e.g., 'john.doe@example.com'"
+                      placeholder="e.g., 'Principles of Fashion Design'"
                       {...field}
                     />
                   </FormControl>
@@ -216,8 +145,22 @@ export const CourseTutorForm = ({
           {!initialData.tutors.length &&
             "Add Tutor(s) here. At least one Tutor is required for every Course."}
           <CourseTutorList
-            onEditAction={onEditAction}
-            onReorderAction={onReorderAction}
+            onEditAction={async (id) => {
+              const result = await onEditAction(courseId, id);
+              if (result.success) {
+                router.push(
+                  `/course/create-course/${courseId}/tutor/${id}`
+                );
+              }
+              return result;
+            }}
+            onReorderAction={async (updateData) => {
+              setIsUpdating(true);
+              const result = await onReorderAction(courseId, updateData);
+              setIsUpdating(false);
+              router.refresh();
+              return result;
+            }}
             items={initialData.tutors || []}
           />
         </div>

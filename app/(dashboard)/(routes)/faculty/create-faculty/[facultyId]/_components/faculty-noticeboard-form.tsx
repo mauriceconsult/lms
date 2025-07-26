@@ -20,6 +20,11 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Noticeboard, Faculty } from "@prisma/client";
 import { FacultyNoticeboardList } from "./faculty-noticeboard-list";
+import {
+  createNoticeboard,
+  onEditAction,
+  onReorderAction,
+} from "../noticeboard/[noticeboardId]/actions";
 
 interface FacultyNoticeboardFormProps {
   initialData: Faculty & { noticeboards: Noticeboard[] };
@@ -28,7 +33,7 @@ interface FacultyNoticeboardFormProps {
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
+  // description: z.string(),
 });
 
 export const FacultyNoticeboardForm = ({
@@ -41,7 +46,10 @@ export const FacultyNoticeboardForm = ({
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { title: "", description: "" },
+    defaultValues: {
+      title: "",
+      // description: ""
+    },
   });
   const {
     reset,
@@ -50,75 +58,18 @@ export const FacultyNoticeboardForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch(`/api/faculties/${facultyId}/noticeboards`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      const result = await response.json();
-      if (response.ok) {
-        toast.success(result.message || "Noticeboard created successfully");
+      const { success, message } = await createNoticeboard(facultyId, values);
+      if (success) {
+        toast.success(message);
         toggleCreating();
-        reset({ title: "", description: "" });
+        reset({ title: "" });
         router.refresh();
       } else {
-        toast.error(result.message || "Failed to create noticeboard");
+        toast.error(message);
       }
     } catch (error) {
       console.error("Create noticeboard error:", error);
       toast.error("Unexpected error occurred");
-    }
-  };
-
-  const onEditAction = async (id: string) => {
-    try {
-      router.push(`/faculty/create-faculty/${facultyId}/noticeboard/${id}`);
-      return {
-        success: true,
-        message: `Navigating to edit noticeboard ${id}`,
-      };
-    } catch (error) {
-      console.error("Edit noticeboard error:", error);
-      return {
-        success: false,
-        message: "Failed to initiate edit",
-      };
-    }
-  };
-
-  const onReorderAction = async (
-    updateData: { id: string; position: number }[]
-  ) => {
-    try {
-      setIsUpdating(true);
-      const response = await fetch(
-        `/api/faculties/${facultyId}/noticeboards/reorder`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ list: updateData }),
-        }
-      );
-      const result = await response.json();
-      if (response.ok) {
-        toast.success(result.message || "Noticeboards reordered successfully");
-        return {
-          success: true,
-          message: result.message || "Noticeboards reordered successfully",
-        };
-      } else {
-        toast.error(result.message || "Failed to reorder noticeboards");
-        return {
-          success: false,
-          message: result.message || "Failed to reorder noticeboards",
-        };
-      }
-    } catch (error) {
-      console.error("Reorder noticeboard error:", error);
-      toast.error("Failed to reorder noticeboards");
-      return { success: false, message: "Failed to reorder noticeboards" };
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -134,14 +85,11 @@ export const FacultyNoticeboardForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Noticeboard*
+        Noticeboard
         <Button
           onClick={toggleCreating}
           variant="ghost"
           disabled={isSubmitting}
-          aria-label={
-            isCreating ? "Cancel adding noticeboard" : "Add a new noticeboard"
-          }
         >
           {isCreating ? (
             <>Cancel</>
@@ -176,23 +124,6 @@ export const FacultyNoticeboardForm = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isSubmitting}
-                      placeholder="e.g., 'Introduction to design principles'"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <Button disabled={!isValid || isSubmitting} type="submit">
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -210,10 +141,25 @@ export const FacultyNoticeboardForm = ({
             !initialData.noticeboards.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.noticeboards.length && "Add Faculty notices here."}
+          {!initialData.noticeboards.length &&
+            "Add Faculty Notice(s) here."}
           <FacultyNoticeboardList
-            onEditAction={onEditAction}
-            onReorderAction={onReorderAction}
+            onEditAction={async (id) => {
+              const result = await onEditAction(facultyId, id);
+              if (result.success) {
+                router.push(
+                  `/faculty/create-faculty/${facultyId}/noticeboard/${id}`
+                );
+              }
+              return result;
+            }}
+            onReorderAction={async (updateData) => {
+              setIsUpdating(true);
+              const result = await onReorderAction(facultyId, updateData);
+              setIsUpdating(false);
+              router.refresh();
+              return result;
+            }}
             items={initialData.noticeboards || []}
           />
         </div>

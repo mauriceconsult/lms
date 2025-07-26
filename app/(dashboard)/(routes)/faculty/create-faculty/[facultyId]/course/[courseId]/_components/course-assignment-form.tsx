@@ -20,22 +20,26 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Assignment, Course } from "@prisma/client";
 import { CourseAssignmentList } from "./course-assignment-list";
+import {
+  createAssignment,
+  onEditAction,
+  onReorderAction,
+} from "../assignment/[assignmentId]/actions";
 
 interface CourseAssignmentFormProps {
   initialData: Course & { assignments: Assignment[] };
   courseId: string;
-  facultyId: string; // Add facultyId
+  facultyId: string;
 }
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address").optional(),
+  title: z.string().min(1, "Title is required"),
+  // description: z.string(),
 });
 
 export const CourseAssignmentForm = ({
   initialData,
   courseId,
-  facultyId,
 }: CourseAssignmentFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -43,7 +47,10 @@ export const CourseAssignmentForm = ({
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", email: "" },
+    defaultValues: {
+      title: "",
+      // description: ""
+    },
   });
   const {
     reset,
@@ -52,78 +59,18 @@ export const CourseAssignmentForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch(`/api/courses/${courseId}/assignments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      const result = await response.json();
-      if (response.ok) {
-        toast.success(result.message || "Assignment created successfully");
+      const { success, message } = await createAssignment(courseId, values);
+      if (success) {
+        toast.success(message);
         toggleCreating();
-        reset({ name: "", email: "" });
+        reset({ title: "" });
         router.refresh();
       } else {
-        toast.error(result.message || "Failed to create assignment");
+        toast.error(message);
       }
     } catch (error) {
       console.error("Create assignment error:", error);
       toast.error("Unexpected error occurred");
-    }
-  };
-
-  const onEditAction = async (id: string) => {
-    try {
-      router.push(`/faculties/${facultyId}/courses/${courseId}/assignments/${id}`);
-      return {
-        success: true,
-        message: `Navigating to edit assignment ${id}`,
-      };
-    } catch (error) {
-      console.error("Edit assignment error:", error);
-      return {
-        success: false,
-        message: "Failed to initiate edit",
-      };
-    }
-  };
-
-  const onReorderAction = async (
-    updateData: { id: string; position: number }[]
-  ) => {
-    try {
-      setIsUpdating(true);
-      const response = await fetch(`/api/courses/${courseId}/assignments/reorder`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ list: updateData }),
-      });
-      let result;
-      try {
-        result = await response.json();
-      } catch (error) {
-        console.error("Reorder assignment error:", error);
-        throw new Error("Invalid JSON response");
-      }
-      if (response.ok) {
-        toast.success(result.message || "Assignments reordered successfully");
-        return {
-          success: true,
-          message: result.message || "Assignments reordered successfully",
-        };
-      } else {
-        toast.error(result.message || "Failed to reorder assignments");
-        return {
-          success: false,
-          message: result.message || "Failed to reorder assignments",
-        };
-      }
-    } catch (error) {
-      console.error("Reorder assignment error:", error);
-      toast.error("Failed to reorder assignments");
-      return { success: false, message: "Failed to reorder assignments" };
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -139,12 +86,11 @@ export const CourseAssignmentForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Assignments*
+        Assignment*
         <Button
           onClick={toggleCreating}
           variant="ghost"
           disabled={isSubmitting}
-          aria-label={isCreating ? "Cancel adding assignment" : "Add a new assignment"}
         >
           {isCreating ? (
             <>Cancel</>
@@ -164,31 +110,14 @@ export const CourseAssignmentForm = ({
           >
             <FormField
               control={form.control}
-              name="name"
+              name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'John Doe'"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isSubmitting}
-                      placeholder="e.g., 'john.doe@example.com'"
+                      placeholder="e.g., 'Principles of Fashion Design'"
                       {...field}
                     />
                   </FormControl>
@@ -214,17 +143,31 @@ export const CourseAssignmentForm = ({
           )}
         >
           {!initialData.assignments.length &&
-            "Add Course Notice(s) here. At least one Assignment is required for every Course."}
+            "Add Assignment(s) here. At least one Assignment is required for every Course."}
           <CourseAssignmentList
-            onEditAction={onEditAction}
-            onReorderAction={onReorderAction}
+            onEditAction={async (id) => {
+              const result = await onEditAction(courseId, id);
+              if (result.success) {
+                router.push(
+                  `/course/create-course/${courseId}/assignment/${id}`
+                );
+              }
+              return result;
+            }}
+            onReorderAction={async (updateData) => {
+              setIsUpdating(true);
+              const result = await onReorderAction(courseId, updateData);
+              setIsUpdating(false);
+              router.refresh();
+              return result;
+            }}
             items={initialData.assignments || []}
           />
         </div>
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Course Notices
+          Drag and drop to reorder the Assignments
         </p>
       )}
     </div>

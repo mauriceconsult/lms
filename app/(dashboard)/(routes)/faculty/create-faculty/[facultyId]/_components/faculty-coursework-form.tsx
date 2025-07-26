@@ -20,6 +20,11 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Coursework, Faculty } from "@prisma/client";
 import { FacultyCourseworkList } from "./faculty-coursework-list";
+import {
+  createCoursework,
+  onEditAction,
+  onReorderAction,
+} from "../coursework/[courseworkId]/actions";
 
 interface FacultyCourseworkFormProps {
   initialData: Faculty & { courseworks: Coursework[] };
@@ -28,7 +33,7 @@ interface FacultyCourseworkFormProps {
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
+  // description: z.string(),
 });
 
 export const FacultyCourseworkForm = ({
@@ -41,7 +46,10 @@ export const FacultyCourseworkForm = ({
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { title: "", description: "" },
+    defaultValues: {
+      title: "",
+      // description: ""
+    },
   });
   const {
     reset,
@@ -50,75 +58,18 @@ export const FacultyCourseworkForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch(`/api/faculties/${facultyId}/courseworks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      const result = await response.json();
-      if (response.ok) {
-        toast.success(result.message || "Coursework created successfully");
+      const { success, message } = await createCoursework(facultyId, values);
+      if (success) {
+        toast.success(message);
         toggleCreating();
-        reset({ title: "", description: "" });
+        reset({ title: "" });
         router.refresh();
       } else {
-        toast.error(result.message || "Failed to create coursework");
+        toast.error(message);
       }
     } catch (error) {
       console.error("Create coursework error:", error);
       toast.error("Unexpected error occurred");
-    }
-  };
-
-  const onEditAction = async (id: string) => {
-    try {
-      router.push(`/faculty/create-faculty/${facultyId}/coursework/${id}`);
-      return {
-        success: true,
-        message: `Navigating to edit coursework ${id}`,
-      };
-    } catch (error) {
-      console.error("Edit coursework error:", error);
-      return {
-        success: false,
-        message: "Failed to initiate edit",
-      };
-    }
-  };
-
-  const onReorderAction = async (
-    updateData: { id: string; position: number }[]
-  ) => {
-    try {
-      setIsUpdating(true);
-      const response = await fetch(
-        `/api/faculties/${facultyId}/courseworks/reorder`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ list: updateData }),
-        }
-      );
-      const result = await response.json();
-      if (response.ok) {
-        toast.success(result.message || "Courseworks reordered successfully");
-        return {
-          success: true,
-          message: result.message || "Courseworks reordered successfully",
-        };
-      } else {
-        toast.error(result.message || "Failed to reorder courseworks");
-        return {
-          success: false,
-          message: result.message || "Failed to reorder courseworks",
-        };
-      }
-    } catch (error) {
-      console.error("Reorder coursework error:", error);
-      toast.error("Failed to reorder courseworks");
-      return { success: false, message: "Failed to reorder courseworks" };
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -139,9 +90,6 @@ export const FacultyCourseworkForm = ({
           onClick={toggleCreating}
           variant="ghost"
           disabled={isSubmitting}
-          aria-label={
-            isCreating ? "Cancel adding coursework" : "Add a new coursework"
-          }
         >
           {isCreating ? (
             <>Cancel</>
@@ -176,23 +124,6 @@ export const FacultyCourseworkForm = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isSubmitting}
-                      placeholder="e.g., 'Introduction to design principles'"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <Button disabled={!isValid || isSubmitting} type="submit">
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -210,10 +141,25 @@ export const FacultyCourseworkForm = ({
             !initialData.courseworks.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.courseworks.length && "Add Coursework(s) here. At least one Coursework is required for every Faculty."}
+          {!initialData.courseworks.length &&
+            "Add Coursework(s) here. At least one Coursework is required for every Faculty."}
           <FacultyCourseworkList
-            onEditAction={onEditAction}
-            onReorderAction={onReorderAction}
+            onEditAction={async (id) => {
+              const result = await onEditAction(facultyId, id);
+              if (result.success) {
+                router.push(
+                  `/faculty/create-faculty/${facultyId}/coursework/${id}`
+                );
+              }
+              return result;
+            }}
+            onReorderAction={async (updateData) => {
+              setIsUpdating(true);
+              const result = await onReorderAction(facultyId, updateData);
+              setIsUpdating(false);
+              router.refresh();
+              return result;
+            }}
             items={initialData.courseworks || []}
           />
         </div>
