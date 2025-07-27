@@ -39,13 +39,6 @@ export const FacultySidebarRoutes = ({
       label: "Noticeboards",
       href: `${basePath}/noticeboards`,
     },
-    // Removed or corrected "Placeholder edited again" route
-    // If intended, add with valid href, e.g.:
-    // {
-    //   icon: Layout,
-    //   label: "Placeholder edited again",
-    //   href: `${basePath}/placeholder`,
-    // },
   ];
 
   return (
