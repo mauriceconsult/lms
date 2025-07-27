@@ -1,52 +1,31 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { PlayCircle } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { LucideIcon } from "lucide-react";
 
 interface FacultySidebarItemProps {
+  icon: LucideIcon;
   label: string;
-  id: string;
-  facultyId: string;
+  href: string;
 }
 
 export const FacultySidebarItem = ({
+  icon: Icon,
   label,
-  id,
-  facultyId,
+  href,
 }: FacultySidebarItemProps) => {
-  const pathname = usePathname();
-  const router = useRouter();
-  const Icon = PlayCircle;
-  const isActive = pathname?.includes(id);
-
-  const onClick = () => {
-    router.push(`/faculties/${facultyId}/courses/${id}`);
-  };
+  if (!href) {
+    console.error(`FacultySidebarItem: href is undefined for label "${label}"`);
+    return null; // Prevent rendering if href is undefined
+  }
 
   return (
-    <button
-      onClick={onClick}
-      type="button"
-      aria-label={`Go to course: ${label}`}
-      className={cn(
-        "flex items-center gap-x-2 text-gray-500 text-sm font-medium pl-6 transition-all hover:bg-gray-100 hover:text-gray-700",
-        isActive && "text-gray-700 bg-gray-200/20"
-      )}
+    <Link
+      href={href}
+      className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 p-2 rounded-lg"
     >
-      <div className="flex items-center gap-x-2 py-4">
-        <Icon
-          size={22}
-          className={cn("text-gray-500", isActive && "text-gray-700")}
-        />
-        {label}
-      </div>
-      <div
-        className={cn(
-          "ml-auto opacity-0 border-2 border-gray-700 h-full transition-all",
-          isActive && "opacity-100"
-        )}
-      />
-    </button>
+      <Icon className="w-5 h-5" />
+      <span>{label}</span>
+    </Link>
   );
 };
