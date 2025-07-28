@@ -6,11 +6,10 @@ import Image from "next/image";
 import { IconBadge } from "@/components/icon-badge";
 import { File, LayoutDashboard, ListChecks } from "lucide-react";
 
-// Function to strip HTML tags (server-safe)
+// Function to strip HTML tags
 const stripHtml = (html: string) => {
-  // Remove HTML tags and unescape common entities
   return html
-    .replace(/<[^>]*>/g, "") // Remove all tags
+    .replace(/<[^>]*>/g, "")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&amp;/g, "&")
@@ -61,7 +60,6 @@ export default async function FacultyIdPage({
     redirect("/");
   }
 
-  // Memoize faculty data to ensure stability
   const initialData = {
     ...faculty,
     description: faculty.description ?? "",
@@ -80,41 +78,41 @@ export default async function FacultyIdPage({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
         <div className="space-y-4">
-          {/* Faculty Details */}
           <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-xl">Faculty Details</h2>
-            </div>
-            <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
-              <h3 className="text-lg font-medium text-gray-900">
-                {initialData.title}
-              </h3>
-              {initialData.description && (
-                <p className="mt-2 text-sm text-gray-600">
-                  {stripHtml(initialData.description)}
-                </p>
-              )}
-              {initialData.school && (
-                <p className="mt-2 text-sm text-gray-600">
-                  School: {initialData.school.name}
-                </p>
-              )}
-              {initialData.imageUrl && (
-                <div className="relative mt-4 h-48 w-full">
-                  <Image
-                    src={initialData.imageUrl}
-                    alt={initialData.title}
-                    fill
-                    className="object-cover rounded-md"
-                    priority={true}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-              )}
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={LayoutDashboard} />
+                <h2 className="text-xl">Faculty Details</h2>
+              </div>
+              <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
+                <h3 className="text-lg font-medium text-gray-900">
+                  {initialData.title}
+                </h3>
+                {initialData.description && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    {stripHtml(initialData.description)}
+                  </p>
+                )}
+                {initialData.school && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    School: {initialData.school.name}
+                  </p>
+                )}
+                {initialData.imageUrl && (
+                  <div className="relative mt-4 w-full overflow-hidden aspect-[16/9] max-h-[150px]">
+                    <Image
+                      src={initialData.imageUrl}
+                      alt={initialData.title}
+                      fill
+                      className="object-cover rounded-md"
+                      priority={true}
+                      sizes="(max-width: 1024px) 90vw, (max-width: 1200px) 45vw, 30vw"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-          {/* Courses */}
           <div>
             <div className="flex items-center gap-x-2">
               <IconBadge icon={LayoutDashboard} />
@@ -156,7 +154,6 @@ export default async function FacultyIdPage({
           </div>
         </div>
         <div className="space-y-4">
-          {/* Courseworks */}
           <div>
             <div className="flex items-center gap-x-2">
               <IconBadge icon={ListChecks} />
@@ -190,7 +187,6 @@ export default async function FacultyIdPage({
               )}
             </div>
           </div>
-          {/* Noticeboards */}
           <div>
             <div className="flex items-center gap-x-2">
               <IconBadge icon={ListChecks} />
@@ -224,7 +220,6 @@ export default async function FacultyIdPage({
               )}
             </div>
           </div>
-          {/* Attachments */}
           <div>
             <div className="flex items-center gap-x-2">
               <IconBadge icon={File} />
