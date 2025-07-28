@@ -29,11 +29,7 @@ export const FacultyNavbarRoutes: FC<FacultyNavbarRoutesProps> = ({
 
   return (
     <div className="h-[80px] flex items-center justify-between px-6 bg-white shadow">
-      {/* Title */}
-      <h1 className="text-xl font-semibold text-gray-900">
-        {facultyId ? "Faculty" : "Faculties"}
-      </h1>
-
+      
       {/* Search and Navigation */}
       <div className="flex items-center gap-x-2 ml-auto">
         {/* Search Input (visible on medium screens and up) */}

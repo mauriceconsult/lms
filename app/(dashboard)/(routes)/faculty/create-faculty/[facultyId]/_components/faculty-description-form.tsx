@@ -18,8 +18,14 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Faculty } from "@prisma/client";
 import dynamic from "next/dynamic";
-// import { EditorProps } from "@/types/editor";
+import { cn } from "@/lib/utils";
 import { updateFaculty } from "../actions";
+
+// Define props interface
+interface FacultyDescriptionFormProps {
+  initialData: Faculty;
+  facultyId: string;
+}
 
 // Dynamically import Editor
 const DynamicEditor = dynamic(
@@ -30,10 +36,23 @@ const DynamicEditor = dynamic(
   }
 );
 
-interface FacultyDescriptionFormProps {
-  initialData: Faculty;
-  facultyId: string;
-}
+// Custom Preview Component
+const Preview = ({ value }: { value: string }) => {
+  console.log(`[${new Date().toISOString()} Preview] Raw value:`, value);
+
+  // Function to strip all HTML tags and get plain text
+  const getPlainText = (html: string) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    return doc.body.textContent || "";
+  };
+
+  // Display plain text
+  const plainText = getPlainText(value || "");
+  if (!plainText)
+    return <p className="text-slate-500 italic">No description</p>;
+  return <p className="text-sm">{plainText}</p>;
+};
 
 const formSchema = z.object({
   description: z
@@ -170,14 +189,15 @@ export const FacultyDescriptionForm = ({
         </Form>
       )}
       {!isEditing && (
-        <div className="text-sm mt-2">
-          {initialData.description ? (
-            <div
-              className="prose prose-sm sm:prose lg:prose-lg xl:prose-2xl"
-              dangerouslySetInnerHTML={{ __html: initialData.description }}
-            />
-          ) : (
-            <p className="text-slate-500 italic">Describe your Faculty here</p>
+        <div
+          className={cn(
+            "text-sm mt-2",
+            !initialData.description && "text-slate-500 italic"
+          )}
+        >
+          {!initialData.description && "No Faculty description"}
+          {initialData.description && (
+            <Preview value={initialData.description} />
           )}
         </div>
       )}
