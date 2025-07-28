@@ -5,17 +5,32 @@ import { BookOpen } from "lucide-react";
 
 interface CourseworkCardProps {
   id: string;
-  title: string;  
-  tutorsLength: number; 
+  title: string;
+  tutorsLength: number;
   faculty: string;
+  description?: string; // Added optional description
 }
 
 export const CourseworkCard = ({
   id,
   title,
-  tutorsLength, 
+  tutorsLength,
   faculty,
+  description,
 }: CourseworkCardProps) => {
+  // Function to strip HTML tags
+  const stripHtml = (html: string) => {
+    return html
+      .replace(/<[^>]*>/g, "") // Remove all tags
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'")
+      .replace(/&nbsp;/g, " ")
+      .trim();
+  };
+
   return (
     <Link href={`/faculties/${id}/courseworks/${id}`}>
       <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
@@ -23,7 +38,7 @@ export const CourseworkCard = ({
           <Image
             fill
             className="object-cover"
-            alt="title"
+            alt={title}
             src={"/mcalogo.png"}
           />
         </div>
@@ -32,6 +47,11 @@ export const CourseworkCard = ({
             {title}
           </div>
           <p className="text-xs text-muted-foreground">{faculty}</p>
+          {description && (
+            <span className="text-slate-950 text-muted-foreground font-normal line-clamp-3">
+              {stripHtml(description)}
+            </span>
+          )}
           <div className="my-3 flex items-center gap-x-2 text-sm md:text-xs">
             <div className="flex items-center gap-x-1 text-slate-500">
               <IconBadge size={"sm"} icon={BookOpen} />

@@ -7,17 +7,30 @@ interface AssignmentCardProps {
   id: string;
   title: string;
   assignmentsLength: number;
-  // progress: number | null;
   assignment: string;
+  description?: string; // Added optional description
 }
 
 export const AssignmentCard = ({
   id,
   title,
   assignmentsLength,
-  // progress,
   assignment,
+  description,
 }: AssignmentCardProps) => {
+  // Function to strip HTML tags
+  const stripHtml = (html: string) => {
+    return html
+      .replace(/<[^>]*>/g, "") // Remove all tags
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'")
+      .replace(/&nbsp;/g, " ")
+      .trim();
+  };
+
   return (
     <Link href={`/assignments/${id}`}>
       <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
@@ -25,7 +38,7 @@ export const AssignmentCard = ({
           <Image
             fill
             className="object-cover"
-            alt="title"
+            alt={title}
             src={"/mcalogo.png"}
           />
         </div>
@@ -34,6 +47,11 @@ export const AssignmentCard = ({
             {title}
           </div>
           <p className="text-xs text-muted-foreground">{assignment}</p>
+          {description && (
+            <span className="text-slate-950 text-muted-foreground font-normal line-clamp-3">
+              {stripHtml(description)}
+            </span>
+          )}
           <div className="my-3 flex items-center gap-x-2 text-sm md:text-xs">
             <div className="flex items-center gap-x-1 text-slate-500">
               <IconBadge size={"sm"} icon={BookOpen} />
@@ -43,13 +61,6 @@ export const AssignmentCard = ({
               </span>
             </div>
           </div>
-          {/* {progress !== null ? (
-            <div>TODO: Progress component</div>
-          ) : (
-            <p className="text-md md:text-sm font-medium text-slate-700">
-              {formatAmount(amount.toString())}
-            </p>
-          )} */}
         </div>
       </div>
     </Link>
