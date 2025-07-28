@@ -14,7 +14,7 @@ export const FacultyCard = ({
   title,
   imageUrl,
   description,
-  facultyTitle,
+  // facultyTitle,
 }: FacultyCardProps) => {
   // Function to strip HTML tags
   const stripHtml = (html: string) => {
@@ -30,7 +30,7 @@ export const FacultyCard = ({
   };
 
   return (
-    <Link href={`/courses/${id}`}>
+    <Link href={`/faculties/${id}`}>
       <div className="bg-white shadow-sm rounded-lg p-4 hover:bg-gray-100 transition">
         {imageUrl && (
           <div className="relative h-32 w-full mb-4">
@@ -47,7 +47,7 @@ export const FacultyCard = ({
         <p className="text-sm text-gray-600 line-clamp-2">
           {stripHtml(description)}
         </p>
-        <p className="text-sm text-gray-500 mt-2">Faculty: {facultyTitle}</p>
+        {/* <p className="text-sm text-gray-500 mt-2">Faculty: {facultyTitle}</p> */}
       </div>
     </Link>
   );

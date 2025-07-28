@@ -43,7 +43,7 @@ export const NoticeboardAttachmentForm = ({
   const onDelete = async (id: string) => {
     try {
       setDeletingId(id);
-      await axios.delete(`/api/create-faculties/${facultyId}/noticeboards/attachment/${id}`);
+      await axios.delete(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/attachments/${id}`);
       toast.success("Noticeboard attachment deleted");
       router.refresh();
     } catch {

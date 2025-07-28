@@ -137,7 +137,7 @@ export default async function FacultyIdPage({
                           </span>
                         )}
                         <p className="mt-2 text-sm text-gray-500">
-                          Amount:{" "}
+                          Enroll Now:{" "}
                           {course.amount
                             ? parseFloat(course.amount).toFixed(2)
                             : "N/A"}{" "}

@@ -43,6 +43,19 @@ export default async function CourseIdPage({
 
   const hasTuition = course.tuitions.length > 0;
 
+  // Function to strip HTML tags
+  const stripHtml = (html: string) => {
+    return html
+      .replace(/<[^>]*>/g, "") // Remove all tags
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'")
+      .replace(/&nbsp;/g, " ")
+      .trim();
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -50,16 +63,18 @@ export default async function CourseIdPage({
         <div className="bg-white shadow-sm rounded-lg p-6 mb-6">
           <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
           {course.description && (
-            <p className="mt-2 text-gray-600">{course.description}</p>
+            <p className="mt-2 text-gray-600">
+              {stripHtml(course.description)}
+            </p>
           )}
           <p className="mt-2 text-sm text-gray-500">
-            Amount: {course.amount ? parseFloat(course.amount).toFixed(2) : "N/A"} EUR
+            Amount:{" "}
+            {course.amount ? parseFloat(course.amount).toFixed(2) : "N/A"} EUR
           </p>
           {!hasTuition && (
             <CourseEnrollButton
               courseId={course.id}
-              courseTitle={course.title}
-              amount={course.amount}
+              amount={course.amount ?? "0.00"}
             />
           )}
         </div>
@@ -70,9 +85,16 @@ export default async function CourseIdPage({
           {course.tuitions.length ? (
             <div className="space-y-4">
               {course.tuitions.map((tuition) => (
-                <div key={tuition.id} className="border-b border-gray-200 pb-4 last:border-b-0">
+                <div
+                  key={tuition.id}
+                  className="border-b border-gray-200 pb-4 last:border-b-0"
+                >
                   <p className="text-sm text-gray-600">
-                    Amount: {course.amount ? parseFloat(course.amount).toFixed(2) : "N/A"} EUR
+                    Amount:{" "}
+                    {course.amount
+                      ? parseFloat(course.amount).toFixed(2)
+                      : "N/A"}{" "}
+                    EUR
                   </p>
                   <p className="text-sm text-gray-500">
                     Created: {new Date(tuition.createdAt).toLocaleDateString()}
@@ -97,8 +119,12 @@ export default async function CourseIdPage({
                   className="block"
                 >
                   <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition">
-                    <p className="text-sm font-medium text-gray-900">{tutor.title || "Untitled Tutor"}</p>
-                    <p className="text-sm text-gray-600">{tutor.userId || "No User ID"}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {tutor.title || "Untitled Tutor"}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {tutor.userId || "No User ID"}
+                    </p>
                   </div>
                 </Link>
               ))}
@@ -110,14 +136,22 @@ export default async function CourseIdPage({
 
         {/* Assignments Section */}
         <div className="bg-white shadow-sm rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Assignments</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Assignments
+          </h2>
           {course.assignments.length ? (
             <div className="space-y-4">
               {course.assignments.map((assignment) => (
-                <div key={assignment.id} className="border-b border-gray-200 pb-4 last:border-b-0">
-                  <p className="text-sm text-gray-600">Assignment ID: {assignment.id}</p>
+                <div
+                  key={assignment.id}
+                  className="border-b border-gray-200 pb-4 last:border-b-0"
+                >
+                  <p className="text-sm text-gray-600">
+                    Assignment ID: {assignment.id}
+                  </p>
                   <p className="text-sm text-gray-500">
-                    Created: {new Date(assignment.createdAt).toLocaleDateString()}
+                    Created:{" "}
+                    {new Date(assignment.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               ))}

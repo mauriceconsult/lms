@@ -12,19 +12,19 @@ export const getCoursework = async ({
   courseworkId,
 }: GetCourseworkProps) => {
   try {   
-    // const faculty = await db.faculty.findUnique({
-    //   where: {
-    //     isPublished: true,
-    //     id: facultyId,
-    //   },   
-    // });
+    const faculty = await db.faculty.findUnique({
+      where: {
+        isPublished: true,
+        id: facultyId,
+      },   
+    });
     const coursework = await db.coursework.findUnique({
       where: {
         id: courseworkId,
         isPublished: true,
       },
     });
-    if (!facultyId || !coursework) {
+    if (!faculty || !coursework) {
       throw new Error("Faculty or Coursework not found");
     }
     let attachments: Attachment[] = [];
@@ -66,7 +66,7 @@ export const getCoursework = async ({
       userProgress,    
     };
   } catch (error) {
-    console.log("[GET_TUTOR_ERROR]", error);
+    console.log("[GET_COURSEWORK_ERROR]", error);
     return {
       coursework: null,
       faculty: null,      

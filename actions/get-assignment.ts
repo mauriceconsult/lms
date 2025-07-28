@@ -66,7 +66,7 @@ export const getAssignment = async ({
       userProgress,    
     };
   } catch (error) {
-    console.log("[GET_TUTOR_ERROR]", error);
+    console.log("[GET_ASSIGNMENT_ERROR]", error);
     return {
       assignment: null,
       course: null,      

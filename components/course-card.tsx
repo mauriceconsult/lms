@@ -12,7 +12,7 @@ interface CourseCardProps {
   amount: number;
   progress: number | null;
   faculty: string;
-  description?: string; // Added optional description
+  description?: string; 
 }
 
 export const CourseCard = ({

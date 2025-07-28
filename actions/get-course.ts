@@ -43,7 +43,6 @@ export const getCourse = async ({
       });
     }
     return {
-      // faculty,
       course,
       attachments,
       nextCourse,
@@ -51,8 +50,7 @@ export const getCourse = async ({
   } catch (error) {
     console.log("[GET_COURSE_ERROR]", error);
     return {
-      course: null,
-      // faculty: null,
+      course: null,      
       attachments: [],
       nextCourse: null,
     };
