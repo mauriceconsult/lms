@@ -13,7 +13,7 @@ import { PartyIdForm } from "./_components/partyId-form";
 const TutorIdPage = async ({
   params,
 }: {
-  params: { courseId: string; tutorId: string };
+    params: { facultyId: string; courseId: string; tutorId: string };
 }) => {
   const { userId } = await auth();
   if (!userId) {
@@ -22,6 +22,7 @@ const TutorIdPage = async ({
   const {
     tutor,
     course,
+    faculty,
     muxData,
     attachments,
     nextTutor,
@@ -31,8 +32,9 @@ const TutorIdPage = async ({
     userId,
     courseId: params.courseId,
     tutorId: params.tutorId,
+    facultyId: params.facultyId
   });
-  if (!tutor || !course) {
+  if (!faculty || !tutor || !course) {
     return redirect("/");
   }
   const isLocked = !tutor.isFree && !tuition;
@@ -40,11 +42,11 @@ const TutorIdPage = async ({
   return (
     <div>
       {userProgress?.isCompleted && (
-        <Banner label="You have completed this topic" variant="success" />
+        <Banner label="You have completed this Topic" variant="success" />
       )}
       {isLocked && (
         <Banner
-          label="This topic is locked. Please enroll in the course to access it."
+          label="This Topic is locked. Please enroll in the Course to access it."
           variant="warning"
         />
       )}
@@ -54,6 +56,7 @@ const TutorIdPage = async ({
             tutorId={tutor.id}
             title={tutor.title || ""}
             courseId={params.courseId}
+            facultyId={params.facultyId}
             nextTutorId={nextTutor?.id}
             playbackId={muxData?.playbackId ?? null}
             isLocked={isLocked}

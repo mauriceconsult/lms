@@ -6,23 +6,22 @@ import { LogOut, Layout, ListChecks, File } from "lucide-react";
 import Link from "next/link";
 import { FC, ReactElement } from "react";
 
-interface FacultyNavbarRoutesProps {
-  facultyId?: string; 
+interface CourseNavbarRoutesProps {
+  courseId?: string; 
 }
 
-export const FacultyNavbarRoutes: FC<FacultyNavbarRoutesProps> = ({
-  facultyId,
+export const CourseNavbarRoutes: FC<CourseNavbarRoutesProps> = ({
+  courseId,
 }): ReactElement => {
-
   const basePath =
-    facultyId && facultyId !== "" ? `/faculties/${facultyId}` : "/faculties";
+    courseId && courseId !== "" ? `/faculties/${courseId}` : "/faculties";
 
   return (
     <div className="h-[80px] flex items-center justify-between px-6 bg-white shadow">
       
       {/* Navigation */}
-      <div className="flex items-center gap-x-2 ml-auto">
-      
+      <div className="flex items-center gap-x-2 ml-auto">      
+
         {/* Navigation Links */}
         <Link href={basePath}>
           <Button size="sm" variant="ghost">
@@ -30,7 +29,7 @@ export const FacultyNavbarRoutes: FC<FacultyNavbarRoutesProps> = ({
             Faculties
           </Button>
         </Link>
-        {facultyId && (
+        {courseId && (
           <>
             <Link href={`${basePath}/courses`}>
               <Button size="sm" variant="ghost">

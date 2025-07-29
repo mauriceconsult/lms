@@ -15,13 +15,15 @@ interface VideoPlayerProps {
   title: string;
   tutorId: string;
   courseId: string;
+  facultyId: string;
   nextTutorId?: string | null;
-  isLocked?: boolean;
-  completeOnEnd?: boolean;
+  isLocked: boolean;
+  completeOnEnd: boolean;
 }
 export const VideoPlayer = ({
   playbackId,
   title,
+  // facultyId,
   // TutorId,
   // courseId,
   // nextTutorId,

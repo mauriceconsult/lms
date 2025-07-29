@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CourseEnrollButton } from "./tutors/[tutorId]/_components/course-enroll-button";
+import bcrypt from "bcryptjs"; // Install with `npm install bcryptjs`
 
 export default async function CourseIdPage({
   params,
@@ -24,7 +25,7 @@ export default async function CourseIdPage({
     },
     include: {
       tuitions: {
-        where: { userId }, // Check if user has tuition
+        where: { userId, courseId }, // Fetch all tuitions for this user and course
       },
       tutors: {
         where: { isPublished: true },
@@ -41,7 +42,9 @@ export default async function CourseIdPage({
     redirect("/");
   }
 
-  const hasTuition = course.tuitions.length > 0;
+  const hasPaidTuition = course.tuitions.some(
+    (tuition) => tuition.isPaid === true
+  ); // Check for paid tuition
 
   // Function to strip HTML tags
   const stripHtml = (html: string) => {
@@ -71,13 +74,79 @@ export default async function CourseIdPage({
             Amount:{" "}
             {course.amount ? parseFloat(course.amount).toFixed(2) : "N/A"} EUR
           </p>
-          {!hasTuition && (
-            <CourseEnrollButton
-              courseId={course.id}
-              amount={course.amount ?? "0.00"}
-            />
-          )}
         </div>
+
+        {/* Payment Form */}
+        {!hasPaidTuition && (
+          <div className="bg-white shadow-sm rounded-lg p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Enroll in Course
+            </h2>
+            <form
+              action={async (formData) => {
+                "use server"; // Server action syntax
+                const username = formData.get("username")?.toString() || ""; // Default to empty string
+                const partyId = formData.get("partyId")?.toString();
+                if (!partyId) {
+                  // Handle validation error
+                  return;
+                }
+                // Hash partyId for storage
+                const hashedPartyId = await bcrypt.hash(partyId, 12); // Cost factor 12
+                // Placeholder for MOMO API call with original partyId
+                // await triggerMomoCheckout({ courseId, amount: course.amount ?? "0.00", partyId, username });
+                // After successful payment, create/update tuition with hashed partyId
+                await db.tuition.upsert({
+                  where: { userId_courseId: { userId, courseId } },
+                  create: {
+                    userId,
+                    courseId,
+                    isPaid: false,
+                    username,
+                    partyId: hashedPartyId,
+                  }, // Use defaulted username
+                  update: { isPaid: false, username, partyId: hashedPartyId },
+                });
+                redirect(`/faculties/${facultyId}/courses/${courseId}`);
+              }}
+            >
+              <div className="mb-4">
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Username (Optional)
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="partyId"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Party ID (MSISDN) *
+                </label>
+                <input
+                  type="text"
+                  id="partyId"
+                  name="partyId"
+                  required
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  placeholder="e.g., +254712345678"
+                />
+              </div>
+              <CourseEnrollButton
+                courseId={course.id}
+                amount={course.amount ?? "0.00"}
+              />
+            </form>
+          </div>
+        )}
 
         {/* Tuitions Section */}
         <div className="bg-white shadow-sm rounded-lg p-6 mb-6">
@@ -99,6 +168,19 @@ export default async function CourseIdPage({
                   <p className="text-sm text-gray-500">
                     Created: {new Date(tuition.createdAt).toLocaleDateString()}
                   </p>
+                  <p className="text-sm text-gray-500">
+                    Paid: {tuition.isPaid ? "Yes" : "No"}
+                  </p>
+                  {tuition.username && (
+                    <p className="text-sm text-gray-500">
+                      Username: {tuition.username}
+                    </p>
+                  )}
+                  {tuition.partyId && (
+                    <p className="text-sm text-gray-500">
+                      Party ID: [Hashed] {tuition.partyId.slice(0, 10)}...
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

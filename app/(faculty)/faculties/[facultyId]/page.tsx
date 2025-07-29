@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { IconBadge } from "@/components/icon-badge";
 import { File, LayoutDashboard, ListChecks } from "lucide-react";
+import { CourseSidebarItem } from "./courses/[courseId]/_components/course-sidebar-item";
 
 // Function to strip HTML tags
 const stripHtml = (html: string) => {
@@ -40,6 +41,15 @@ export default async function FacultyIdPage({
       courses: {
         where: { isPublished: true },
         orderBy: { position: "asc" },
+        include: {
+          tutors: {
+            where: { isPublished: true },
+            orderBy: { position: "asc" },
+          },
+          tuitions: {
+            where: { userId }, // Check user's tuition status
+          },
+        },
       },
       courseworks: {
         where: { isPublished: true },
@@ -121,31 +131,56 @@ export default async function FacultyIdPage({
             <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
               {initialData.courses.length ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {initialData.courses.map((course) => (
-                    <Link
-                      key={course.id}
-                      href={`/faculties/${facultyId}/courses/${course.id}`}
-                      className="block"
-                    >
-                      <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition">
-                        <h3 className="text-lg font-medium text-gray-900">
-                          {course.title}
-                        </h3>
-                        {course.description && (
-                          <span className="text-sm text-gray-600 line-clamp-2">
-                            {stripHtml(course.description)}
-                          </span>
-                        )}
-                        <p className="mt-2 text-sm text-gray-500">
-                          Enroll Now:{" "}
-                          {course.amount
-                            ? parseFloat(course.amount).toFixed(2)
-                            : "N/A"}{" "}
-                          EUR
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
+                  {initialData.courses.map((course) => {
+                    const userTuition = course.tuitions[0]; // First tuition for this user
+                    const isPaid = userTuition?.isPaid ?? false;
+                    const hasAccess =
+                      isPaid || course.tutors.some((tutor) => tutor.isFree);
+
+                    return (
+                      <Link
+                        key={course.id}
+                        href={`/faculties/${facultyId}/courses/${course.id}`}
+                        className="block"
+                      >
+                        <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition">
+                          <h3 className="text-lg font-medium text-gray-900">
+                            {course.title}
+                            {!hasAccess && (
+                              <span className="text-xs text-rose-700 ml-2 italic">
+                                Locked
+                              </span>
+                            )}
+                          </h3>
+                          {course.description && (
+                            <span className="text-sm text-gray-600 line-clamp-2">
+                              {stripHtml(course.description)}
+                            </span>
+                          )}
+                          <p className="mt-2 text-sm text-gray-500">
+                            Tuition Fee:{" "}
+                            {course.amount
+                              ? parseFloat(course.amount).toFixed(2)
+                              : "N/A"}{" "}
+                            EUR
+                          </p>
+                          {course.tutors.map((tutor) => (
+                            <CourseSidebarItem
+                              key={tutor.id}
+                              id={tutor.id}
+                              label={tutor.title || "Untitled Tutor"}
+                              isCompleted={
+                                !!tutor.userProgress?.[0]?.isCompleted
+                              }
+                              courseId={course.id}
+                              isLocked={!hasAccess && !tutor.isFree}
+                              facultyId={faculty.id}
+                            />
+                          ))}
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-gray-500">No published courses available.</p>
