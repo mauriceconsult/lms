@@ -2,7 +2,6 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { ArrowLeft, LayoutDashboard } from "lucide-react";
-import { Banner } from "@/components/banner";
 import { IconBadge } from "@/components/icon-badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -43,6 +42,28 @@ export default async function StudentCourseworksPage({
     },
   });
 
+  // Fetch student submissions
+  const submissions = await db.submission.findMany({
+    where: {
+      studentId: params.studentId,
+      courseworkId: { in: courseworks.map((c) => c.id) },
+    },
+  });
+
+  const getSubmissionStatus = (courseworkId: string) => {
+    const submission = submissions.find((s) => s.courseworkId === courseworkId);
+    return submission
+      ? {
+          status: submission.status as
+            | "Submitted"
+            | "Pending Review"
+            | "Graded"
+            | "Not Submitted",
+          grade: submission.grade,
+        }
+      : { status: "Not Submitted" as const, grade: null };
+  };
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between">
@@ -66,17 +87,12 @@ export default async function StudentCourseworksPage({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
         {courseworks.map((coursework) => {
           const effectiveFacultyId = coursework.facultyId || params.facultyId;
+          const { status, grade } = getSubmissionStatus(coursework.id);
           return (
             <div
               key={coursework.id}
               className="space-y-4 p-4 border rounded-lg shadow-sm hover:shadow-md transition"
             >
-              {!coursework.isPublished && (
-                <Banner
-                  variant="warning"
-                  label="This Coursework is unpublished. Submission is not yet available."
-                />
-              )}
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
                 <h2 className="text-xl">{coursework.title}</h2>
@@ -85,11 +101,14 @@ export default async function StudentCourseworksPage({
                 {(coursework.description || "No description").substring(0, 100)}
                 ...
               </p>
+              <div className="text-sm text-gray-500">
+                Status: {status} {grade !== null ? `| Grade: ${grade}` : ""}
+              </div>
               <Link
                 href={`/faculties/${effectiveFacultyId}/courseworks/${coursework.id}`}
                 className="text-blue-600 hover:underline"
               >
-                Submit Work
+                {status === "Not Submitted" ? "Submit Work" : "View Submission"}
               </Link>
             </div>
           );

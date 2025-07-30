@@ -122,6 +122,7 @@ model Coursework {
   updatedAt    DateTime                      @updatedAt
   attachments  Attachment[]
   userProgress UserProgress[]
+  Submission   Submission[]
 
   @@index([isPublished, facultyId, createdBy])
 }
@@ -136,6 +137,23 @@ model StudentCourseworkSubmission {
   coursework   Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+
+  @@index([courseworkId, studentId])
+}
+
+model Submission {
+  id           String    @id @default(uuid())
+  courseworkId String
+  studentId    String
+  submittedAt  DateTime? @default(now())
+  status       String    @default("Not Submitted")
+  grade        Int? // Removed @default(null) since it's optional
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  coursework Coursework @relation(fields: [courseworkId], references: [id])
+  student    Student    @relation(fields: [studentId], references: [id])
 
   @@index([courseworkId, studentId])
 }
@@ -173,7 +191,8 @@ model Student {
   updatedAt DateTime @updatedAt
 
   // Optional relation to Faculty (if applicable)
-  faculty Faculty? @relation(fields: [facultyId], references: [id])
+  faculty    Faculty?     @relation(fields: [facultyId], references: [id])
+  Submission Submission[]
 
   @@index([facultyId])
 }
