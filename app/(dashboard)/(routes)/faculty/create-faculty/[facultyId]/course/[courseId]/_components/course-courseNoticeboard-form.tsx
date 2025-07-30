@@ -97,7 +97,7 @@ export const CourseCourseNoticeboardForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a CourseNoticeboard
+              Add a Course Notice
             </>
           )}
         </Button>
@@ -143,7 +143,7 @@ export const CourseCourseNoticeboardForm = ({
           )}
         >
           {!initialData.courseNoticeboards.length &&
-            "Add Course Notice(s) here."}
+            "You may add Course Notice(s) here."}
           <CourseCourseNoticeboardList
             onEditAction={async (id) => {
               const result = await onEditAction(courseId, id);

@@ -18,7 +18,7 @@ export async function PATCH(
     where: {
       id: (await params).courseworkId,
       facultyId: (await params).facultyId,
-      userId,
+      createdBy: userId,
     },
   });
   if (!coursework) {

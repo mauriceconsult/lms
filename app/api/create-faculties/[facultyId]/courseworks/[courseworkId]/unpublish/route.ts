@@ -23,7 +23,7 @@ export async function PATCH(
     const ownCoursework = await db.coursework.findUnique({
       where: {
         id: (await params).courseworkId,
-        userId,
+        createdBy: userId,
       },
     });
     if (!ownCoursework) {
@@ -34,7 +34,7 @@ export async function PATCH(
       where: {
         id: (await params).courseworkId,
         facultyId: (await params).facultyId,
-        userId,
+        createdBy: userId,
       },
       data: {
         isPublished: false,

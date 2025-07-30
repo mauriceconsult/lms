@@ -38,17 +38,22 @@ const DynamicEditor = dynamic(
 
 // Custom Preview Component
 const Preview = ({ value }: { value: string }) => {
-  console.log(`[${new Date().toISOString()} Preview] Raw value:`, value);
+  const [plainText, setPlainText] = useState("");
 
-  // Function to strip all HTML tags and get plain text
-  const getPlainText = (html: string) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-    return doc.body.textContent || "";
-  };
+  useEffect(() => {
+    const getPlainText = (html: string) => {
+      if (typeof window !== "undefined") {
+        // Ensure browser context
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        return doc.body.textContent || "";
+      }
+      return ""; // Fallback for SSR (though "use client" should prevent this)
+    };
 
-  // Display plain text
-  const plainText = getPlainText(value || "");
+    setPlainText(getPlainText(value || ""));
+  }, [value]);
+
   if (!plainText)
     return <p className="text-slate-500 italic">No description</p>;
   return <p className="text-sm">{plainText}</p>;
@@ -130,53 +135,43 @@ export const FacultyDescriptionForm = ({
             <FormField
               control={form.control}
               name="description"
-              render={({ field }) => {
-                console.log(
-                  `[${new Date().toISOString()} FacultyDescriptionForm] field object:`,
-                  field
-                );
-                console.log(
-                  `[${new Date().toISOString()} FacultyDescriptionForm] field.onChange type:`,
-                  typeof field.onChange
-                );
-                return (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      {typeof field.onChange === "function" ? (
-                        <DynamicEditor
-                          value={field.value}
-                          onChangeAction={field.onChange}
-                          onErrorAction={(error) =>
-                            form.setError("description", { message: error })
-                          }
-                          maxFileSize={2 * 1024 * 1024}
-                          allowedFileTypes={["image/jpeg", "image/png"]}
-                          debounceDelay={500}
-                          maxLength={5000}
-                          toolbarConfig={{
-                            headers: true,
-                            font: false,
-                            size: false,
-                            formatting: true,
-                            colors: false,
-                            lists: true,
-                            link: true,
-                            image: true,
-                            align: true,
-                            clean: true,
-                            blockquote: true,
-                            codeBlock: true,
-                          }}
-                        />
-                      ) : (
-                        <div>Loading form field...</div>
-                      )}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    {typeof field.onChange === "function" ? (
+                      <DynamicEditor
+                        value={field.value}
+                        onChangeAction={field.onChange}
+                        onErrorAction={(error) =>
+                          form.setError("description", { message: error })
+                        }
+                        maxFileSize={2 * 1024 * 1024}
+                        allowedFileTypes={["image/jpeg", "image/png"]}
+                        debounceDelay={500}
+                        maxLength={5000}
+                        toolbarConfig={{
+                          headers: true,
+                          font: false,
+                          size: false,
+                          formatting: true,
+                          colors: false,
+                          lists: true,
+                          link: true,
+                          image: true,
+                          align: true,
+                          clean: true,
+                          blockquote: true,
+                          codeBlock: true,
+                        }}
+                      />
+                    ) : (
+                      <div>Loading form field...</div>
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
             <Button disabled={!isValid || isSubmitting} type="submit">
               {isSubmitting ? (
@@ -195,7 +190,7 @@ export const FacultyDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {!initialData.description && "No Faculty description"}
+          {!initialData.description && "Articulate your vision here."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}

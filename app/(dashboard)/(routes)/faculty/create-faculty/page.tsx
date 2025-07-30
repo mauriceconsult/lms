@@ -50,8 +50,8 @@ const CreateFaculty = () => {
         <p className="text-sm text-slate-600">
           <span>
             {" "}
-            Please give your Faculty a name. Don&apos;t worry, you can change
-            the name later. The Faculty is your strategic learning & teaching level that enables you to articulate your vision. 
+            Give your Faculty a name. Don&apos;t worry, you can change
+            the name later. The Faculty is your strategic level that enables you to articulate your vision. 
           </span>         
         </p>
         <Form {...form}>

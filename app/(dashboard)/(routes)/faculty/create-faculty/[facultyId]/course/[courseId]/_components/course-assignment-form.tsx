@@ -143,7 +143,7 @@ export const CourseAssignmentForm = ({
           )}
         >
           {!initialData.assignments.length &&
-            "Add Assignment(s) here. At least one Assignment is required for every Course."}
+            "Add Assignment(s) here. Ideally, each Tutor/Topic should be accompanied by an Assignment."}
           <CourseAssignmentList
             onEditAction={async (id) => {
               const result = await onEditAction(courseId, id);

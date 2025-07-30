@@ -142,7 +142,7 @@ export const FacultyCourseworkForm = ({
           )}
         >
           {!initialData.courseworks.length &&
-            "Add Coursework(s) here. At least one Coursework is required for every Faculty."}
+            "Add Coursework(s) here. At least one published Coursework is required."}
           <FacultyCourseworkList
             onEditAction={async (id) => {
               const result = await onEditAction(facultyId, id);

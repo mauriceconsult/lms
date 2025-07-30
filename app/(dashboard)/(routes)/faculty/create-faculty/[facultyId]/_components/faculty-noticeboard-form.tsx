@@ -142,7 +142,7 @@ export const FacultyNoticeboardForm = ({
           )}
         >
           {!initialData.noticeboards.length &&
-            "Add Faculty Notice(s) here."}
+            "You may add Faculty notice(s) here."}
           <FacultyNoticeboardList
             onEditAction={async (id) => {
               const result = await onEditAction(facultyId, id);
@@ -166,7 +166,7 @@ export const FacultyNoticeboardForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Noticeboards
+          Drag and drop to reorder the Faculty Notices
         </p>
       )}
     </div>

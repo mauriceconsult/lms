@@ -143,7 +143,7 @@ export const CourseTutorForm = ({
           )}
         >
           {!initialData.tutors.length &&
-            "Add Tutor(s) here. At least one Tutor is required for every Course."}
+            "Add Topic(s)/Tutor(s) here. At least one published Tutor is required."}
           <CourseTutorList
             onEditAction={async (id) => {
               const result = await onEditAction(courseId, id);
@@ -167,7 +167,7 @@ export const CourseTutorForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Tutors
+          Drag and drop to reorder the Topics/Tutors
         </p>
       )}
     </div>

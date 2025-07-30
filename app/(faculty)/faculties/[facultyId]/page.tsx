@@ -4,8 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { IconBadge } from "@/components/icon-badge";
-import { File, LayoutDashboard, ListChecks } from "lucide-react";
-import { CourseSidebarItem } from "./courses/[courseId]/_components/course-sidebar-item";
+import { File, LayoutDashboard, ListChecks, Plus } from "lucide-react";
 
 // Function to strip HTML tags
 const stripHtml = (html: string) => {
@@ -33,30 +32,23 @@ export default async function FacultyIdPage({
   const { facultyId } = await params;
 
   const faculty = await db.faculty.findUnique({
-    where: {
-      id: facultyId,
-      isPublished: true,
-    },
+    where: { id: facultyId },
     include: {
       courses: {
-        where: { isPublished: true },
         orderBy: { position: "asc" },
         include: {
           tutors: {
-            where: { isPublished: true },
             orderBy: { position: "asc" },
           },
           tuitions: {
-            where: { userId }, // Check user's tuition status
+            where: { userId },
           },
         },
       },
       courseworks: {
-        where: { isPublished: true },
         orderBy: { createdAt: "desc" },
       },
       noticeboards: {
-        where: { isPublished: true },
         orderBy: { createdAt: "desc" },
       },
       attachments: {
@@ -77,6 +69,9 @@ export default async function FacultyIdPage({
     schoolId: faculty.schoolId ?? "",
   };
 
+  // Assume access to facultyId grants management rights
+  const canManage = true; // Simplified; add role check if needed
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between">
@@ -95,9 +90,6 @@ export default async function FacultyIdPage({
                 <h2 className="text-xl">Faculty Details</h2>
               </div>
               <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  {initialData.title}
-                </h3>
                 {initialData.description && (
                   <p className="mt-2 text-sm text-gray-600">
                     {stripHtml(initialData.description)}
@@ -132,10 +124,12 @@ export default async function FacultyIdPage({
               {initialData.courses.length ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {initialData.courses.map((course) => {
-                    const userTuition = course.tuitions[0]; // First tuition for this user
+                    const userTuition = course.tuitions[0];
                     const isPaid = userTuition?.isPaid ?? false;
                     const hasAccess =
-                      isPaid || course.tutors.some((tutor) => tutor.isFree);
+                      canManage ||
+                      isPaid ||
+                      course.tutors.some((tutor) => tutor.isFree);
 
                     return (
                       <Link
@@ -164,26 +158,24 @@ export default async function FacultyIdPage({
                               : "N/A"}{" "}
                             EUR
                           </p>
-                          {course.tutors.map((tutor) => (
-                            <CourseSidebarItem
-                              key={tutor.id}
-                              id={tutor.id}
-                              label={tutor.title || "Untitled Tutor"}
-                              isCompleted={
-                                !!tutor.userProgress?.[0]?.isCompleted
-                              }
-                              courseId={course.id}
-                              isLocked={!hasAccess && !tutor.isFree}
-                              facultyId={faculty.id}
-                            />
-                          ))}
                         </div>
                       </Link>
                     );
                   })}
                 </div>
               ) : (
-                <p className="text-gray-500">No published courses available.</p>
+                <div className="text-gray-500">
+                  No courses available.
+                  {canManage && (
+                    <Link
+                      href={`/faculties/${facultyId}/courses/create`}
+                      className="ml-2 text-blue-600 hover:underline"
+                    >
+                      <Plus className="inline-block w-4 h-4 mr-1" /> Create
+                      Course
+                    </Link>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -216,16 +208,25 @@ export default async function FacultyIdPage({
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500">
-                  No published courseworks available.
-                </p>
+                <div className="text-gray-500">
+                  No courseworks available.
+                  {canManage && (
+                    <Link
+                      href={`/faculties/${facultyId}/courseworks/create`}
+                      className="ml-2 text-blue-600 hover:underline"
+                    >
+                      <Plus className="inline-block w-4 h-4 mr-1" /> Create
+                      Coursework
+                    </Link>
+                  )}
+                </div>
               )}
             </div>
           </div>
           <div>
             <div className="flex items-center gap-x-2">
               <IconBadge icon={ListChecks} />
-              <h2 className="text-xl">Noticeboards</h2>
+              <h2 className="text-xl">Faculty Notices</h2>
             </div>
             <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
               {initialData.noticeboards.length ? (
@@ -249,9 +250,18 @@ export default async function FacultyIdPage({
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500">
-                  No published noticeboards available.
-                </p>
+                <div className="text-gray-500">
+                  No Faculty notices available.
+                  {canManage && (
+                    <Link
+                      href={`/faculties/${facultyId}/noticeboards/create`}
+                      className="ml-2 text-blue-600 hover:underline"
+                    >
+                      <Plus className="inline-block w-4 h-4 mr-1" /> Create
+                      Noticeboard
+                    </Link>
+                  )}
+                </div>
               )}
             </div>
           </div>

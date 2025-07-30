@@ -78,7 +78,7 @@ export const CourseworkDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {initialData.description || "No description"}
+          {initialData.description || "Describe what you expect the students to do in this Coursework."}
         </p>
       )}
       {isEditing && (
@@ -95,7 +95,7 @@ export const CourseworkDescriptionForm = ({
                   <FormControl>
                     <Textarea
                       disabled={isSubmitting}
-                      placeholder="e.g., 'This coursework is about...'"
+                      placeholder="e.g., 'You are required to...'"
                       {...field}
                     />
                   </FormControl>

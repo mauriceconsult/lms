@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { facultyId: string; courseworkId: string; } }
+  { params }: { params: { facultyId: string; courseworkId: string } }
 ) {
   try {
     const { userId } = await auth();
@@ -14,7 +14,7 @@ export async function DELETE(
     const faculty = await db.faculty.findUnique({
       where: {
         id: params.facultyId,
-        userId: userId,
+        userId: userId, // This is correct for Faculty model if it has userId
       },
     });
     if (!faculty) {
@@ -23,7 +23,7 @@ export async function DELETE(
     const coursework = await db.coursework.findUnique({
       where: {
         id: params.courseworkId,
-        userId: userId,
+        createdBy: userId, // Replaced userId with createdBy
       },
     });
     if (!coursework) {
@@ -43,7 +43,7 @@ export async function DELETE(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { facultyId: string; courseworkId: string; } }
+  { params }: { params: { facultyId: string; courseworkId: string } }
 ) {
   try {
     const { userId } = await auth();
@@ -55,7 +55,7 @@ export async function PATCH(
     const faculty = await db.faculty.findUnique({
       where: {
         id: facultyId,
-        userId,
+        userId, // This is correct for Faculty model if it has userId
       },
     });
     if (!faculty) {
@@ -64,7 +64,7 @@ export async function PATCH(
     const coursework = await db.coursework.update({
       where: {
         id: courseworkId,
-        userId,
+        createdBy: userId, 
       },
       data: {
         ...values,

@@ -24,12 +24,14 @@ const CourseworkIdPage = async ({
     return redirect("/");
   }
 
+  const resolvedParams = await params;
   const coursework = await db.coursework.findFirst({
     where: {
-      id: (await params).courseworkId,
-      userId,
+      id: resolvedParams.courseworkId,
+      facultyId: resolvedParams.facultyId,
+      createdBy: userId, // Replaced userId with createdBy
     },
-    include: {  
+    include: {
       attachments: {
         orderBy: {
           createdAt: "desc",
@@ -45,10 +47,7 @@ const CourseworkIdPage = async ({
   if (!coursework || !faculty) {
     return redirect("/");
   }
-  const requiredFields = [
-    coursework.title,
-    coursework.description,    
-  ];
+  const requiredFields = [coursework.title, coursework.description];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
@@ -66,7 +65,7 @@ const CourseworkIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${(await params).facultyId}`}
+              href={`/faculty/create-faculty/${resolvedParams.facultyId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Faculty creation.
@@ -80,8 +79,8 @@ const CourseworkIdPage = async ({
               </div>
               <CourseworkActions
                 disabled={!isComplete}
-                courseworkId={(await params).courseworkId}
-                facultyId={(await params).facultyId}
+                courseworkId={resolvedParams.courseworkId}
+                facultyId={resolvedParams.facultyId}
                 isPublished={coursework.isPublished}
               />
             </div>

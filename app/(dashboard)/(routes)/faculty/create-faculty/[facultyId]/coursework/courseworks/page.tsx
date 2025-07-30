@@ -12,7 +12,7 @@ const CourseworksPage = async () => {
   }
   const courseworks = await db.coursework.findMany({
     where: {
-      userId,
+      createdBy: userId,
     },
     orderBy: {
       createdAt: "desc",

@@ -27,7 +27,7 @@ interface NoticeboardDescriptionProps {
 }
 const formSchema = z.object({
   description: z.string().min(1, {
-    message: "Noticeboard description is required.",
+    message: "Notice description is required.",
   }),
 });
 
@@ -49,7 +49,7 @@ export const NoticeboardDescriptionForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/descriptions`, values);
-      toast.success("Noticeboard description updated.");
+      toast.success("Faculty Noticeboard description updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -66,7 +66,7 @@ export const NoticeboardDescriptionForm = ({
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit Noticeboard description
+              Edit Faculty Notice description
             </>
           )}
         </Button>

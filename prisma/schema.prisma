@@ -109,21 +109,35 @@ model Assignment {
 }
 
 model Coursework {
-  id           String         @id @default(uuid())
+  id           String                        @id @default(uuid())
   title        String
-  userId       String
-  description  String?        @db.Text
+  description  String?                       @db.Text
   facultyId    String?
-  faculty      Faculty?       @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  position     Int?
+  position     Int                           @default(0)
+  isPublished  Boolean                       @default(false)
+  createdBy    String
+  faculty      Faculty?                      @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  submissions  StudentCourseworkSubmission[]
+  createdAt    DateTime                      @default(now())
+  updatedAt    DateTime                      @updatedAt
   attachments  Attachment[]
   userProgress UserProgress[]
-  isCompleted  Boolean        @default(false)
-  isPublished  Boolean        @default(false)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
 
-  @@index([facultyId])
+  @@index([isPublished, facultyId, createdBy])
+}
+
+model StudentCourseworkSubmission {
+  id           String     @id @default(uuid())
+  courseworkId String
+  studentId    String
+  title        String
+  abstract     String
+  description  String
+  coursework   Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([courseworkId, studentId])
 }
 
 model Faculty {
@@ -139,6 +153,7 @@ model Faculty {
   noticeboards Noticeboard[]
   courseworks  Coursework[]
   userProgress UserProgress[]
+  students     Student[]
   position     Int?
   isPublished  Boolean        @default(false)
 
@@ -146,6 +161,21 @@ model Faculty {
   updatedAt DateTime @updatedAt
 
   @@index([schoolId])
+}
+
+model Student {
+  id        String   @id @default(uuid())
+  userId    String   @unique // Links to Clerk's userId or similar
+  name      String?
+  email     String?  @unique
+  facultyId String? // Optional relation to Faculty, nullable if not always assigned
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Optional relation to Faculty (if applicable)
+  faculty Faculty? @relation(fields: [facultyId], references: [id])
+
+  @@index([facultyId])
 }
 
 model Course {

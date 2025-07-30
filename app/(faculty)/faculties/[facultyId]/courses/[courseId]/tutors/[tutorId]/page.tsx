@@ -13,7 +13,7 @@ import { PartyIdForm } from "./_components/partyId-form";
 const TutorIdPage = async ({
   params,
 }: {
-    params: { facultyId: string; courseId: string; tutorId: string };
+    params: Promise<{ facultyId: string; courseId: string; tutorId: string }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
@@ -30,9 +30,9 @@ const TutorIdPage = async ({
     tuition,
   } = await getTutor({
     userId,
-    courseId: params.courseId,
-    tutorId: params.tutorId,
-    facultyId: params.facultyId
+    courseId: (await params).courseId,
+    tutorId: (await params).tutorId,
+    facultyId: (await params).facultyId
   });
   if (!faculty || !tutor || !course) {
     return redirect("/");
@@ -55,8 +55,8 @@ const TutorIdPage = async ({
           <VideoPlayer
             tutorId={tutor.id}
             title={tutor.title || ""}
-            courseId={params.courseId}
-            facultyId={params.facultyId}
+            courseId={(await params).courseId}
+            facultyId={(await params).facultyId}
             nextTutorId={nextTutor?.id}
             playbackId={muxData?.playbackId ?? null}
             isLocked={isLocked}
@@ -74,8 +74,8 @@ const TutorIdPage = async ({
                 initialData={{
                   partyId: "",
                 }}
-                courseId={params.courseId}
-                tutorId={params.tutorId}
+                courseId={(await params).courseId}
+                tutorId={(await params).tutorId}
               />
             </div>
           </div>
@@ -89,7 +89,7 @@ const TutorIdPage = async ({
               <div>{/** //TODO: Course Progress button */}</div>
             ) : (
               <CourseEnrollButton
-                courseId={params.courseId}
+                courseId={(await params).courseId}
                 amount={course.amount!}
               />
             )}
