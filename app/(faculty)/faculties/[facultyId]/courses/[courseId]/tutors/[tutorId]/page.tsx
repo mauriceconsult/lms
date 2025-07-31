@@ -1,125 +1,55 @@
-import { auth } from "@clerk/nextjs/server";
+import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server"; // Server-side auth
 import { redirect } from "next/navigation";
-import { getTutor } from "@/actions/get-tutor";
-import { Banner } from "@/components/banner";
-import { VideoPlayer } from "./_components/video-player";
-import { CourseEnrollButton } from "./_components/course-enroll-button";
-import { Separator } from "@/components/ui/separator";
-import { Preview } from "@/components/preview";
-import { File, LayoutDashboard } from "lucide-react";
-import { IconBadge } from "@/components/icon-badge";
-import { PartyIdForm } from "./_components/partyId-form";
+import MuxPlayer from "@mux/mux-player-react"; // Default import
+import { Prisma } from "@prisma/client"; // Import Prisma types
 
-const TutorIdPage = async ({
+const tutorInclude = Prisma.validator<Prisma.TutorInclude>()({
+  course: {
+    include: { tutors: true },
+  },
+});
+
+type TutorWithRelations = Prisma.TutorGetPayload<{
+  include: typeof tutorInclude;
+}>;
+
+export default async function TutorIdPage({
   params,
 }: {
-    params: Promise<{ facultyId: string; courseId: string; tutorId: string }>;
-}) => {
-  const { userId } = await auth();
-  if (!userId) {
-    return redirect("/");
+  params: { facultyId: string; courseId: string; tutorId: string };
+}) {
+  const authResult = await auth();
+  if (!authResult.userId) {
+    redirect("/");
   }
-  const {
-    tutor,
-    course,
-    faculty,
-    muxData,
-    attachments,
-    nextTutor,
-    userProgress,
-    tuition,
-  } = await getTutor({
-    userId,
-    courseId: (await params).courseId,
-    tutorId: (await params).tutorId,
-    facultyId: (await params).facultyId
+
+  const { courseId, tutorId } = params;
+
+  const tutor: TutorWithRelations | null = await db.tutor.findUnique({
+    where: { id: tutorId, courseId, isPublished: true },
+    include: tutorInclude,
   });
-  if (!faculty || !tutor || !course) {
-    return redirect("/");
+
+  if (!tutor || !tutor.videoUrl) {
+    return <p>Video not available.</p>;
   }
-  const isLocked = !tutor.isFree && !tuition;
-  const completeOnEnd = !!tuition && !userProgress?.isCompleted;
+
   return (
-    <div>
-      {userProgress?.isCompleted && (
-        <Banner label="You have completed this Topic" variant="success" />
-      )}
-      {isLocked && (
-        <Banner
-          label="This Topic is locked. Please enroll in the Course to access it."
-          variant="warning"
-        />
-      )}
-      <div className="flex flex-col max-w-4xl mx-auto pb-20">
-        <div className="p-4">
-          <VideoPlayer
-            tutorId={tutor.id}
-            title={tutor.title || ""}
-            courseId={(await params).courseId}
-            facultyId={(await params).facultyId}
-            nextTutorId={nextTutor?.id}
-            playbackId={muxData?.playbackId ?? null}
-            isLocked={isLocked}
-            completeOnEnd={completeOnEnd}
+    <div className="min-h-screen bg-gray-100">
+      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="bg-white shadow-sm rounded-lg p-6">
+          <h1 className="text-3xl font-bold text-gray-900">
+            {tutor.title || "Untitled Tutor"}
+          </h1>
+          <MuxPlayer
+            playbackId={tutor.videoUrl.split("/").pop() || ""}
+            metadata={{ video_title: tutor.title || "Tutor Video" }}
+            style={{ width: "100%", aspectRatio: "16/9" }}
+            primaryColor="#00CE00"
           />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center gap-x-2">
-                <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Pay with MTN MoMo</h2>
-              </div>
-              <PartyIdForm
-                initialData={{
-                  partyId: "",
-                }}
-                courseId={(await params).courseId}
-                tutorId={(await params).tutorId}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div className="p-4 flex flex-col md:flex-row items-center justify-between">
-            <h2 className="text-2xl font-semibold mb-2">{tutor.title}</h2>
-
-            {tuition ? (
-              <div>{/** //TODO: Course Progress button */}</div>
-            ) : (
-              <CourseEnrollButton
-                courseId={(await params).courseId}
-                amount={course.amount!}
-              />
-            )}
-          </div>
-          <Separator />
-          <div>
-            <Preview value={tutor.description!} />
-          </div>
-          {!!attachments.length && (
-            <>
-              <Separator />
-              <div className="p-4">
-                {attachments.map((attachment) => (
-                  <a
-                    target="_blank"
-                    href={attachment.url}
-                    key={attachment.id}
-                    className="flex items-center p-3 w-full bg-sky-200 border text-sky-700 rounded-md hover:underline"
-                  >
-                    <File />
-                    <p className="line-clamp-1">{attachment.name}</p>
-                  </a>
-                ))}
-              </div>
-            </>
-          )}
         </div>
       </div>
     </div>
   );
-};
-
-export default TutorIdPage;
+}

@@ -6,7 +6,7 @@ import { PartyIdType } from "mtn-momo/lib/common";
 
 export async function POST(
   request: Request,
-  { params }: { params: { courseId: string } }
+  { params }: { params: { facultyId: string; courseId: string } }
 ) {
   try {
     // Validate user
@@ -19,6 +19,7 @@ export async function POST(
     const course = await db.course.findUnique({
       where: {
         id: params.courseId,
+        facultyId: params.facultyId,
         isPublished: true,
       },
     });
@@ -27,6 +28,12 @@ export async function POST(
     }
     if (!course.amount) {
       return new NextResponse("Course amount not specified", { status: 400 });
+    }
+
+    // Get payment details from request
+    const { msisdn, amount } = await request.json();
+    if (!msisdn || amount !== parseFloat(course.amount as string)) {
+      return new NextResponse("Invalid payment details", { status: 400 });
     }
 
     // Check for existing tuition
@@ -63,12 +70,13 @@ export async function POST(
     const payerMessage = `Tuition payment for ${course.title}`;
     const payeeNote = `Tuition payment for ${course.title}`;
     const currency = "EUR"; // Adjust based on Momo API requirements
-    const partyIdType = (process.env.MOMO_PARTY_ID_TYPE || "EMAIL") as PartyIdType;
-    const partyId = user.emailAddresses[0].emailAddress; // Use email or phone number
+    const partyIdType = (process.env.MOMO_PARTY_ID_TYPE ||
+      "MSISDN") as PartyIdType; // Use MSISDN for phone number
+    const partyId = msisdn; // Use msisdn from form
 
     // Request payment
     const transactionId = await collections.requestToPay({
-      amount: course.amount, // Already a string
+      amount: parseFloat(course.amount as string), // Ensure number
       currency,
       externalId,
       payer: {
@@ -82,22 +90,29 @@ export async function POST(
     // Verify transaction (optional)
     const transaction = await collections.getTransaction(transactionId);
     if (transaction.status !== "SUCCESSFUL") {
-      return new NextResponse(`Payment failed: ${transaction.reason || "Unknown error"}`, { status: 400 });
+      return new NextResponse(
+        `Payment failed: ${transaction.reason || "Unknown error"}`,
+        { status: 400 }
+      );
     }
 
     // Create tuition record
-    // const tuition = await db.tuition.create({
-    //   data: {
-    //     userId: user.id,
-    //     courseId: params.courseId,
-    //     amount: course.amount,
-    //   },
-    // });
+    await db.tuition.create({
+      data: {
+        userId: user.id,
+        courseId: params.courseId,
+        amount: course.amount,
+        partyId: msisdn, // Save MSISDN as partyId
+        isPaid: true,
+      },
+    });
 
-    return NextResponse.json({
-      transactionId,
-      // tuition
-    }, { status: 200 });
+    return NextResponse.json(
+      {
+        transactionId,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("[COURSE_CHECKOUT_ERROR]", error);
     return new NextResponse("Internal Server Error", { status: 500 });

@@ -56,8 +56,9 @@ model Tuition {
   id          String       @id @default(uuid())
   userId      String
   partyId     String       @db.Text
-  username    String       @db.Text
+  username    String?      @db.Text
   courseId    String?
+  amount      String?
   course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   attachments Attachment[]
   isActive    Boolean      @default(true)
@@ -132,8 +133,8 @@ model StudentCourseworkSubmission {
   courseworkId String
   studentId    String
   title        String
-  abstract     String
-  description  String
+  abstract     String     @default("") // Stores HTML or plain text
+  description  String     @default("")
   coursework   Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -147,13 +148,13 @@ model Submission {
   studentId    String
   submittedAt  DateTime? @default(now())
   status       String    @default("Not Submitted")
-  grade        Int? // Removed @default(null) since it's optional
+  grade        Int?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
   // Relations
-  coursework Coursework @relation(fields: [courseworkId], references: [id])
-  student    Student    @relation(fields: [studentId], references: [id])
+  coursework Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
+  student    Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([courseworkId, studentId])
 }
@@ -185,6 +186,7 @@ model Student {
   id        String   @id @default(uuid())
   userId    String   @unique // Links to Clerk's userId or similar
   name      String?
+  username  String?
   email     String?  @unique
   facultyId String? // Optional relation to Faculty, nullable if not always assigned
   createdAt DateTime @default(now())
@@ -226,8 +228,8 @@ model Tutor {
   title        String?        @db.Text
   description  String?        @db.Text
   objective    String?        @db.Text
-  videoUrl     String?        @db.Text
-  position     Int?
+  videoUrl     String         @db.Text
+  position     Int            @default(0)
   attachments  Attachment[]
   userProgress UserProgress[]
   isPublished  Boolean        @default(false)

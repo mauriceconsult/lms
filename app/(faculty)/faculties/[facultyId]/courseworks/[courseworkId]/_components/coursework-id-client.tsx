@@ -22,12 +22,6 @@ export default function CourseworkIdClient({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-
-  const requiredFields = [coursework!.title, coursework!.description];
-  const totalFields = requiredFields.length;
-  const completedFields = requiredFields.filter(Boolean).length;
-  const completionText = `(${completedFields} of ${totalFields})`;
-
   const handleSubmit = async (formData: {
     title: string;
     abstract: string;
@@ -50,7 +44,7 @@ export default function CourseworkIdClient({
       {!coursework!.isPublished && (
         <Banner
           variant="warning"
-          label="This Coursework is unpublished. Once published, students can submit their projects."
+          label="This Coursework is unpublished. Once published, it will be accessible for grading by the Faculty."
         />
       )}
       <div className="p-6">
@@ -58,9 +52,10 @@ export default function CourseworkIdClient({
           <div className="w-full">
             <div className="flex items-center justify-between w-full mt-4">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Coursework Submission</h1>
-                <div className="text-sm text-slate-700">
-                  <div>Completed fields {completionText}</div>
+                <h1 className="text-2xl font-medium">Coursework dashboard</h1>
+                <div className="text-sm text-slate-700">                  
+                  <h1>{coursework?.title}</h1>
+                  <p>{coursework?.description}</p>
                 </div>
               </div>
             </div>
