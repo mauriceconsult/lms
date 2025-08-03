@@ -6,7 +6,7 @@ interface FacultyCardProps {
   title: string;
   imageUrl: string;
   description: string;
-  facultyTitle: string;
+  school: string; // Replace facultyTitle with school
 }
 
 export const FacultyCard = ({
@@ -14,7 +14,7 @@ export const FacultyCard = ({
   title,
   imageUrl,
   description,
-  // facultyTitle,
+  school,
 }: FacultyCardProps) => {
   // Function to strip HTML tags
   const stripHtml = (html: string) => {
@@ -44,10 +44,8 @@ export const FacultyCard = ({
           </div>
         )}
         <h3 className="text-lg font-medium text-gray-900">{title}</h3>
-        <p className="text-sm text-gray-600 line-clamp-2">
-          {stripHtml(description)}
-        </p>
-        {/* <p className="text-sm text-gray-500 mt-2">Faculty: {facultyTitle}</p> */}
+        <p className="text-sm text-gray-600 line-clamp-2">{stripHtml(description)}</p>
+        <p className="text-sm text-gray-500 mt-2">School: {school}</p>
       </div>
     </Link>
   );

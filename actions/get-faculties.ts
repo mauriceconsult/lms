@@ -9,13 +9,15 @@ type FacultiesWithSchool = Faculty & {
 type GetFaculties = {
   userId: string;
   title?: string;
-  facultyId?: string; // Changed from schoolId to facultyId
+  facultyId?: string;
+  schoolId?: string; // Add schoolId
 };
 
 export const getFaculties = async ({
   userId,
   title,
   facultyId,
+  schoolId,
 }: GetFaculties): Promise<FacultiesWithSchool[]> => {
   try {
     const faculties = await db.faculty.findMany({
@@ -24,6 +26,7 @@ export const getFaculties = async ({
         isPublished: true,
         ...(title ? { title: { contains: title, mode: "insensitive" } } : {}),
         ...(facultyId ? { id: facultyId } : {}),
+        ...(schoolId ? { schoolId } : {}), // Filter by schoolId
       },
       include: {
         school: true,
@@ -40,8 +43,6 @@ export const getFaculties = async ({
         },
       },
     });
-
-    // No need for mapping, as Prisma returns the correct structure
     return faculties as FacultiesWithSchool[];
   } catch (error) {
     console.error("[GET_FACULTIES]", error);

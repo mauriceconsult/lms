@@ -9,7 +9,10 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import { Grip, Pencil } from "lucide-react";
+import {
+  Grip,
+  // Pencil
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
 
@@ -24,7 +27,7 @@ interface CourseAssignmentListProps {
 
 export const CourseAssignmentList = ({
   items,
-  onEditAction,
+  // onEditAction,
   onReorderAction,
 }: CourseAssignmentListProps) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -102,7 +105,7 @@ export const CourseAssignmentList = ({
                       >
                         {assignment.isPublished ? "Published" : "Draft"}
                       </Badge>
-                      <Pencil
+                      {/* <Pencil
                         onClick={async () => {
                           const { success, message } = await onEditAction(
                             assignment.id
@@ -113,7 +116,7 @@ export const CourseAssignmentList = ({
                         }}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
                         aria-label={`Edit assignment: ${assignment.title || assignment.id}`}
-                      />
+                      /> */}
                     </div>
                   </div>
                 )}

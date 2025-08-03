@@ -5,8 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { IconBadge } from "@/components/icon-badge";
 import { File, LayoutDashboard, ListChecks, Plus } from "lucide-react";
+import { Banner } from "@/components/banner";
+import PublishButton from "./courseworks/_components/publish-button";
 
-// Function to strip HTML tags
 const stripHtml = (html: string) => {
   return html
     .replace(/<[^>]*>/g, "")
@@ -43,6 +44,10 @@ export default async function FacultyIdPage({
           tuitions: {
             where: { userId },
           },
+          courseworks: {
+            where: { isPublished: true },
+          },
+          attachments: true,
         },
       },
       courseworks: {
@@ -69,50 +74,67 @@ export default async function FacultyIdPage({
     schoolId: faculty.schoolId ?? "",
   };
 
-  // Assume access to facultyId grants management rights
+  // Check publication criteria
+  const hasPublishedCoursework = faculty.courseworks.some((cw) => cw.isPublished);
+  const hasCourseWithAssignment = faculty.courses.some(
+    (course) => course.courseworks.length > 0 || course.attachments.length > 0,
+  );
+  const hasTutorWithVideo = faculty.courses.some((course) =>
+    course.tutors.some((tutor) => tutor.videoUrl),
+  );
+  const canPublish = hasPublishedCoursework && hasCourseWithAssignment && hasTutorWithVideo;
   const canManage = true; // Simplified; add role check if needed
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between">
+      {!faculty.isPublished && (
+        <Banner
+          variant="warning"
+          label="This faculty is unpublished and not visible to students."
+        />
+      )}
+      <div className="flex items-center justify-between mt-4">
         <div className="flex flex-col gap-y-2">
-          <h1 className="text-2xl font-medium text-gray-900">
-            {initialData.title}
-          </h1>
+          <h1 className="text-2xl font-medium text-gray-900">{initialData.title}</h1>
         </div>
+        {canManage && (
+          <PublishButton
+            facultyId={facultyId}
+            isPublished={faculty.isPublished}
+            canPublish={canPublish}
+          />
+        )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
         <div className="space-y-4">
           <div>
-            <div>
-              <div className="flex items-center gap-x-2">
-                <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Faculty Details</h2>
-              </div>
-              <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
-                {initialData.description && (
-                  <p className="mt-2 text-sm text-gray-600">
-                    {stripHtml(initialData.description)}
-                  </p>
-                )}
-                {initialData.school && (
-                  <p className="mt-2 text-sm text-gray-600">
-                    School: {initialData.school.name}
-                  </p>
-                )}
-                {initialData.imageUrl && (
-                  <div className="relative mt-4 w-full overflow-hidden aspect-[16/9] max-h-[150px]">
-                    <Image
-                      src={initialData.imageUrl}
-                      alt={initialData.title}
-                      fill
-                      className="object-cover rounded-md"
-                      priority={true}
-                      sizes="(max-width: 1024px) 90vw, (max-width: 1200px) 45vw, 30vw"
-                    />
-                  </div>
-                )}
-              </div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={LayoutDashboard} />
+              <h2 className="text-xl">Faculty Details</h2>
+            </div>
+            <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
+              {initialData.description && (
+                <p className="mt-2 text-sm text-gray-600">
+                  {stripHtml(initialData.description)}
+                </p>
+              )}
+              {initialData.school && (
+                <p className="mt-2 text-sm text-gray-600">
+                  School: {initialData.school.name}
+                </p>
+              )}
+              {initialData.imageUrl && (
+                <div className="relative mt-4 w-full overflow-hidden aspect-[16/9] max-h-[150px]">
+                  <Image
+                    src={initialData.imageUrl}
+                    alt={initialData.title}
+                    fill
+                    className="object-cover rounded-md"
+                    priority={true}
+                    sizes="(max-width: 1024px) 90vw, (max-width: 1200px) 45vw, 30vw"
+                  />
+                </div>
+              )}
             </div>
           </div>
           <div>
@@ -171,8 +193,7 @@ export default async function FacultyIdPage({
                       href={`/faculties/${facultyId}/courses/create`}
                       className="ml-2 text-blue-600 hover:underline"
                     >
-                      <Plus className="inline-block w-4 h-4 mr-1" /> Create
-                      Course
+                      <Plus className="inline-block w-4 h-4 mr-1" /> Create Course
                     </Link>
                   )}
                 </div>

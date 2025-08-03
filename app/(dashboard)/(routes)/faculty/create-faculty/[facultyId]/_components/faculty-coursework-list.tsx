@@ -9,13 +9,12 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import { Grip, Pencil } from "lucide-react";
+import { Grip } from "lucide-react"; // Removed Pencil
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
 
 interface FacultyCourseworkListProps {
   items: Coursework[];
-  onEditAction: (id: string) => Promise<{ success: boolean; message: string }>;
   onReorderAction: (updateData: { id: string; position: number }[]) => Promise<{
     success: boolean;
     message: string;
@@ -24,7 +23,6 @@ interface FacultyCourseworkListProps {
 
 export const FacultyCourseworkList = ({
   items,
-  onEditAction,
   onReorderAction,
 }: FacultyCourseworkListProps) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -107,18 +105,6 @@ export const FacultyCourseworkList = ({
                       >
                         {coursework.isPublished ? "Published" : "Draft"}
                       </Badge>
-                      <Pencil
-                        onClick={async () => {
-                          const { success, message } = await onEditAction(
-                            coursework.id
-                          );
-                          if (!success) {
-                            toast.error(message);
-                          }
-                        }}
-                        className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
-                        aria-label={`Edit coursework: ${coursework.title}`}
-                      />
                     </div>
                   </div>
                 )}

@@ -8,11 +8,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id          String       @id
+  email       String       @unique
+  name        String?
+  role        String?      @default("student") // e.g., "admin", "student"
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  enrollments Enrollment[]
+  // Add other fields as needed (e.g., password hash if not using Clerk)
+}
+
+model Admin {
+  id          String       @id @default(uuid())
+  userId      String
+  faculty     Faculty?     @relation(fields: [facultyId], references: [id])
+  facultyId   String?
+  courseworks Coursework[]
+  // ... other fields
+}
+
 model School {
   id        String    @id @default(uuid())
   name      String    @unique
   faculties Faculty[]
   payroll   Payroll[]
+}
+
+model Enrollment {
+  id        String   @id @default(uuid())
+  name      String // Description or title of the enrollment
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String // Links to the enrolled user (student)
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId  String // Links to the course
+  faculty   Faculty? @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  facultyId String? // Optional faculty link
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Student   Student? @relation(fields: [studentId], references: [id])
+  studentId String?
+
+  @@index([courseId])
 }
 
 model Payroll {
@@ -112,11 +149,13 @@ model Assignment {
 model Coursework {
   id           String                        @id @default(uuid())
   title        String
+  userId       String
   description  String?                       @db.Text
   facultyId    String?
-  position     Int                           @default(0)
+  courseId     String?
+  position     Int?
   isPublished  Boolean                       @default(false)
-  createdBy    String
+  createdBy    String? // Changed from @db.Uuid
   faculty      Faculty?                      @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   submissions  StudentCourseworkSubmission[]
   createdAt    DateTime                      @default(now())
@@ -124,6 +163,8 @@ model Coursework {
   attachments  Attachment[]
   userProgress UserProgress[]
   Submission   Submission[]
+  admins       Admin[]
+  Course       Course?                       @relation(fields: [courseId], references: [id])
 
   @@index([isPublished, facultyId, createdBy])
 }
@@ -160,24 +201,26 @@ model Submission {
 }
 
 model Faculty {
-  id           String         @id @default(uuid())
-  userId       String
-  title        String         @db.Text
+  id           String         @id @default(cuid())
+  userId       String? // Optional if not all faculties have a userId
+  title        String
   description  String?        @db.Text
-  imageUrl     String?        @db.Text
-  schoolId     String?
-  school       School?        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  courses      Course[]
-  attachments  Attachment[]
-  noticeboards Noticeboard[]
-  courseworks  Coursework[]
-  userProgress UserProgress[]
-  students     Student[]
   position     Int?
   isPublished  Boolean        @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  imageUrl     String?
+  schoolId     String?
+  createdBy    String?        @db.Text
+  school       School?        @relation(fields: [schoolId], references: [id])
+  courses      Course[]
+  courseworks  Coursework[]
+  noticeboards Noticeboard[]
+  attachments  Attachment[]
+  students     Student[]
+  enrollments  Enrollment[]
+  userProgress UserProgress[]
+  admins       Admin[]
 
   @@index([schoolId])
 }
@@ -193,8 +236,9 @@ model Student {
   updatedAt DateTime @updatedAt
 
   // Optional relation to Faculty (if applicable)
-  faculty    Faculty?     @relation(fields: [facultyId], references: [id])
-  Submission Submission[]
+  faculty     Faculty?     @relation(fields: [facultyId], references: [id])
+  submissions Submission[]
+  enrollments Enrollment[]
 
   @@index([facultyId])
 }
@@ -211,7 +255,9 @@ model Course {
   courseNoticeboards CourseNoticeboard[]
   assignments        Assignment[]
   tutors             Tutor[]
+  enrollments        Enrollment[]
   userProgress       UserProgress[]
+  courseworks        Coursework[]
   facultyId          String?
   faculty            Faculty?            @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   position           Int?
@@ -228,7 +274,7 @@ model Tutor {
   title        String?        @db.Text
   description  String?        @db.Text
   objective    String?        @db.Text
-  videoUrl     String         @db.Text
+  videoUrl     String?        @db.Text
   position     Int            @default(0)
   attachments  Attachment[]
   userProgress UserProgress[]
@@ -237,11 +283,24 @@ model Tutor {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   courseId     String?
-  muxDataId    String?
+  muxDataId    String?        @unique // Foreign key to MuxData
+  facultyId    String? // Foreign key to faculty
   course       Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  muxData      MuxData?       @relation(fields: [muxDataId], references: [id], onDelete: Cascade)
+  muxData      MuxData?       @relation(fields: [muxDataId], references: [id], onDelete: Cascade) // Keep onDelete here
 
   @@index([courseId])
+}
+
+model MuxData {
+  id         String   @id @default(uuid())
+  tutorId    String?  @unique // Complementary field, references Tutor.id
+  assetId    String
+  playbackId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  tutor      Tutor?   @relation // Removed onDelete: Cascade
+
+  // Removed incorrect tutors Tutor[]
 }
 
 model Attachment {
@@ -274,17 +333,6 @@ model Attachment {
   @@index([facultyId, courseId, courseworkId, noticeboardId, courseNoticeboardId, assignmentId, payrollId, tuitionId, tutorId])
 }
 
-model MuxData {
-  id         String   @id @default(uuid())
-  tutorId    String?  @unique
-  assetId    String
-  playbackId String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  tutors Tutor[]
-}
-
 model UserProgress {
   id           String     @id @default(uuid())
   userId       String
@@ -298,8 +346,8 @@ model UserProgress {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  Faculty   Faculty[]
-  Course    Course[]
+  faculties Faculty[]
+  courses   Course[]
 
   @@unique([userId, tutorId])
   @@unique([userId, assignmentId])

@@ -1,17 +1,17 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { FacultyTitleForm } from "./_components/faculty-title-form";
+import { FacultyTitleForm } from "./_components/faculty-title-form"; // Check export
 import { LayoutDashboard, ListChecks, File } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
-import { FacultyImageForm } from "./_components/faculty-image-form";
-import { FacultyDescriptionForm } from "./_components/faculty-description-form";
-import { FacultySchoolForm } from "./_components/faculty-school-form";
-import { FacultyCourseForm } from "./_components/faculty-course-form";
-import { FacultyAttachmentForm } from "./_components/faculty-attachment-form";
+import { FacultyImageForm } from "./_components/faculty-image-form"; // Check export
+import { FacultyDescriptionForm } from "./_components/faculty-description-form"; // Check export
+import { FacultySchoolForm } from "./_components/faculty-school-form"; // Check export
+import { FacultyCourseForm } from "./_components/faculty-course-form"; // Check export
+import { FacultyAttachmentForm } from "./_components/faculty-attachment-form"; // Check export
 import { Banner } from "@/components/banner";
-import { FacultyActions } from "./_components/faculty-actions";
-import { FacultyNoticeboardForm } from "./_components/faculty-noticeboard-form";
+import { FacultyActions } from "./_components/faculty-actions"; // Check export
+import { FacultyNoticeboardForm } from "./_components/faculty-noticeboard-form"; // Check export
 import { FacultyCourseworkForm } from "./_components/faculty-coursework-form";
 
 const FacultyIdPage = async ({
@@ -55,12 +55,12 @@ const FacultyIdPage = async ({
   });
 
   if (!faculty || school.length === 0) {
-     throw new Error("School or Faculty not found");
+    throw new Error("School or Faculty not found");
   }
-  // Memoize faculty data to ensure stability
+
   const initialData = {
     ...faculty,
-    description: faculty.description ?? "", 
+    description: faculty.description ?? "",
   };
 
   const requiredFields = [

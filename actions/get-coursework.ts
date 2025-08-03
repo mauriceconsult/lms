@@ -11,68 +11,51 @@ export const getCoursework = async ({
   facultyId,
   courseworkId,
 }: GetCourseworkProps) => {
-  try {   
+  try {
     const faculty = await db.faculty.findUnique({
-      where: {
-        isPublished: true,
-        id: facultyId,
-      },   
+      where: { id: facultyId, isPublished: true },
     });
     const coursework = await db.coursework.findUnique({
-      where: {
-        id: courseworkId,
-        isPublished: true,
-      },
+      where: { id: courseworkId, isPublished: true },
     });
-    if (!faculty || !coursework) {
+    if (!faculty || !coursework)
       throw new Error("Faculty or Coursework not found");
-    }
+
     let attachments: Attachment[] = [];
     let nextCoursework: Coursework | null = null;
     if (userId) {
       attachments = await db.attachment.findMany({
-        where: {
-          facultyId: facultyId
-        },
+        where: { facultyId: facultyId },
       });
     }
-    if (coursework.userId || userId) {    
+    if (coursework.userId || userId) {
       nextCoursework = await db.coursework.findFirst({
         where: {
           facultyId: facultyId,
           isPublished: true,
-          position: {
-            gt: coursework?.position ?? 0,
-          },
+          position: { gt: coursework?.position ?? 0 },
         },
-        orderBy: {
-          position: "asc",
-        },
+        orderBy: { position: "asc" },
       });
     }
     const userProgress = await db.userProgress.findUnique({
-      where: {
-        userId_courseworkId: {
-          userId,
-          courseworkId,
-        },
-      },
+      where: { userId_courseworkId: { userId, courseworkId } },
     });
     return {
       coursework,
-      facultyId,      
+      facultyId,
       attachments,
       nextCoursework,
-      userProgress,    
+      userProgress,
     };
   } catch (error) {
     console.log("[GET_COURSEWORK_ERROR]", error);
     return {
       coursework: null,
-      faculty: null,      
+      faculty: null,
       attachments: [],
       nextCoursework: null,
-      userProgress: null,      
+      userProgress: null,
     };
   }
 };

@@ -20,12 +20,10 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Coursework, Faculty } from "@prisma/client";
 import { FacultyCourseworkList } from "./faculty-coursework-list";
-// import {
-//   createCoursework,
-//   onEditAction,
-//   onReorderAction,
-// } from "../coursework/[courseworkId]/actions";
-import {createCoursework} from "../coursework/[courseworkId]/actions"
+import {
+  createCoursework,
+  onReorderAction,
+} from "../coursework/[courseworkId]/actions";
 
 interface FacultyCourseworkFormProps {
   initialData: Faculty & { courseworks: Coursework[] };
@@ -34,7 +32,6 @@ interface FacultyCourseworkFormProps {
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  // description: z.string(),
 });
 
 export const FacultyCourseworkForm = ({
@@ -49,7 +46,6 @@ export const FacultyCourseworkForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      // description: ""
     },
   });
   const {
@@ -86,7 +82,7 @@ export const FacultyCourseworkForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Coursework*
+        Coursework
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -143,17 +139,8 @@ export const FacultyCourseworkForm = ({
           )}
         >
           {!initialData.courseworks.length &&
-            "Add Coursework(s) here. At least one published Coursework is required."}
+            "You may add Faculty notice(s) here."}
           <FacultyCourseworkList
-            onEditAction={async (id) => {
-              const result = await onEditAction(facultyId, id);
-              if (result.success) {
-                router.push(
-                  `/faculty/create-faculty/${facultyId}/coursework/${id}`
-                );
-              }
-              return result;
-            }}
             onReorderAction={async (updateData) => {
               setIsUpdating(true);
               const result = await onReorderAction(facultyId, updateData);
@@ -167,7 +154,7 @@ export const FacultyCourseworkForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Courseworks
+          Drag and drop to reorder the Faculty Courseworks
         </p>
       )}
     </div>

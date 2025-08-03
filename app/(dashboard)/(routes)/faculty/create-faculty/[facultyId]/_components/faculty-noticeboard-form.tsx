@@ -22,7 +22,6 @@ import { Noticeboard, Faculty } from "@prisma/client";
 import { FacultyNoticeboardList } from "./faculty-noticeboard-list";
 import {
   createNoticeboard,
-  onEditAction,
   onReorderAction,
 } from "../noticeboard/[noticeboardId]/actions";
 
@@ -33,7 +32,6 @@ interface FacultyNoticeboardFormProps {
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  // description: z.string(),
 });
 
 export const FacultyNoticeboardForm = ({
@@ -48,7 +46,6 @@ export const FacultyNoticeboardForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      // description: ""
     },
   });
   const {
@@ -144,15 +141,6 @@ export const FacultyNoticeboardForm = ({
           {!initialData.noticeboards.length &&
             "You may add Faculty notice(s) here."}
           <FacultyNoticeboardList
-            onEditAction={async (id) => {
-              const result = await onEditAction(facultyId, id);
-              if (result.success) {
-                router.push(
-                  `/faculty/create-faculty/${facultyId}/noticeboard/${id}`
-                );
-              }
-              return result;
-            }}
             onReorderAction={async (updateData) => {
               setIsUpdating(true);
               const result = await onReorderAction(facultyId, updateData);
@@ -166,7 +154,7 @@ export const FacultyNoticeboardForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Faculty Notices
+          Drag and drop to reorder the Faculty Noticeboards
         </p>
       )}
     </div>

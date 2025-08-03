@@ -37,9 +37,9 @@ export async function PATCH(
         noticeboards: true,
       },
     });
-    const hasPublishedCoursework = faculty?.courseworks?.some(
-      (coursework) => coursework.isPublished
-    );
+    // const hasPublishedCoursework = faculty?.courseworks?.some(
+    //   (coursework) => coursework.isPublished
+    // );
 
     const hasPublishedCourse = faculty?.courses.some(
       (course) => course.isPublished
@@ -49,8 +49,8 @@ export async function PATCH(
       !faculty.description ||
       !faculty.title ||
       !faculty.imageUrl ||
-      !hasPublishedCourse ||
-      !hasPublishedCoursework
+      !hasPublishedCourse
+      // || !hasPublishedCoursework
     ) {
       return new NextResponse("Missing credentials", { status: 400 });
     }
