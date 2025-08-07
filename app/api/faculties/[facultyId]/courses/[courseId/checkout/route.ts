@@ -32,7 +32,7 @@ export async function POST(
 
     // Get payment details from request
     const { msisdn, amount } = await request.json();
-    if (!msisdn || amount !== parseFloat(course.amount as string)) {
+    if (!msisdn || amount !== parseFloat(course.amount)) {
       return new NextResponse("Invalid payment details", { status: 400 });
     }
 
@@ -69,14 +69,13 @@ export async function POST(
     const externalId = `${user.id}-${params.courseId}`;
     const payerMessage = `Tuition payment for ${course.title}`;
     const payeeNote = `Tuition payment for ${course.title}`;
-    const currency = "EUR"; // Adjust based on Momo API requirements
-    const partyIdType = (process.env.MOMO_PARTY_ID_TYPE ||
-      "MSISDN") as PartyIdType; // Use MSISDN for phone number
-    const partyId = msisdn; // Use msisdn from form
+    const currency = "EUR";
+    const partyIdType: PartyIdType = (process.env.MOMO_PARTY_ID_TYPE || "MSISDN") as PartyIdType;
+    const partyId = msisdn;
 
     // Request payment
     const transactionId = await collections.requestToPay({
-      amount: parseFloat(course.amount as string), // Ensure number
+      amount: parseFloat(course.amount),
       currency,
       externalId,
       payer: {
@@ -87,7 +86,7 @@ export async function POST(
       payeeNote,
     });
 
-    // Verify transaction (optional)
+    // Verify transaction
     const transaction = await collections.getTransaction(transactionId);
     if (transaction.status !== "SUCCESSFUL") {
       return new NextResponse(
@@ -102,17 +101,12 @@ export async function POST(
         userId: user.id,
         courseId: params.courseId,
         amount: course.amount,
-        partyId: msisdn, // Save MSISDN as partyId
+        partyId,
         isPaid: true,
       },
     });
 
-    return NextResponse.json(
-      {
-        transactionId,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ transactionId }, { status: 200 });
   } catch (error) {
     console.error("[COURSE_CHECKOUT_ERROR]", error);
     return new NextResponse("Internal Server Error", { status: 500 });

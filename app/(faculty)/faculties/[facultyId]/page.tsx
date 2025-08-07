@@ -1,12 +1,12 @@
 import { db } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { IconBadge } from "@/components/icon-badge";
-import { File, LayoutDashboard, ListChecks, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, Plus } from "lucide-react";
 import { Banner } from "@/components/banner";
-import PublishButton from "./courseworks/_components/publish-button";
+import Link from "next/link";
+import { ResourceCard } from "./_components/resource-card";
 
 const stripHtml = (html: string) => {
   return html
@@ -22,305 +22,184 @@ const stripHtml = (html: string) => {
 
 export default async function FacultyIdPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ facultyId: string }>;
+  searchParams: Promise<{ role?: string; q?: string }>;
 }) {
-  const { userId } = await auth();
-  if (!userId) {
-    redirect("/");
-  }
-
   const { facultyId } = await params;
+  const { role, q } = await searchParams;
+  const query = q?.trim() || "";
+
+  const { userId } = await auth();
+  const user = await currentUser();
+  const isAdmin = user?.publicMetadata?.role === "admin";
+  const selectedRole = role === "admin" && isAdmin ? "admin" : "student";
 
   const faculty = await db.faculty.findUnique({
-    where: { id: facultyId },
+    where: { id: facultyId, isPublished: true },
     include: {
+      school: { select: { name: true } },
       courses: {
-        orderBy: { position: "asc" },
-        include: {
-          tutors: {
-            orderBy: { position: "asc" },
-          },
-          tuitions: {
-            where: { userId },
-          },
-          courseworks: {
-            where: { isPublished: true },
-          },
-          attachments: true,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          imageUrl: true,
+          isPublished: true,
+          createdAt: true,
         },
+        where: {
+          isPublished: true,
+          ...(query && { title: { contains: query, mode: "insensitive" } }),
+        },
+        orderBy: { createdAt: "desc" },
       },
       courseworks: {
+        select: {
+          id: true,
+          title: true,
+          // imageUrl: true,
+          isPublished: true,
+          createdAt: true,
+        },
+        where: {
+          isPublished: true,
+          ...(query && { title: { contains: query, mode: "insensitive" } }),
+        },
         orderBy: { createdAt: "desc" },
       },
-      noticeboards: {
-        orderBy: { createdAt: "desc" },
-      },
-      attachments: {
-        orderBy: { createdAt: "desc" },
-      },
-      school: true,
     },
   });
 
   if (!faculty) {
-    redirect("/");
+    return redirect("/search");
   }
 
-  const initialData = {
-    ...faculty,
-    description: faculty.description ?? "",
-    imageUrl: faculty.imageUrl ?? "",
-    schoolId: faculty.schoolId ?? "",
-  };
-
-  // Check publication criteria
-  const hasPublishedCoursework = faculty.courseworks.some((cw) => cw.isPublished);
-  const hasCourseWithAssignment = faculty.courses.some(
-    (course) => course.courseworks.length > 0 || course.attachments.length > 0,
-  );
-  const hasTutorWithVideo = faculty.courses.some((course) =>
-    course.tutors.some((tutor) => tutor.videoUrl),
-  );
-  const canPublish = hasPublishedCoursework && hasCourseWithAssignment && hasTutorWithVideo;
-  const canManage = true; // Simplified; add role check if needed
+  const resources = [
+    ...faculty.courses.map((course) => ({
+      id: course.id,
+      title: course.title || `Untitled Course`,
+      type: "course" as const,
+      createdAt: course.createdAt,
+      imageUrl: course.imageUrl,
+      description: course.description,
+    })),
+    ...faculty.courseworks.map((coursework) => ({
+      id: coursework.id,
+      title: coursework.title || `Untitled Coursework`,
+      type: "coursework" as const,
+      createdAt: coursework.createdAt,
+      // imageUrl: coursework.imageUrl,
+      description: undefined,
+    })),
+  ];
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-5xl mx-auto">
       {!faculty.isPublished && (
         <Banner
           variant="warning"
-          label="This faculty is unpublished and not visible to students."
+          label="This faculty is unpublished. It will not be visible to students."
         />
       )}
-      <div className="flex items-center justify-between mt-4">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex flex-col gap-y-2">
-          <h1 className="text-2xl font-medium text-gray-900">{initialData.title}</h1>
+          <h1 className="text-2xl font-medium text-gray-900">
+            {faculty.title || "Untitled Faculty"}
+          </h1>
+          {faculty.description && (
+            <p className="text-sm text-gray-600">
+              {stripHtml(faculty.description)}
+            </p>
+          )}
+          <p className="text-sm text-gray-500">
+            School: {faculty.school?.name || "Unknown School"}
+          </p>
         </div>
-        {canManage && (
-          <PublishButton
-            facultyId={facultyId}
-            isPublished={faculty.isPublished}
-            canPublish={canPublish}
-          />
+        <div className="flex gap-2">
+          <Link href={`/faculties/${facultyId}?role=admin`}>
+            <Button
+              variant={selectedRole === "admin" ? "default" : "outline"}
+              disabled={!isAdmin}
+            >
+              Admin
+            </Button>
+          </Link>
+          <Link href={`/faculties/${facultyId}?role=student`}>
+            <Button
+              variant={selectedRole === "student" ? "default" : "outline"}
+              disabled={isAdmin && !!userId}
+            >
+              Student
+            </Button>
+          </Link>
+        </div>
+      </div>
+      <form className="flex gap-2 mb-6">
+        <Input
+          type="text"
+          name="q"
+          defaultValue={query}
+          placeholder="Search courses or courseworks..."
+          className="w-full"
+        />
+        <Button type="submit">
+          <Search className="w-4 h-4 mr-2" />
+          Search
+        </Button>
+      </form>
+      <div>
+        <h2 className="text-xl font-medium text-gray-900 mb-4">
+          {query ? `Results for "${query}"` : "Faculty Resources"}
+        </h2>
+        {resources.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {resources.map((resource) => (
+              <ResourceCard
+                key={`${resource.type}-${resource.id}`}
+                id={resource.id}
+                title={resource.title}
+                type={resource.type}
+                createdAt={resource.createdAt}
+                imageUrl={"mcalogo.png"} // Placeholder image URL
+                description={resource.description}
+                role={selectedRole}
+                facultyId={facultyId}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">No resources found.</p>
         )}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-xl">Faculty Details</h2>
-            </div>
-            <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
-              {initialData.description && (
-                <p className="mt-2 text-sm text-gray-600">
-                  {stripHtml(initialData.description)}
-                </p>
-              )}
-              {initialData.school && (
-                <p className="mt-2 text-sm text-gray-600">
-                  School: {initialData.school.name}
-                </p>
-              )}
-              {initialData.imageUrl && (
-                <div className="relative mt-4 w-full overflow-hidden aspect-[16/9] max-h-[150px]">
-                  <Image
-                    src={initialData.imageUrl}
-                    alt={initialData.title}
-                    fill
-                    className="object-cover rounded-md"
-                    priority={true}
-                    sizes="(max-width: 1024px) 90vw, (max-width: 1200px) 45vw, 30vw"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-xl">Courses</h2>
-            </div>
-            <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
-              {initialData.courses.length ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {initialData.courses.map((course) => {
-                    const userTuition = course.tuitions[0];
-                    const isPaid = userTuition?.isPaid ?? false;
-                    const hasAccess =
-                      canManage ||
-                      isPaid ||
-                      course.tutors.some((tutor) => tutor.isFree);
-
-                    return (
-                      <Link
-                        key={course.id}
-                        href={`/faculties/${facultyId}/courses/${course.id}`}
-                        className="block"
-                      >
-                        <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition">
-                          <h3 className="text-lg font-medium text-gray-900">
-                            {course.title}
-                            {!hasAccess && (
-                              <span className="text-xs text-rose-700 ml-2 italic">
-                                Locked
-                              </span>
-                            )}
-                          </h3>
-                          {course.description && (
-                            <span className="text-sm text-gray-600 line-clamp-2">
-                              {stripHtml(course.description)}
-                            </span>
-                          )}
-                          <p className="mt-2 text-sm text-gray-500">
-                            Tuition Fee:{" "}
-                            {course.amount
-                              ? parseFloat(course.amount).toFixed(2)
-                              : "N/A"}{" "}
-                            EUR
-                          </p>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-gray-500">
-                  No courses available.
-                  {canManage && (
-                    <Link
-                      href={`/faculties/${facultyId}/courses/create`}
-                      className="ml-2 text-blue-600 hover:underline"
-                    >
-                      <Plus className="inline-block w-4 h-4 mr-1" /> Create Course
-                    </Link>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+      {selectedRole === "admin" && (
+        <div className="mt-6 flex gap-4">
+          <Link href={`/faculties/${facultyId}/courses/create?role=admin`}>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Course
+            </Button>
+          </Link>
+          <Link href={`/faculties/${facultyId}/courseworks/create?role=admin`}>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Coursework
+            </Button>
+          </Link>
         </div>
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={ListChecks} />
-              <h2 className="text-xl">Courseworks</h2>
-            </div>
-            <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
-              {initialData.courseworks.length ? (
-                <div className="space-y-4">
-                  {initialData.courseworks.map((coursework) => (
-                    <Link
-                      key={coursework.id}
-                      href={`/faculties/${facultyId}/courseworks/${coursework.id}`}
-                      className="block"
-                    >
-                      <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition">
-                        <p className="text-sm font-medium text-gray-900">
-                          {coursework.title || "Untitled Coursework"}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Created:{" "}
-                          {new Date(coursework.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-gray-500">
-                  No courseworks available.
-                  {canManage && (
-                    <Link
-                      href={`/faculties/${facultyId}/courseworks/create`}
-                      className="ml-2 text-blue-600 hover:underline"
-                    >
-                      <Plus className="inline-block w-4 h-4 mr-1" /> Create
-                      Coursework
-                    </Link>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={ListChecks} />
-              <h2 className="text-xl">Faculty Notices</h2>
-            </div>
-            <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
-              {initialData.noticeboards.length ? (
-                <div className="space-y-4">
-                  {initialData.noticeboards.map((noticeboard) => (
-                    <Link
-                      key={noticeboard.id}
-                      href={`/faculties/${facultyId}/noticeboards/${noticeboard.id}`}
-                      className="block"
-                    >
-                      <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition">
-                        <p className="text-sm font-medium text-gray-900">
-                          {noticeboard.title || "Untitled Noticeboard"}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Created:{" "}
-                          {new Date(noticeboard.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-gray-500">
-                  No Faculty notices available.
-                  {canManage && (
-                    <Link
-                      href={`/faculties/${facultyId}/noticeboards/create`}
-                      className="ml-2 text-blue-600 hover:underline"
-                    >
-                      <Plus className="inline-block w-4 h-4 mr-1" /> Create
-                      Noticeboard
-                    </Link>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={File} />
-              <h2 className="text-xl">Resources & Attachments</h2>
-            </div>
-            <div className="bg-white shadow-sm rounded-lg p-6 mt-4">
-              {initialData.attachments.length ? (
-                <div className="space-y-4">
-                  {initialData.attachments.map((attachment) => (
-                    <a
-                      key={attachment.id}
-                      href={attachment.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block"
-                    >
-                      <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition">
-                        <p className="text-sm font-medium text-gray-900">
-                          {attachment.name || "Unnamed Attachment"}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Added:{" "}
-                          {new Date(attachment.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">No attachments available.</p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
+      {!userId && (
+        <p className="text-sm text-gray-600 mt-4">
+          <Link
+            href={`/sign-in?redirect=/faculties/${facultyId}`}
+            className="text-blue-600 hover:underline"
+          >
+            Sign in
+          </Link>{" "}
+          to access full faculty details.
+        </p>
+      )}
     </div>
   );
 }

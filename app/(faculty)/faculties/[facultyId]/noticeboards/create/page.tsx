@@ -22,7 +22,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns"; // Correct import for date-fns v2
+import { format } from "date-fns";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import React from "react";
@@ -34,7 +34,7 @@ import { Image } from "@tiptap/extension-image";
 import debounce from "lodash.debounce";
 
 const formSchema = z.object({
-  title: z.string().min(1, { message: "Coursework title is required" }),
+  title: z.string().min(1, { message: "Noticeboard title is required" }),
   description: z.string().optional().nullable(),
   isPublished: z.boolean().default(false),
   publishDate: z.date().optional().nullable().refine(
@@ -43,7 +43,7 @@ const formSchema = z.object({
   ),
 });
 
-export default function CreateCourseworkPage({
+export default function CreateNoticeboardPage({
   params,
 }: {
   params: Promise<{ facultyId: string }>;
@@ -98,7 +98,7 @@ export default function CreateCourseworkPage({
       debouncedUpdate(editor);
     },
     editable: true,
-    immediatelyRender: false, // Prevent SSR hydration mismatch
+    immediatelyRender: false,
   });
 
   // Update editor's editable state based on isSubmitting
@@ -128,13 +128,13 @@ export default function CreateCourseworkPage({
         ...values,
         userId,
         description: values.description?.trim() || null,
-        publishDate: values.isPublished ? null : values.publishDate, // Clear publishDate if published immediately
+        publishDate: values.isPublished ? null : values.publishDate,
       };
 
-      await axios.post(`/api/faculties/${facultyId}/courseworks`, payload);
-      toast.success("Coursework saved!");
+      await axios.post(`/api/faculties/${facultyId}/noticeboards`, payload);
+      toast.success("Noticeboard saved!");
       form.reset();
-      editor?.commands.setContent(""); // Reset editor content
+      editor?.commands.setContent("");
     } catch {
       toast.error("Something went wrong!");
     }
@@ -143,9 +143,9 @@ export default function CreateCourseworkPage({
   return (
     <div className="max-w-5xl mx-auto flex md:items-center md:justify-center h-full p-6">
       <div>
-        <h1 className="text-2xl font-medium text-gray-900">Create Coursework</h1>
+        <h1 className="text-2xl font-medium text-gray-900">Create Noticeboard</h1>
         <p className="text-sm text-slate-600">
-          Give your coursework a title and a detailed description using the rich text editor. Choose to publish it immediately or schedule it for later to make it visible to students.
+          Create a notice with a title and detailed description using the rich text editor. Choose to publish it immediately or schedule it for later to make it visible to students.
         </p>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-8">
@@ -154,16 +154,16 @@ export default function CreateCourseworkPage({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Coursework Title</FormLabel>
+                  <FormLabel>Noticeboard Title</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Introduction to Design'"
+                      placeholder="e.g., 'Exam Schedule Update'"
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    What is the title of this coursework?
+                    What is the title of this notice?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -263,7 +263,7 @@ export default function CreateCourseworkPage({
                       checked={field.value}
                       onCheckedChange={(checked) => {
                         field.onChange(checked);
-                        if (checked) form.setValue("publishDate", null); // Clear publishDate if published immediately
+                        if (checked) form.setValue("publishDate", null);
                       }}
                       disabled={isSubmitting}
                     />
@@ -273,7 +273,7 @@ export default function CreateCourseworkPage({
                       Publish Immediately
                     </FormLabel>
                     <FormDescription>
-                      Make the coursework visible to students immediately.
+                      Make the notice visible to students immediately.
                     </FormDescription>
                   </div>
                 </FormItem>
@@ -303,13 +303,13 @@ export default function CreateCourseworkPage({
                         mode="single"
                         selected={field.value || undefined}
                         onSelect={field.onChange}
-                        disabled={(date: Date) => date < new Date()} // Typed as Date
+                        disabled={(date: Date) => date < new Date()}
                         initialFocus
                       />
                     </PopoverContent>
                   </Popover>
                   <FormDescription>
-                    Schedule a date for the coursework to be published automatically.
+                    Schedule a date for the notice to be published automatically.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

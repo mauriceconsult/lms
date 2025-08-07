@@ -1,4 +1,5 @@
 "use client";
+
 import * as z from "zod";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,36 +24,51 @@ interface PartyIdFormProps {
   };
   courseId: string;
   tutorId: string;
+  facultyId: string;
 }
+
 const formSchema = z.object({
   partyId: z
     .string()
     .min(12, "MSISDN must be at least 12 characters long")
     .max(15, "MSISDN cannot exceed 15 characters")
-    .regex(/^\+?[0-9]+$/, "MSISDN must be a valid phone number"), 
+    .regex(/^\+?[0-9]+$/, "MSISDN must be a valid phone number"),
 });
-//   partyId: z.string().min(1, {
-//     message: "MTN phone number is required.",
-//   }),
-// });
-export const PartyIdForm = ({courseId, tutorId }: PartyIdFormProps) => {
+
+export const PartyIdForm = ({
+  initialData,
+  courseId,
+  // tutorId,
+  facultyId,
+}: PartyIdFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),   
+    resolver: zodResolver(formSchema),
+    defaultValues: initialData,
   });
+
   const { isSubmitting, isValid } = form.formState;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/courses/${courseId}/tutors/${tutorId}/partyIds`, values);
-      toast.success("Party Id created.");
+      const course = await axios.get(`/api/faculties/${facultyId}/courses/${courseId}`);
+      const amount = parseFloat(course.data.amount);
+      await axios.post(`/api/faculties/${facultyId}/courses/${courseId}/checkout`, {
+        msisdn: values.partyId,
+        amount,
+      });
+      toast.success("Payment initiated successfully.");
       toggleEdit();
-      router.refresh();
-    } catch {
+      router.push(`/faculties/${facultyId}/courses/${courseId}`);
+    } catch (error) {
+      console.error("Payment error:", error);
       toast.error("Something went wrong.");
     }
   };
+
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
@@ -73,10 +89,7 @@ export const PartyIdForm = ({courseId, tutorId }: PartyIdFormProps) => {
       </p>
       {isEditing && (
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 mt-4"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
             <FormField
               control={form.control}
               name="partyId"
@@ -84,11 +97,11 @@ export const PartyIdForm = ({courseId, tutorId }: PartyIdFormProps) => {
                 <FormItem>
                   <FormControl>
                     <Input
-                      placeholder="e.g., 256701234567"
+                      placeholder="e.g., +256701234567"
                       {...field}
                       disabled={isSubmitting}
                       className="w-full"
-                      type="MSISDN"
+                      type="text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -97,7 +110,7 @@ export const PartyIdForm = ({courseId, tutorId }: PartyIdFormProps) => {
             />
             <div className="flex items-center gap-x-2">
               <Button disabled={!isValid || isSubmitting} type="submit">
-                Confirm
+                Pay Now
               </Button>
             </div>
           </form>

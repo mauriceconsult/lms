@@ -5,20 +5,20 @@ import { useState } from "react";
 import { Loader2, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import axios from "axios";
 
 interface VideoPlayerProps {
-  playbackId: string | null; // Onboarding video playbackId
-  title: string;
-  tutorId: string; // Fixed typo from TutorId
+  playbackId: string | null;
+  title: string | null;
+  tutorId: string;
   courseId: string;
   facultyId: string;
   nextTutorId?: string | null;
   isLocked: boolean;
-  completeOnEnd: boolean;
-  additionalPlaybacks?: string[]; // Array of additional video playbackIds
-  isEligible: boolean; // Add eligibility check
+  completeOnEnd: boolean | null;
+  additionalPlaybacks?: string[];
+  isEligible: boolean | null;
 }
 
 export const VideoPlayer = ({
@@ -44,18 +44,19 @@ export const VideoPlayer = ({
           tutorId,
           courseId,
           facultyId,
-        }); // Assume progress tracking
+        });
         toast.success("Progress saved");
         router.push(
           `/faculties/${facultyId}/courses/${courseId}/tutors/${nextTutorId}`
         );
       } catch (error) {
+        console.error("Failed to save progress:", error);
         toast.error("Failed to save progress");
       }
     }
   };
 
-  if (!isEligible) {
+  if (isEligible === false) {
     return (
       <div className="relative aspect-video bg-slate-800 flex items-center justify-center text-secondary">
         <Lock className="h-8 w-8" />
@@ -89,7 +90,7 @@ export const VideoPlayer = ({
       )}
       {!isLocked && currentPlaybackId && (
         <MuxPlayer
-          title={title}
+          title={title || "Untitled Tutor"}
           className={cn(!isReady && "hidden")}
           onCanPlay={() => setIsReady(true)}
           onEnded={handleEnded}
@@ -105,7 +106,7 @@ export const VideoPlayer = ({
             onChange={(e) => setCurrentPlaybackId(e.target.value || playbackId)}
             className="mt-2 block w-full p-2 border rounded"
           >
-            <option value={playbackId || ""}>Onboarding: {title}</option>
+            <option value={playbackId || ""}>Onboarding: {title || "Untitled Tutor"}</option>
             {additionalPlaybacks.map((pb, index) => (
               <option key={index} value={pb}>
                 Video {index + 2}

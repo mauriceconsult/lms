@@ -9,14 +9,13 @@ datasource db {
 }
 
 model User {
-  id          String       @id
-  email       String       @unique
-  name        String?
-  role        String?      @default("student") // e.g., "admin", "student"
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  enrollments Enrollment[]
-  // Add other fields as needed (e.g., password hash if not using Clerk)
+  id           String         @id
+  role         String? // e.g., "admin" or "student"
+  enrollment   Enrollment[]
+  tuitions     Tuition[]
+  userProgress UserProgress[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model Admin {
@@ -92,12 +91,13 @@ model FacultyPayroll {
 model Tuition {
   id          String       @id @default(uuid())
   userId      String
-  partyId     String       @db.Text
+  partyId     String?      @db.Text
   username    String?      @db.Text
   courseId    String?
   amount      String?
   course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   attachments Attachment[]
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   isActive    Boolean      @default(true)
   isPaid      Boolean      @default(false)
 
@@ -160,6 +160,7 @@ model Coursework {
   submissions  StudentCourseworkSubmission[]
   createdAt    DateTime                      @default(now())
   updatedAt    DateTime                      @updatedAt
+  publishDate  DateTime?
   attachments  Attachment[]
   userProgress UserProgress[]
   Submission   Submission[]
@@ -201,7 +202,7 @@ model Submission {
 }
 
 model Faculty {
-  id           String         @id @default(cuid())
+  id           String         @id @default(uuid())
   userId       String? // Optional if not all faculties have a userId
   title        String
   description  String?        @db.Text
@@ -246,7 +247,7 @@ model Student {
 model Course {
   id                 String              @id @default(uuid())
   title              String
-  userId             String
+  userId             String?
   description        String?             @db.Text
   imageUrl           String?             @db.Text
   amount             String?             @db.Text
@@ -262,6 +263,7 @@ model Course {
   faculty            Faculty?            @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   position           Int?
   isPublished        Boolean             @default(false)
+  publishDate        DateTime? // Added for scheduled publishing
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
@@ -270,14 +272,15 @@ model Course {
 
 model Tutor {
   id           String         @id @default(uuid())
-  userId       String
+  userId       String?
   title        String?        @db.Text
   description  String?        @db.Text
   objective    String?        @db.Text
-  videoUrl     String?        @db.Text
+  // videoUrl     String?        @db.Text
   position     Int            @default(0)
   attachments  Attachment[]
   userProgress UserProgress[]
+  playbackId   String?        @unique
   isPublished  Boolean        @default(false)
   isFree       Boolean?       @default(false)
   createdAt    DateTime       @default(now())
@@ -342,12 +345,15 @@ model UserProgress {
   assignmentId String
   courseworks  Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
   courseworkId String
+  courses      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId     String
   isCompleted  Boolean    @default(false)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   faculties Faculty[]
-  courses   Course[]
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // courses   Course[]
 
   @@unique([userId, tutorId])
   @@unique([userId, assignmentId])
@@ -364,9 +370,21 @@ model Noticeboard {
   faculty     Faculty?     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   position    Int?
   attachments Attachment[]
+  comments    Comment[]
   isPublished Boolean      @default(false)
+  publishDate DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   @@index([facultyId])
+}
+
+model Comment {
+  id            String      @id @default(uuid())
+  noticeboardId String
+  userId        String
+  content       String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  noticeboard   Noticeboard @relation(fields: [noticeboardId], references: [id])
 }
