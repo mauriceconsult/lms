@@ -12,7 +12,6 @@ import { FacultyAttachmentForm } from "./_components/faculty-attachment-form"; /
 import { Banner } from "@/components/banner";
 import { FacultyActions } from "./_components/faculty-actions"; // Check export
 import { FacultyNoticeboardForm } from "./_components/faculty-noticeboard-form"; // Check export
-import { FacultyCourseworkForm } from "./_components/faculty-coursework-form";
 
 const FacultyIdPage = async ({
   params,
@@ -44,7 +43,7 @@ const FacultyIdPage = async ({
         },
       },
       noticeboards: true,
-      courseworks: true,
+     
     },
   });
 
@@ -67,8 +66,7 @@ const FacultyIdPage = async ({
     initialData.title,
     initialData.description,
     initialData.imageUrl,
-    initialData.schoolId,
-    initialData.courseworks.length > 0,
+    initialData.schoolId, 
     initialData.courses.length > 0,
   ];
   const optionalFields = [
@@ -155,17 +153,7 @@ const FacultyIdPage = async ({
                   initialData={initialData}
                   facultyId={initialData.id}
                 />
-              </div>
-              <div>
-                <div className="flex items-center gap-x-2">
-                  <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Courseworks</h2>
-                </div>
-                <FacultyCourseworkForm
-                  initialData={initialData}
-                  facultyId={initialData.id}
-                />
-              </div>
+              </div>         
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />

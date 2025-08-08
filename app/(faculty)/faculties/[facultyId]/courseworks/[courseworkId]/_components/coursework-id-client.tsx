@@ -7,7 +7,7 @@ import { LayoutDashboard } from "lucide-react";
 import { Banner } from "@/components/banner";
 import { IconBadge } from "@/components/icon-badge";
 import { db } from "@/lib/db";
-import { submitCoursework } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/coursework/[courseworkId]/actions";
+import { submitCoursework } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/coursework/[courseworkId]/actions";
 
 export default function CourseworkIdClient({
   coursework,

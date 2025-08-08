@@ -19,7 +19,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Assignment, Course } from "@prisma/client";
-import { CourseAssignmentList } from "./course-assignment-list";
+import { CourseAssignmentList } from "./course-coursework-list";
 import {
   createAssignment,
   onEditAction,

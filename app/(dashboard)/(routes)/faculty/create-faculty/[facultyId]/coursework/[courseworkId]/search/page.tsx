@@ -2,8 +2,8 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Faculties } from "../../../search/_components/faculties";
-import { CourseworksList } from "./_components/courseworks-list";
-import { CourseworkSearchInput } from "./_components/coursework-search-input";
+import { CourseworksList } from "../../../course/[courseId]/coursework/[courseworkId]/search/_components/courseworks-list";
+import { CourseworkSearchInput } from "../../../course/[courseId]/coursework/[courseworkId]/search/_components/coursework-search-input";
 import { getCourseworks } from "@/actions/get-courseworks";
 
 interface CourseworkIdSearchPageProps {
@@ -26,7 +26,7 @@ const CourseworkSearchPage = async ({
   });
   const courseworks = await getCourseworks({
     userId,
-    ...await searchParams,
+    ...(await searchParams),
   });
 
   return (

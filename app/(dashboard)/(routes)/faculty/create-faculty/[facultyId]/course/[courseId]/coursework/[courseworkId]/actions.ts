@@ -3,12 +3,12 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 
-export async function onEditAction(facultyId: string, courseworkId: string) {
+export async function onEditAction(courseId: string, courseworkId: string) {
   try {
-    console.log("onEditAction called with:", { facultyId, courseworkId });
-    if (!facultyId || !courseworkId) {
-      console.log("Invalid IDs:", { facultyId, courseworkId });
-      return { success: false, message: "Invalid faculty or coursework ID" };
+    console.log("onEditAction called with:", { courseId, courseworkId });
+    if (!courseId || !courseworkId) {
+      console.log("Invalid IDs:", { courseId, courseworkId });
+      return { success: false, message: "Invalid course or coursework ID" };
     }
 
     const { userId } = await auth();
@@ -20,10 +20,10 @@ export async function onEditAction(facultyId: string, courseworkId: string) {
     const coursework = await db.coursework.findUnique({
       where: { id: courseworkId },
     });
-    if (!coursework || coursework.facultyId !== facultyId) {
+    if (!coursework || coursework.courseId !== courseId) {
       console.log("Coursework not found or unauthorized:", {
         courseworkId,
-        facultyId,
+        courseId,
       });
       return {
         success: false,
@@ -57,19 +57,19 @@ export async function onEditAction(facultyId: string, courseworkId: string) {
 }
 
 export async function createCoursework(
-  facultyId: string,
+  courseId: string,
   values: { title: string }
 ) {
   const { userId } = await auth();
   if (!userId) return { success: false, message: "Unauthorized" };
-  if (!facultyId) return { success: false, message: "Invalid faculty ID" };
+  if (!courseId) return { success: false, message: "Invalid course ID" };
   if (!values.title) return { success: false, message: "Title is required" };
 
   try {
     const coursework = await db.coursework.create({
       data: {
         title: values.title,
-        facultyId,
+        courseId,
         createdBy: userId, // Ensure createdBy is set
         userId, // Assuming userId is the tutor or creator
       },
@@ -83,12 +83,12 @@ export async function createCoursework(
 }
 
 export async function onReorderAction(
-  facultyId: string,
+  courseId: string,
   updateData: { id: string; position: number }[]
 ) {
   const { userId } = await auth();
   if (!userId) return { success: false, message: "Unauthorized" };
-  if (!facultyId) return { success: false, message: "Invalid faculty ID" };
+  if (!courseId) return { success: false, message: "Invalid course ID" };
 
   try {
     await db.$transaction(

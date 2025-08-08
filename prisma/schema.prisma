@@ -28,6 +28,7 @@ model Admin {
   assignments        Assignment[]
   noticeboards       Noticeboard[]
   courseNoticeboards CourseNoticeboard[]
+  Tutor              Tutor[]
 
   @@index([facultyId, userId])
 }
@@ -141,23 +142,21 @@ model Assignment {
   title        String         @db.Text
   objective    String?        @db.Text
   description  String?        @db.Text
-  courseId     String?
   position     Int?
   attachments  Attachment[]
   userProgress UserProgress[]
   isCompleted  Boolean        @default(false)
   isPublished  Boolean        @default(false)
-  course       Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   tutor        Tutor?         @relation(fields: [tutorId], references: [id], onDelete: Cascade)
   tutorId      String?
   faculty      Faculty?       @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   facultyId    String?
-  admin        Admin?         @relation(fields: [adminId], references: [id])
+  admin        Admin?         @relation(fields: [adminId], references: [id], onDelete: Cascade)
   adminId      String?
 
-  @@index([courseId, facultyId, tutorId])
+  @@index([facultyId, tutorId])
 }
 
 model Coursework {
@@ -176,8 +175,9 @@ model Coursework {
   attachments  Attachment[]
   userProgress UserProgress[]
   Submission   Submission[]
-  admins       Admin[]
   courses      Course?                       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  adminId      String?
+  admin        Admin?                        @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   @@index([isPublished, courseId, createdBy])
 }
@@ -277,7 +277,6 @@ model Course {
   attachments                  Attachment[]
   tuitions                     Tuition[]
   courseNoticeboards           CourseNoticeboard[]
-  assignments                  Assignment[]
   tutors                       Tutor[]
   enrollments                  Enrollment[]
   userProgress                 UserProgress[]
@@ -286,7 +285,7 @@ model Course {
   facultyId                    String?
   position                     Int?
   isPublished                  Boolean                       @default(false)
-  publishDate                  DateTime? 
+  publishDate                  DateTime?
   createdAt                    DateTime                      @default(now())
   updatedAt                    DateTime                      @updatedAt
   admins                       Admin?                        @relation(fields: [adminId], references: [id], onDelete: Cascade)
@@ -308,15 +307,17 @@ model Tutor {
   position     Int            @default(0)
   attachments  Attachment[]
   userProgress UserProgress[]
-  assignments  Assignment[] 
+  assignments  Assignment[]
   playbackId   String?        @unique
   isPublished  Boolean        @default(false)
   isFree       Boolean?       @default(false)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  adminId      String?
+  admin        Admin?         @relation(fields: [adminId], references: [id], onDelete: Cascade)
   courseId     String?
-  muxDataId    String?        @unique 
-  facultyId    String? 
+  muxDataId    String?        @unique
+  facultyId    String?
   course       Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
   muxData      MuxData?       @relation(fields: [muxDataId], references: [id], onDelete: Cascade) // Keep onDelete here
 
@@ -325,12 +326,12 @@ model Tutor {
 
 model MuxData {
   id         String   @id @default(uuid())
-  tutorId    String?  @unique 
+  tutorId    String?  @unique
   assetId    String
   playbackId String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  tutor      Tutor?   @relation  
+  tutor      Tutor?   @relation
 }
 
 model Attachment {

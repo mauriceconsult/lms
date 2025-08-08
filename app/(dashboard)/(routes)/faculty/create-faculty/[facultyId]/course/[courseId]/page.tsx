@@ -17,10 +17,10 @@ import { CourseDescriptionForm } from "./_components/course-description-form";
 import { CourseImageForm } from "./_components/course-image-form";
 import { CourseAttachmentForm } from "./_components/course-attachment-form";
 import { CourseTutorForm } from "./_components/course-tutor-form";
-import { CourseAssignmentForm } from "./_components/course-assignment-form";
 import { CourseCourseNoticeboardForm } from "./_components/course-courseNoticeboard-form";
 import { CourseAmountForm } from "./_components/course-amount-form";
 import Link from "next/link";
+import { CourseCourseworkForm } from "./_components/course-coursework-form";
 
 const CourseIdPage = async ({
   params,
@@ -42,16 +42,12 @@ const CourseIdPage = async ({
       userId,
     },
     include: {
-      attachments: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-      assignments: {
+      courseworks: {
         orderBy: {
           position: "asc",
         },
       },
+      attachments: true,
       courseNoticeboards: true,
       tuitions: true,
       tutors: true,
@@ -85,7 +81,8 @@ const CourseIdPage = async ({
     initialData.imageUrl,
     initialData.amount,
     initialData.tutors.length > 0,
-    initialData.assignments.length > 0,
+    initialData.courseworks.length > 0,
+    // initialData.assignments.length > 0,
   ];
   const optionalFields = [
     initialData.courseNoticeboards.length > 0,
@@ -202,7 +199,7 @@ const CourseIdPage = async ({
                   <IconBadge icon={ListChecks} />
                   <h2 className="text-xl">Course Assignments</h2>
                 </div>
-                <CourseAssignmentForm
+                <CourseCourseworkForm
                   initialData={initialData}
                   facultyId={initialData.id}
                   courseId={course.id}

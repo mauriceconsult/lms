@@ -10,7 +10,7 @@ import { CourseSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-fac
 import { TutorSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/search/_components/tutor-search-input";
 import React, { FC, ReactElement } from "react";
 import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
-import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/coursework/[courseworkId]/search/_components/coursework-search-input";
+import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/coursework/[courseworkId]/search/_components/coursework-search-input";
 import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/assignment/[assignmentId]/search/_components/assignment-search-input";
 import { CourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/courseNoticeboard/[courseNoticeboardId]/search/_components/courseNoticeboard-search-input";
 import { PayrollSearchInput } from "@/app/(dashboard)/(routes)/payroll/create-payroll/[payrollId]/search/_components/payroll-search-input";
@@ -25,7 +25,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   const isCourseworkPage = pathname?.includes("/coursework");
   const isTutorPage = pathname?.includes("/tutor");
   const isAssignmentPage = pathname?.includes("/assignment");
-  const isCourseNoticeboardPage = pathname?.includes("/courseNoticeboard"); 
+  const isCourseNoticeboardPage = pathname?.includes("/courseNoticeboard");
   const isPayrollPage = pathname?.includes("/payroll");
 
   let isSearchPages: SearchInputComponent | undefined;
@@ -40,7 +40,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   } else if (isAssignmentPage) {
     isSearchPages = AssignmentSearchInput;
   } else if (isCourseNoticeboardPage) {
-    isSearchPages = CourseNoticeboardSearchInput;  
+    isSearchPages = CourseNoticeboardSearchInput;
   } else if (isPayrollPage) {
     isSearchPages = PayrollSearchInput;
   } else if (isFacultyPage) {
@@ -53,7 +53,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
         isTutorPage ||
         isNoticeboardPage ||
         isCourseworkPage ||
-        isAssignmentPage ||       
+        isAssignmentPage ||
         isPayrollPage ||
         isCourseNoticeboardPage) && (
         <div className="mt-16 hidden md:block">
@@ -67,7 +67,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
         isNoticeboardPage ||
         isCourseworkPage ||
         isAssignmentPage ||
-        isPayrollPage ||  
+        isPayrollPage ||
         isCourseNoticeboardPage ? (
           <Link href="/">
             <Button size="sm" variant="ghost">

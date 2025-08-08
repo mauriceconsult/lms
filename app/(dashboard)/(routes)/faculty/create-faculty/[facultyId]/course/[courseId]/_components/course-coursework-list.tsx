@@ -1,6 +1,6 @@
 "use client";
 
-import { Assignment } from "@prisma/client";
+import { Coursework } from "@prisma/client";
 import { useEffect, useState } from "react";
 import {
   DragDropContext,
@@ -16,8 +16,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
 
-interface CourseAssignmentListProps {
-  items: Assignment[];
+interface CourseCourseworkListProps {
+  items: Coursework[];
   onEditAction: (id: string) => Promise<{ success: boolean; message: string }>;
   onReorderAction: (updateData: { id: string; position: number }[]) => Promise<{
     success: boolean;
@@ -25,20 +25,20 @@ interface CourseAssignmentListProps {
   }>;
 }
 
-export const CourseAssignmentList = ({
+export const CourseCourseworkList = ({
   items,
   // onEditAction,
   onReorderAction,
-}: CourseAssignmentListProps) => {
+}: CourseCourseworkListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [assignments, setAssignments] = useState<Assignment[]>(items);
+  const [assignments, setCourseworks] = useState<Coursework[]>(items);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    setAssignments(items);
+    setCourseworks(items);
   }, [items]);
 
   const onDragEnd = async (result: DropResult) => {
@@ -48,7 +48,7 @@ export const CourseAssignmentList = ({
     const [reorderedItem] = newItems.splice(result.source.index, 1);
     newItems.splice(result.destination.index, 0, reorderedItem);
 
-    setAssignments(newItems);
+    setCourseworks(newItems);
 
     const bulkUpdateData = newItems.map((assignment, index) => ({
       id: assignment.id,
@@ -93,7 +93,7 @@ export const CourseAssignmentList = ({
                     >
                       <Grip className="h-5 w-5" />
                     </div>
-                    <span aria-label={`Assignment: ${assignment.title || assignment.id}`}>
+                    <span aria-label={`Coursework: ${assignment.title || assignment.id}`}>
                       {assignment.title || assignment.id}
                     </span>
                     <div className="ml-auto pr-2 flex items-center gap-x-2">

@@ -18,26 +18,26 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Coursework, Faculty } from "@prisma/client";
-import { FacultyCourseworkList } from "./faculty-coursework-list";
-import {
-  createCoursework,
-  onReorderAction,
-} from "../coursework/[courseworkId]/actions";
+import { Coursework, Course } from "@prisma/client";
+import { CourseCourseworkList } from "./course-coursework-list";
+import { createCoursework, onEditAction, onReorderAction } from "../coursework/[courseworkId]/actions";
 
-interface FacultyCourseworkFormProps {
-  initialData: Faculty & { courseworks: Coursework[] };
+
+interface CourseCourseworkFormProps {
+  initialData: Course & { courseworks: Coursework[] };
+  courseId: string;
   facultyId: string;
 }
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
+  // description: z.string(),
 });
 
-export const FacultyCourseworkForm = ({
+export const CourseCourseworkForm = ({
   initialData,
-  facultyId,
-}: FacultyCourseworkFormProps) => {
+  courseId,
+}: CourseCourseworkFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const toggleCreating = () => setIsCreating((current) => !current);
@@ -46,6 +46,7 @@ export const FacultyCourseworkForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
+      // description: ""
     },
   });
   const {
@@ -55,7 +56,7 @@ export const FacultyCourseworkForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await createCoursework(facultyId, values);
+      const { success, message } = await createCoursework(courseId, values);
       if (success) {
         toast.success(message);
         toggleCreating();
@@ -82,7 +83,7 @@ export const FacultyCourseworkForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Coursework
+        Course Notice
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -93,7 +94,7 @@ export const FacultyCourseworkForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Coursework
+              Add a Course Notice
             </>
           )}
         </Button>
@@ -139,11 +140,20 @@ export const FacultyCourseworkForm = ({
           )}
         >
           {!initialData.courseworks.length &&
-            "You may add Faculty notice(s) here."}
-          <FacultyCourseworkList
+            "You may add Course Notice(s) here."}
+          <CourseCourseworkList
+            onEditAction={async (id) => {
+              const result = await onEditAction(courseId, id);
+              if (result.success) {
+                router.push(
+                  `/course/create-course/${courseId}/coursework/${id}`
+                );
+              }
+              return result;
+            }}
             onReorderAction={async (updateData) => {
               setIsUpdating(true);
-              const result = await onReorderAction(facultyId, updateData);
+              const result = await onReorderAction(courseId, updateData);
               setIsUpdating(false);
               router.refresh();
               return result;
@@ -154,7 +164,7 @@ export const FacultyCourseworkForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Faculty Courseworks
+          Drag and drop to reorder the Course Notices
         </p>
       )}
     </div>
