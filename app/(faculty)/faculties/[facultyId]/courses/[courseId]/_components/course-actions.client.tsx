@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
+import axios, { AxiosError } from "axios"; // Import AxiosError
 import toast from "react-hot-toast";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ const formSchema = z.object({
     .refine((date) => !date || date >= new Date(), {
       message: "Publish date must be in the future",
     }),
+  canPublish: z.boolean().default(false),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -39,6 +40,7 @@ interface CourseActionsProps {
     amount: string | null;
     isPublished: boolean;
     publishDate: Date | null;
+    canPublish: boolean;
   };
 }
 
@@ -70,6 +72,7 @@ export function CourseActions({
 
   const { isSubmitting, isValid } = form.formState;
   const isPublished = form.watch("isPublished") ?? initialData.isPublished;
+  const canPublish = form.watch("canPublish") ?? initialData.canPublish;
 
   useEffect(() => {
     console.log(
@@ -77,18 +80,34 @@ export function CourseActions({
       JSON.stringify(initialData, null, 2)
     );
     console.log("CourseActions: form.isPublished =", isPublished);
+    console.log("CourseActions: form.canPublish =", canPublish);
     console.log(
       "CourseActions: form.values =",
       JSON.stringify(form.getValues(), null, 2)
     );
-    if (initialData.isPublished !== form.getValues("isPublished")) {
-      console.log("CourseActions: Resetting form due to isPublished mismatch");
-      form.reset({ ...initialData, isPublished: initialData.isPublished });
+    if (
+      initialData.isPublished !== form.getValues("isPublished") ||
+      initialData.canPublish !== form.getValues("canPublish")
+    ) {
+      console.log(
+        "CourseActions: Resetting form due to isPublished or canPublish mismatch"
+      );
+      form.reset({
+        ...initialData,
+        isPublished: initialData.isPublished,
+        canPublish: initialData.canPublish,
+      });
       setForceRender((prev) => prev + 1);
     }
-  }, [initialData, form]);
+  }, [initialData, form, isPublished, canPublish]); // Added dependencies
 
   const onSubmit = async (values: FormValues) => {
+    if (values.isPublished && !values.canPublish) {
+      toast.error(
+        "Cannot publish: Ensure at least one tutor and assignment are added, and all tutors are paired with assignments."
+      );
+      return;
+    }
     try {
       console.log(
         "CourseActions: Submitting values =",
@@ -112,10 +131,15 @@ export function CourseActions({
       if (values.isPublished !== isPublished) {
         setForceRender((prev) => prev + 1);
       }
-    } catch (error: any) {
+    } catch (error: AxiosError | unknown) {
+      // Typed as AxiosError | unknown
       console.error(
         "CourseActions: Submit error =",
-        JSON.stringify(error.response?.data || error.message, null, 2)
+        JSON.stringify(
+          (error as AxiosError).response?.data || (error as Error).message,
+          null,
+          2
+        )
       );
       toast.error("Something went wrong!");
     }
@@ -141,13 +165,16 @@ export function CourseActions({
           />
           {isPublished ? (
             <PublishButton
-              disabled={!isValid || isSubmitting}
+              disabled={!isValid || isSubmitting || !canPublish}
               onClick={form.handleSubmit(onSubmit)}
             >
               Publish
             </PublishButton>
           ) : (
-            <Button type="submit" disabled={!isValid || isSubmitting}>
+            <Button
+              type="submit"
+              disabled={!isValid || isSubmitting || !canPublish}
+            >
               Save
             </Button>
           )}

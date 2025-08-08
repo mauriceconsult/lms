@@ -102,7 +102,7 @@ const CourseIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Course is not published yet. To publish, complete the required* fields. Ensure that you have at least a Published Tutor/Topic and an Assignment."
+          label="This Course is not published yet. To publish, complete the required* fields. Ensure that you have at least a draft Tutor/Topic and Assignment."
         />
       )}
       <div className="p-6">

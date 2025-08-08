@@ -2,35 +2,35 @@
 
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 
 interface CourseEnrollButtonProps {
   courseId: string;
-  amount: string | null;
+  amount: string | null; // Updated to allow null
 }
 
-export function CourseEnrollButton({
+export const CourseEnrollButton = ({
   courseId,
   amount,
-}: CourseEnrollButtonProps) {
+}: CourseEnrollButtonProps) => {
   const router = useRouter();
 
-  const onClick = async () => {
+  const handleEnroll = async () => {
     try {
-      // Simulate enrollment API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success(
-        `Enrolled in course! ${amount ? `Amount: €${amount}` : "Free course"}`
-      );
-      router.push(`/courses/${courseId}/enrolled`);
-    } catch {
-      toast.error("Failed to enroll in course");
+      // Assume API call to handle payment and enrollment
+      await fetch(`/api/enroll/${courseId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ courseId, amount: amount || "0.00" }),
+      });
+      router.refresh();
+    } catch (error) {
+      console.error("Enrollment error:", error);
     }
   };
 
   return (
-    <Button onClick={onClick} disabled={!amount}>
-      Enroll Now {amount ? `(€${amount})` : "(Free)"}
+    <Button onClick={handleEnroll} className="bg-green-600 hover:bg-green-700">
+      Enroll Now
     </Button>
   );
-}
+};

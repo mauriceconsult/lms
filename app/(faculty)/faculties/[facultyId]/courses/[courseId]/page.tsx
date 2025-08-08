@@ -3,11 +3,12 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Link as LinkIcon } from "lucide-react";
 import { Banner } from "@/components/banner";
 import Link from "next/link";
 import { CourseActions } from "./_components/course-actions.client";
 import { ResourceCard } from "../../_components/resource-card";
+import { Prisma } from "@prisma/client";
 
 const stripHtml = (html: string) => {
   return html
@@ -20,6 +21,27 @@ const stripHtml = (html: string) => {
     .replace(/&nbsp;/g, " ")
     .trim();
 };
+
+type CourseWithRelations = Prisma.CourseGetPayload<{
+  include: {
+    tutors: {
+      select: {
+        id: true;
+        title: true;
+        isPublished: true;
+        createdAt: true;
+        playbackId: true;
+      };
+    };
+    courseworks: {
+      select: { id: true; title: true; isPublished: true; createdAt: true };
+    };
+    courseNoticeboards: {
+      select: { id: true; title: true; isPublished: true; createdAt: true };
+    };
+    assignments: { select: { tutorId: true; courseworkId: true } };
+  };
+}>;
 
 export default async function CourseIdPage({
   params,
@@ -43,7 +65,7 @@ export default async function CourseIdPage({
   const isAdmin = user?.publicMetadata?.role === "admin";
   const selectedRole = role === "admin" && isAdmin ? "admin" : "student";
 
-  const course = await db.course.findUnique({
+  const course = (await db.course.findUnique({
     where: { id: courseId, facultyId },
     include: {
       tutors: {
@@ -52,11 +74,13 @@ export default async function CourseIdPage({
           title: true,
           isPublished: true,
           createdAt: true,
-          // imageUrl: true,
+          playbackId: true,
         },
         where: {
-          isPublished: true,
-          ...(query && { title: { contains: query, mode: "insensitive" } }),
+          ...(isAdmin ? {} : { isPublished: true }), // Admins see all tutors
+          ...(query && !isAdmin
+            ? { title: { contains: query, mode: "insensitive" } }
+            : {}), // Search only for non-admins
         },
         orderBy: { position: "asc" },
       },
@@ -66,11 +90,12 @@ export default async function CourseIdPage({
           title: true,
           isPublished: true,
           createdAt: true,
-          // imageUrl: true,
         },
         where: {
-          isPublished: true,
-          ...(query && { title: { contains: query, mode: "insensitive" } }),
+          ...(isAdmin ? {} : { isPublished: true }),
+          ...(query && !isAdmin
+            ? { title: { contains: query, mode: "insensitive" } }
+            : {}),
         },
         orderBy: { createdAt: "desc" },
       },
@@ -80,48 +105,67 @@ export default async function CourseIdPage({
           title: true,
           isPublished: true,
           createdAt: true,
-          // imageUrl: true,
         },
         where: {
-          isPublished: true,
-          ...(query && { title: { contains: query, mode: "insensitive" } }),
+          ...(isAdmin ? {} : { isPublished: true }),
+          ...(query && !isAdmin
+            ? { title: { contains: query, mode: "insensitive" } }
+            : {}),
         },
         orderBy: { createdAt: "desc" },
       },
+      assignments: {
+        select: { tutorId: true },
+      },
     },
-  });
+  })) as CourseWithRelations | null;
 
   if (!course) {
     return redirect(`/faculties/${facultyId}`);
   }
 
   const hasTutors = course.tutors.length > 0;
+  const hasCourseworks = course.courseworks.length > 0;
+  const hasTutorAssignments = course.assignments.length > 0;
+  const allTutorsPaired = course.tutors.every((tutor) =>
+    course.assignments.some((ta) => ta.tutorId === tutor.id)
+  );
+  const canPublish = hasTutors && hasCourseworks && allTutorsPaired;
+
   const resources = [
     ...course.tutors.map((tutor) => ({
       id: tutor.id,
       title: tutor.title || `Untitled Tutor`,
       type: "tutor" as const,
       createdAt: tutor.createdAt,
-      // imageUrl: tutor.imageUrl,
+      muxPlaybackId: tutor.playbackId,
       description: undefined,
+      isPublished: tutor.isPublished,
     })),
     ...course.courseworks.map((coursework) => ({
       id: coursework.id,
       title: coursework.title || `Untitled Coursework`,
       type: "coursework" as const,
       createdAt: coursework.createdAt,
-      // imageUrl: coursework.imageUrl,
       description: undefined,
+      isPublished: coursework.isPublished,
     })),
     ...course.courseNoticeboards.map((courseNoticeboard) => ({
       id: courseNoticeboard.id,
       title: courseNoticeboard.title || `Untitled Noticeboard`,
       type: "courseNoticeboard" as const,
       createdAt: courseNoticeboard.createdAt,
-      // imageUrl: courseNoticeboard.imageUrl,
       description: undefined,
+      isPublished: courseNoticeboard.isPublished,
     })),
-  ];
+  ].sort((a, b) => {
+    // Prioritize draft tutors and courseworks for admins
+    if (isAdmin) {
+      if (!a.isPublished && b.isPublished) return -1;
+      if (a.isPublished && !b.isPublished) return 1;
+    }
+    return b.createdAt.getTime() - a.createdAt.getTime();
+  });
 
   const initialData = {
     title: course.title,
@@ -129,17 +173,24 @@ export default async function CourseIdPage({
     amount: course.amount,
     isPublished: course.isPublished,
     publishDate: course.publishDate,
+    canPublish,
   };
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      {(!course.isPublished || !hasTutors) && (
+      {(!course.isPublished || !canPublish) && (
         <Banner
           variant="warning"
           label={
             !course.isPublished
               ? "This course is unpublished. It will not be visible to students."
-              : "This course requires at least one published tutor to be fully functional."
+              : !hasTutors
+              ? "This course requires at least one tutor to be publishable."
+              : !hasCourseworks
+              ? "This course requires at least one assignment to be publishable."
+              : !hasTutorAssignments
+              ? "Please pair the tutor with an assignment to publish this course."
+              : "All tutors must be paired with an assignment to publish this course."
           }
         />
       )}
@@ -152,6 +203,7 @@ export default async function CourseIdPage({
             <p className="text-sm text-gray-600">
               {stripHtml(course.description)}
             </p>
+            
           )}
         </div>
         {selectedRole === "admin" && (
@@ -191,11 +243,13 @@ export default async function CourseIdPage({
                 title={resource.title}
                 type={resource.type}
                 createdAt={resource.createdAt}
-                imageUrl={"/mcalogo.png"} // Placeholder image URL
+                muxPlaybackId={resource.type === "tutor" ? resource.muxPlaybackId : undefined}
                 description={resource.description}
                 role={selectedRole}
                 facultyId={facultyId}
                 courseId={courseId}
+                isPublished={resource.isPublished}
+                isEditable={selectedRole === "admin"}
               />
             ))}
           </div>
@@ -205,14 +259,23 @@ export default async function CourseIdPage({
       </div>
       {selectedRole === "admin" && (
         <div className="mt-6 flex gap-4">
-          <Link
-            href={`/faculties/${facultyId}/courses/${courseId}/tutors/create?role=admin`}
-          >
-            <Button>
+          {course.isPublished ? (
+            <Link
+              href={`/faculties/${facultyId}/courses/${courseId}/tutors/${
+                course.tutors[0]?.id || "create"
+              }?role=admin`}
+            >
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Tutor
+              </Button>
+            </Link>
+          ) : (
+            <Button disabled>
               <Plus className="w-4 h-4 mr-2" />
               Create Tutor
             </Button>
-          </Link>
+          )}
           <Link
             href={`/faculties/${facultyId}/courses/${courseId}/courseworks/create?role=admin`}
           >
@@ -229,6 +292,16 @@ export default async function CourseIdPage({
               Create Noticeboard
             </Button>
           </Link>
+          {!hasTutorAssignments && hasTutors && hasCourseworks && (
+            <Link
+              href={`/faculties/${facultyId}/courses/${courseId}/tutor-assignments/create?role=admin`}
+            >
+              <Button>
+                <LinkIcon className="w-4 h-4 mr-2" />
+                Pair Tutor with Assignment
+              </Button>
+            </Link>
+          )}
         </div>
       )}
       {!userId && (
