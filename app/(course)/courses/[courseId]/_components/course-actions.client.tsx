@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { PublishButton } from "./publish-button";
+import { PublishButton } from "../../../../(faculty)/faculties/[facultyId]/courses/[courseId]/_components/publish-button";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),

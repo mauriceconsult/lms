@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { PartyIdForm } from "../tutors/[tutorId]/_components/partyId-form";
+import { PartyIdForm } from "../../../../(faculty)/faculties/[facultyId]/courses/[courseId]/tutors/[tutorId]/_components/partyId-form";
 
 export default async function TuitionPaymentPage({
   params,

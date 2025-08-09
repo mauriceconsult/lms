@@ -1,4 +1,4 @@
-import FacultiesListContent from "@/app/(faculty)/faculties/[facultyId]/courseworks/_components/faculties-list-content";
+import FacultiesListContent from "@/app/(course)/courses/[courseId]/courseworks/_components/faculties-list-content";
 import { db } from "@/lib/db";
 import { School, Faculty } from "@prisma/client";
 
