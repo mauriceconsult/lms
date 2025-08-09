@@ -1,45 +1,34 @@
 import { db } from "@/lib/db";
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Search, Plus } from "lucide-react";
-import { Banner } from "@/components/banner";
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
-import { ResourceCard } from "./_components/resource-card";
+import { ArrowLeft, LayoutDashboard } from "lucide-react";
+import { IconBadge } from "@/components/icon-badge";
 
-const stripHtml = (html: string) => {
-  return html
-    .replace(/<[^>]*>/g, "")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .trim();
-};
-
-export default async function FacultyIdPage({
+const FacultyIdPage = async ({
   params,
-  searchParams,
 }: {
-  params: Promise<{ facultyId: string }>;
-  searchParams: Promise<{ role?: string; q?: string }>;
-}) {
-  const { facultyId } = await params;
-  const { role, q } = await searchParams;
-  const query = q?.trim() || "";
-
+  params: Promise<{
+    facultyId: string;
+  }>;
+}) => {
   const { userId } = await auth();
-  const user = await currentUser();
-  const isAdmin = user?.publicMetadata?.role === "admin";
-  const selectedRole = role === "admin" && isAdmin ? "admin" : "student";
+  if (!userId) {
+    return redirect("/sign-in");
+  }
 
+  const resolvedParams = await params;
   const faculty = await db.faculty.findUnique({
-    where: { id: facultyId, isPublished: true },
+    where: {
+      id: resolvedParams.facultyId,
+      isPublished: true,
+    },
     include: {
-      school: { select: { name: true } },
+      school: {
+        select: {
+          name: true,
+        },
+      },
       courses: {
         select: {
           id: true,
@@ -51,155 +40,142 @@ export default async function FacultyIdPage({
         },
         where: {
           isPublished: true,
-          ...(query && { title: { contains: query, mode: "insensitive" } }),
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: {
+          createdAt: "desc",
+        },
       },
-      courseworks: {
+      noticeboards: {
         select: {
           id: true,
           title: true,
-          // imageUrl: true,
           isPublished: true,
           createdAt: true,
         },
         where: {
           isPublished: true,
-          ...(query && { title: { contains: query, mode: "insensitive" } }),
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      attachments: {
+        select: {
+          id: true,
+          name: true,
+          url: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
       },
     },
   });
 
   if (!faculty) {
-    return redirect("/search");
+    console.error(
+      `[${new Date().toISOString()} FacultyIdPage] Faculty not found or not published:`,
+      { facultyId: resolvedParams.facultyId, userId }
+    );
+    return redirect("/faculties");
   }
 
-  const resources = [
-    ...faculty.courses.map((course) => ({
-      id: course.id,
-      title: course.title || `Untitled Course`,
-      type: "course" as const,
-      createdAt: course.createdAt,
-      imageUrl: course.imageUrl,
-      description: course.description,
-    })),
-    ...faculty.courseworks.map((coursework) => ({
-      id: coursework.id,
-      title: coursework.title || `Untitled Coursework`,
-      type: "coursework" as const,
-      createdAt: coursework.createdAt,
-      // imageUrl: coursework.imageUrl,
-      description: undefined,
-    })),
-  ];
-
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      {!faculty.isPublished && (
-        <Banner
-          variant="warning"
-          label="This faculty is unpublished. It will not be visible to students."
-        />
-      )}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex flex-col gap-y-2">
-          <h1 className="text-2xl font-medium text-gray-900">
-            {faculty.title || "Untitled Faculty"}
-          </h1>
-          {faculty.description && (
-            <p className="text-sm text-gray-600">
-              {stripHtml(faculty.description)}
-            </p>
-          )}
-          <p className="text-sm text-gray-500">
-            School: {faculty.school?.name || "Unknown School"}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link href={`/faculties/${facultyId}?role=admin`}>
-            <Button
-              variant={selectedRole === "admin" ? "default" : "outline"}
-              disabled={!isAdmin}
-            >
-              Admin
-            </Button>
-          </Link>
-          <Link href={`/faculties/${facultyId}?role=student`}>
-            <Button
-              variant={selectedRole === "student" ? "default" : "outline"}
-              disabled={isAdmin && !!userId}
-            >
-              Student
-            </Button>
-          </Link>
-        </div>
+    <div className="p-6">
+      <Link
+        className="flex items-center text-sm hover:opacity-75 transition mb-6"
+        href="/faculties"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Faculties
+      </Link>
+      <div className="flex flex-col gap-y-2">
+        <h1 className="text-2xl font-medium">{faculty.title}</h1>
+        <p className="text-sm text-slate-700">{faculty.description}</p>
+        <p className="text-sm text-slate-700">School: {faculty.school?.name}</p>
       </div>
-      <form className="flex gap-2 mb-6">
-        <Input
-          type="text"
-          name="q"
-          defaultValue={query}
-          placeholder="Search courses or courseworks..."
-          className="w-full"
-        />
-        <Button type="submit">
-          <Search className="w-4 h-4 mr-2" />
-          Search
-        </Button>
-      </form>
-      <div>
-        <h2 className="text-xl font-medium text-gray-900 mb-4">
-          {query ? `Results for "${query}"` : "Faculty Resources"}
-        </h2>
-        {resources.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {resources.map((resource) => (
-              <ResourceCard
-                key={`${resource.type}-${resource.id}`}
-                id={resource.id}
-                title={resource.title}
-                type={resource.type}
-                createdAt={resource.createdAt}
-                imageUrl={"mcalogo.png"} // Placeholder image URL
-                description={resource.description}
-                role={selectedRole}
-                facultyId={facultyId}
-              />
-            ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
+        <div className="space-y-4">
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={LayoutDashboard} />
+              <h2 className="text-xl">Courses</h2>
+            </div>
+            {faculty.courses.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No courses available.
+              </p>
+            ) : (
+              faculty.courses.map((course) => (
+                <Link
+                  key={course.id}
+                  href={`/faculties/${resolvedParams.facultyId}/courses/${course.id}`}
+                  className="block border rounded-md p-4 hover:bg-slate-50 transition"
+                >
+                  <h3 className="font-medium">{course.title}</h3>
+                  <p className="text-sm text-slate-700 truncate">
+                    {course.description}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Created: {new Date(course.createdAt).toLocaleDateString()}
+                  </p>
+                </Link>
+              ))
+            )}
           </div>
-        ) : (
-          <p className="text-gray-500">No resources found.</p>
-        )}
-      </div>
-      {selectedRole === "admin" && (
-        <div className="mt-6 flex gap-4">
-          <Link href={`/faculties/${facultyId}/courses/create?role=admin`}>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Course
-            </Button>
-          </Link>
-          <Link href={`/faculties/${facultyId}/courseworks/create?role=admin`}>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Coursework
-            </Button>
-          </Link>
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={LayoutDashboard} />
+              <h2 className="text-xl">Noticeboards</h2>
+            </div>
+            {faculty.noticeboards.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No noticeboards available.
+              </p>
+            ) : (
+              faculty.noticeboards.map((noticeboard) => (
+                <div key={noticeboard.id} className="border rounded-md p-4">
+                  <h3 className="font-medium">{noticeboard.title}</h3>
+                  <p className="text-xs text-slate-500">
+                    Created:{" "}
+                    {new Date(noticeboard.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={LayoutDashboard} />
+              <h2 className="text-xl">Attachments</h2>
+            </div>
+            {faculty.attachments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No attachments available.
+              </p>
+            ) : (
+              faculty.attachments.map((attachment) => (
+                <a
+                  key={attachment.id}
+                  href={attachment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block border rounded-md p-4 hover:bg-slate-50 transition"
+                >
+                  <h3 className="font-medium">{attachment.name}</h3>
+                  <p className="text-xs text-slate-500">
+                    Created:{" "}
+                    {new Date(attachment.createdAt).toLocaleDateString()}
+                  </p>
+                </a>
+              ))
+            )}
+          </div>
         </div>
-      )}
-      {!userId && (
-        <p className="text-sm text-gray-600 mt-4">
-          <Link
-            href={`/sign-in?redirect=/faculties/${facultyId}`}
-            className="text-blue-600 hover:underline"
-          >
-            Sign in
-          </Link>{" "}
-          to access full faculty details.
-        </p>
-      )}
+      </div>
     </div>
   );
-}
+};
+
+export default FacultyIdPage;

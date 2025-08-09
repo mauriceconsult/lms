@@ -1,52 +1,71 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
-import Link from "next/link";
 
 interface FacultyCardProps {
   id: string;
   title: string;
   imageUrl: string;
   description: string;
-  school: string; // Replace facultyTitle with school
+  school: string;
+  role: "admin" | "student" | null;
 }
 
-export const FacultyCard = ({
+export const FacultyCard: React.FC<FacultyCardProps> = ({
   id,
   title,
   imageUrl,
   description,
   school,
-}: FacultyCardProps) => {
-  // Function to strip HTML tags
-  const stripHtml = (html: string) => {
-    return html
-      .replace(/<[^>]*>/g, "") // Remove all tags
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&amp;/g, "&")
-      .replace(/&quot;/g, '"')
-      .replace(/&#039;/g, "'")
-      .replace(/&nbsp;/g, " ")
-      .trim();
+  role,
+}) => {
+  const router = useRouter();
+
+  // For admins, fetch the first course ID dynamically (client-side)
+  const handleClick = async () => {
+    if (role === "admin") {
+      try {
+        const response = await fetch(`/api/faculties/${id}/courses?role=admin`);
+        const courses = await response.json();
+        const firstCourseId = courses?.[0]?.id;
+        if (firstCourseId) {
+          router.push(`/faculties/${id}/courses/${firstCourseId}?role=admin`);
+        } else {
+          router.push(`/faculties/${id}/courses/list`);
+        }
+      } catch (error) {
+        console.error("Failed to fetch courses:", error);
+        router.push(`/faculties/${id}/courses/list`);
+      }
+    } else {
+      router.push(`/faculties/${id}/courses`);
+    }
   };
 
   return (
-    <Link href={`/faculties/${id}`}>
-      <div className="bg-white shadow-sm rounded-lg p-4 hover:bg-gray-100 transition">
-        {imageUrl && (
-          <div className="relative h-32 w-full mb-4">
-            <Image
-              src={imageUrl}
-              alt={title}
-              fill
-              className="object-cover rounded-md"
-              sizes="(max-width: 768px) 100vw, 33vw"
-            />
-          </div>
-        )}
-        <h3 className="text-lg font-medium text-gray-900">{title}</h3>
-        <p className="text-sm text-gray-600 line-clamp-2">{stripHtml(description)}</p>
-        <p className="text-sm text-gray-500 mt-2">School: {school}</p>
-      </div>
-    </Link>
+    <Card
+      className="cursor-pointer hover:shadow-lg transition"
+      onClick={handleClick}
+    >
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="relative h-40 w-full mb-4">
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            className="object-cover rounded-md"
+          />
+        </div>
+        <p className="text-sm text-gray-600 truncate">
+          {description ? description.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() : "No description available"}
+        </p>
+        <p className="text-xs text-gray-500 mt-2">School: {school}</p>
+      </CardContent>
+    </Card>
   );
 };

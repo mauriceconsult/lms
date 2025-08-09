@@ -3,318 +3,176 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Link as LinkIcon } from "lucide-react";
-import { Banner } from "@/components/banner";
+import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
-import { CourseActions } from "./_components/course-actions.client";
-import { ResourceCard } from "../../_components/resource-card";
-import { Prisma } from "@prisma/client";
-
-const stripHtml = (html: string) => {
-  return html
-    .replace(/<[^>]*>/g, "")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .trim();
-};
-
-type CourseWithRelations = Prisma.CourseGetPayload<{
-  include: {
-    tutors: {
-      select: {
-        id: true;
-        title: true;
-        isPublished: true;
-        createdAt: true;
-        playbackId: true;
-      };
-    };
-    courseworks: {
-      select: { id: true; title: true; isPublished: true; createdAt: true };
-    };
-    courseNoticeboards: {
-      select: { id: true; title: true; isPublished: true; createdAt: true };
-    };
-    assignments: { select: { tutorId: true; courseworkId: true } };
-  };
-}>;
+import Image from "next/image";
+import { Textarea } from "@/components/ui/textarea";
 
 export default async function CourseIdPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ facultyId: string; courseId: string }>;
-  searchParams: Promise<{ role?: string; q?: string }>;
 }) {
-  const { facultyId, courseId } = await params;
-  const { role, q } = await searchParams;
-  const query = q?.trim() || "";
-
   const { userId } = await auth();
   if (!userId) {
     return redirect(
-      `/sign-in?redirect=/faculties/${facultyId}/courses/${courseId}`
+      `/sign-in?redirect=/faculties/${(await params).facultyId}/courses/${
+        (await params).courseId
+      }`
     );
   }
 
   const user = await currentUser();
   const isAdmin = user?.publicMetadata?.role === "admin";
-  const selectedRole = role === "admin" && isAdmin ? "admin" : "student";
-
-  const course = (await db.course.findUnique({
-    where: { id: courseId, facultyId },
-    include: {
-      tutors: {
-        select: {
-          id: true,
-          title: true,
-          isPublished: true,
-          createdAt: true,
-          playbackId: true,
-        },
-        where: {
-          ...(isAdmin ? {} : { isPublished: true }), // Admins see all tutors
-          ...(query && !isAdmin
-            ? { title: { contains: query, mode: "insensitive" } }
-            : {}), // Search only for non-admins
-        },
-        orderBy: { position: "asc" },
-      },
-      courseworks: {
-        select: {
-          id: true,
-          title: true,
-          isPublished: true,
-          createdAt: true,
-        },
-        where: {
-          ...(isAdmin ? {} : { isPublished: true }),
-          ...(query && !isAdmin
-            ? { title: { contains: query, mode: "insensitive" } }
-            : {}),
-        },
-        orderBy: { createdAt: "desc" },
-      },
-      courseNoticeboards: {
-        select: {
-          id: true,
-          title: true,
-          isPublished: true,
-          createdAt: true,
-        },
-        where: {
-          ...(isAdmin ? {} : { isPublished: true }),
-          ...(query && !isAdmin
-            ? { title: { contains: query, mode: "insensitive" } }
-            : {}),
-        },
-        orderBy: { createdAt: "desc" },
-      },
-      assignments: {
-        select: { tutorId: true },
-      },
-    },
-  })) as CourseWithRelations | null;
-
-  if (!course) {
-    return redirect(`/faculties/${facultyId}`);
+  if (!isAdmin) {
+    return redirect(`/faculties/${(await params).facultyId}/courses`);
   }
 
-  const hasTutors = course.tutors.length > 0;
-  const hasCourseworks = course.courseworks.length > 0;
-  const hasTutorAssignments = course.assignments.length > 0;
-  const allTutorsPaired = course.tutors.every((tutor) =>
-    course.assignments.some((ta) => ta.tutorId === tutor.id)
-  );
-  const canPublish = hasTutors && hasCourseworks && allTutorsPaired;
+  const { facultyId, courseId } = await params;
 
-  const resources = [
-    ...course.tutors.map((tutor) => ({
-      id: tutor.id,
-      title: tutor.title || `Untitled Tutor`,
-      type: "tutor" as const,
-      createdAt: tutor.createdAt,
-      muxPlaybackId: tutor.playbackId,
-      description: undefined,
-      isPublished: tutor.isPublished,
-    })),
-    ...course.courseworks.map((coursework) => ({
-      id: coursework.id,
-      title: coursework.title || `Untitled Coursework`,
-      type: "coursework" as const,
-      createdAt: coursework.createdAt,
-      description: undefined,
-      isPublished: coursework.isPublished,
-    })),
-    ...course.courseNoticeboards.map((courseNoticeboard) => ({
-      id: courseNoticeboard.id,
-      title: courseNoticeboard.title || `Untitled Noticeboard`,
-      type: "courseNoticeboard" as const,
-      createdAt: courseNoticeboard.createdAt,
-      description: undefined,
-      isPublished: courseNoticeboard.isPublished,
-    })),
-  ].sort((a, b) => {
-    // Prioritize draft tutors and courseworks for admins
-    if (isAdmin) {
-      if (!a.isPublished && b.isPublished) return -1;
-      if (a.isPublished && !b.isPublished) return 1;
-    }
-    return b.createdAt.getTime() - a.createdAt.getTime();
+  const course = await db.course.findUnique({
+    where: { id: courseId, facultyId, isPublished: true },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imageUrl: true,
+      amount: true,
+      faculty: { select: { title: true } },
+      tutors: { select: { id: true, title: true } },
+      courseworks: { select: { id: true, title: true } },
+      courseNoticeboards: { select: { id: true, description: true } },
+    },
   });
 
-  const initialData = {
-    title: course.title,
-    description: course.description,
-    amount: course.amount,
-    isPublished: course.isPublished,
-    publishDate: course.publishDate,
-    canPublish,
+  if (!course) {
+    return redirect(`/faculties/${facultyId}/courses/list`);
+  }
+
+  // Utility function to strip HTML tags
+  const stripHtmlTags = (html: string | null): string => {
+    if (!html) return "";
+    return html
+      .replace(/<[^>]+>/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
   };
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      {(!course.isPublished || !canPublish) && (
-        <Banner
-          variant="warning"
-          label={
-            !course.isPublished
-              ? "This course is unpublished. It will not be visible to students."
-              : !hasTutors
-              ? "This course requires at least one tutor to be publishable."
-              : !hasCourseworks
-              ? "This course requires at least one assignment to be publishable."
-              : !hasTutorAssignments
-              ? "Please pair the tutor with an assignment to publish this course."
-              : "All tutors must be paired with an assignment to publish this course."
-          }
-        />
-      )}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex flex-col gap-y-2">
-          <h1 className="text-2xl font-medium text-gray-900">
-            {course.title || "Untitled Course"}
-          </h1>
-          {course.description && (
-            <p className="text-sm text-gray-600">
-              {stripHtml(course.description)}
-            </p>
-            
-          )}
-        </div>
-        {selectedRole === "admin" && (
-          <CourseActions
-            key={`${courseId}-${
-              course.isPublished
-            }-${course.updatedAt.toISOString()}`}
-            courseId={courseId}
-            facultyId={facultyId}
-            initialData={initialData}
-          />
-        )}
-      </div>
-      <form className="flex gap-2 mb-6">
-        <Input
-          type="text"
-          name="q"
-          defaultValue={query}
-          placeholder="Search tutors, assignments, or courseNoticeboards..."
-          className="w-full"
-        />
-        <Button type="submit">
-          <Search className="w-4 h-4 mr-2" />
-          Search
-        </Button>
-      </form>
-      <div>
-        <h2 className="text-xl font-medium text-gray-900 mb-4">
-          {query ? `Results for "${query}"` : "Course Resources"}
-        </h2>
-        {resources.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {resources.map((resource) => (
-              <ResourceCard
-                key={`${resource.type}-${resource.id}`}
-                id={resource.id}
-                title={resource.title}
-                type={resource.type}
-                createdAt={resource.createdAt}
-                muxPlaybackId={resource.type === "tutor" ? resource.muxPlaybackId : undefined}
-                description={resource.description}
-                role={selectedRole}
-                facultyId={facultyId}
-                courseId={courseId}
-                isPublished={resource.isPublished}
-                isEditable={selectedRole === "admin"}
+      <Link
+        className="flex items-center text-sm hover:opacity-75 transition mb-6"
+        href={`/faculties/${facultyId}/courses/list`}
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Course List
+      </Link>
+      <h1 className="text-2xl font-medium text-gray-900 mb-4">
+        Course: {course.title || "Untitled Course"}
+      </h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h2 className="text-xl font-medium text-gray-900 mb-4">
+            Course Details
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-medium">Title</h3>
+              <p className="text-sm text-gray-600">
+                {course.title || "Untitled"}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium">Faculty</h3>
+              <p className="text-sm text-gray-600">
+                {course.faculty?.title || "Unknown Faculty"}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium">Description</h3>
+              <p className="text-sm text-gray-600">
+                {stripHtmlTags(course.description) ||
+                  "No description available"}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium">Amount</h3>
+              <p className="text-sm text-gray-600">
+                {course.amount ? `$${course.amount}` : "Not set"}
+              </p>
+            </div>
+            <div className="relative h-40 w-full">
+              <Image
+                src={course.imageUrl || "/mcalogo.png"}
+                alt={course.title}
+                width={400}
+                height={160}
+                className="object-cover rounded-md"
               />
-            ))}
+            </div>
           </div>
-        ) : (
-          <p className="text-gray-500">No resources found.</p>
-        )}
-      </div>
-      {selectedRole === "admin" && (
-        <div className="mt-6 flex gap-4">
-          {course.isPublished ? (
-            <Link
-              href={`/faculties/${facultyId}/courses/${courseId}/tutors/${
-                course.tutors[0]?.id || "create"
-              }?role=admin`}
-            >
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Create Tutor
-              </Button>
-            </Link>
-          ) : (
-            <Button disabled>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Tutor
-            </Button>
-          )}
-          <Link
-            href={`/faculties/${facultyId}/courses/${courseId}/courseworks/create?role=admin`}
-          >
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Assignment
-            </Button>
-          </Link>
-          <Link
-            href={`/faculties/${facultyId}/courses/${courseId}/courseNoticeboards/create?role=admin`}
-          >
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Noticeboard
-            </Button>
-          </Link>
-          {!hasTutorAssignments && hasTutors && hasCourseworks && (
-            <Link
-              href={`/faculties/${facultyId}/courses/${courseId}/tutor-assignments/create?role=admin`}
-            >
-              <Button>
-                <LinkIcon className="w-4 h-4 mr-2" />
-                Pair Tutor with Assignment
-              </Button>
-            </Link>
-          )}
         </div>
-      )}
-      {!userId && (
-        <p className="text-sm text-gray-600 mt-4">
-          <Link
-            href={`/sign-in?redirect=/faculties/${facultyId}/courses/${courseId}`}
-            className="text-blue-600 hover:underline"
-          >
-            Sign in
-          </Link>{" "}
-          to access full course details.
-        </p>
-      )}
+        <div>
+          <h2 className="text-xl font-medium text-gray-900 mb-4">
+            Edit Course
+          </h2>
+          <form className="space-y-4">
+            <div>
+              <h3 className="text-lg font-medium">Tutors</h3>
+              <ul className="text-sm text-gray-600">
+                {course.tutors.length > 0 ? (
+                  course.tutors.map((tutor) => (
+                    <li key={tutor.id}>{tutor.title || "Untitled Tutor"}</li>
+                  ))
+                ) : (
+                  <li>No tutors assigned</li>
+                )}
+              </ul>
+              <Input placeholder="Add tutor by ID or title" className="mt-2" />
+              <Button type="submit" className="mt-2">
+                <Save className="w-4 h-4 mr-2" />
+                Update Tutors
+              </Button>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium">Coursework</h3>
+              <ul className="text-sm text-gray-600">
+                {course.courseworks.length > 0 ? (
+                  course.courseworks.map((work) => (
+                    <li key={work.id}>{work.title || "Untitled Coursework"}</li>
+                  ))
+                ) : (
+                  <li>No coursework assigned</li>
+                )}
+              </ul>
+              <Input placeholder="Add coursework title" className="mt-2" />
+              <Button type="submit" className="mt-2">
+                <Save className="w-4 h-4 mr-2" />
+                Update Coursework
+              </Button>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium">Noticeboard</h3>
+              <ul className="text-sm text-gray-600">
+                {course.courseNoticeboards.length > 0 ? (
+                  course.courseNoticeboards.map((notice) => (
+                    <li key={notice.id}>
+                      {stripHtmlTags(notice.description) || "Empty notice"}
+                    </li>
+                  ))
+                ) : (
+                  <li>No notices</li>
+                )}
+              </ul>
+              <Textarea placeholder="Add notice description" className="mt-2" />
+              <Button type="submit" className="mt-2">
+                <Save className="w-4 h-4 mr-2" />
+                Update Noticeboard
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
