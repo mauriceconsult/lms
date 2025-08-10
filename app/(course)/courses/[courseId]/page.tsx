@@ -1,36 +1,31 @@
 import { db } from "@/lib/db";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, LayoutDashboard } from "lucide-react";
-import { IconBadge } from "@/components/icon-badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 export default async function CourseIdPage({
   params,
 }: {
-  params: Promise<{ courseId: string }>;
+  params: Promise<{ facultyId: string; courseId: string }>;
 }) {
   console.log(`[${new Date().toISOString()} CourseIdPage] Route accessed:`, {
-    params: await params,
+    params,
   });
 
   const { userId } = await auth();
+  const { facultyId, courseId } = await params;
+
   if (!userId) {
-    const { courseId } = await params;
-    return redirect(`/sign-in?redirect=/courses/${courseId}`);
+    return redirect(
+      `/sign-in?redirect=/faculties/${facultyId}/courses/${courseId}`
+    );
   }
-
-  const user = await currentUser();
-  const isAdmin = user?.publicMetadata?.role === "admin";
-  if (!isAdmin) {
-    const { courseId } = await params;
-    return redirect(`/${courseId}/tutors`);
-  }
-
-  const { courseId } = await params;
 
   console.log(`[${new Date().toISOString()} CourseIdPage] Fetching course:`, {
     courseId,
+    facultyId,
     userId,
   });
 
@@ -40,20 +35,16 @@ export default async function CourseIdPage({
       id: true,
       title: true,
       description: true,
-      facultyId: true,
+      imageUrl: true,
+      amount: true,
+      enrollments: {
+        select: { id: true },
+        where: { userId },
+      },
       tutors: {
-        where: { isPublished: true },
-        select: { id: true, title: true, createdAt: true },
-        orderBy: { createdAt: "desc" },
-      },
-      courseNoticeboards: {
-        where: { isPublished: true },
-        select: { id: true, title: true, createdAt: true },
-        orderBy: { createdAt: "desc" },
-      },
-      attachments: {
-        select: { id: true, url: true, createdAt: true },
-        orderBy: { createdAt: "desc" },
+        select: { id: true, title: true },
+        orderBy: { createdAt: "asc" },
+        take: 1, // Get first tutor
       },
     },
   });
@@ -63,132 +54,147 @@ export default async function CourseIdPage({
       `[${new Date().toISOString()} CourseIdPage] Course not found or not published:`,
       { courseId, userId }
     );
-    return redirect(`/faculties/cmdsostg20000u5hklpxygy16/courses`);
+    return redirect(`/faculties/${facultyId}`);
   }
 
-  console.log(`[${new Date().toISOString()} CourseIdPage] Course fetched:`, {
-    courseId: course.id,
-    title: course.title,
-    facultyId: course.facultyId,
-    tutors: course.tutors.length,
-    courseNoticeboards: course.courseNoticeboards.length,
-    attachments: course.attachments.length,
-  });
+  const isEnrolled = course.enrollments.length > 0;
+  const firstTutorId = course.tutors.length > 0 ? course.tutors[0].id : null;
 
-  // Strip HTML tags from description
-  const stripHtml = (html: string | null): string => {
-    if (!html) return "No description available";
-    return html
-      .replace(/<[^>]*>/g, "")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&amp;/g, "&")
-      .replace(/&quot;/g, '"')
-      .replace(/&#039;/g, "'")
-      .replace(/&nbsp;/g, " ")
-      .trim();
-  };
+  // Redirect to first tutor if exists and user is enrolled or admin
+  if (
+    firstTutorId &&
+    (isEnrolled || userId === "user_2pOqv2tzOq6guQnvrQ8POLYPQ4q")
+  ) {
+    console.log(
+      `[${new Date().toISOString()} CourseIdPage] Redirecting to first tutor:`,
+      {
+        courseId,
+        tutorId: firstTutorId,
+        userId,
+      }
+    );
+    return redirect(
+      `/faculties/${facultyId}/courses/${courseId}/tutors/${firstTutorId}`
+    );
+  }
+
+  const defaultImageUrl = "/placeholder.png";
+  const isValidImageUrl =
+    course.imageUrl && course.imageUrl.startsWith("https://utfs.io/")
+      ? course.imageUrl
+      : defaultImageUrl;
+  const formattedAmount = course.amount || "0.00";
 
   return (
     <div className="p-6">
-      <Link
-        className="flex items-center text-sm hover:opacity-75 transition mb-6"
-        href={`/faculties/${course.facultyId}/courses`}
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Courses
-      </Link>
-      <div className="flex flex-col gap-y-2">
-        <h1 className="text-2xl font-medium">
-          {course.title || "Untitled Course"}
-        </h1>
-        <p className="text-sm text-slate-700">
-          {stripHtml(course.description)}
-        </p>
+      <h1 className="text-2xl font-medium">
+        {course.title || "Untitled Course"}
+      </h1>
+      <div className="text-sm text-slate-700 mb-6">
+        {course.description
+          ? course.description
+              .replace(/<[^>]+>/g, "")
+              .replace(/\s+/g, " ")
+              .trim()
+          : "No description available"}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-xl">Tutors</h2>
-            </div>
-            {course.tutors.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No tutors available.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {course.tutors.map((tutor) => (
-                  <Link
-                    key={tutor.id}
-                    href={`/${courseId}/tutors/${tutor.id}?role=admin`}
-                    className="border rounded-md p-4 hover:bg-slate-50 transition"
-                  >
-                    <h3 className="font-medium">
-                      {tutor.title || "Untitled Tutor"}
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      Created: {new Date(tutor.createdAt).toLocaleDateString()}
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-xl">Noticeboards</h2>
-            </div>
-            {course.courseNoticeboards.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No noticeboards available.
-              </p>
-            ) : (
-              course.courseNoticeboards.map((courseNoticeboard) => (
-                <div
-                  key={courseNoticeboard.id}
-                  className="border rounded-md p-4"
-                >
-                  <h3 className="font-medium">{courseNoticeboard.title}</h3>
-                  <p className="text-xs text-slate-500">
-                    Created:{" "}
-                    {new Date(courseNoticeboard.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-xl">Attachments</h2>
-            </div>
-            {course.attachments.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No attachments available.
-              </p>
-            ) : (
-              course.attachments.map((attachment) => (
-                <a
-                  key={attachment.id}
-                  href={attachment.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block border rounded-md p-4 hover:bg-slate-50 transition"
-                >
-                  <h3 className="font-medium">{attachment.url}</h3>
-                  <p className="text-xs text-slate-500">
-                    Created:{" "}
-                    {new Date(attachment.createdAt).toLocaleDateString()}
-                  </p>
-                </a>
-              ))
-            )}
-          </div>
+      <div className="relative h-60 w-full mb-6">
+        <Image
+          src={isValidImageUrl}
+          alt={course.title || "Course Image"}
+          fill
+          className="object-cover rounded-md"
+        />
+      </div>
+      {userId === "user_2pOqv2tzOq6guQnvrQ8POLYPQ4q" ? (
+        <div className="mb-6">
+          <h2 className="text-xl font-medium">Create Tutor</h2>
+          <form
+            action={async (formData: FormData) => {
+              "use server";
+              const title = formData.get("tutorTitle") as string;
+              try {
+                await db.tutor.create({
+                  data: {
+                    courseId,
+                    userId,
+                    title,
+                    description: "New tutor",
+                  },
+                });
+                console.log(
+                  `[${new Date().toISOString()} CourseIdPage] Tutor created:`,
+                  { courseId, title }
+                );
+              } catch (error) {
+                console.error(
+                  `[${new Date().toISOString()} CourseIdPage] Tutor creation error:`,
+                  error
+                );
+              }
+            }}
+          >
+            <Input
+              name="tutorTitle"
+              placeholder="Tutor Title"
+              className="mb-2"
+            />
+            <Button type="submit">Create Tutor</Button>
+          </form>
+          <p className="text-sm text-slate-700 mt-4">
+            No tutors available. Create one to add content.
+          </p>
         </div>
-      </div>
+      ) : (
+        <div className="mb-6">
+          <h2 className="text-xl font-medium">Enroll in Course</h2>
+          <p className="text-sm text-slate-700 mb-4">
+            Cost: ${formattedAmount}
+          </p>
+          <Button
+            onClick={async () => {
+              console.log(
+                `[${new Date().toISOString()} CourseIdPage] Initiating MoMo payment:`,
+                {
+                  courseId,
+                  amount: formattedAmount,
+                  userId,
+                }
+              );
+              try {
+                const response = await fetch("/api/momo", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    amount: formattedAmount,
+                    courseId,
+                    userId,
+                  }),
+                });
+                const data = await response.json();
+                if (data.paymentUrl) {
+                  window.location.href = data.paymentUrl;
+                } else {
+                  console.error(
+                    `[${new Date().toISOString()} CourseIdPage] MoMo payment failed:`,
+                    data
+                  );
+                }
+              } catch (error) {
+                console.error(
+                  `[${new Date().toISOString()} CourseIdPage] MoMo payment error:`,
+                  error
+                );
+              }
+            }}
+          >
+            Enroll with MoMo
+          </Button>
+          <p className="text-sm text-slate-700 mt-4">
+            No tutors available. Check back later for content.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

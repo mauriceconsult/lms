@@ -77,8 +77,8 @@ export default async function FacultyIdPage({
         .trim()
     : "No description available";
 
-  // Validate imageUrl and convert amount
-  const defaultImageUrl = "/placeholder.png"; // Use local placeholder
+  // Validate imageUrl and format amount as string
+  const defaultImageUrl = "/placeholder.png";
   const courses = faculty.courses.map((course) => {
     const isValidImageUrl = course.imageUrl && course.imageUrl.startsWith("https://utfs.io/") ? course.imageUrl : defaultImageUrl;
     if (!course.imageUrl || course.imageUrl.includes("via.placeholder.com") || !course.imageUrl.startsWith("https://utfs.io/")) {
@@ -89,7 +89,7 @@ export default async function FacultyIdPage({
     }
     return {
       ...course,
-      amount: course.amount != null ? Number(course.amount) : null,
+      amount: course.amount != null ? course.amount : "0.00",
       imageUrl: isValidImageUrl,
     };
   });

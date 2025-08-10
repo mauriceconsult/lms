@@ -9,7 +9,7 @@ interface CourseCardProps {
   facultyId: string;
   title: string;
   imageUrl?: string | null;
-  amount: string | number | null | undefined;
+  amount: string | null;
   faculty: string;
   description?: string | null;
   createdAt: Date;
@@ -18,7 +18,7 @@ interface CourseCardProps {
 
 export const CourseCard: React.FC<CourseCardProps> = ({
   id,
-  // facultyId,
+  facultyId,
   title,
   imageUrl,
   amount,
@@ -28,7 +28,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   role,
 }) => {
   const router = useRouter();
-  const placeholderImage = "/placeholder.png"; // Ensure public/placeholder.png exists
+  const placeholderImage = "/placeholder.png";
   const isValidImageUrl = imageUrl && imageUrl.startsWith("https://utfs.io/") ? imageUrl : placeholderImage;
 
   console.log(`[${new Date().toISOString()} CourseCard] Rendering course:`, {
@@ -43,23 +43,15 @@ export const CourseCard: React.FC<CourseCardProps> = ({
 
   const handleClick = () => {
     let href = "/sign-in";
-    if (role === "admin") {
-      href = `/courses/${id}`;
-      console.log(`[${new Date().toISOString()} CourseCard] Admin navigation for course:`, { courseId: id });
-    } else if (role === "student") {
-      href = `/tutors/${id}`;
-      console.log(`[${new Date().toISOString()} CourseCard] Student navigation for course:`, { courseId: id });
+    if (role === "admin" || role === "student") {
+      href = `/faculties/${facultyId}/courses/${id}`;
+      console.log(`[${new Date().toISOString()} CourseCard] Navigation for role:`, { role, courseId: id, href });
     }
     console.log(`[${new Date().toISOString()} CourseCard] Navigating to:`, { courseId: id, role, href });
     router.push(href);
   };
 
-  const formattedAmount =
-    typeof amount === "number"
-      ? amount.toFixed(2)
-      : typeof amount === "string"
-      ? Number(amount).toFixed(2)
-      : "0.00";
+  const formattedAmount = amount != null ? amount : "0.00";
   console.log(`[${new Date().toISOString()} CourseCard] Formatted amount:`, {
     id,
     amount,
