@@ -1,81 +1,109 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
-import Link from "next/link";
-import { IconBadge } from "./icon-badge";
-import { BookOpen } from "lucide-react";
-import { formatAmount } from "@/lib/format";
 
 interface CourseCardProps {
   id: string;
+  facultyId: string;
   title: string;
-  imageUrl?: string;
-  tutorsLength: number;
-  amount: number;
-  progress: number | null;
+  imageUrl?: string | null;
+  amount: string | number | null | undefined;
   faculty: string;
-  description?: string; 
+  description?: string | null;
+  createdAt: Date;
+  role: "admin" | "student" | null;
 }
 
-export const CourseCard = ({
+export const CourseCard: React.FC<CourseCardProps> = ({
   id,
+  // facultyId,
   title,
   imageUrl,
-  tutorsLength,
   amount,
-  progress,
   faculty,
   description,
-}: CourseCardProps) => {
-  // Function to strip HTML tags
-  const stripHtml = (html: string) => {
-    return html
-      .replace(/<[^>]*>/g, "") // Remove all tags
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&amp;/g, "&")
-      .replace(/&quot;/g, '"')
-      .replace(/&#039;/g, "'")
-      .replace(/&nbsp;/g, " ")
-      .trim();
+  createdAt,
+  role,
+}) => {
+  const router = useRouter();
+  const placeholderImage = "/placeholder.png"; // Ensure public/placeholder.png exists
+  const isValidImageUrl = imageUrl && imageUrl.startsWith("https://utfs.io/") ? imageUrl : placeholderImage;
+
+  console.log(`[${new Date().toISOString()} CourseCard] Rendering course:`, {
+    id,
+    title,
+    amount,
+    amountType: typeof amount,
+    imageUrl,
+    isValidImageUrl,
+    role,
+  });
+
+  const handleClick = () => {
+    let href = "/sign-in";
+    if (role === "admin") {
+      href = `/courses/${id}`;
+      console.log(`[${new Date().toISOString()} CourseCard] Admin navigation for course:`, { courseId: id });
+    } else if (role === "student") {
+      href = `/tutors/${id}`;
+      console.log(`[${new Date().toISOString()} CourseCard] Student navigation for course:`, { courseId: id });
+    }
+    console.log(`[${new Date().toISOString()} CourseCard] Navigating to:`, { courseId: id, role, href });
+    router.push(href);
   };
 
+  const formattedAmount =
+    typeof amount === "number"
+      ? amount.toFixed(2)
+      : typeof amount === "string"
+      ? Number(amount).toFixed(2)
+      : "0.00";
+  console.log(`[${new Date().toISOString()} CourseCard] Formatted amount:`, {
+    id,
+    amount,
+    formattedAmount,
+  });
+
+  if (!isValidImageUrl) {
+    console.log(`[${new Date().toISOString()} CourseCard] Using placeholder image for course:`, {
+      id,
+      imageSrc: isValidImageUrl,
+    });
+  }
+
   return (
-    <Link href={`/faculties/${id}/courses/${id}`}>
-      <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
-        <div className="relative w-full aspect-video rounded-md overflow-hidden">
+    <Card
+      className="cursor-pointer hover:shadow-lg transition"
+      onClick={handleClick}
+    >
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="relative h-40 w-full mb-4">
           <Image
-            fill
-            className="object-cover"
+            src={isValidImageUrl}
             alt={title}
-            src={imageUrl || "/course_cover.jpg"}
+            fill
+            className="object-cover rounded-md"
           />
         </div>
-        <div className="flex flex-col pt-2">
-          <div className="text-lg md:text-base font-medium group-hover:text-sky-700 transition line-clamp-2">
-            {title}
-          </div>
-          <p className="text-xs text-muted-foreground">{faculty}</p>
-          {description && (
-            <span className="text-slate-950 text-muted-foreground font-normal line-clamp-3">
-              {stripHtml(description)}
-            </span>
-          )}
-          <div className="my-3 flex items-center gap-x-2 text-sm md:text-xs">
-            <div className="flex items-center gap-x-1 text-slate-500">
-              <IconBadge size={"sm"} icon={BookOpen} />
-              <span>
-                {tutorsLength} {tutorsLength === 1 ? "Topic" : "Topics"}
-              </span>
-            </div>
-          </div>
-          {progress !== null ? (
-            <div>TODO: Progress component</div>
-          ) : (
-            <p className="text-md md:text-sm font-medium text-slate-700">
-              {formatAmount(amount.toString())}
-            </p>
-          )}
-        </div>
-      </div>
-    </Link>
+        <p className="text-sm text-gray-600 truncate">
+          {description
+            ? description
+                .replace(/<[^>]+>/g, "")
+                .replace(/\s+/g, " ")
+                .trim()
+            : "No description available"}
+        </p>
+        <p className="text-xs text-gray-500 mt-2">Faculty: {faculty}</p>
+        <p className="text-xs text-gray-500">Amount: ${formattedAmount}</p>
+        <p className="text-xs text-gray-500">
+          Created: {new Date(createdAt).toLocaleDateString()}
+        </p>
+      </CardContent>
+    </Card>
   );
 };

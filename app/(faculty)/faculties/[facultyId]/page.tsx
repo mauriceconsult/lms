@@ -1,181 +1,154 @@
 import { db } from "@/lib/db";
-import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import Link from "next/link";
-import { ArrowLeft, LayoutDashboard } from "lucide-react";
-import { IconBadge } from "@/components/icon-badge";
+import { redirect } from "next/navigation";
+import { CourseCard } from "@/components/course-card";
 
-const FacultyIdPage = async ({
+export default async function FacultyIdPage({
   params,
 }: {
-  params: Promise<{
-    facultyId: string;
-  }>;
-}) => {
+  params: Promise<{ facultyId: string }>;
+}) {
+  console.log(`[${new Date().toISOString()} FacultyIdPage] Route accessed:`, {
+    params,
+  });
+
   const { userId } = await auth();
+  const { facultyId } = await params;
+
   if (!userId) {
-    return redirect("/sign-in");
+    return redirect(`/sign-in?redirect=/faculties/${facultyId}`);
   }
 
-  const resolvedParams = await params;
+  console.log(`[${new Date().toISOString()} FacultyIdPage] Fetching faculty:`, {
+    facultyId,
+    userId,
+  });
+
   const faculty = await db.faculty.findUnique({
-    where: {
-      id: resolvedParams.facultyId,
-      isPublished: true,
-    },
-    include: {
-      school: {
-        select: {
-          name: true,
-        },
-      },
+    where: { id: facultyId, isPublished: true },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imageUrl: true,
       courses: {
         select: {
           id: true,
           title: true,
           description: true,
           imageUrl: true,
+          amount: true,
           isPublished: true,
           createdAt: true,
         },
-        where: {
-          isPublished: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
+        where: { isPublished: true },
+        orderBy: { createdAt: "desc" },
       },
       noticeboards: {
-        select: {
-          id: true,
-          title: true,
-          isPublished: true,
-          createdAt: true,
-        },
-        where: {
-          isPublished: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
+        select: { id: true, title: true },
+        where: { isPublished: true },
       },
-      attachments: {
-        select: {
-          id: true,
-          name: true,
-          url: true,
-          createdAt: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
+      attachments: { select: { id: true, name: true, url: true } },
     },
   });
 
   if (!faculty) {
     console.error(
       `[${new Date().toISOString()} FacultyIdPage] Faculty not found or not published:`,
-      { facultyId: resolvedParams.facultyId, userId }
+      { facultyId, userId }
     );
     return redirect("/faculties");
   }
 
+  console.log(`[${new Date().toISOString()} FacultyIdPage] Faculty fetched:`, {
+    facultyId: faculty.id,
+    title: faculty.title,
+    imageUrl: faculty.imageUrl,
+    courses: faculty.courses.length,
+    noticeboards: faculty.noticeboards.length,
+    attachments: faculty.attachments.length,
+  });
+
+  // Process description
+  const processedDescription = faculty.description
+    ? faculty.description
+        .replace(/<[^>]+>/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+    : "No description available";
+
+  // Validate imageUrl and convert amount
+  const defaultImageUrl = "/placeholder.png"; // Use local placeholder
+  const courses = faculty.courses.map((course) => {
+    const isValidImageUrl = course.imageUrl && course.imageUrl.startsWith("https://utfs.io/") ? course.imageUrl : defaultImageUrl;
+    if (!course.imageUrl || course.imageUrl.includes("via.placeholder.com") || !course.imageUrl.startsWith("https://utfs.io/")) {
+      console.warn(
+        `[${new Date().toISOString()} FacultyIdPage] Invalid imageUrl for course:`,
+        { id: course.id, imageUrl: course.imageUrl, isValidImageUrl }
+      );
+    }
+    return {
+      ...course,
+      amount: course.amount != null ? Number(course.amount) : null,
+      imageUrl: isValidImageUrl,
+    };
+  });
+
+  console.log(
+    `[${new Date().toISOString()} FacultyIdPage] Courses processed:`,
+    {
+      courses: courses.map((c) => ({
+        id: c.id,
+        amount: c.amount,
+        amountType: typeof c.amount,
+        imageUrl: c.imageUrl,
+      })),
+    }
+  );
+
   return (
     <div className="p-6">
-      <Link
-        className="flex items-center text-sm hover:opacity-75 transition mb-6"
-        href="/faculties"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Faculties
-      </Link>
-      <div className="flex flex-col gap-y-2">
-        <h1 className="text-2xl font-medium">{faculty.title}</h1>
-        <p className="text-sm text-slate-700">{faculty.description}</p>
-        <p className="text-sm text-slate-700">School: {faculty.school?.name}</p>
+      <h1 className="text-2xl font-medium">
+        {faculty.title || "Untitled Faculty"}
+      </h1>
+      <div className="text-sm text-slate-700 mb-6">
+        {processedDescription}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-xl">Courses</h2>
-            </div>
-            {faculty.courses.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No courses available.
-              </p>
-            ) : (
-              faculty.courses.map((course) => (
-                <Link
-                  key={course.id}
-                  href={`/faculties/${resolvedParams.facultyId}/courses/${course.id}`}
-                  className="block border rounded-md p-4 hover:bg-slate-50 transition"
-                >
-                  <h3 className="font-medium">{course.title}</h3>
-                  <p className="text-sm text-slate-700 truncate">
-                    {course.description}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Created: {new Date(course.createdAt).toLocaleDateString()}
-                  </p>
-                </Link>
-              ))
-            )}
-          </div>
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-xl">Noticeboards</h2>
-            </div>
-            {faculty.noticeboards.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No noticeboards available.
-              </p>
-            ) : (
-              faculty.noticeboards.map((noticeboard) => (
-                <div key={noticeboard.id} className="border rounded-md p-4">
-                  <h3 className="font-medium">{noticeboard.title}</h3>
-                  <p className="text-xs text-slate-500">
-                    Created:{" "}
-                    {new Date(noticeboard.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-xl">Attachments</h2>
-            </div>
-            {faculty.attachments.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No attachments available.
-              </p>
-            ) : (
-              faculty.attachments.map((attachment) => (
-                <a
-                  key={attachment.id}
-                  href={attachment.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block border rounded-md p-4 hover:bg-slate-50 transition"
-                >
-                  <h3 className="font-medium">{attachment.name}</h3>
-                  <p className="text-xs text-slate-500">
-                    Created:{" "}
-                    {new Date(attachment.createdAt).toLocaleDateString()}
-                  </p>
-                </a>
-              ))
-            )}
-          </div>
+      <h2 className="text-xl font-medium mt-6">Courses</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        {courses.map((course) => (
+          <CourseCard
+            key={course.id}
+            id={course.id}
+            facultyId={faculty.id}
+            title={course.title || "Untitled Course"}
+            imageUrl={course.imageUrl}
+            amount={course.amount}
+            faculty={faculty.title || "Unknown Faculty"}
+            description={course.description}
+            createdAt={course.createdAt}
+            role={
+              userId === "user_2pOqv2tzOq6guQnvrQ8POLYPQ4q"
+                ? "admin"
+                : "student"
+            }
+          />
+        ))}
+      </div>
+      <h2 className="text-xl font-medium mt-6">Noticeboards</h2>
+      {faculty.noticeboards.map((noticeboard) => (
+        <div key={noticeboard.id} className="p-4 border rounded-md">
+          <p>{noticeboard.title}</p>
         </div>
-      </div>
+      ))}
+      <h2 className="text-xl font-medium mt-6">Attachments</h2>
+      {faculty.attachments.map((attachment) => (
+        <div key={attachment.id} className="p-4 border rounded-md">
+          <a href={attachment.url} className="text-blue-500">
+            {attachment.name}
+          </a>
+        </div>
+      ))}
     </div>
   );
-};
-
-export default FacultyIdPage;
+}

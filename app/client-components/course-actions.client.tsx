@@ -6,7 +6,7 @@ import { IconBadge } from "@/components/icon-badge";
 import { LayoutDashboard, ListChecks, File, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Banner } from "@/components/banner";
-import { CourseActions } from "../(course)/courses/[courseId]/_components/course-actions.client";
+import { CourseActions } from "../(course)/_components/course-actions.client";
 
 const stripHtml = (html: string) => {
   return html

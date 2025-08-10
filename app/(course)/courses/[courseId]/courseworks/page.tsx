@@ -5,7 +5,7 @@ import { columns } from "./_components/coursework-columns";
 import { DataTable } from "./_components/coursework-data-table";
 
 interface CourseworksPageProps {
-  params: Promise<{ facultyId: string }>;
+  params: Promise<{ courseId: string }>;
 }
 
 export default async function CourseworksPage({ params }: CourseworksPageProps) {
@@ -14,17 +14,17 @@ export default async function CourseworksPage({ params }: CourseworksPageProps) 
     return redirect("/");
   }
 
-  const { facultyId } = await params;
-  const faculty = await db.faculty.findUnique({
-    where: { id: facultyId },
+  const { courseId } = await params;
+  const course = await db.course.findUnique({
+    where: { id: courseId },
   });
 
-  if (!faculty) {
+  if (!course) {
     return redirect("/");
   }
 
   const courseworks = await db.coursework.findMany({
-    where: { facultyId },
+    where: { courseId },
     include: {
       attachments: {
         orderBy: { createdAt: "desc" },

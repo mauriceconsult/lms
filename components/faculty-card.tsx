@@ -23,22 +23,9 @@ export const FacultyCard: React.FC<FacultyCardProps> = ({
 }) => {
   const router = useRouter();
 
-  // For admins, fetch the first course ID dynamically (client-side)
-  const handleClick = async () => {
+  const handleClick = () => {
     if (role === "admin") {
-      try {
-        const response = await fetch(`/api/faculties/${id}/courses?role=admin`);
-        const courses = await response.json();
-        const firstCourseId = courses?.[0]?.id;
-        if (firstCourseId) {
-          router.push(`/faculties/${id}/courses/${firstCourseId}?role=admin`);
-        } else {
-          router.push(`/faculties/${id}/courses/list`);
-        }
-      } catch (error) {
-        console.error("Failed to fetch courses:", error);
-        router.push(`/faculties/${id}/courses/list`);
-      }
+      router.push(`/faculties/${id}`);
     } else {
       router.push(`/faculties/${id}/courses`);
     }
@@ -62,7 +49,12 @@ export const FacultyCard: React.FC<FacultyCardProps> = ({
           />
         </div>
         <p className="text-sm text-gray-600 truncate">
-          {description ? description.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() : "No description available"}
+          {description
+            ? description
+                .replace(/<[^>]+>/g, "")
+                .replace(/\s+/g, " ")
+                .trim()
+            : "No description available"}
         </p>
         <p className="text-xs text-gray-500 mt-2">School: {school}</p>
       </CardContent>

@@ -8,60 +8,84 @@ import { IconBadge } from "@/components/icon-badge";
 export default async function CourseIdPage({
   params,
 }: {
-  params: Promise<{ facultyId: string; courseId: string }>;
+  params: Promise<{ courseId: string }>;
 }) {
+  console.log(`[${new Date().toISOString()} CourseIdPage] Route accessed:`, {
+    params: await params,
+  });
+
   const { userId } = await auth();
   if (!userId) {
-    return redirect(
-      `/sign-in?redirect=/faculties/${(await params).facultyId}/courses/${
-        (await params).courseId
-      }`
-    );
+    const { courseId } = await params;
+    return redirect(`/sign-in?redirect=/courses/${courseId}`);
   }
 
   const user = await currentUser();
   const isAdmin = user?.publicMetadata?.role === "admin";
   if (!isAdmin) {
-    return redirect(`/faculties/${(await params).facultyId}/courses`);
+    const { courseId } = await params;
+    return redirect(`/${courseId}/tutors`);
   }
 
-  const { facultyId, courseId } = await params;
+  const { courseId } = await params;
+
+  console.log(`[${new Date().toISOString()} CourseIdPage] Fetching course:`, {
+    courseId,
+    userId,
+  });
 
   const course = await db.course.findUnique({
-    where: { id: courseId, facultyId, isPublished: true },
+    where: { id: courseId, isPublished: true },
     select: {
       id: true,
       title: true,
       description: true,
-      faculty: { select: { title: true } },
+      facultyId: true,
       tutors: {
-        select: { id: true, title: true, createdAt: true },
         where: { isPublished: true },
-        orderBy: { createdAt: "desc" },
-      },
-      courseworks: {
         select: { id: true, title: true, createdAt: true },
-        where: { isPublished: true },
         orderBy: { createdAt: "desc" },
       },
       courseNoticeboards: {
-        select: { id: true, title: true, createdAt: true },
         where: { isPublished: true },
+        select: { id: true, title: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+      },
+      attachments: {
+        select: { id: true, url: true, createdAt: true },
         orderBy: { createdAt: "desc" },
       },
     },
   });
 
   if (!course) {
-    return redirect(`/faculties/${facultyId}/courses/list`);
+    console.error(
+      `[${new Date().toISOString()} CourseIdPage] Course not found or not published:`,
+      { courseId, userId }
+    );
+    return redirect(`/faculties/cmdsostg20000u5hklpxygy16/courses`);
   }
 
-  // Utility function to strip HTML tags
-  const stripHtmlTags = (html: string | null): string => {
-    if (!html) return "";
+  console.log(`[${new Date().toISOString()} CourseIdPage] Course fetched:`, {
+    courseId: course.id,
+    title: course.title,
+    facultyId: course.facultyId,
+    tutors: course.tutors.length,
+    courseNoticeboards: course.courseNoticeboards.length,
+    attachments: course.attachments.length,
+  });
+
+  // Strip HTML tags from description
+  const stripHtml = (html: string | null): string => {
+    if (!html) return "No description available";
     return html
-      .replace(/<[^>]+>/g, "")
-      .replace(/\s+/g, " ")
+      .replace(/<[^>]*>/g, "")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'")
+      .replace(/&nbsp;/g, " ")
       .trim();
   };
 
@@ -69,20 +93,17 @@ export default async function CourseIdPage({
     <div className="p-6">
       <Link
         className="flex items-center text-sm hover:opacity-75 transition mb-6"
-        href={`/faculties/${facultyId}/courses/list`}
+        href={`/faculties/${course.facultyId}/courses`}
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Course List
+        Back to Courses
       </Link>
       <div className="flex flex-col gap-y-2">
         <h1 className="text-2xl font-medium">
           {course.title || "Untitled Course"}
         </h1>
         <p className="text-sm text-slate-700">
-          {stripHtmlTags(course.description) || "No description available"}
-        </p>
-        <p className="text-sm text-slate-700">
-          Faculty: {course.faculty?.title || "Unknown Faculty"}
+          {stripHtml(course.description)}
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
@@ -97,42 +118,22 @@ export default async function CourseIdPage({
                 No tutors available.
               </p>
             ) : (
-              course.tutors.map((tutor) => (
-                <Link
-                  key={tutor.id}
-                  href={`/faculties/${facultyId}/courses/${courseId}/tutors/${tutor.id}?role=admin`}
-                  className="block border rounded-md p-4 hover:bg-slate-50 transition"
-                >
-                  <h3 className="font-medium">
-                    {tutor.title || "Untitled Tutor"}
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Created: {new Date(tutor.createdAt).toLocaleDateString()}
-                  </p>
-                </Link>
-              ))
-            )}
-          </div>
-          <div>
-            <div className="flex items-center gap-x-2">
-              <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-xl">Coursework</h2>
-            </div>
-            {course.courseworks.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No coursework available.
-              </p>
-            ) : (
-              course.courseworks.map((work) => (
-                <div key={work.id} className="border rounded-md p-4">
-                  <h3 className="font-medium">
-                    {work.title || "Untitled Coursework"}
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Created: {new Date(work.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              ))
+              <div className="grid grid-cols-1 gap-4">
+                {course.tutors.map((tutor) => (
+                  <Link
+                    key={tutor.id}
+                    href={`/${courseId}/tutors/${tutor.id}?role=admin`}
+                    className="border rounded-md p-4 hover:bg-slate-50 transition"
+                  >
+                    <h3 className="font-medium">
+                      {tutor.title || "Untitled Tutor"}
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Created: {new Date(tutor.createdAt).toLocaleDateString()}
+                    </p>
+                  </Link>
+                ))}
+              </div>
             )}
           </div>
           <div>
@@ -146,14 +147,43 @@ export default async function CourseIdPage({
               </p>
             ) : (
               course.courseNoticeboards.map((courseNoticeboard) => (
-                <div key={courseNoticeboard.id} className="border rounded-md p-4">
-                  <h3 className="font-medium">
-                    {stripHtmlTags(courseNoticeboard.title) || "Empty Notice"}
-                  </h3>
+                <div
+                  key={courseNoticeboard.id}
+                  className="border rounded-md p-4"
+                >
+                  <h3 className="font-medium">{courseNoticeboard.title}</h3>
                   <p className="text-xs text-slate-500">
-                    Created: {new Date(courseNoticeboard.createdAt).toLocaleDateString()}
+                    Created:{" "}
+                    {new Date(courseNoticeboard.createdAt).toLocaleDateString()}
                   </p>
                 </div>
+              ))
+            )}
+          </div>
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={LayoutDashboard} />
+              <h2 className="text-xl">Attachments</h2>
+            </div>
+            {course.attachments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No attachments available.
+              </p>
+            ) : (
+              course.attachments.map((attachment) => (
+                <a
+                  key={attachment.id}
+                  href={attachment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block border rounded-md p-4 hover:bg-slate-50 transition"
+                >
+                  <h3 className="font-medium">{attachment.url}</h3>
+                  <p className="text-xs text-slate-500">
+                    Created:{" "}
+                    {new Date(attachment.createdAt).toLocaleDateString()}
+                  </p>
+                </a>
               ))
             )}
           </div>
