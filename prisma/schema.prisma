@@ -299,11 +299,11 @@ model Course {
 
 model Tutor {
   id           String         @id @default(uuid())
-  userId       String?
-  title        String?        @db.Text
+  userId       String
+  title        String         @db.Text
   description  String?        @db.Text
   objective    String?        @db.Text
-  // videoUrl     String?        @db.Text
+  videoUrl     String?        @db.Text
   position     Int            @default(0)
   attachments  Attachment[]
   userProgress UserProgress[]
@@ -336,7 +336,6 @@ model MuxData {
 
 model Attachment {
   id                  String             @id @default(uuid())
-  name                String
   url                 String             @db.Text
   facultyId           String?
   faculty             Faculty?           @relation(fields: [facultyId], references: [id], onDelete: Cascade)

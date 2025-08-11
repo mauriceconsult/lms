@@ -1,6 +1,7 @@
+// CourseSidebar.tsx
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 interface CourseSidebarProps {
@@ -17,6 +18,8 @@ export const CourseSidebar: React.FC<CourseSidebarProps> = ({
   courseId,
 }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentTutorId = searchParams.get("tutorId") || activeTutorId;
 
   return (
     <div className="w-64 bg-slate-50 p-4 border-r h-screen fixed">
@@ -28,14 +31,20 @@ export const CourseSidebar: React.FC<CourseSidebarProps> = ({
               key={tutor.id}
               className={cn(
                 "p-2 rounded-md cursor-pointer hover:bg-slate-200 transition",
-                tutor.id === activeTutorId && "bg-slate-200 font-medium"
+                tutor.id === currentTutorId && "bg-slate-200 font-medium"
               )}
               onClick={() => {
-                console.log(`[${new Date().toISOString()} CourseSidebar] Navigating to tutor:`, {
-                  courseId,
-                  tutorId: tutor.id,
-                });
-                router.push(`/faculties/${facultyId}/courses/${courseId}/tutors/${tutor.id}`);
+                console.log(
+                  `[${new Date().toISOString()} CourseSidebar] Navigating to tutor:`,
+                  {
+                    facultyId,
+                    courseId,
+                    tutorId: tutor.id,
+                  }
+                );
+                router.push(
+                  `/faculties/${facultyId}/courses/${courseId}/tutors/${tutor.id}`
+                );
               }}
             >
               {tutor.title || "Untitled Tutor"}

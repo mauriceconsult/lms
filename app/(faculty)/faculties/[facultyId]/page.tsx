@@ -48,7 +48,7 @@ export default async function FacultyIdPage({
         select: { id: true, title: true },
         where: { isPublished: true },
       },
-      attachments: { select: { id: true, name: true, url: true } },
+      attachments: { select: { id: true, url: true } },
     },
   });
 
@@ -77,22 +77,40 @@ export default async function FacultyIdPage({
         .trim()
     : "No description available";
 
-  // Validate imageUrl and format amount as string
+  // Validate and process courses
   const defaultImageUrl = "/placeholder.png";
-  const courses = faculty.courses.map((course) => {
-    const isValidImageUrl = course.imageUrl && course.imageUrl.startsWith("https://utfs.io/") ? course.imageUrl : defaultImageUrl;
-    if (!course.imageUrl || course.imageUrl.includes("via.placeholder.com") || !course.imageUrl.startsWith("https://utfs.io/")) {
-      console.warn(
-        `[${new Date().toISOString()} FacultyIdPage] Invalid imageUrl for course:`,
-        { id: course.id, imageUrl: course.imageUrl, isValidImageUrl }
-      );
-    }
-    return {
-      ...course,
-      amount: course.amount != null ? course.amount : "0.00",
-      imageUrl: isValidImageUrl,
-    };
-  });
+  const courses = faculty.courses
+    .filter((course) => {
+      if (!course.id || typeof course.id !== "string") {
+        console.error(
+          `[${new Date().toISOString()} FacultyIdPage] Invalid course ID:`,
+          { course }
+        );
+        return false;
+      }
+      return true;
+    })
+    .map((course) => {
+      const isValidImageUrl =
+        course.imageUrl && course.imageUrl.startsWith("https://utfs.io/")
+          ? course.imageUrl
+          : defaultImageUrl;
+      if (
+        !course.imageUrl ||
+        course.imageUrl.includes("via.placeholder.com") ||
+        !course.imageUrl.startsWith("https://utfs.io/")
+      ) {
+        console.warn(
+          `[${new Date().toISOString()} FacultyIdPage] Invalid imageUrl for course:`,
+          { id: course.id, imageUrl: course.imageUrl, isValidImageUrl }
+        );
+      }
+      return {
+        ...course,
+        amount: course.amount != null ? course.amount.toString() : "0.00",
+        imageUrl: isValidImageUrl,
+      };
+    });
 
   console.log(
     `[${new Date().toISOString()} FacultyIdPage] Courses processed:`,
@@ -111,29 +129,31 @@ export default async function FacultyIdPage({
       <h1 className="text-2xl font-medium">
         {faculty.title || "Untitled Faculty"}
       </h1>
-      <div className="text-sm text-slate-700 mb-6">
-        {processedDescription}
-      </div>
+      <div className="text-sm text-slate-700 mb-6">{processedDescription}</div>
       <h2 className="text-xl font-medium mt-6">Courses</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-        {courses.map((course) => (
-          <CourseCard
-            key={course.id}
-            id={course.id}
-            facultyId={faculty.id}
-            title={course.title || "Untitled Course"}
-            imageUrl={course.imageUrl}
-            amount={course.amount}
-            faculty={faculty.title || "Unknown Faculty"}
-            description={course.description}
-            createdAt={course.createdAt}
-            role={
-              userId === "user_2pOqv2tzOq6guQnvrQ8POLYPQ4q"
-                ? "admin"
-                : "student"
-            }
-          />
-        ))}
+        {courses.length > 0 ? (
+          courses.map((course) => (
+            <CourseCard
+              key={course.id}
+              id={course.id}
+              facultyId={faculty.id}
+              title={course.title || "Untitled Course"}
+              imageUrl={course.imageUrl}
+              amount={course.amount}
+              faculty={faculty.title || "Unknown Faculty"}
+              description={course.description}
+              createdAt={course.createdAt}
+              role={
+                userId === "user_2pOqv2tzOq6guQnvrQ8POLYPQ4q"
+                  ? "admin"
+                  : "student"
+              }
+            />
+          ))
+        ) : (
+          <p>No published courses available.</p>
+        )}
       </div>
       <h2 className="text-xl font-medium mt-6">Noticeboards</h2>
       {faculty.noticeboards.map((noticeboard) => (
@@ -145,7 +165,7 @@ export default async function FacultyIdPage({
       {faculty.attachments.map((attachment) => (
         <div key={attachment.id} className="p-4 border rounded-md">
           <a href={attachment.url} className="text-blue-500">
-            {attachment.name}
+            {attachment.url}
           </a>
         </div>
       ))}

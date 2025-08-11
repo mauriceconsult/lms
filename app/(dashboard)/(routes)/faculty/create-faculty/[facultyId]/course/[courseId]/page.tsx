@@ -81,8 +81,7 @@ const CourseIdPage = async ({
     initialData.imageUrl,
     initialData.amount,
     initialData.tutors.length > 0,
-    initialData.courseworks.length > 0,
-    // initialData.assignments.length > 0,
+    initialData.courseworks.length > 0,    
   ];
   const optionalFields = [
     initialData.courseNoticeboards.length > 0,
@@ -99,7 +98,7 @@ const CourseIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Course is not published yet. To publish, complete the required* fields. Ensure that you have at least a draft Tutor/Topic and Assignment."
+          label="This Course is not published yet. To publish, complete the required* fields. Ensure that you have at least a published Tutor/Topic and Assignment."
         />
       )}
       <div className="p-6">

@@ -34,12 +34,12 @@ interface CourseTutorFormProps {
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  // description: z.string(),
 });
 
 export const CourseTutorForm = ({
   initialData,
   courseId,
+  facultyId,
 }: CourseTutorFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -49,7 +49,7 @@ export const CourseTutorForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      // description: ""
+    
     },
   });
   const {
@@ -149,7 +149,7 @@ export const CourseTutorForm = ({
               const result = await onEditAction(courseId, id);
               if (result.success) {
                 router.push(
-                  `/course/create-course/${courseId}/tutor/${id}`
+                  `/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${id}`
                 );
               }
               return result;

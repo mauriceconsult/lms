@@ -18,29 +18,29 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Assignment, Course } from "@prisma/client";
-import { CourseAssignmentList } from "./course-coursework-list";
-import {
-  createAssignment,
-  onEditAction,
-  onReorderAction,
-} from "../assignment/[assignmentId]/actions";
+import { Assignment } from "@prisma/client";
+import { TutorAssignmentList } from "./tutor-assignment-list";
 
-interface CourseAssignmentFormProps {
-  initialData: Course & { assignments: Assignment[] };
+
+interface TutorAssignmentFormProps {
+  initialData: {
+    assignments: Assignment[];
+  };
   courseId: string;
   facultyId: string;
+  tutorId: string;
 }
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  // description: z.string(),
 });
 
-export const CourseAssignmentForm = ({
+export const TutorAssignmentForm = ({
   initialData,
   courseId,
-}: CourseAssignmentFormProps) => {
+  facultyId,
+  tutorId,
+}: TutorAssignmentFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const toggleCreating = () => setIsCreating((current) => !current);
@@ -49,7 +49,6 @@ export const CourseAssignmentForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      // description: ""
     },
   });
   const {
@@ -59,18 +58,79 @@ export const CourseAssignmentForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await createAssignment(courseId, values);
-      if (success) {
-        toast.success(message);
-        toggleCreating();
-        reset({ title: "" });
-        router.refresh();
-      } else {
-        toast.error(message);
+      const response = await fetch(
+        `/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}/assignments`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...values,
+            position: initialData.assignments.length + 1,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to create assignment");
       }
+
+      toast.success("Assignment created.");
+      toggleCreating();
+      reset({ title: "" });
+      router.refresh();
     } catch (error) {
       console.error("Create assignment error:", error);
-      toast.error("Unexpected error occurred");
+      toast.error(
+        error instanceof Error ? error.message : "Unexpected error occurred"
+      );
+    }
+  };
+
+  const onEditAction = async (id: string) => {
+    try {
+      router.push(
+        `/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}/assignment/${id}`
+      );
+      return { success: true, message: "Navigating to edit assignment" };
+    } catch (error) {
+      console.error("Edit assignment error:", error);
+      return {
+        success: false,
+        message: "Failed to navigate to edit assignment",
+      };
+    }
+  };
+
+  const onReorderAction = async (
+    updateData: { id: string; position: number }[]
+  ) => {
+    try {
+      setIsUpdating(true);
+      const response = await fetch(
+        `/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}/assignments/reorder`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ updateData }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to reorder assignments");
+      }
+
+      toast.success("Assignments reordered.");
+      return { success: true, message: "Assignments reordered successfully" };
+    } catch (error) {
+      console.error("Reorder assignment error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Unexpected error occurred"
+      );
+      return { success: false, message: "Failed to reorder assignments" };
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -86,7 +146,7 @@ export const CourseAssignmentForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Assignment*
+        Topic Assignments*
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -97,7 +157,7 @@ export const CourseAssignmentForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Assignment
+              Add an Assignment
             </>
           )}
         </Button>
@@ -117,7 +177,7 @@ export const CourseAssignmentForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Principles of Fashion Design'"
+                      placeholder="e.g., 'Assignment 1: Introduction'"
                       {...field}
                     />
                   </FormControl>
@@ -143,24 +203,10 @@ export const CourseAssignmentForm = ({
           )}
         >
           {!initialData.assignments.length &&
-            "Add Assignment(s) here. Ideally, each Tutor/Topic should be accompanied by an Assignment."}
-          <CourseAssignmentList
-            onEditAction={async (id) => {
-              const result = await onEditAction(courseId, id);
-              if (result.success) {
-                router.push(
-                  `/course/create-course/${courseId}/assignment/${id}`
-                );
-              }
-              return result;
-            }}
-            onReorderAction={async (updateData) => {
-              setIsUpdating(true);
-              const result = await onReorderAction(courseId, updateData);
-              setIsUpdating(false);
-              router.refresh();
-              return result;
-            }}
+            "Add Assignment(s) here. Ideally, each Topic should be accompanied by an Assignment."}
+          <TutorAssignmentList
+            onEditAction={onEditAction}
+            onReorderAction={onReorderAction}
             items={initialData.assignments || []}
           />
         </div>

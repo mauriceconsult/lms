@@ -1,6 +1,6 @@
 "use client";
 
-import { Tutor } from "@prisma/client";
+import { Assignment } from "@prisma/client";
 import { useEffect, useState } from "react";
 import {
   DragDropContext,
@@ -9,16 +9,12 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import {
-  Grip,
-  Pencil,
-  // Pencil
-} from "lucide-react";
+import { Grip, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
 
-interface CourseTutorListProps {
-  items: Tutor[];
+interface TutorAssignmentListProps {
+  items: Assignment[];
   onEditAction: (id: string) => Promise<{ success: boolean; message: string }>;
   onReorderAction: (updateData: { id: string; position: number }[]) => Promise<{
     success: boolean;
@@ -26,33 +22,33 @@ interface CourseTutorListProps {
   }>;
 }
 
-export const CourseTutorList = ({
+export const TutorAssignmentList = ({
   items,
   onEditAction,
   onReorderAction,
-}: CourseTutorListProps) => {
+}: TutorAssignmentListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [tutors, setTutors] = useState<Tutor[]>(items);
+  const [assignments, setAssignments] = useState<Assignment[]>(items);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    setTutors(items);
+    setAssignments(items);
   }, [items]);
 
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
 
-    const newItems = Array.from(tutors);
+    const newItems = Array.from(assignments);
     const [reorderedItem] = newItems.splice(result.source.index, 1);
     newItems.splice(result.destination.index, 0, reorderedItem);
 
-    setTutors(newItems);
+    setAssignments(newItems);
 
-    const bulkUpdateData = newItems.map((tutor, index) => ({
-      id: tutor.id,
+    const bulkUpdateData = newItems.map((assignment, index) => ({
+      id: assignment.id,
       position: index,
     }));
 
@@ -70,16 +66,20 @@ export const CourseTutorList = ({
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="tutors">
+      <Droppable droppableId="assignments">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            {tutors.map((tutor, index) => (
-              <Draggable key={tutor.id} draggableId={tutor.id} index={index}>
+            {assignments.map((assignment, index) => (
+              <Draggable
+                key={assignment.id}
+                draggableId={assignment.id}
+                index={index}
+              >
                 {(provided) => (
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      tutor.isPublished &&
+                      assignment.isPublished &&
                         "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
@@ -88,35 +88,42 @@ export const CourseTutorList = ({
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        tutor.isPublished && "border-r-sky-200 hover:bg-sky-200"
+                        assignment.isPublished &&
+                          "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
                     >
                       <Grip className="h-5 w-5" />
                     </div>
-                    <span aria-label={`Tutor: ${tutor.title || tutor.id}`}>
-                      {tutor.title || tutor.id}
+                    <span
+                      aria-label={`Assignment: ${
+                        assignment.title || assignment.id
+                      }`}
+                    >
+                      {assignment.title || assignment.id}
                     </span>
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
                       <Badge
                         className={cn(
                           "bg-slate-500",
-                          tutor.isPublished && "bg-sky-700"
+                          assignment.isPublished && "bg-sky-700"
                         )}
                       >
-                        {tutor.isPublished ? "Published" : "Draft"}
+                        {assignment.isPublished ? "Published" : "Draft"}
                       </Badge>
                       <Pencil
                         onClick={async () => {
                           const { success, message } = await onEditAction(
-                            tutor.id
+                            assignment.id
                           );
                           if (!success) {
                             toast.error(message);
                           }
                         }}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
-                        aria-label={`Edit tutor: ${tutor.title || tutor.id}`}
+                        aria-label={`Edit assignment: ${
+                          assignment.title || assignment.id
+                        }`}
                       />
                     </div>
                   </div>
