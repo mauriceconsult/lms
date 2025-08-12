@@ -14,12 +14,12 @@ import { Banner } from "@/components/banner";
 import { TutorActions } from "./_components/tutor-actions";
 import { TutorTitleForm } from "./_components/tutor-title-form";
 import { TutorDescriptionForm } from "./_components/tutor-description-form";
-import { TutorAttachmentForm } from "./_components/tutor-attachment-form";
 import Link from "next/link";
 import { TutorVideoForm } from "./_components/tutor-video-form";
 import { TutorCourseForm } from "./_components/tutor-course-form";
 import { TutorAssignmentForm } from "./_components/tutor-assignment-form";
 import { TutorAccessForm } from "./_components/tutor-access-form";
+import { TutorAttachmentForm } from "./_components/tutor-attachment-form";
 
 const TutorIdPage = async ({
   params,

@@ -11,7 +11,7 @@ import { TutorSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-facu
 import React, { FC, ReactElement } from "react";
 import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
 import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/coursework/[courseworkId]/search/_components/coursework-search-input";
-import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/assignment/[assignmentId]/search/_components/assignment-search-input";
+import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/assignments/[assignmentId]/search/_components/assignment-search-input";
 import { CourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/courseNoticeboard/[courseNoticeboardId]/search/_components/courseNoticeboard-search-input";
 import { PayrollSearchInput } from "@/app/(dashboard)/(routes)/payroll/create-payroll/[payrollId]/search/_components/payroll-search-input";
 

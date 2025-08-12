@@ -12,40 +12,25 @@ export async function POST(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const facultyOwner = await db.faculty.findUnique({
+    const tutorOwner = await db.tutor.findUnique({
       where: {
-        id: (await params).facultyId,
+        id: (await params).tutorId,
       },
     });
-    if (!facultyOwner) {
+    if (!tutorOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    if (!facultyOwner) {
-      return new NextResponse("Faculty ID is missing", { status: 400 });
-    }
-    const courseOwner = await db.course.findUnique({
-      where: {
-        id: (await params).courseId,
-      },
-    });
-    if (!courseOwner) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-    if (!courseOwner) {
-      return new NextResponse("Faculty ID is missing", { status: 400 });
-    }
+    
     const attachment = await db.attachment.create({
       data: {
         url,
         name: url.split("/").pop(),
-        courseId: (await params).courseId,
-        facultyId: (await params).facultyId,
-        tutorId: (await params).tutorId
+        tutorId: (await params).tutorId,       
       }
     });
     return NextResponse.json(attachment)
   } catch (error) {
-    console.log("TUTOR_ID_ATTACHMENT", error);
+    console.log("COURSE_ID_ATTACHMENT", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

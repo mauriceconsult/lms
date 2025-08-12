@@ -135,7 +135,7 @@ export const TutorDescriptionForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Topic Description*
+        Topic objective(s)*
         <Button onClick={toggleEditing} variant="ghost" disabled={isSubmitting}>
           {isEditing ? <>Cancel</> : <>Edit Description</>}
         </Button>
@@ -165,18 +165,11 @@ export const TutorDescriptionForm = ({
                         debounceDelay={500}
                         maxLength={5000}
                         toolbarConfig={{
-                          headers: true,
-                          font: false,
-                          size: false,
                           formatting: true,
-                          colors: false,
-                          lists: true,
-                          link: true,
                           image: true,
                           align: true,
                           clean: true,
-                          blockquote: true,
-                          codeBlock: true,
+                          table: true,
                         }}
                       />
                     ) : (
@@ -205,7 +198,7 @@ export const TutorDescriptionForm = ({
           )}
         >
           {!initialData.description &&
-            "Articulate your topic description here."}
+            "Explain to the students know the objective (or goals) of the topic. To guide them when viewing the Topic video and submitting the related assignment"}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}
