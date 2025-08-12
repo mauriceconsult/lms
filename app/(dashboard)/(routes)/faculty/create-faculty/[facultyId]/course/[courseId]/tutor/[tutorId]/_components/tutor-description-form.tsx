@@ -155,7 +155,7 @@ export const TutorDescriptionForm = ({
                   <FormControl>
                     {typeof field.onChange === "function" ? (
                       <DynamicEditor
-                        value={field.value}
+                        value={field.value ?? ""}
                         onChangeAction={field.onChange}
                         onErrorAction={(error) =>
                           form.setError("description", { message: error })

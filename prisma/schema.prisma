@@ -299,7 +299,7 @@ model Course {
 
 model Tutor {
   id           String         @id @default(uuid())
-  userId       String
+  userId       String?
   title        String         @db.Text
   description  String?        @db.Text
   objective    String?        @db.Text
