@@ -1,25 +1,25 @@
+// app/(dashboard)/(routes)/course/create-course/[courseId]/actions.ts
 "use server";
 
 import { db } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 
-export async function updateTutor(
-  courseId: string,
+export async function updateTutor( 
+  tutorId: string,
   values: { description?: string }
 ) {
   try {
-    const course = await db.course.findUnique({
-      where: { id: courseId },
+    const tutor = await db.tutor.findUnique({
+      where: { id: tutorId },
     });
-    if (!course) {
+    if (!tutor) {
       return { success: false, message: "Tutor not found" };
     }
     if (values.description && values.description.length > 5000) {
       return { success: false, message: "Description exceeds 5000 characters" };
-    }
-
-    await db.course.update({
-      where: { id: courseId },
+    }   
+    await db.tutor.update({
+      where: { id: tutorId },
       data: { description: values.description || "" },
     });
     return {
@@ -96,7 +96,7 @@ export async function createTutor(
       data: {
         title: values.title,
         description: values.description || "",
-        userId: course.userId,
+        userId: course.userId || "",
         courseId,
         position: 0,
         isPublished: false,

@@ -12,24 +12,7 @@ export async function POST(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const facultyOwner = db.faculty.findUnique({
-      where: {
-        id: params.facultyId,
-        userId: userId,
-      },
-    });
-    if (!facultyOwner) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-    const courseOwner = db.course.findUnique({
-      where: {
-        id: params.courseId,
-        userId: userId,
-      },
-    });
-    if (!courseOwner) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+   
     const lastCourse = await db.course.findFirst({
       where: {
         id: params.courseId,

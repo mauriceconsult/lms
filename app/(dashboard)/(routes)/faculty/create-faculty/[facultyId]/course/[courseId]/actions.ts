@@ -4,23 +4,22 @@
 import { db } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 
-export async function updateCourse(
-  facultyId: string,
+export async function updateCourse( 
+  courseId: string,
   values: { description?: string }
 ) {
   try {
-    const faculty = await db.faculty.findUnique({
-      where: { id: facultyId },
+    const course = await db.course.findUnique({
+      where: { id: courseId },
     });
-    if (!faculty) {
+    if (!course) {
       return { success: false, message: "Course not found" };
     }
     if (values.description && values.description.length > 5000) {
       return { success: false, message: "Description exceeds 5000 characters" };
-    }
-
-    await db.faculty.update({
-      where: { id: facultyId },
+    }   
+    await db.course.update({
+      where: { id: courseId },
       data: { description: values.description || "" },
     });
     return {

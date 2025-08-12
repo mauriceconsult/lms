@@ -48,7 +48,7 @@ const Preview = ({ value }: { value: string }) => {
         const doc = parser.parseFromString(html, "text/html");
         return doc.body.textContent || "";
       }
-      return ""; // Fallback for SSR (though "use client" should prevent this)
+      return ""; // Fallback for SSR
     };
 
     setPlainText(getPlainText(value || ""));
@@ -141,7 +141,7 @@ export const FacultyDescriptionForm = ({
                   <FormControl>
                     {typeof field.onChange === "function" ? (
                       <DynamicEditor
-                        value={field.value}
+                        value={field.value ?? ""}
                         onChangeAction={field.onChange}
                         onErrorAction={(error) =>
                           form.setError("description", { message: error })
@@ -151,18 +151,11 @@ export const FacultyDescriptionForm = ({
                         debounceDelay={500}
                         maxLength={5000}
                         toolbarConfig={{
-                          headers: true,
-                          font: false,
-                          size: false,
                           formatting: true,
-                          colors: false,
-                          lists: true,
-                          link: true,
                           image: true,
                           align: true,
                           clean: true,
-                          blockquote: true,
-                          codeBlock: true,
+                          table: true,
                         }}
                       />
                     ) : (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import {
   useEditor,
   EditorContent,
@@ -8,9 +8,13 @@ import {
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
-import { FileUpload } from "@/components/file-upload";
+import Underline from "@tiptap/extension-underline";
+import TextAlign from "@tiptap/extension-text-align";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
 import debounce from "lodash.debounce";
+import { Table } from "@tiptap/extension-table";
 
 interface EditorProps {
   value: string;
@@ -21,18 +25,11 @@ interface EditorProps {
   debounceDelay: number;
   maxLength: number;
   toolbarConfig: {
-    headers: boolean;
-    font: boolean;
-    size: boolean;
     formatting: boolean;
-    colors: boolean;
-    lists: boolean;
-    link: boolean;
     image: boolean;
     align: boolean;
     clean: boolean;
-    blockquote: boolean;
-    codeBlock: boolean;
+    table: boolean;
   };
 }
 
@@ -46,25 +43,6 @@ export const Editor = ({
   maxLength,
   toolbarConfig,
 }: EditorProps) => {
-  const handleImageUpload = useCallback(() => {
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", allowedFileTypes.join(","));
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (file && file.size > maxFileSize) {
-        onErrorAction(`File size exceeds ${maxFileSize / 1024 / 1024}MB`);
-        return;
-      }
-      if (file && !allowedFileTypes.includes(file.type)) {
-        onErrorAction("Invalid file type. Only JPEG and PNG are allowed.");
-        return;
-      }
-      // FileUpload below handles the upload
-    };
-    input.click();
-  }, [maxFileSize, allowedFileTypes, onErrorAction]);
-
   const debouncedOnUpdate = useMemo(
     () =>
       debounce(({ editor }: { editor: TiptapEditor }) => {
@@ -73,75 +51,87 @@ export const Editor = ({
           onErrorAction(`Content exceeds ${maxLength} characters.`);
           return;
         }
-        onChangeAction(html);
+        // Only trigger onChangeAction if content has changed
+        if (html !== value) {
+          onChangeAction(html);
+        }
       }, debounceDelay),
-    [onChangeAction, onErrorAction, maxLength, debounceDelay]
+    [onChangeAction, onErrorAction, maxLength, debounceDelay, value]
   );
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: toolbarConfig.headers ? { levels: [1, 2, 3] } : false,
+        heading: false,
+        bulletList: false,
+        orderedList: false,
+        blockquote: false,
+        codeBlock: false,
         bold: toolbarConfig.formatting ? undefined : false,
         italic: toolbarConfig.formatting ? undefined : false,
-        strike: toolbarConfig.formatting ? undefined : false,
-        bulletList: toolbarConfig.lists ? undefined : false,
-        orderedList: toolbarConfig.lists ? undefined : false,
-        blockquote: toolbarConfig.blockquote ? undefined : false,
-        codeBlock: toolbarConfig.codeBlock ? undefined : false,
+        paragraph: undefined, // Enable paragraph with default settings
       }),
+      Underline,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
       Image.configure({
         inline: true,
         allowBase64: false,
       }),
-      Link.configure({
-        openOnClick: false,
-      }),
     ],
-    content: value,
+    content: value ?? "",
     onUpdate: debouncedOnUpdate,
     immediatelyRender: false,
   });
 
+  const handleImageUpload = useCallback(() => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", allowedFileTypes.join(","));
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return; // Type guard to ensure file is defined
+      if (file.size > maxFileSize) {
+        onErrorAction(`File size exceeds ${maxFileSize / 1024 / 1024}MB`);
+        return;
+      }
+      if (!allowedFileTypes.includes(file.type)) {
+        onErrorAction("Invalid file type. Only JPEG and PNG are allowed.");
+        return;
+      }
+      // Simulate image upload (replace with actual upload logic)
+      const url = URL.createObjectURL(file);
+      editor?.chain().focus().setImage({ src: url }).run();
+    };
+    input.click();
+  }, [maxFileSize, allowedFileTypes, onErrorAction, editor]);
+
+  useEffect(() => {
+    return () => {
+      debouncedOnUpdate.cancel();
+    };
+  }, [debouncedOnUpdate]);
+
   const toolbar = useMemo(
     () => (
       <div className="border-b border-slate-300 p-2 bg-slate-50 rounded-t-md">
-        {toolbarConfig.headers && (
-          <>
-            <button
-              onClick={() =>
-                editor?.chain().focus().toggleHeading({ level: 1 }).run()
-              }
-              className={`px-2 py-1 ${
-                editor?.isActive("heading", { level: 1 }) ? "bg-slate-200" : ""
-              }`}
-            >
-              H1
-            </button>
-            <button
-              onClick={() =>
-                editor?.chain().focus().toggleHeading({ level: 2 }).run()
-              }
-              className={`px-2 py-1 ${
-                editor?.isActive("heading", { level: 2 }) ? "bg-slate-200" : ""
-              }`}
-            >
-              H2
-            </button>
-            <button
-              onClick={() =>
-                editor?.chain().focus().toggleHeading({ level: 3 }).run()
-              }
-              className={`px-2 py-1 ${
-                editor?.isActive("heading", { level: 3 }) ? "bg-slate-200" : ""
-              }`}
-            >
-              H3
-            </button>
-          </>
-        )}
         {toolbarConfig.formatting && (
           <>
+            <button
+              onClick={() => editor?.chain().focus().setParagraph().run()}
+              className={`px-2 py-1 ${
+                editor?.isActive("paragraph") ? "bg-slate-200" : ""
+              }`}
+            >
+              P
+            </button>
             <button
               onClick={() => editor?.chain().focus().toggleBold().run()}
               className={`px-2 py-1 ${
@@ -159,47 +149,93 @@ export const Editor = ({
               I
             </button>
             <button
-              onClick={() => editor?.chain().focus().toggleStrike().run()}
+              onClick={() => editor?.chain().focus().toggleUnderline().run()}
               className={`px-2 py-1 ${
-                editor?.isActive("strike") ? "bg-slate-200" : ""
+                editor?.isActive("underline") ? "bg-slate-200" : ""
               }`}
             >
-              S
+              U
             </button>
           </>
         )}
-        {toolbarConfig.lists && (
+        {toolbarConfig.align && (
           <>
             <button
-              onClick={() => editor?.chain().focus().toggleBulletList().run()}
+              onClick={() => editor?.chain().focus().setTextAlign("left").run()}
               className={`px-2 py-1 ${
-                editor?.isActive("bulletList") ? "bg-slate-200" : ""
+                editor?.isActive({ textAlign: "left" }) ? "bg-slate-200" : ""
               }`}
             >
-              • List
+              Left
             </button>
             <button
-              onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+              onClick={() => editor?.chain().focus().setTextAlign("center").run()}
               className={`px-2 py-1 ${
-                editor?.isActive("orderedList") ? "bg-slate-200" : ""
+                editor?.isActive({ textAlign: "center" }) ? "bg-slate-200" : ""
               }`}
             >
-              1. List
+              Center
+            </button>
+            <button
+              onClick={() => editor?.chain().focus().setTextAlign("right").run()}
+              className={`px-2 py-1 ${
+                editor?.isActive({ textAlign: "right" }) ? "bg-slate-200" : ""
+              }`}
+            >
+              Right
             </button>
           </>
         )}
-        {toolbarConfig.link && (
-          <button
-            onClick={() => {
-              const url = prompt("Enter URL");
-              if (url) editor?.chain().focus().setLink({ href: url }).run();
-            }}
-            className={`px-2 py-1 ${
-              editor?.isActive("link") ? "bg-slate-200" : ""
-            }`}
-          >
-            Link
-          </button>
+        {toolbarConfig.table && (
+          <>
+            <button
+              onClick={() =>
+                editor
+                  ?.chain()
+                  .focus()
+                  .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                  .run()
+              }
+              className="px-2 py-1"
+            >
+              Table
+            </button>
+            <button
+              onClick={() => editor?.chain().focus().deleteTable().run()}
+              className="px-2 py-1"
+              disabled={!editor?.can().deleteTable()}
+            >
+              Del Table
+            </button>
+            <button
+              onClick={() => editor?.chain().focus().addRowAfter().run()}
+              className="px-2 py-1"
+              disabled={!editor?.can().addRowAfter()}
+            >
+              Add Row
+            </button>
+            <button
+              onClick={() => editor?.chain().focus().addColumnAfter().run()}
+              className="px-2 py-1"
+              disabled={!editor?.can().addColumnAfter()}
+            >
+              Add Col
+            </button>
+            <button
+              onClick={() => editor?.chain().focus().deleteRow().run()}
+              className="px-2 py-1"
+              disabled={!editor?.can().deleteRow()}
+            >
+              Del Row
+            </button>
+            <button
+              onClick={() => editor?.chain().focus().deleteColumn().run()}
+              className="px-2 py-1"
+              disabled={!editor?.can().deleteColumn()}
+            >
+              Del Col
+            </button>
+          </>
         )}
         {toolbarConfig.image && (
           <button
@@ -207,28 +243,9 @@ export const Editor = ({
             className={`px-2 py-1 ${
               editor?.isActive("image") ? "bg-slate-200" : ""
             }`}
+            disabled={!editor}
           >
             Image
-          </button>
-        )}
-        {toolbarConfig.blockquote && (
-          <button
-            onClick={() => editor?.chain().focus().toggleBlockquote().run()}
-            className={`px-2 py-1 ${
-              editor?.isActive("blockquote") ? "bg-slate-200" : ""
-            }`}
-          >
-            Quote
-          </button>
-        )}
-        {toolbarConfig.codeBlock && (
-          <button
-            onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
-            className={`px-2 py-1 ${
-              editor?.isActive("codeBlock") ? "bg-slate-200" : ""
-            }`}
-          >
-            Code
           </button>
         )}
         {toolbarConfig.clean && (
@@ -255,15 +272,7 @@ export const Editor = ({
       {toolbar}
       <EditorContent
         editor={editor}
-        className="border border-slate-300 bg-white rounded-b-md p-4"
-      />
-      <FileUpload
-        endpoint="courseImage" // Use "courseImage" for CourseDescriptionForm
-        onChange={(url) => {
-          if (url && editor) {
-            editor.chain().focus().setImage({ src: url }).run();
-          }
-        }}
+        className="border border-slate-300 bg-white rounded-b-md p-4 prose max-w-none"
       />
     </div>
   );

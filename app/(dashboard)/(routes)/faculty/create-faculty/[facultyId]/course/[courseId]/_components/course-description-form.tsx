@@ -19,10 +19,11 @@ import { useRouter } from "next/navigation";
 import { Course } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
+import { updateCourse } from "../actions";
 
 // Define props interface
 interface CourseDescriptionFormProps {
-  initialData: Pick<Course, "description">;
+  initialData: Course;
   facultyId: string;
   courseId: string;
 }
@@ -37,21 +38,21 @@ const DynamicEditor = dynamic(
 );
 
 // Custom Preview Component
-const Preview = ({ value }: { value: string | null }) => {
+const Preview = ({ value }: { value: string }) => {
   const [plainText, setPlainText] = useState("");
 
   useEffect(() => {
-    const getPlainText = (html: string | null) => {
-      if (typeof window !== "undefined" && html) {
+    const getPlainText = (html: string) => {
+      if (typeof window !== "undefined") {
         // Ensure browser context
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
         return doc.body.textContent || "";
       }
-      return ""; // Fallback for SSR or null value
+      return ""; // Fallback for SSR
     };
 
-    setPlainText(getPlainText(value));
+    setPlainText(getPlainText(value || ""));
   }, [value]);
 
   if (!plainText)
@@ -68,8 +69,8 @@ const formSchema = z.object({
 
 export const CourseDescriptionForm = ({
   initialData,
-  facultyId,
-  courseId,
+  // facultyId,
+  courseId
 }: CourseDescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEditing = () => setIsEditing((current) => !current);
@@ -92,32 +93,21 @@ export const CourseDescriptionForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch(
-        `/api/create-faculties/${facultyId}/courses/${courseId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to update description");
+      const { success, message } = await updateCourse(courseId, values);
+      if (success) {
+        toast.success(message);
+        toggleEditing();
+        reset({ description: values.description || "" });
+        router.refresh();
+      } else {
+        toast.error(message);
       }
-
-      toast.success("Course description updated.");
-      toggleEditing();
-      reset({ description: values.description || "" });
-      router.refresh();
     } catch (error) {
       console.error(
         `[${new Date().toISOString()} CourseDescriptionForm] Update course error:`,
         error
       );
-      toast.error(
-        error instanceof Error ? error.message : "Unexpected error occurred"
-      );
+      toast.error("Unexpected error occurred");
     }
   };
 
@@ -153,7 +143,7 @@ export const CourseDescriptionForm = ({
                   <FormControl>
                     {typeof field.onChange === "function" ? (
                       <DynamicEditor
-                        value={field.value}
+                        value={field.value ?? ""}
                         onChangeAction={field.onChange}
                         onErrorAction={(error) =>
                           form.setError("description", { message: error })
@@ -163,18 +153,11 @@ export const CourseDescriptionForm = ({
                         debounceDelay={500}
                         maxLength={5000}
                         toolbarConfig={{
-                          headers: true,
-                          font: false,
-                          size: false,
                           formatting: true,
-                          colors: false,
-                          lists: true,
-                          link: true,
                           image: true,
                           align: true,
                           clean: true,
-                          blockquote: true,
-                          codeBlock: true,
+                          table: true,
                         }}
                       />
                     ) : (
@@ -202,8 +185,7 @@ export const CourseDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {!initialData.description &&
-            "Articulate your course description here."}
+          {!initialData.description && "Articulate your vision here."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}
