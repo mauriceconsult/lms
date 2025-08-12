@@ -18,11 +18,22 @@ export async function PATCH(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const values = await req.json();
+    const {...values} = await req.json(); 
+   
+  
+    const ownCourse = await db.course.findUnique({
+      where: {
+        id: courseId,
+        userId,
+      }
+    })
 
+    if (!ownCourse) {
+      return new NextResponse("Course not found or unauthorized", { status: 401 });
+    }
     const tutor = await db.tutor.update({
       where: {
-        id: tutorId,
+        id: tutorId,    
         courseId,
         userId,
       },
@@ -30,6 +41,8 @@ export async function PATCH(
         ...values,
       },
     });
+
+    {/*handle video upload */}
 
     return NextResponse.json(tutor);
   } catch (error) {

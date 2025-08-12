@@ -84,7 +84,7 @@ export const TutorAccessForm = ({
           {initialData.isFree ? (
             <>This topic is free for preview.</>
           ) : (
-            <>This topic is bundled with the course.</>
+            <>This topic is not free.</>
           )}
         </p>
       )}
@@ -107,7 +107,7 @@ export const TutorAccessForm = ({
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormDescription>
-                      Check this box to make this topic free for preview.
+                      Check this box if you want to make this topic free for preview.
                     </FormDescription>
                   </div>
                   <FormMessage />

@@ -78,7 +78,7 @@ export const TutorTitleForm = ({ initialData, facultyId, courseId, tutorId }: Tu
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Technology in F & D'"
+                      placeholder="e.g., 'Introduction to Technology'"
                       {...field}
                     />
                   </FormControl>

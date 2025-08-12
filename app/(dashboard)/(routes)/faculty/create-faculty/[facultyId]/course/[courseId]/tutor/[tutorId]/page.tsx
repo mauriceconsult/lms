@@ -6,6 +6,8 @@ import {
   ListChecks,
   File,
   ArrowLeft,
+  Eye,
+  Video,
 } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
@@ -17,6 +19,7 @@ import Link from "next/link";
 import { TutorVideoForm } from "./_components/tutor-video-form";
 import { TutorCourseForm } from "./_components/tutor-course-form";
 import { TutorAssignmentForm } from "./_components/tutor-assignment-form";
+import { TutorAccessForm } from "./_components/tutor-access-form";
 
 const TutorIdPage = async ({
   params,
@@ -94,10 +97,12 @@ const TutorIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${(await params).facultyId}`}
+              href={`/faculty/create-faculty/${
+                (await params).facultyId
+              }/course/${(await params).courseId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Faculty creation.
+              Back to Course creation.
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
@@ -145,14 +150,32 @@ const TutorIdPage = async ({
                 courseId={resolvedParams.courseId}
                 tutorId={tutor.id}
               />
-              <TutorVideoForm
-                initialData={initialData}
-                facultyId={initialData.id}
-                courseId={resolvedParams.courseId}
-                tutorId={tutor.id}
-              />
             </div>
             <div className="space-y-6">
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={Eye} />
+                  <h2 className="text-xl">Access Settings</h2>
+                </div>
+                <TutorAccessForm
+                  initialData={initialData}
+                  facultyId={initialData.id}
+                  courseId={resolvedParams.courseId}
+                  tutorId={tutor.id}
+                />
+              </div>
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={Video} />
+                  <h2 className="text-xl">Add a Topic video</h2>
+                </div>
+                <TutorVideoForm
+                  initialData={initialData}
+                  facultyId={initialData.id}
+                  courseId={resolvedParams.courseId}
+                  tutorId={tutor.id}
+                />
+              </div>
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={File} />
