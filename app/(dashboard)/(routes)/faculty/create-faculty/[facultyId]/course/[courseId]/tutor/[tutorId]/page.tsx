@@ -89,7 +89,8 @@ const TutorIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Tutor is not published yet. To publish, complete the required* fields. The Assignment should be published."
+          label="This Tutor is not published yet. To publish, complete the required* fields; 
+          Click the pencil icon to edit and publish the Assignment, then publish this Tutor."
         />
       )}
       <div className="p-6">
@@ -197,7 +198,7 @@ const TutorIdPage = async ({
                   initialData={initialData}
                   facultyId={initialData.id}
                   courseId={resolvedParams.courseId}
-                  tutorId={tutor.id}
+                  tutorId={tutor.id}                     
                 />
               </div>
             </div>

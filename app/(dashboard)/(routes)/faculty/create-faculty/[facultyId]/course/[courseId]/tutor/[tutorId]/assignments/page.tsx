@@ -4,10 +4,13 @@ import { redirect } from "next/navigation";
 import { DataTable } from "./_components/assignment-data-table";
 import { columns } from "./_components/assignment-columns";
 
+
 interface AssignmentsPageProps {
   params: Promise<{
     facultyId: string;
     courseId: string;
+    tutorId: string;
+    assignmentId: string;
   }>;
 }
 
@@ -17,24 +20,25 @@ export default async function AssignmentsPage({ params }: AssignmentsPageProps) 
     return redirect("/");
   }
 
-  const { facultyId, courseId } = await params;
+  const { facultyId, courseId, tutorId } = await params;
 
-  const course = await db.course.findUnique({
+  const tutor = await db.tutor.findUnique({
     where: {
-      id: courseId,
+      id: tutorId,
       facultyId,
+      courseId,      
       userId,
     },
-    select: { id: true, facultyId: true },
+    select: { id: true, courseId: true },
   });
 
-  if (!course || !course.facultyId) {
-    return redirect(`/faculty/create-faculty/${facultyId}`);
+  if (!tutor || !tutor.courseId) {
+    return redirect(`/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}/assignments/search`);
   }
 
   const assignments = await db.assignment.findMany({
     where: {
-      courseId,
+      tutorId,
       userId,
     },
     select: {
@@ -48,7 +52,7 @@ export default async function AssignmentsPage({ params }: AssignmentsPageProps) 
       isPublished: true,
       createdAt: true,
       updatedAt: true,
-      courseId: true,
+      tutorId: true,
     },
   });
 

@@ -119,21 +119,19 @@ model CourseNoticeboard {
   userId      String
   title       String       @db.Text
   partyId     String?      @db.Text
-  courseId    String?
   description String?      @db.Text
   position    Int?
   attachments Attachment[]
   isPublished Boolean      @default(false)
   course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  faculty     Faculty?     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  facultyId   String?
+  courseId    String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   admin       Admin?       @relation(fields: [adminId], references: [id], onDelete: Cascade)
   adminId     String?
   Comment     Comment[]
 
-  @@index([courseId, facultyId])
+  @@index([courseId])
 }
 
 model Assignment {
@@ -145,18 +143,18 @@ model Assignment {
   position     Int?
   attachments  Attachment[]
   userProgress UserProgress[]
+  createdBy    String?
   isCompleted  Boolean        @default(false)
   isPublished  Boolean        @default(false)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   tutor        Tutor?         @relation(fields: [tutorId], references: [id], onDelete: Cascade)
   tutorId      String?
-  faculty      Faculty?       @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  facultyId    String?
   admin        Admin?         @relation(fields: [adminId], references: [id], onDelete: Cascade)
   adminId      String?
 
-  @@index([facultyId, tutorId])
+  @@index([isPublished, tutorId, createdBy])
+  submissions Submission[]
 }
 
 model Coursework {
@@ -189,15 +187,13 @@ model StudentCourseworkSubmission {
   title        String
   abstract     String     @default("")
   description  String     @default("")
-  coursework   Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
-  faculty      Faculty?   @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  facultyId    String?
+  coursework   Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade) 
   course       Course?    @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId     String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  @@index([facultyId, courseId, courseworkId, studentId])
+  @@index([courseId, courseworkId, studentId])
 }
 
 model Submission {
@@ -205,11 +201,11 @@ model Submission {
   courseworkId String
   studentId    String
   submittedAt  DateTime? @default(now())
-  status       String    @default("Not Submitted")
-  faculty      Faculty?  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  facultyId    String?
+  status       String    @default("Not Submitted") 
   course       Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId     String?
+  assignmentId String?
+  assignment   Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   grade        Int?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
@@ -218,13 +214,13 @@ model Submission {
   coursework Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
   student    Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  @@index([facultyId, courseId, courseworkId, studentId])
+  @@index([courseId, courseworkId, assignmentId, studentId])
 }
 
 model Faculty {
   id                           String                        @id @default(uuid())
-  userId                       String? // Optional if not all faculties have a userId
-  title                        String
+  userId                       String
+  title                        String     @db.Text
   description                  String?                       @db.Text
   position                     Int?
   isPublished                  Boolean                       @default(false)
@@ -239,12 +235,7 @@ model Faculty {
   attachments                  Attachment[]
   students                     Student[]
   enrollments                  Enrollment[]
-  userProgress                 UserProgress[]
-  admins                       Admin[]
-  assignments                  Assignment[]
-  courseNoticeboards           CourseNoticeboard[]
-  studentCourseworkSubmissions StudentCourseworkSubmission[]
-  submissions                  Submission[]
+  admins                       Admin[] 
 
   @@index([schoolId])
 }
@@ -377,10 +368,8 @@ model UserProgress {
   isCompleted  Boolean    @default(false)
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  faculties Faculty[]
+  updatedAt DateTime  @updatedAt  
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  // courses   Course[]
 
   @@unique([userId, tutorId])
   @@unique([userId, assignmentId])

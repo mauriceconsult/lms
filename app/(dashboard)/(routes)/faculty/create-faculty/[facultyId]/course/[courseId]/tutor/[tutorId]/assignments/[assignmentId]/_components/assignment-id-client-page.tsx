@@ -2,7 +2,7 @@
 
 import { Banner } from "@/components/banner";
 import { IconBadge } from "@/components/icon-badge";
-import { Course, Assignment, Attachment } from "@prisma/client";
+import { Assignment, Attachment, Tutor } from "@prisma/client";
 import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { AssignmentActions } from "./assignment-actions";
@@ -12,24 +12,26 @@ import { AssignmentDescriptionForm } from "./assignment-description-form";
 
 interface AssignmentIdPageClientProps {
   assignment: Assignment & { attachments: Attachment[] };
-  course: Course;
-  facultyId: string;
+  tutor: Tutor;
   courseId: string;
+  facultyId: string;
+  tutorId: string;
   assignmentId: string;
 }
 
 export default function AssignmentIdPageClient({
   assignment,
-  course,
-  facultyId,
+  tutor,
   courseId,
+  facultyId,
+  tutorId,
   assignmentId,
 }: AssignmentIdPageClientProps) {
   const requiredFields = [
     assignment.title,
-    assignment.courseId,
-    assignment.description,
-    assignment.objective,
+    assignment.tutorId ?? "",
+    assignment.description ?? "",
+    assignment.objective ?? "",
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
@@ -49,10 +51,10 @@ export default function AssignmentIdPageClient({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${facultyId}/course/${courseId}`}
+              href={`/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Course creation
+              Back to Tutor creation
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
@@ -61,7 +63,7 @@ export default function AssignmentIdPageClient({
                   Complete all fields {completionText}
                 </span>
                 <span className="text-sm text-slate-700">
-                  Course: {course.title}
+                  Course: {tutor.title}
                 </span>
               </div>
               <AssignmentActions
@@ -85,16 +87,15 @@ export default function AssignmentIdPageClient({
                 initialData={{ title: assignment.title || "" }}
                 facultyId={facultyId}
                 courseId={courseId}
-                assignmentId={assignmentId}
-              />
+                assignmentId={assignmentId} tutorId={""}              />
               <AssignmentObjectiveForm
-                initialData={{ objective: assignment.objective }}
+                initialData={{ objective: assignment.objective ?? "" }}
                 facultyId={facultyId}
                 courseId={courseId}
                 assignmentId={assignmentId}
               />
               <AssignmentDescriptionForm
-                initialData={{ description: assignment.description }}
+                initialData={{ description: assignment.description ?? "" }}
                 facultyId={facultyId}
                 courseId={courseId}
                 assignmentId={assignmentId}

@@ -23,6 +23,7 @@ interface AssignmentTitleFormProps {
   };
   facultyId: string;
   courseId: string;
+  tutorId: string;
   assignmentId: string;
 }
 const formSchema = z.object({
@@ -31,7 +32,7 @@ const formSchema = z.object({
   }),
 });
 
-export const AssignmentTitleForm = ({ initialData, facultyId, courseId, assignmentId }: AssignmentTitleFormProps) => {
+export const AssignmentTitleForm = ({ initialData, facultyId, courseId, tutorId, assignmentId }: AssignmentTitleFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
@@ -42,7 +43,7 @@ export const AssignmentTitleForm = ({ initialData, facultyId, courseId, assignme
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/assignments/${assignmentId}/titles`, values);
+      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}/assignments/${assignmentId}/titles`, values);
       toast.success("Assignment created.");
       toggleEdit();
       router.refresh();

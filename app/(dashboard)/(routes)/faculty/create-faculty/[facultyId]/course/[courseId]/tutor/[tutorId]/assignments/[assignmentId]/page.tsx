@@ -11,7 +11,9 @@ interface AssignmentIdPageProps {
   }>;
 }
 
-export default async function AssignmentIdPage({ params }: AssignmentIdPageProps) {
+export default async function AssignmentIdPage({
+  params,
+}: AssignmentIdPageProps) {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
@@ -22,7 +24,6 @@ export default async function AssignmentIdPage({ params }: AssignmentIdPageProps
   const assignment = await db.assignment.findUnique({
     where: {
       id: assignmentId,
-      courseId,
       userId,
     },
     select: {
@@ -36,11 +37,11 @@ export default async function AssignmentIdPage({ params }: AssignmentIdPageProps
       isPublished: true,
       createdAt: true,
       updatedAt: true,
-      courseId: true,
+      tutorId: true,
+      adminId: true,
       attachments: {
         select: {
           id: true,
-          name: true,
           url: true,
           facultyId: true,
           courseId: true,
@@ -49,9 +50,9 @@ export default async function AssignmentIdPage({ params }: AssignmentIdPageProps
           courseworkId: true,
           assignmentId: true,
           courseNoticeboardId: true,
-          tuitionId: true,         
+          tuitionId: true,
           payrollId: true,
-          facultyPayrollId: true,          
+          facultyPayrollId: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -59,38 +60,43 @@ export default async function AssignmentIdPage({ params }: AssignmentIdPageProps
     },
   });
 
-  const course = await db.course.findUnique({
+  const tutor = await db.tutor.findUnique({
     where: {
-      id: courseId,
-      facultyId,
+      id: assignment?.tutorId ?? "", // Use tutorId from assignment
       userId,
     },
     select: {
       id: true,
       title: true,
       description: true,
-      imageUrl: true,
-      amount: true,
+      userId: true,
       facultyId: true,
       position: true,
       isPublished: true,
       createdAt: true,
       updatedAt: true,
-      userId: true,
+      objective: true, // Add missing fields
+      adminId: true,
+      courseId: true,
+      videoUrl: true,
+      playbackId: true,
+      isFree: true,
+      muxDataId: true,
     },
   });
 
-  if (!course || !assignment) {
+  if (!assignment || !tutor) {
     return redirect("/");
   }
 
   return (
     <AssignmentIdPageClient
       assignment={assignment}
-      course={course}
-      facultyId={facultyId}
+      tutor={tutor}
       courseId={courseId}
+      facultyId={facultyId}
+      tutorId={assignment.tutorId ?? ""}
       assignmentId={assignmentId}
     />
   );
-};
+}
