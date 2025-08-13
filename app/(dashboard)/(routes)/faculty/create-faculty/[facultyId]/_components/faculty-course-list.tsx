@@ -1,4 +1,3 @@
-// components/FacultyCourseList.tsx
 "use client";
 
 import { Course } from "@prisma/client";

@@ -1,17 +1,17 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { FacultyTitleForm } from "./_components/faculty-title-form"; // Check export
+import { FacultyTitleForm } from "./_components/faculty-title-form"; 
 import { LayoutDashboard, ListChecks, File } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
-import { FacultyImageForm } from "./_components/faculty-image-form"; // Check export
-import { FacultyDescriptionForm } from "./_components/faculty-description-form"; // Check export
-import { FacultySchoolForm } from "./_components/faculty-school-form"; // Check export
-import { FacultyCourseForm } from "./_components/faculty-course-form"; // Check export
-import { FacultyAttachmentForm } from "./_components/faculty-attachment-form"; // Check export
+import { FacultyImageForm } from "./_components/faculty-image-form"; 
+import { FacultyDescriptionForm } from "./_components/faculty-description-form"; 
+import { FacultySchoolForm } from "./_components/faculty-school-form"; 
+import { FacultyCourseForm } from "./_components/faculty-course-form"; 
+import { FacultyAttachmentForm } from "./_components/faculty-attachment-form"; 
 import { Banner } from "@/components/banner";
-import { FacultyActions } from "./_components/faculty-actions"; // Check export
-import { FacultyNoticeboardForm } from "./_components/faculty-noticeboard-form"; // Check export
+import { FacultyActions } from "./_components/faculty-actions"; 
+import { FacultyNoticeboardForm } from "./_components/faculty-noticeboard-form"; 
 
 const FacultyIdPage = async ({
   params,
@@ -161,7 +161,7 @@ const FacultyIdPage = async ({
                 </div>
                 <FacultyNoticeboardForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={initialData.id}              
                 />
               </div>
             </div>

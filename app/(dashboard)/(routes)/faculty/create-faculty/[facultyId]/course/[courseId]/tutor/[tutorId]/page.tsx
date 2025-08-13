@@ -198,7 +198,7 @@ const TutorIdPage = async ({
                   initialData={initialData}
                   facultyId={initialData.id}
                   courseId={resolvedParams.courseId}
-                  tutorId={tutor.id}                     
+                  tutorId={tutor.id}                   
                 />
               </div>
             </div>

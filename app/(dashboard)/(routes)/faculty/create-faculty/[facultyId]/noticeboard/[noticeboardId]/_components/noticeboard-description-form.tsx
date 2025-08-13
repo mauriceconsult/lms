@@ -1,6 +1,6 @@
 "use client";
+
 import * as z from "zod";
-import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -8,79 +8,125 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
-import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { Textarea } from "@/components/ui/textarea";
 import { Noticeboard } from "@prisma/client";
+import dynamic from "next/dynamic";
+import { cn } from "@/lib/utils";
+import { updateNoticeboard } from "../actions";
 
-
-interface NoticeboardDescriptionProps {
+// Define props interface
+interface NoticeboardDescriptionFormProps {
   initialData: Noticeboard;
   facultyId: string;
   noticeboardId: string;
 }
+
+// Dynamically import Editor
+const DynamicEditor = dynamic(
+  () => import("@/components/editor").then((mod) => mod.Editor),
+  {
+    ssr: false,
+    loading: () => <div>Loading editor...</div>,
+  }
+);
+
+// Custom Preview Component
+const Preview = ({ value }: { value: string }) => {
+  const [plainText, setPlainText] = useState("");
+
+  useEffect(() => {
+    const getPlainText = (html: string) => {
+      if (typeof window !== "undefined") {
+        // Ensure browser context
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        return doc.body.textContent || "";
+      }
+      return ""; // Fallback for SSR
+    };
+
+    setPlainText(getPlainText(value || ""));
+  }, [value]);
+
+  if (!plainText)
+    return <p className="text-slate-500 italic">No description</p>;
+  return <p className="text-sm">{plainText}</p>;
+};
+
 const formSchema = z.object({
-  description: z.string().min(1, {
-    message: "Notice description is required.",
-  }),
+  description: z
+    .string()
+    .max(5000, "Description must be 5000 characters or less")
+    .optional(),
 });
 
 export const NoticeboardDescriptionForm = ({
   initialData,
   facultyId,
-  noticeboardId,
-}: NoticeboardDescriptionProps) => {
+}: NoticeboardDescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const toggleEdit = () => setIsEditing((current) => !current);
+  const toggleEditing = () => setIsEditing((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      description: initialData?.description || "",
-    },
+    defaultValues: { description: initialData.description || "" },
   });
-  const { isSubmitting, isValid } = form.formState;
+  const {
+    reset,
+    formState: { isSubmitting, isValid },
+  } = form;
+
+  useEffect(() => {
+    console.log(
+      `[${new Date().toISOString()} NoticeboardDescriptionForm] initialData.description:`,
+      initialData.description
+    );
+  }, [initialData.description]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/descriptions`, values);
-      toast.success("Faculty Noticeboard description updated.");
-      toggleEdit();
-      router.refresh();
-    } catch {
-      toast.error("Something went wrong.");
+      const { success, message } = await updateNoticeboard(facultyId, values);
+      if (success) {
+        toast.success(message);
+        toggleEditing();
+        reset({ description: values.description || "" });
+        router.refresh();
+      } else {
+        toast.error(message);
+      }
+    } catch (error) {
+      console.error(
+        `[${new Date().toISOString()} NoticeboardDescriptionForm] Update faculty error:`,
+        error
+      );
+      toast.error("Unexpected error occurred");
     }
   };
+
   return (
-    <div className="mt-6 border bg-slate-100 rounded-md p-4">
+    <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
+      {isSubmitting && (
+        <div
+          className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center"
+          role="status"
+          aria-live="polite"
+        >
+          <Loader2 className="animate-spin h-6 w-6 text-sky-700" />
+        </div>
+      )}
       <div className="font-medium flex items-center justify-between">
-        Description*
-        <Button onClick={toggleEdit} variant="ghost">
-          {isEditing ? (
-            <>Cancel</>
-          ) : (
-            <>
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit Faculty Notice description
-            </>
-          )}
+        Noticeboard Description*
+        <Button onClick={toggleEditing} variant="ghost" disabled={isSubmitting}>
+          {isEditing ? <>Cancel</> : <>Edit Description</>}
         </Button>
       </div>
-      {!isEditing && (
-        <p
-          className={cn(
-            "text-sm mt-2",
-            !initialData.description && "text-slate-500 italic"
-          )}
-        >
-          {initialData.description || "No description"}
-        </p>
-      )}
       {isEditing && (
         <Form {...form}>
           <form
@@ -92,24 +138,57 @@ export const NoticeboardDescriptionForm = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea
-                      disabled={isSubmitting}
-                      placeholder="e.g., 'This is to inform the staff that...'"
-                      {...field}
-                    />
+                    {typeof field.onChange === "function" ? (
+                      <DynamicEditor
+                        value={field.value ?? ""}
+                        onChangeAction={field.onChange}
+                        onErrorAction={(error) =>
+                          form.setError("description", { message: error })
+                        }
+                        maxFileSize={2 * 1024 * 1024}
+                        allowedFileTypes={["image/jpeg", "image/png"]}
+                        debounceDelay={500}
+                        maxLength={5000}
+                        toolbarConfig={{
+                          formatting: true,
+                          image: true,
+                          align: true,
+                          clean: true,
+                          table: true,
+                        }}
+                      />
+                    ) : (
+                      <div>Loading form field...</div>
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="flex items-center gap-x-2">
-              <Button disabled={!isValid || isSubmitting} type="submit">
-                Save
-              </Button>
-            </div>
+            <Button disabled={!isValid || isSubmitting} type="submit">
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Save"
+              )}
+            </Button>
           </form>
         </Form>
+      )}
+      {!isEditing && (
+        <div
+          className={cn(
+            "text-sm mt-2",
+            !initialData.description && "text-slate-500 italic"
+          )}
+        >
+          {!initialData.description && "Articulate your vision here."}
+          {initialData.description && (
+            <Preview value={initialData.description} />
+          )}
+        </div>
       )}
     </div>
   );

@@ -7,12 +7,12 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileUpload } from "@/components/file-upload";
-import { Attachment,  Noticeboard } from "@prisma/client";
+import { Attachment, Noticeboard } from "@prisma/client";
 
 interface NoticeboardAttachmentFormProps {
   initialData: Noticeboard & { attachments: Attachment[] };
   facultyId: string;
-  noticeboardId: string;  
+  noticeboardId: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,8 +32,11 @@ export const NoticeboardAttachmentForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/attachments`, values);
-      toast.success("Noticeboard updated.");
+      await axios.post(
+        `/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/attachments`,
+        values
+      );
+      toast.success("Noticeboard Attachments updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -43,8 +46,10 @@ export const NoticeboardAttachmentForm = ({
   const onDelete = async (id: string) => {
     try {
       setDeletingId(id);
-      await axios.delete(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/attachments/${id}`);
-      toast.success("Noticeboard attachment deleted");
+      await axios.delete(
+        `/api/create-faculties/${facultyId}/attachments/${id}`
+      );
+      toast.success("Attachment deleted");
       router.refresh();
     } catch {
       toast.error("Something went wrong");
@@ -55,7 +60,7 @@ export const NoticeboardAttachmentForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Noticeboard attachments
+        Attachments
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing && <>Cancel</>}
           {!isEditing && (
@@ -70,7 +75,7 @@ export const NoticeboardAttachmentForm = ({
         <>
           {initialData.attachments.length === 0 && (
             <p className="text-sm mt-2 text-slate-500 italic">
-              No attachments yet
+              You may add attachments that support your vision here.
             </p>
           )}
           {initialData.attachments.length > 0 && (
@@ -81,7 +86,7 @@ export const NoticeboardAttachmentForm = ({
                   className="flex items-center p-3 w-full bg-sky-100 border-sky-200 border text-sky-700 rounded-md"
                 >
                   <File className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <p className="text-xs line-clamp-1">{attachment.name}</p>
+                  <p className="text-xs line-clamp-1">{attachment.url}</p>
                   {deletingId === attachment.id && (
                     <div>
                       <Loader2 className="h-4 w-4 animate-spin" />

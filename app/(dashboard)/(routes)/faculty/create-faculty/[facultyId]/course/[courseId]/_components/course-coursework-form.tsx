@@ -20,8 +20,11 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Coursework, Course } from "@prisma/client";
 import { CourseCourseworkList } from "./course-coursework-list";
-import { createCoursework, onEditAction, onReorderAction } from "../coursework/[courseworkId]/actions";
-
+import {
+  createCoursework,
+  onEditAction,
+  onReorderAction,
+} from "../coursework/[courseworkId]/actions";
 
 interface CourseCourseworkFormProps {
   initialData: Course & { courseworks: Coursework[] };
@@ -31,12 +34,12 @@ interface CourseCourseworkFormProps {
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  // description: z.string(),
 });
 
 export const CourseCourseworkForm = ({
   initialData,
   courseId,
+  facultyId,
 }: CourseCourseworkFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -46,7 +49,7 @@ export const CourseCourseworkForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      // description: ""
+    
     },
   });
   const {
@@ -83,7 +86,7 @@ export const CourseCourseworkForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course Notice
+        Coursework*
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -94,7 +97,7 @@ export const CourseCourseworkForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Course Notice
+              Add a Coursework
             </>
           )}
         </Button>
@@ -140,13 +143,13 @@ export const CourseCourseworkForm = ({
           )}
         >
           {!initialData.courseworks.length &&
-            "You may add Course Notice(s) here."}
+            "Add your Topic(s)/Coursework(s) here. At least one published Coursework is required."}
           <CourseCourseworkList
             onEditAction={async (id) => {
               const result = await onEditAction(courseId, id);
               if (result.success) {
                 router.push(
-                  `/course/create-course/${courseId}/coursework/${id}`
+                  `/faculty/create-faculty/${facultyId}/course/${courseId}/coursework/${id}`
                 );
               }
               return result;
@@ -164,7 +167,7 @@ export const CourseCourseworkForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Course Notices
+          Drag and drop to reorder the Topics/Courseworks
         </p>
       )}
     </div>

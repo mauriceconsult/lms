@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   Grip,
-  // Pencil
+  Pencil,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
@@ -27,11 +27,11 @@ interface CourseCourseworkListProps {
 
 export const CourseCourseworkList = ({
   items,
-  // onEditAction,
+  onEditAction,
   onReorderAction,
 }: CourseCourseworkListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [assignments, setCourseworks] = useState<Coursework[]>(items);
+  const [tutors, setCourseworks] = useState<Coursework[]>(items);
 
   useEffect(() => {
     setIsMounted(true);
@@ -44,14 +44,14 @@ export const CourseCourseworkList = ({
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
 
-    const newItems = Array.from(assignments);
+    const newItems = Array.from(tutors);
     const [reorderedItem] = newItems.splice(result.source.index, 1);
     newItems.splice(result.destination.index, 0, reorderedItem);
 
     setCourseworks(newItems);
 
-    const bulkUpdateData = newItems.map((assignment, index) => ({
-      id: assignment.id,
+    const bulkUpdateData = newItems.map((tutor, index) => ({
+      id: tutor.id,
       position: index,
     }));
 
@@ -69,16 +69,16 @@ export const CourseCourseworkList = ({
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="assignments">
+      <Droppable droppableId="tutors">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            {assignments.map((assignment, index) => (
-              <Draggable key={assignment.id} draggableId={assignment.id} index={index}>
+            {tutors.map((tutor, index) => (
+              <Draggable key={tutor.id} draggableId={tutor.id} index={index}>
                 {(provided) => (
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      assignment.isPublished &&
+                      tutor.isPublished &&
                         "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
@@ -87,36 +87,36 @@ export const CourseCourseworkList = ({
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        assignment.isPublished && "border-r-sky-200 hover:bg-sky-200"
+                        tutor.isPublished && "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
                     >
                       <Grip className="h-5 w-5" />
                     </div>
-                    <span aria-label={`Coursework: ${assignment.title || assignment.id}`}>
-                      {assignment.title || assignment.id}
+                    <span aria-label={`Coursework: ${tutor.title || tutor.id}`}>
+                      {tutor.title || tutor.id}
                     </span>
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
                       <Badge
                         className={cn(
                           "bg-slate-500",
-                          assignment.isPublished && "bg-sky-700"
+                          tutor.isPublished && "bg-sky-700"
                         )}
                       >
-                        {assignment.isPublished ? "Published" : "Draft"}
+                        {tutor.isPublished ? "Published" : "Draft"}
                       </Badge>
-                      {/* <Pencil
+                      <Pencil
                         onClick={async () => {
                           const { success, message } = await onEditAction(
-                            assignment.id
+                            tutor.id
                           );
                           if (!success) {
                             toast.error(message);
                           }
                         }}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
-                        aria-label={`Edit assignment: ${assignment.title || assignment.id}`}
-                      /> */}
+                        aria-label={`Edit tutor: ${tutor.title || tutor.id}`}
+                      />
                     </div>
                   </div>
                 )}

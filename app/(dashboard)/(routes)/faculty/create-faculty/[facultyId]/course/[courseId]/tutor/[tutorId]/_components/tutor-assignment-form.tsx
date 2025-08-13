@@ -20,17 +20,14 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Assignment, Tutor } from "@prisma/client";
 import { TutorAssignmentList } from "./tutor-assignment-list";
-import {
-  createAssignment,
-  onEditAction,
-  onReorderAction,
-} from "../assignments/[assignmentId]/actions";
+import { createAssignment, onEditAction, onReorderAction } from "../assignments/[assignmentId]/actions";
+
 
 interface TutorAssignmentFormProps {
   initialData: Tutor & { assignments: Assignment[] };
+  tutorId: string;
   facultyId: string;
   courseId: string;
-  tutorId: string;
 }
 
 const formSchema = z.object({
@@ -39,55 +36,36 @@ const formSchema = z.object({
 
 export const TutorAssignmentForm = ({
   initialData,
+  tutorId,
   facultyId,
   courseId,
-  tutorId,
 }: TutorAssignmentFormProps) => {
-  console.log("TutorAssignmentForm mounted");
-
-  let renderCount = 0;
-  console.log("Render count:", ++renderCount);
-
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  console.log("Current isCreating state:", isCreating);
-
-  const toggleCreating = () => {
-    setIsCreating((current) => {
-      console.log("Toggling isCreating to:", !current);
-      return !current;
-    });
-  };
+  const toggleCreating = () => setIsCreating((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { title: "" },
-    mode: "onChange",
-    reValidateMode: "onChange",
+    defaultValues: {
+      title: "",
+    
+    },
   });
   const {
     reset,
-    watch,
-    formState: { isSubmitting, isValid, errors },
+    formState: { isSubmitting, isValid },
   } = form;
 
-  // Log validation
-  const values = watch();
-  console.log("Zod validation:", formSchema.safeParse(values));
-  console.log("Form state:", { isValid, isSubmitting, errors, values });
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log("Form submitted with values:", values);
     try {
-      const response = await createAssignment(tutorId, values);
-      console.log("createAssignment response:", response);
-      if (response.success) {
-        toast.success(response.message);
+      const { success, message } = await createAssignment(tutorId, values);
+      if (success) {
+        toast.success(message);
         toggleCreating();
         reset({ title: "" });
         router.refresh();
       } else {
-        toast.error(response.message);
+        toast.error(message);
       }
     } catch (error) {
       console.error("Create assignment error:", error);
@@ -109,80 +87,52 @@ export const TutorAssignmentForm = ({
       <div className="font-medium flex items-center justify-between">
         Assignment*
         <Button
-          onClick={() => {
-            console.log(
-              "Add an Assignment clicked, isSubmitting:",
-              isSubmitting,
-              "current isCreating:",
-              isCreating
-            );
-            toggleCreating();
-          }}
+          onClick={toggleCreating}
           variant="ghost"
           disabled={isSubmitting}
-          aria-label={
-            isCreating ? "Cancel adding assignment" : "Add an Assignment"
-          }
         >
           {isCreating ? (
             <>Cancel</>
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add an Assignment
+              Add a Assignment
             </>
           )}
         </Button>
       </div>
       {isCreating && (
-        <div>
-          {(() => {
-            console.log("Rendering form");
-            return null;
-          })()}
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-4 mt-4"
-            >
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={isSubmitting}
-                        placeholder="e.g., 'Intro to Fashion Design: Assignment 1'"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          console.log(
-                            "Input changed, new value:",
-                            e.target.value,
-                            "isValid:",
-                            form.formState.isValid,
-                            "errors:",
-                            form.formState.errors
-                          );
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button disabled={!isValid || isSubmitting} type="submit">
-                {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Create"
-                )}
-              </Button>
-            </form>
-          </Form>
-        </div>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 mt-4"
+          >
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isSubmitting}
+                      placeholder="e.g., 'Principles of Fashion Design'"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button disabled={!isValid || isSubmitting} type="submit">
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Create"
+              )}
+            </Button>
+          </form>
+        </Form>
       )}
       {!isCreating && (
         <div
@@ -192,12 +142,10 @@ export const TutorAssignmentForm = ({
           )}
         >
           {!initialData.assignments.length &&
-            "Add Assignments here. At least one published Assignment is required for every Tutor/Topic."}
+            "Add your Topic(s)/Assignment(s) here. At least one published Assignment is required."}
           <TutorAssignmentList
             onEditAction={async (id) => {
-              console.log("onEditAction called with id:", id);
               const result = await onEditAction(tutorId, id);
-              console.log("onEditAction result:", result);
               if (result.success) {
                 router.push(
                   `/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}/assignment/${id}`
@@ -206,13 +154,8 @@ export const TutorAssignmentForm = ({
               return result;
             }}
             onReorderAction={async (updateData) => {
-              console.log(
-                "onReorderAction called with updateData:",
-                updateData
-              );
               setIsUpdating(true);
               const result = await onReorderAction(tutorId, updateData);
-              console.log("onReorderAction result:", result);
               setIsUpdating(false);
               router.refresh();
               return result;
@@ -223,7 +166,7 @@ export const TutorAssignmentForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Assignments
+          Drag and drop to reorder the Topics/Assignments
         </p>
       )}
     </div>

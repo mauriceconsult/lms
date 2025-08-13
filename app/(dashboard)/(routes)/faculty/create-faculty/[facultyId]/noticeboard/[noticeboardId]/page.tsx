@@ -3,7 +3,6 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { LayoutDashboard, File, ArrowLeft } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
-// import { NoticeboardImageForm } from "./_components/noticeboard-image-form";
 import { NoticeboardFacultyForm } from "./_components/noticeboard-faculty-form";
 import { Banner } from "@/components/banner";
 import { NoticeboardActions } from "./_components/noticeboard-actions";
@@ -46,8 +45,15 @@ const NoticeboardIdPage = async ({
   if (!noticeboard || !faculty) {
     return redirect("/");
   }
-  const requiredFields = [noticeboard.title, noticeboard.description];
-  const totalFields = requiredFields.length;
+  const requiredFields = [
+    noticeboard.title,
+    noticeboard.facultyId,
+    noticeboard.description,    
+  ];
+  const optionalFields = [
+    noticeboard.attachments.length > 0,
+  ];
+  const totalFields = requiredFields.length + optionalFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);

@@ -9,24 +9,25 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import { Grip } from "lucide-react"; // Removed Pencil
+import { Grip, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
 
 interface FacultyNoticeboardListProps {
   items: Noticeboard[];
-  onReorderAction: (updateData: { id: string; position: number }[]) => Promise<{
-    success: boolean;
-    message: string;
-  }>;
+  onReorderAction: (
+    updateData: { id: string; position: number }[]
+  ) => Promise<{ success: boolean; message: string }>;
+  onEditAction: (id: string) => Promise<{ success: boolean; message: string }>;
 }
 
 export const FacultyNoticeboardList = ({
   items,
   onReorderAction,
+  onEditAction,
 }: FacultyNoticeboardListProps) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [noticeboards, setNoticeboards] = useState<Noticeboard[]>(items);
+  const [courses, setNoticeboards] = useState<Noticeboard[]>(items);
 
   useEffect(() => {
     setIsMounted(true);
@@ -39,14 +40,14 @@ export const FacultyNoticeboardList = ({
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
 
-    const newItems = Array.from(noticeboards);
+    const newItems = Array.from(courses);
     const [reorderedItem] = newItems.splice(result.source.index, 1);
     newItems.splice(result.destination.index, 0, reorderedItem);
 
     setNoticeboards(newItems);
 
-    const bulkUpdateData = newItems.map((noticeboard, index) => ({
-      id: noticeboard.id,
+    const bulkUpdateData = newItems.map((course, index) => ({
+      id: course.id,
       position: index,
     }));
 
@@ -64,20 +65,20 @@ export const FacultyNoticeboardList = ({
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="noticeboards">
+      <Droppable droppableId="courses">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
-            {noticeboards.map((noticeboard, index) => (
+            {courses.map((course, index) => (
               <Draggable
-                key={noticeboard.id}
-                draggableId={noticeboard.id}
+                key={course.id}
+                draggableId={course.id} // Fixed: Use actual course ID
                 index={index}
               >
                 {(provided) => (
                   <div
                     className={cn(
                       "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                      noticeboard.isPublished &&
+                      course.isPublished &&
                         "bg-sky-100 border-sky-200 text-sky-700"
                     )}
                     ref={provided.innerRef}
@@ -86,25 +87,34 @@ export const FacultyNoticeboardList = ({
                     <div
                       className={cn(
                         "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                        noticeboard.isPublished &&
+                        course.isPublished &&
                           "border-r-sky-200 hover:bg-sky-200"
                       )}
                       {...provided.dragHandleProps}
                     >
                       <Grip className="h-5 w-5" />
                     </div>
-                    <span aria-label={`Noticeboard: ${noticeboard.title}`}>
-                      {noticeboard.title}
-                    </span>
+                    {course.title}
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
                       <Badge
                         className={cn(
                           "bg-slate-500",
-                          noticeboard.isPublished && "bg-sky-700"
+                          course.isPublished && "bg-sky-700"
                         )}
                       >
-                        {noticeboard.isPublished ? "Published" : "Draft"}
+                        {course.isPublished ? "Published" : "Draft"}
                       </Badge>
+                      <Pencil
+                        onClick={async () => {
+                          const { success, message } = await onEditAction(
+                            course.id
+                          );
+                          if (!success) {
+                            toast.error(message);
+                          }
+                        }}
+                        className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
+                      />
                     </div>
                   </div>
                 )}

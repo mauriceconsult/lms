@@ -19,11 +19,9 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Noticeboard, Faculty } from "@prisma/client";
+import { createNoticeboard, onEditAction, onReorderAction } from "../noticeboard/[noticeboardId]/actions";
 import { FacultyNoticeboardList } from "./faculty-noticeboard-list";
-import {
-  createNoticeboard,
-  onReorderAction,
-} from "../noticeboard/[noticeboardId]/actions";
+
 
 interface FacultyNoticeboardFormProps {
   initialData: Faculty & { noticeboards: Noticeboard[] };
@@ -32,6 +30,7 @@ interface FacultyNoticeboardFormProps {
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
+  // description: z.string(),
 });
 
 export const FacultyNoticeboardForm = ({
@@ -46,6 +45,7 @@ export const FacultyNoticeboardForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
+      // description: ""
     },
   });
   const {
@@ -65,7 +65,7 @@ export const FacultyNoticeboardForm = ({
         toast.error(message);
       }
     } catch (error) {
-      console.error("Create noticeboard error:", error);
+      console.error("Create Noticeboard error:", error);
       toast.error("Unexpected error occurred");
     }
   };
@@ -82,7 +82,7 @@ export const FacultyNoticeboardForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Noticeboard
+        Noticeboard*
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -139,8 +139,17 @@ export const FacultyNoticeboardForm = ({
           )}
         >
           {!initialData.noticeboards.length &&
-            "You may add Faculty notice(s) here."}
+            "Add Noticeboard(s) here. At least one published Noticeboard is required."}
           <FacultyNoticeboardList
+            onEditAction={async (id) => {
+              const result = await onEditAction(facultyId, id);
+              if (result.success) {
+                router.push(
+                  `/faculty/create-faculty/${facultyId}/noticeboard/${id}`
+                );
+              }
+              return result;
+            }}
             onReorderAction={async (updateData) => {
               setIsUpdating(true);
               const result = await onReorderAction(facultyId, updateData);
@@ -154,7 +163,7 @@ export const FacultyNoticeboardForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Faculty Noticeboards
+          Drag and drop to reorder the Noticeboards
         </p>
       )}
     </div>
