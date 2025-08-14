@@ -8,39 +8,35 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-interface CourseNoticeboardActionsProps {
+interface CourseCourseNoticeboardActionsProps {
   disabled: boolean;
   facultyId: string;
   courseId: string;
-  courseNoticeboardId: string;
+  courseCourseNoticeboardId: string;
   isPublished: boolean;
 }
-
-export const CourseNoticeboardActions = ({
+export const CourseCourseNoticeboardActions = ({
   disabled,
   facultyId,
   courseId,
-  courseNoticeboardId,
+  courseCourseNoticeboardId,
   isPublished,
-}: CourseNoticeboardActionsProps) => {
+}: CourseCourseNoticeboardActionsProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const onClick = async () => {
     try {
       setIsLoading(true);
       if (isPublished) {
-        await axios.patch(
-          `/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards/${courseNoticeboardId}/unpublish`
-        );
-        toast.success("Course notice unpublished");
+        await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/courseCourseNoticeboards/${courseCourseNoticeboardId}/unpublish`);
+        toast.success("Course Noticeboard unpublished");
       } else {
         await axios.patch(
-          `/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards/${courseNoticeboardId}/publish`
+          `/api/create-faculties/${facultyId}/courses/${courseId}/courseCourseNoticeboards/${courseCourseNoticeboardId}/publish`
         );
-        
-        toast.success("Course notice published");
+        toast.success("Course Noticeboard published");
       }
-        router.refresh();
+      router.refresh();
     } catch {
       toast.error("Something went wrong");
     } finally {
@@ -50,8 +46,10 @@ export const CourseNoticeboardActions = ({
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await axios.delete(`/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards/${courseNoticeboardId}`);
-      toast.success("Course notice deleted");
+      await axios.delete(
+        `/api/create-faculty/${facultyId}/courses/${courseId}/courseNoticeboards/${courseCourseNoticeboardId}`
+      );
+      toast.success("Course Noticeboard deleted");
       router.refresh();
       router.push(`/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard`);
     } catch {

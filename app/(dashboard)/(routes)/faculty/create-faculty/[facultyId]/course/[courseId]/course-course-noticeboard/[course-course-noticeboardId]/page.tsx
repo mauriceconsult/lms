@@ -4,20 +4,20 @@ import { redirect } from "next/navigation";
 import { LayoutDashboard, File, ArrowLeft } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
-import { CourseworkDescriptionForm } from "./_components/coursework-description-form";
-import { CourseworkTitleForm } from "./_components/coursework-title-form";
-import { CourseworkAttachmentForm } from "./_components/coursework-attachment-form";
-import { CourseworkActions } from "./_components/coursework-actions";
 import Link from "next/link";
-import { CourseworkCourseForm } from "./_components/coursework-course-form";
+import { CourseCourseNoticeboardActions } from "./_components/course-course-noticeboard-actions";
+import { CourseCourseNoticeboardTitleForm } from "./_components/course-course-noticeboard-title-form";
+import { CourseCourseNoticeboardCourseForm } from "./_components/course-course-noticeboard-course-form";
+import { CourseCourseNoticeboardDescriptionForm } from "./_components/course-course-noticeboard-description-form";
+import { CourseCourseNoticeboardAttachmentForm } from "./_components/course-course-noticeboard-attachment-form";
 
-const CourseworkIdPage = async ({
+const CourseNoticeboardIdPage = async ({
   params,
 }: {
   params: Promise<{
     courseId: string;
     facultyId: string;
-    courseworkId: string;
+    courseNoticeboardId: string;
   }>;
 }) => {
   const { userId } = await auth();
@@ -26,11 +26,10 @@ const CourseworkIdPage = async ({
   }
 
   const resolvedParams = await params;
-  const coursework = await db.coursework.findFirst({
+  const courseNoticeboard = await db.courseNoticeboard.findFirst({
     where: {
-      id: resolvedParams.courseworkId,
+      id: resolvedParams.courseNoticeboardId,
       courseId: resolvedParams.facultyId,
-      createdBy: userId, // Replaced userId with createdBy
     },
     include: {
       attachments: {
@@ -45,20 +44,24 @@ const CourseworkIdPage = async ({
       title: "asc",
     },
   });
-  if (!coursework || !course) {
+  if (!courseNoticeboard || !course) {
     return redirect("/");
   }
-  const requiredFields = [coursework.title, coursework.description];
+  const requiredFields = [
+    courseNoticeboard.title,
+    courseNoticeboard.courseId,
+    courseNoticeboard.description,
+  ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
-  const isComplete = requiredFields.every(Boolean);
+
   return (
     <>
-      {!coursework.isPublished && (
+      {!courseNoticeboard.isPublished && (
         <Banner
           variant="warning"
-          label="This Coursework is unpublished. Once published, students can submit their course projects."
+          label="This Course Notice is unpublished. Once published, students can see the notice."
         />
       )}
       <div className="p-6">
@@ -73,16 +76,17 @@ const CourseworkIdPage = async ({
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Coursework creation</h1>
+                <h1 className="text-2xl font-medium">Course Notice creation</h1>
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
                 </div>
               </div>
-              <CourseworkActions
-                disabled={!isComplete}
-                courseworkId={resolvedParams.courseworkId}
+              <CourseCourseNoticeboardActions
+                disabled={false}
                 facultyId={resolvedParams.facultyId}
-                isPublished={coursework.isPublished}
+                courseId={resolvedParams.courseId}
+                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
+                isPublished={false}
               />
             </div>
           </div>
@@ -92,29 +96,29 @@ const CourseworkIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Enter the Coursework details</h2>
+                <h2 className="text-xl">Enter the CourseNoticeboard details</h2>
               </div>
-              <CourseworkTitleForm
-                initialData={coursework}
+              <CourseCourseNoticeboardTitleForm
+                initialData={courseNoticeboard}
                 facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
-                courseworkId={resolvedParams.courseworkId}
+                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
               />
-              <CourseworkCourseForm
-                initialData={coursework}
+              <CourseCourseNoticeboardCourseForm
+                initialData={courseNoticeboard}
                 facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
-                courseworkId={resolvedParams.courseworkId}
+                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
                 options={course.map((cat) => ({
                   label: cat.title,
                   value: cat.id,
                 }))}
               />
-              <CourseworkDescriptionForm
-                initialData={coursework}
+              <CourseCourseNoticeboardDescriptionForm
+                initialData={courseNoticeboard}
                 facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
-                courseworkId={resolvedParams.courseworkId}
+                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
               />
             </div>
             <div className="space-y-6">
@@ -123,11 +127,11 @@ const CourseworkIdPage = async ({
                   <IconBadge icon={File} />
                   <h2 className="text-xl">Resources & Attachments</h2>
                 </div>
-                <CourseworkAttachmentForm
-                  initialData={coursework}
+                <CourseCourseNoticeboardAttachmentForm
+                  initialData={courseNoticeboard}
                   facultyId={resolvedParams.facultyId}
                   courseId={resolvedParams.courseId}
-                  courseworkId={resolvedParams.courseworkId}
+                  courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
                 />
               </div>
             </div>
@@ -138,4 +142,4 @@ const CourseworkIdPage = async ({
   );
 };
 
-export default CourseworkIdPage;
+export default CourseNoticeboardIdPage;

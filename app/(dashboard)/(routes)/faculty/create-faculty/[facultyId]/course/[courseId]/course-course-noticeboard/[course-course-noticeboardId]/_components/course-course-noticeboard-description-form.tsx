@@ -10,40 +10,48 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
+import { CourseNoticeboard } from "@prisma/client";
 
-interface CourseNoticeboardTitleFormProps {
-  initialData: {
-    title: string;
-  };
+
+interface CourseCourseNoticeboardDescriptionProps {
+  initialData: CourseNoticeboard;
   facultyId: string;
   courseId: string;
-  courseNoticeboardId: string;
+  courseCourseNoticeboardId: string;
 }
 const formSchema = z.object({
-  title: z.string().min(1, {
-    message: "Course Noticeboard title is required.",
+  description: z.string().min(1, {
+    message: "Course Notice description is required.",
   }),
 });
 
-export const CourseNoticeboardTitleForm = ({ initialData, facultyId, courseId, courseNoticeboardId }: CourseNoticeboardTitleFormProps) => {
+export const CourseCourseNoticeboardDescriptionForm = ({
+  initialData,
+  facultyId,
+  courseCourseNoticeboardId,
+  courseId,
+}: CourseCourseNoticeboardDescriptionProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      description: initialData?.description || "",
+    },
   });
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/courseNoticeboards/${courseNoticeboardId}/titles`, values);
-      toast.success("Course Noticeboard created.");
+      await axios.patch(`/api/create-faculties/${facultyId}/course/${courseId}/courseCourseNoticeboards/${courseCourseNoticeboardId}/descriptions`, values);
+      toast.success("Course Notice description updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -53,19 +61,28 @@ export const CourseNoticeboardTitleForm = ({ initialData, facultyId, courseId, c
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Title*
+        Description*
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit notice title
+              Edit Course Notice description
             </>
           )}
         </Button>
       </div>
-      {!isEditing && <p className="text-sm mt-2">{initialData.title}</p>}
+      {!isEditing && (
+        <p
+          className={cn(
+            "text-sm mt-2",
+            !initialData.description && "text-slate-500 italic"
+          )}
+        >
+          {initialData.description || "Your student notices will list here."}
+        </p>
+      )}
       {isEditing && (
         <Form {...form}>
           <form
@@ -74,13 +91,13 @@ export const CourseNoticeboardTitleForm = ({ initialData, facultyId, courseId, c
           >
             <FormField
               control={form.control}
-              name="title"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
+                    <Textarea
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Course seminar announcement'"
+                      placeholder="e.g., 'You are required to...'"
                       {...field}
                     />
                   </FormControl>

@@ -1,8 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { DataTable } from "./_components/courseNoticeboard-data-table";
-import { columns } from "./_components/courseNoticeboard-columns";
+import { DataTable } from "./_components/course-course-noticeboard-data-table";
+import { columns } from "./_components/course-course-noticeboard-columns";
+
 
 const CourseNoticeboardsPage = async () => {
   const { userId } = await auth();
