@@ -106,6 +106,7 @@ model CourseNoticeboard {
   partyId     String?      @db.Text
   description String?      @db.Text
   position    Int?
+  createdBy    String?
   attachments Attachment[]
   isPublished Boolean      @default(false)
   course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)

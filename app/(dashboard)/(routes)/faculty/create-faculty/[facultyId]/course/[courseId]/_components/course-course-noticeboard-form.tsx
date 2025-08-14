@@ -19,12 +19,13 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { CourseNoticeboard, Course } from "@prisma/client";
-import { CourseCourseNoticeboardList } from "./course-courseNoticeboard-list";
-import {
-  createCourseNoticeboard,
-  onEditAction,
-  onReorderAction,
-} from "../courseNoticeboard/[courseNoticeboardId]/actions";
+import { CourseCourseNoticeboardList } from "./course-course-noticeboard-list";
+import { createCourseNoticeboard, onEditAction, onReorderAction } from "../course-course-noticeboard/[course-course-noticeboardId]/actions";
+// import {
+//   createCourseNoticeboard,
+//   onEditAction,
+//   onReorderAction,
+// } from "../courseNoticeboard/[courseNoticeboardId]/actions";
 
 interface CourseCourseNoticeboardFormProps {
   initialData: Course & { courseNoticeboards: CourseNoticeboard[] };
