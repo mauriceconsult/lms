@@ -51,7 +51,7 @@ const CreateFaculty = () => {
           <span>
             {" "}
             Give your Faculty a name. Don&apos;t worry, you can change
-            the name later. The Faculty is your strategic level that enables you to articulate your vision. 
+            the name later. The Faculty is your strategic where you articulate the vision that inspires Courses developed in the Faculty. 
           </span>         
         </p>
         <Form {...form}>

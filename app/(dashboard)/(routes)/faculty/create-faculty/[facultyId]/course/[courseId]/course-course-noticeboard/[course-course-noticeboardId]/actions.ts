@@ -32,17 +32,12 @@ export async function onEditAction(courseId: string, courseNoticeboardId: string
     }
 
     // Allow edit if user is creator or createdBy is empty (legacy records)
-    if (courseNoticeboard.createdBy !== userId && courseNoticeboard.createdBy !== "") {
-      console.log("User not creator:", {
-        userId,
-        createdBy: courseNoticeboard.createdBy,
-      });
+   
       return {
         success: false,
         message: "Only the creator can edit this courseNoticeboard",
       };
-    }
-
+    
     await db.courseNoticeboard.update({
       where: { id: courseNoticeboardId },
       data: { updatedAt: new Date() },
@@ -69,9 +64,8 @@ export async function createCourseNoticeboard(
     const courseNoticeboard = await db.courseNoticeboard.create({
       data: {
         title: values.title,
-        courseId,
-        createdBy: userId, // Ensure createdBy is set
-        userId, // Assuming userId is the tutor or creator
+        courseId,    
+        userId,
       },
     });
     console.log("CourseNoticeboard created:", courseNoticeboard.id);

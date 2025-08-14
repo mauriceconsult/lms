@@ -93,7 +93,7 @@ export const FacultyNoticeboardForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Noticeboard
+              Add a Notice
             </>
           )}
         </Button>
@@ -113,7 +113,7 @@ export const FacultyNoticeboardForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Principles of Fashion Design'"
+                      placeholder="e.g., 'New Courses available'"
                       {...field}
                     />
                   </FormControl>
@@ -139,7 +139,7 @@ export const FacultyNoticeboardForm = ({
           )}
         >
           {!initialData.noticeboards.length &&
-            "Add Noticeboard(s) here. At least one published Noticeboard is required."}
+            "Add notices for the Faculty here."}
           <FacultyNoticeboardList
             onEditAction={async (id) => {
               const result = await onEditAction(facultyId, id);

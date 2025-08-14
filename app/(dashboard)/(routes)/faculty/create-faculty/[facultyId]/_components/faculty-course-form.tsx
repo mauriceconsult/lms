@@ -138,7 +138,7 @@ export const FacultyCourseForm = ({
           )}
         >
           {!initialData.courses.length &&
-            "Add Course(s) here. At least one published Course is required."}
+            "You can add as many many Courses but at least one published Course is required."}
           <FacultyCourseList
             onEditAction={async (id) => {
               const result = await onEditAction(facultyId, id);

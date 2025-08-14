@@ -13,7 +13,6 @@ interface FacultyAttachmentFormProps {
   initialData: Faculty & { attachments: Attachment[] };
   facultyId: string;  
 }
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const formSchema = z.object({
   url: z.string().min(1),
@@ -68,7 +67,7 @@ export const FacultyAttachmentForm = ({
         <>
           {initialData.attachments.length === 0 && (
             <p className="text-sm mt-2 text-slate-500 italic">
-              You may add attachments that support your vision here.
+              You can attach docs, pdfs, and videos here.
             </p>
           )}
           {initialData.attachments.length > 0 && (

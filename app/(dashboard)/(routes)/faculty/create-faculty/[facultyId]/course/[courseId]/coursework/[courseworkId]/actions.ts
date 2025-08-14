@@ -31,18 +31,12 @@ export async function onEditAction(courseId: string, courseworkId: string) {
       };
     }
 
-    // Allow edit if user is creator or createdBy is empty (legacy records)
-    if (coursework.createdBy !== userId && coursework.createdBy !== "") {
-      console.log("User not creator:", {
-        userId,
-        createdBy: coursework.createdBy,
-      });
+    // Allow edit if user is creator empty (legacy records)   
       return {
         success: false,
         message: "Only the creator can edit this coursework",
       };
-    }
-
+    
     await db.coursework.update({
       where: { id: courseworkId },
       data: { updatedAt: new Date() },
@@ -69,9 +63,8 @@ export async function createCoursework(
     const coursework = await db.coursework.create({
       data: {
         title: values.title,
-        courseId,
-        createdBy: userId, // Ensure createdBy is set
-        userId, // Assuming userId is the tutor or creator
+        courseId,      
+        userId, 
       },
     });
     console.log("Coursework created:", coursework.id);
