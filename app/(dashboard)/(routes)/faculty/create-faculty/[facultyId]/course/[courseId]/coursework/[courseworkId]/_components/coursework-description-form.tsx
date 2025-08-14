@@ -23,6 +23,7 @@ import { Coursework } from "@prisma/client";
 interface CourseworkDescriptionProps {
   initialData: Coursework;
   facultyId: string;
+  courseId: string;
   courseworkId: string;
 }
 const formSchema = z.object({
@@ -35,6 +36,7 @@ export const CourseworkDescriptionForm = ({
   initialData,
   facultyId,
   courseworkId,
+  courseId,
 }: CourseworkDescriptionProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
@@ -48,7 +50,7 @@ export const CourseworkDescriptionForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/courseworks/${courseworkId}/descriptions`, values);
+      await axios.patch(`/api/create-faculties/${facultyId}/course/${courseId}/courseworks/${courseworkId}/descriptions`, values);
       toast.success("Coursework description updated.");
       toggleEdit();
       router.refresh();

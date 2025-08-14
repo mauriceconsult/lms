@@ -1,54 +1,34 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default clerkMiddleware(async (auth, req) => {
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/sign-in",
+  "/signup",
+  "/api/public(.*)",
+]);
+
+export default clerkMiddleware(async (auth, request: NextRequest) => {
   const { userId } = await auth();
-  console.log("Auth status:", {
+  const { pathname } = request.nextUrl;
+
+  console.log(`Auth status:`, {
     userId,
-    url: req.url,
-    pathname: req.nextUrl.pathname,
+    url: request.url,
+    pathname,
   });
 
-  // Define public routes
-  const isPublicRoute = [
-    "/",
-    "/sign-in",
-    "/sign-up",
-    "/search",
-    "/faculties/:path*",
-  ].some((route) => {
-    if (route.includes(":path*")) {
-      const baseRoute = route.split(":")[0];
-      return req.nextUrl.pathname.startsWith(baseRoute);
-    }
-    return req.nextUrl.pathname === route;
-  });
-  const isUploadRoute = req.nextUrl.pathname.startsWith("/api/uploadthing");
+  console.log(`Is public route: ${isPublicRoute(request)} Is upload route: false`);
 
-  console.log(
-    "Is public route:",
-    isPublicRoute,
-    "Is upload route:",
-    isUploadRoute
-  );
-
-  if (!userId && !isPublicRoute && !isUploadRoute) {
+  if (!userId && !isPublicRoute(request)) {
     console.log("Redirecting to root due to no userId");
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Pass Clerk auth to the request for UploadThing
-  const requestHeaders = new Headers(req.headers);
-  requestHeaders.set("x-clerk-userid", userId || "");
-
-  return NextResponse.next({
-    request: { headers: requestHeaders },
-  });
+  return NextResponse.next();
 });
 
 export const config = {
-  matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)",
-  ],
+  matcher: ["/((?!_next|api/auth).*)"], // Exclude _next and Clerk's auth routes
 };

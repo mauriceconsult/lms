@@ -19,35 +19,37 @@ import { cn } from "@/lib/utils";
 import { Coursework } from "@prisma/client";
 import { Combobox } from "@/components/ui/combobox";
 
-interface FacultyFormProps {
+interface CourseworkCourseFormProps {
   initialData: Coursework;
   facultyId: string;
+  courseId: string;
   courseworkId: string;
   options: { label: string; value: string }[];
 }
 const formSchema = z.object({
-  facultyId: z.string().min(1),
+  courseId: z.string().min(1),
 });
 
-export const CourseworkFacultyForm = ({
+export const CourseworkCourseForm = ({
   initialData,
   facultyId,
+  courseId,
   courseworkId,
   options,
-}: FacultyFormProps) => {
+}: CourseworkCourseFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      facultyId: initialData?.facultyId || "",
+      courseId: initialData?.courseId || "",
     },
   });
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/courseworks/${courseworkId}/faculties`, values);
+      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/courseworks/${courseworkId}/faculties`, values);
       toast.success("Coursework faculty updated.");
       toggleEdit();
       router.refresh();
@@ -56,19 +58,19 @@ export const CourseworkFacultyForm = ({
     }
   };
   const selectedOption = options.find(
-    (option) => option.value === initialData.facultyId
+    (option) => option.value === initialData.courseId
   );
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Faculty*
+        Coursework*
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit Faculty
+              Edit Coursework
             </>
           )}
         </Button>
@@ -80,7 +82,7 @@ export const CourseworkFacultyForm = ({
             !initialData.title && "text-slate-500 italic"
           )}
         >
-          {selectedOption?.label || "No Faculty"}
+          {selectedOption?.label || "No Coursework"}
         </p>
       )}
       {isEditing && (
@@ -91,7 +93,7 @@ export const CourseworkFacultyForm = ({
           >
             <FormField
               control={form.control}
-              name="facultyId"
+              name="courseId"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>

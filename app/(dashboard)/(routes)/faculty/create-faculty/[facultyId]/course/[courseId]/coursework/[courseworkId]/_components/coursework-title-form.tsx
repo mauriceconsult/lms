@@ -22,6 +22,7 @@ interface CourseworkTitleFormProps {
     title: string;
   };
   facultyId: string;
+  courseId: string;
   courseworkId: string;
 }
 const formSchema = z.object({
@@ -30,7 +31,7 @@ const formSchema = z.object({
   }),
 });
 
-export const CourseworkTitleForm = ({ initialData, facultyId, courseworkId }: CourseworkTitleFormProps) => {
+export const CourseworkTitleForm = ({ initialData, facultyId, courseId, courseworkId }: CourseworkTitleFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
@@ -41,7 +42,7 @@ export const CourseworkTitleForm = ({ initialData, facultyId, courseworkId }: Co
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/courseworks/${courseworkId}/titles`, values);
+      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/courseworks/${courseworkId}/titles`, values);
       toast.success("Coursework created.");
       toggleEdit();
       router.refresh();

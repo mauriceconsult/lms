@@ -12,6 +12,7 @@ import { Attachment,  Coursework } from "@prisma/client";
 interface CourseworkAttachmentFormProps {
   initialData: Coursework & { attachments: Attachment[] };
   facultyId: string;
+  courseId: string;
   courseworkId: string;  
 }
 
@@ -23,6 +24,7 @@ const formSchema = z.object({
 export const CourseworkAttachmentForm = ({
   initialData,
   facultyId,
+  courseId,
   courseworkId,
 }: CourseworkAttachmentFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -32,7 +34,7 @@ export const CourseworkAttachmentForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/courseworks/${courseworkId}/attachments`, values);
+      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/courseworks/${courseworkId}/attachments`, values);
       toast.success("CourseworkBoard updated.");
       toggleEdit();
       router.refresh();
@@ -44,7 +46,7 @@ export const CourseworkAttachmentForm = ({
     try {
       setDeletingId(id);
       await axios.delete(
-        `/api/create-faculties/${facultyId}/courseworks/${courseworkId}/attachments/${id}`
+        `/api/create-faculties/${facultyId}/courses/${courseId}/courseworks/${courseworkId}/attachments/${id}`
       );
       toast.success("Coursework attachment deleted");
       router.refresh();
@@ -83,7 +85,7 @@ export const CourseworkAttachmentForm = ({
                   className="flex items-center p-3 w-full bg-sky-100 border-sky-200 border text-sky-700 rounded-md"
                 >
                   <File className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <p className="text-xs line-clamp-1">{attachment.name}</p>
+                  <p className="text-xs line-clamp-1">{attachment.url}</p>
                   {deletingId === attachment.id && (
                     <div>
                       <Loader2 className="h-4 w-4 animate-spin" />

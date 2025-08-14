@@ -3,18 +3,19 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { LayoutDashboard, File, ArrowLeft } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
-import { CourseworkFacultyForm } from "./_components/coursework-faculty-form";
 import { Banner } from "@/components/banner";
 import { CourseworkDescriptionForm } from "./_components/coursework-description-form";
 import { CourseworkTitleForm } from "./_components/coursework-title-form";
 import { CourseworkAttachmentForm } from "./_components/coursework-attachment-form";
 import { CourseworkActions } from "./_components/coursework-actions";
 import Link from "next/link";
+import { CourseworkCourseForm } from "./_components/coursework-course-form";
 
 const CourseworkIdPage = async ({
   params,
 }: {
   params: Promise<{
+    courseId: string;
     facultyId: string;
     courseworkId: string;
   }>;
@@ -28,7 +29,7 @@ const CourseworkIdPage = async ({
   const coursework = await db.coursework.findFirst({
     where: {
       id: resolvedParams.courseworkId,
-      facultyId: resolvedParams.facultyId,
+      courseId: resolvedParams.facultyId,
       createdBy: userId, // Replaced userId with createdBy
     },
     include: {
@@ -39,12 +40,12 @@ const CourseworkIdPage = async ({
       },
     },
   });
-  const faculty = await db.faculty.findMany({
+  const course = await db.course.findMany({
     orderBy: {
       title: "asc",
     },
   });
-  if (!coursework || !faculty) {
+  if (!coursework || !course) {
     return redirect("/");
   }
   const requiredFields = [coursework.title, coursework.description];
@@ -65,10 +66,10 @@ const CourseworkIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${resolvedParams.facultyId}`}
+              href={`/faculty/create-faculty/${resolvedParams.facultyId}/course/${resolvedParams.courseId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Faculty creation.
+              Back to Course creation.
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
@@ -95,22 +96,25 @@ const CourseworkIdPage = async ({
               </div>
               <CourseworkTitleForm
                 initialData={coursework}
-                courseworkId={coursework.id}
-                facultyId={coursework.facultyId || ""}
+                facultyId={resolvedParams.facultyId}
+                courseId={resolvedParams.courseId}
+                courseworkId={resolvedParams.courseworkId}
               />
-              <CourseworkFacultyForm
+              <CourseworkCourseForm
                 initialData={coursework}
-                courseworkId={coursework.id}
-                facultyId={coursework.facultyId || ""}
-                options={faculty.map((cat) => ({
+                facultyId={resolvedParams.facultyId}
+                courseId={resolvedParams.courseId}
+                courseworkId={resolvedParams.courseworkId}
+                options={course.map((cat) => ({
                   label: cat.title,
                   value: cat.id,
                 }))}
               />
               <CourseworkDescriptionForm
                 initialData={coursework}
-                courseworkId={coursework.id}
-                facultyId={coursework.facultyId || ""}
+                facultyId={resolvedParams.facultyId}
+                courseId={resolvedParams.courseId}
+                courseworkId={resolvedParams.courseworkId}
               />
             </div>
             <div className="space-y-6">
@@ -121,8 +125,9 @@ const CourseworkIdPage = async ({
                 </div>
                 <CourseworkAttachmentForm
                   initialData={coursework}
-                  courseworkId={coursework.id}
-                  facultyId={coursework.facultyId || ""}
+                  facultyId={resolvedParams.facultyId}
+                  courseId={resolvedParams.courseId}
+                  courseworkId={resolvedParams.courseworkId}
                 />
               </div>
             </div>
