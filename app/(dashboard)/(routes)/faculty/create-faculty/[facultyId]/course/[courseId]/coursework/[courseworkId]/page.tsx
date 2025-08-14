@@ -29,8 +29,7 @@ const CourseworkIdPage = async ({
   const coursework = await db.coursework.findFirst({
     where: {
       id: resolvedParams.courseworkId,
-      courseId: resolvedParams.facultyId,
-      createdBy: userId, // Replaced userId with createdBy
+      courseId: resolvedParams.facultyId,     
     },
     include: {
       attachments: {

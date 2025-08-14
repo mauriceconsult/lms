@@ -11,6 +11,7 @@ import { CourseCourseNoticeboardCourseForm } from "./_components/course-course-n
 import { CourseCourseNoticeboardDescriptionForm } from "./_components/course-course-noticeboard-description-form";
 import { CourseCourseNoticeboardAttachmentForm } from "./_components/course-course-noticeboard-attachment-form";
 
+
 const CourseNoticeboardIdPage = async ({
   params,
 }: {
@@ -29,7 +30,7 @@ const CourseNoticeboardIdPage = async ({
   const courseNoticeboard = await db.courseNoticeboard.findFirst({
     where: {
       id: resolvedParams.courseNoticeboardId,
-      courseId: resolvedParams.facultyId,
+      courseId: resolvedParams.facultyId,     
     },
     include: {
       attachments: {
@@ -47,11 +48,7 @@ const CourseNoticeboardIdPage = async ({
   if (!courseNoticeboard || !course) {
     return redirect("/");
   }
-  const requiredFields = [
-    courseNoticeboard.title,
-    courseNoticeboard.courseId,
-    courseNoticeboard.description,
-  ];
+  const requiredFields = [courseNoticeboard.title, courseNoticeboard.description];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
@@ -61,7 +58,7 @@ const CourseNoticeboardIdPage = async ({
       {!courseNoticeboard.isPublished && (
         <Banner
           variant="warning"
-          label="This Course Notice is unpublished. Once published, students can see the notice."
+          label="This CourseNoticeboard is unpublished. Once published, students can submit their course projects."
         />
       )}
       <div className="p-6">
@@ -76,7 +73,9 @@ const CourseNoticeboardIdPage = async ({
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Course Notice creation</h1>
+                <h1 className="text-2xl font-medium">
+                  CourseNoticeboard creation
+                </h1>
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
                 </div>

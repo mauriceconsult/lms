@@ -1,3 +1,4 @@
+// src/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/course-noticeboard/_components/course-course-noticeboard-form.tsx
 "use client";
 
 import * as z from "zod";
@@ -21,11 +22,7 @@ import { cn } from "@/lib/utils";
 import { CourseNoticeboard, Course } from "@prisma/client";
 import { CourseCourseNoticeboardList } from "./course-course-noticeboard-list";
 import { createCourseNoticeboard, onEditAction, onReorderAction } from "../course-course-noticeboard/[course-course-noticeboardId]/actions";
-// import {
-//   createCourseNoticeboard,
-//   onEditAction,
-//   onReorderAction,
-// } from "../courseNoticeboard/[courseNoticeboardId]/actions";
+// import { createCourseNoticeboard, onEditAction, onReorderAction } from "../[courseNoticeboardId]/actions";
 
 interface CourseCourseNoticeboardFormProps {
   initialData: Course & { courseNoticeboards: CourseNoticeboard[] };
@@ -35,13 +32,13 @@ interface CourseCourseNoticeboardFormProps {
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  // description: z.string(),
 });
 
-export const CourseCourseNoticeboardForm = ({
+export function CourseCourseNoticeboardForm({
   initialData,
   courseId,
-}: CourseCourseNoticeboardFormProps) => {
+  facultyId,
+}: CourseCourseNoticeboardFormProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const toggleCreating = () => setIsCreating((current) => !current);
@@ -50,7 +47,6 @@ export const CourseCourseNoticeboardForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      // description: ""
     },
   });
   const {
@@ -87,7 +83,7 @@ export const CourseCourseNoticeboardForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course Notice
+        Course Noticeboard
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -98,7 +94,7 @@ export const CourseCourseNoticeboardForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Course Notice
+              Add a Course Noticeboard
             </>
           )}
         </Button>
@@ -118,7 +114,7 @@ export const CourseCourseNoticeboardForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Principles of Fashion Design'"
+                      placeholder="e.g., 'Course Announcement'"
                       {...field}
                     />
                   </FormControl>
@@ -144,14 +140,16 @@ export const CourseCourseNoticeboardForm = ({
           )}
         >
           {!initialData.courseNoticeboards.length &&
-            "You may add Course Notice(s) here."}
+            "Add your Topic(s)/CourseNoticeboard(s) here. At least one published CourseNoticeboard is required."}
           <CourseCourseNoticeboardList
             onEditAction={async (id) => {
               const result = await onEditAction(courseId, id);
               if (result.success) {
                 router.push(
-                  `/course/create-course/${courseId}/courseNoticeboard/${id}`
+                  `/faculty/create-faculty/${facultyId}/course/${courseId}/course-noticeboard/${id}`
                 );
+              } else {
+                toast.error(result.message);
               }
               return result;
             }}
@@ -168,9 +166,9 @@ export const CourseCourseNoticeboardForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Course Notices
+          Drag and drop to reorder the Topics/CourseNoticeboards
         </p>
       )}
     </div>
   );
-};
+}

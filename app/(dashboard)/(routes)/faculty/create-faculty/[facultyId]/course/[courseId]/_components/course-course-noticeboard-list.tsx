@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   Grip,
-  // Pencil
+  Pencil
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
@@ -27,7 +27,7 @@ interface CourseCourseNoticeboardListProps {
 
 export const CourseCourseNoticeboardList = ({
   items,
-  // onEditAction,
+  onEditAction,
   onReorderAction,
 }: CourseCourseNoticeboardListProps) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -105,7 +105,7 @@ export const CourseCourseNoticeboardList = ({
                       >
                         {courseNoticeboard.isPublished ? "Published" : "Draft"}
                       </Badge>
-                      {/* <Pencil
+                      <Pencil
                         onClick={async () => {
                           const { success, message } = await onEditAction(
                             courseNoticeboard.id
@@ -116,7 +116,7 @@ export const CourseCourseNoticeboardList = ({
                         }}
                         className="w-4 h-4 cursor-pointer hover:opacity-75 transition"
                         aria-label={`Edit courseNoticeboard: ${courseNoticeboard.title || courseNoticeboard.id}`}
-                      /> */}
+                      />
                     </div>
                   </div>
                 )}

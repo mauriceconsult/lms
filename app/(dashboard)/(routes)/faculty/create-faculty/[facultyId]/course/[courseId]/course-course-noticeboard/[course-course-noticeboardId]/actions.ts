@@ -3,12 +3,12 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 
-export async function onEditAction(courseId: string, courseCourseNoticeboardId: string) {
+export async function onEditAction(courseId: string, courseNoticeboardId: string) {
   try {
-    console.log("onEditAction called with:", { courseId, courseCourseNoticeboardId });
-    if (!courseId || !courseCourseNoticeboardId) {
-      console.log("Invalid IDs:", { courseId, courseCourseNoticeboardId });
-      return { success: false, message: "Invalid course or courseCourseNoticeboard ID" };
+    console.log("onEditAction called with:", { courseId, courseNoticeboardId });
+    if (!courseId || !courseNoticeboardId) {
+      console.log("Invalid IDs:", { courseId, courseNoticeboardId });
+      return { success: false, message: "Invalid course or courseNoticeboard ID" };
     }
 
     const { userId } = await auth();
@@ -17,42 +17,42 @@ export async function onEditAction(courseId: string, courseCourseNoticeboardId: 
       return { success: false, message: "Unauthorized" };
     }
 
-    const courseCourseNoticeboard = await db.courseNoticeboard.findUnique({
-      where: { id: courseCourseNoticeboardId },
+    const courseNoticeboard = await db.courseNoticeboard.findUnique({
+      where: { id: courseNoticeboardId },
     });
-    if (!courseCourseNoticeboard || courseCourseNoticeboard.courseId !== courseId) {
-      console.log("Course Noticeboard not found or unauthorized:", {
-        courseCourseNoticeboardId,
+    if (!courseNoticeboard || courseNoticeboard.courseId !== courseId) {
+      console.log("CourseNoticeboard not found or unauthorized:", {
+        courseNoticeboardId,
         courseId,
       });
       return {
         success: false,
-        message: "Course Noticeboard not found or unauthorized",
+        message: "CourseNoticeboard not found or unauthorized",
       };
     }
 
     // Allow edit if user is creator or createdBy is empty (legacy records)
-    if (courseCourseNoticeboard.createdBy !== userId && courseCourseNoticeboard.createdBy !== "") {
+    if (courseNoticeboard.createdBy !== userId && courseNoticeboard.createdBy !== "") {
       console.log("User not creator:", {
         userId,
-        createdBy: courseCourseNoticeboard.createdBy,
+        createdBy: courseNoticeboard.createdBy,
       });
       return {
         success: false,
-        message: "Only the creator can edit this Course Noticeboard",
+        message: "Only the creator can edit this courseNoticeboard",
       };
     }
 
     await db.courseNoticeboard.update({
-      where: { id: courseCourseNoticeboardId },
+      where: { id: courseNoticeboardId },
       data: { updatedAt: new Date() },
     });
 
-    console.log("Edit action succeeded for:", { courseCourseNoticeboardId });
+    console.log("Edit action succeeded for:", { courseNoticeboardId });
     return { success: true, message: "CourseNoticeboard edit initiated" };
   } catch (error) {
-    console.error("Edit Course Notice error:", error);
-    return { success: false, message: "Failed to edit Course Notice" };
+    console.error("Edit courseNoticeboard error:", error);
+    return { success: false, message: "Failed to edit courseNoticeboard" };
   }
 }
 
@@ -66,7 +66,7 @@ export async function createCourseNoticeboard(
   if (!values.title) return { success: false, message: "Title is required" };
 
   try {
-    const courseCourseNoticeboard = await db.courseNoticeboard.create({
+    const courseNoticeboard = await db.courseNoticeboard.create({
       data: {
         title: values.title,
         courseId,
@@ -74,11 +74,11 @@ export async function createCourseNoticeboard(
         userId, // Assuming userId is the tutor or creator
       },
     });
-    console.log("CourseNoticeboard created:", courseCourseNoticeboard.id);
+    console.log("CourseNoticeboard created:", courseNoticeboard.id);
     return { success: true, message: "CourseNoticeboard created" };
   } catch (error) {
-    console.error("Create courseCourseNoticeboard error:", error);
-    return { success: false, message: "Failed to create courseCourseNoticeboard" };
+    console.error("Create courseNoticeboard error:", error);
+    return { success: false, message: "Failed to create courseNoticeboard" };
   }
 }
 
@@ -100,12 +100,12 @@ export async function onReorderAction(
       )
     );
     console.log(
-      "Reordered Course Notices:",
+      "Reordered courseNoticeboards:",
       updateData.map((d) => d.id)
     );
     return { success: true, message: "Reordered successfully" };
   } catch (error) {
-    console.error("Reorder Course Notices error:", error);
-    return { success: false, message: "Failed to reorder Course Notices" };
+    console.error("Reorder courseNoticeboard error:", error);
+    return { success: false, message: "Failed to reorder courseNoticeboards" };
   }
 }

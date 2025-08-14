@@ -105,15 +105,14 @@ model CourseNoticeboard {
   title       String       @db.Text
   partyId     String?      @db.Text
   description String?      @db.Text
-  position    Int?
-  createdBy    String?
+  position    Int? 
   attachments Attachment[]
   isPublished Boolean      @default(false)
   course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId    String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  comments     Comment[]
+  comments    Comment[]
 
   @@index([courseId])
 }
@@ -127,7 +126,6 @@ model Assignment {
   position     Int?
   attachments  Attachment[]
   userProgress UserProgress[]
-  createdBy    String?
   isCompleted  Boolean        @default(false)
   isPublished  Boolean        @default(false)
   createdAt    DateTime       @default(now())
@@ -140,21 +138,20 @@ model Assignment {
 }
 
 model Coursework {
-  id           String                        @id @default(uuid())
+  id           String         @id @default(uuid())
   title        String
   userId       String
-  description  String?                       @db.Text
+  description  String?        @db.Text
   courseId     String?
   position     Int?
-  isPublished  Boolean                       @default(false)
-  createdBy    String?
-  createdAt    DateTime                      @default(now())
-  updatedAt    DateTime                      @updatedAt
+  isPublished  Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
   publishDate  DateTime?
   attachments  Attachment[]
   userProgress UserProgress[]
   Submission   Submission[]
-  courses      Course?                       @relation(fields: [courseId], references: [id], onDelete: Cascade)  
+  courses      Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
 }
@@ -191,7 +188,6 @@ model Faculty {
   updatedAt    DateTime      @updatedAt
   imageUrl     String?
   schoolId     String?
-  createdBy    String?       @db.Text
   school       School?       @relation(fields: [schoolId], references: [id])
   courses      Course[]
   noticeboards Noticeboard[]
@@ -221,28 +217,28 @@ model Student {
 }
 
 model Course {
-  id                           String                        @id @default(uuid())
-  title                        String
-  userId                       String?
-  description                  String?                       @db.Text
-  imageUrl                     String?                       @db.Text
-  amount                       String?                       @db.Text
-  attachments                  Attachment[]
-  tuitions                     Tuition[]
-  courseNoticeboards           CourseNoticeboard[]
-  tutors                       Tutor[]
-  enrollments                  Enrollment[]
-  userProgress                 UserProgress[]
-  courseworks                  Coursework[]
-  faculty                      Faculty?                      @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  facultyId                    String?
-  position                     Int?
-  isPublished                  Boolean                       @default(false)
-  publishDate                  DateTime?
-  createdAt                    DateTime                      @default(now())
-  updatedAt                    DateTime                      @updatedAt
-  submissions                  Submission[]
-  students                     Student[]
+  id                 String              @id @default(uuid())
+  title              String
+  userId             String?
+  description        String?             @db.Text
+  imageUrl           String?             @db.Text
+  amount             String?             @db.Text
+  attachments        Attachment[]
+  tuitions           Tuition[]
+  courseNoticeboards CourseNoticeboard[]
+  tutors             Tutor[]
+  enrollments        Enrollment[]
+  userProgress       UserProgress[]
+  courseworks        Coursework[]
+  faculty            Faculty?            @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  facultyId          String?
+  position           Int?
+  isPublished        Boolean             @default(false)
+  publishDate        DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  submissions        Submission[]
+  students           Student[]
 
   @@index([facultyId])
 }
@@ -348,7 +344,7 @@ model Noticeboard {
   publishDate DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
- 
+
   @@index([facultyId])
 }
 
