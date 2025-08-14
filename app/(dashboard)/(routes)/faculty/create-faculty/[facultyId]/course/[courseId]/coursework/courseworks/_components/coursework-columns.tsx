@@ -22,12 +22,12 @@ export const columns: ColumnDef<Coursework>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Coursework
+          Title
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-  }, 
+  },
   {
     accessorKey: "isPublished",
     header: ({ column }) => {
@@ -53,7 +53,10 @@ export const columns: ColumnDef<Coursework>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const { id, facultyId } = row.original as Coursework & { facultyId?: string };
+      const { id, facultyId, courseId } = row.original as Coursework & {
+        facultyId?: string;
+        courseId?: string;
+      };
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -63,7 +66,9 @@ export const columns: ColumnDef<Coursework>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <Link href={`/faculty/create-faculty/${facultyId}/coursework/${id}`}>
+            <Link
+              href={`/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/${id}`}
+            >
               <DropdownMenuItem>
                 <Pencil className="h-4 w-4 mr-2" />
                 Edit

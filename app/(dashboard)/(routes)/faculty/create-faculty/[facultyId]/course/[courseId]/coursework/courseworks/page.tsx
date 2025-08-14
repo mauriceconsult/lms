@@ -1,9 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
-
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { DataTable } from "./_components/coursework-data-table";
 import { columns } from "./_components/coursework-columns";
+
 
 const CourseworksPage = async () => {
   const { userId } = await auth();
@@ -12,7 +12,7 @@ const CourseworksPage = async () => {
   }
   const courseworks = await db.coursework.findMany({
     where: {
-      createdBy: userId,
+      userId,
     },
     orderBy: {
       createdAt: "desc",
