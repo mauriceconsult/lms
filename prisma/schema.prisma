@@ -51,7 +51,7 @@ model Enrollment {
   facultyId String? // Optional faculty link
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Student   Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  students  Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId String?
 
   @@index([courseId])
@@ -129,7 +129,7 @@ model CourseNoticeboard {
   updatedAt   DateTime     @updatedAt
   admin       Admin?       @relation(fields: [adminId], references: [id], onDelete: Cascade)
   adminId     String?
-  Comment     Comment[]
+  comments     Comment[]
 
   @@index([courseId])
 }
@@ -152,9 +152,9 @@ model Assignment {
   tutorId      String?
   admin        Admin?         @relation(fields: [adminId], references: [id], onDelete: Cascade)
   adminId      String?
+  submissions  Submission[]
 
-  @@index([isPublished, tutorId, createdBy])
-  submissions Submission[]
+  @@index([tutorId])
 }
 
 model Coursework {
@@ -166,7 +166,6 @@ model Coursework {
   position     Int?
   isPublished  Boolean                       @default(false)
   createdBy    String?
-  submissions  StudentCourseworkSubmission[]
   createdAt    DateTime                      @default(now())
   updatedAt    DateTime                      @updatedAt
   publishDate  DateTime?
@@ -177,38 +176,22 @@ model Coursework {
   adminId      String?
   admin        Admin?                        @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
-  @@index([isPublished, courseId, createdBy])
-}
-
-model StudentCourseworkSubmission {
-  id           String     @id @default(uuid())
-  courseworkId String
-  studentId    String
-  title        String
-  abstract     String     @default("")
-  description  String     @default("")
-  coursework   Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade) 
-  course       Course?    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId     String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-
-  @@index([courseId, courseworkId, studentId])
+  @@index([courseId])
 }
 
 model Submission {
-  id           String    @id @default(uuid())
+  id           String      @id @default(uuid())
   courseworkId String
   studentId    String
-  submittedAt  DateTime? @default(now())
-  status       String    @default("Not Submitted") 
-  course       Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  submittedAt  DateTime?   @default(now())
+  status       String      @default("Not Submitted")
+  course       Course?     @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId     String?
   assignmentId String?
   assignment   Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   grade        Int?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   // Relations
   coursework Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
@@ -218,24 +201,24 @@ model Submission {
 }
 
 model Faculty {
-  id                           String                        @id @default(uuid())
-  userId                       String
-  title                        String     @db.Text
-  description                  String?                       @db.Text
-  position                     Int?
-  isPublished                  Boolean                       @default(false)
-  createdAt                    DateTime                      @default(now())
-  updatedAt                    DateTime                      @updatedAt
-  imageUrl                     String?
-  schoolId                     String?
-  createdBy                    String?                       @db.Text
-  school                       School?                       @relation(fields: [schoolId], references: [id])
-  courses                      Course[]
-  noticeboards                 Noticeboard[]
-  attachments                  Attachment[]
-  students                     Student[]
-  enrollments                  Enrollment[]
-  admins                       Admin[] 
+  id           String        @id @default(uuid())
+  userId       String
+  title        String        @db.Text
+  description  String?       @db.Text
+  position     Int?
+  isPublished  Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  imageUrl     String?
+  schoolId     String?
+  createdBy    String?       @db.Text
+  school       School?       @relation(fields: [schoolId], references: [id])
+  courses      Course[]
+  noticeboards Noticeboard[]
+  attachments  Attachment[]
+  students     Student[]
+  enrollments  Enrollment[]
+  admins       Admin[]
 
   @@index([schoolId])
 }
@@ -255,7 +238,7 @@ model Student {
   course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId    String?
 
-  @@index([facultyId, courseId])
+  @@index([courseId])
 }
 
 model Course {
@@ -280,8 +263,7 @@ model Course {
   createdAt                    DateTime                      @default(now())
   updatedAt                    DateTime                      @updatedAt
   admins                       Admin?                        @relation(fields: [adminId], references: [id], onDelete: Cascade)
-  adminId                      String?
-  studentCourseworkSubmissions StudentCourseworkSubmission[]
+  adminId                      String? 
   submissions                  Submission[]
   students                     Student[]
 
@@ -367,9 +349,9 @@ model UserProgress {
   courseId     String
   isCompleted  Boolean    @default(false)
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt  
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, tutorId])
   @@unique([userId, assignmentId])

@@ -198,7 +198,7 @@ export const TutorDescriptionForm = ({
           )}
         >
           {!initialData.description &&
-            "Explain to the students know the objective (or goals) of the topic. To guide them when viewing the Topic video and submitting the related assignment"}
+            "Explain the objective (or goals) of the topic. This is to guide students while they are watching the Topic video and submitting the related assignment"}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}

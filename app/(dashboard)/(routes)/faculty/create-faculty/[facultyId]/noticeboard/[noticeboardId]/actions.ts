@@ -1,4 +1,3 @@
-// app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/actions.ts
 "use server";
 
 import { db } from "@/lib/db";
@@ -6,21 +5,31 @@ import { Prisma } from "@prisma/client";
 
 export async function updateNoticeboard(
   facultyId: string,
+  noticeboardId: string,
   values: { description?: string }
 ) {
   try {
+    console.log(
+      `[${new Date().toISOString()} updateNoticeboard] facultyId: ${facultyId}, noticeboardId: ${noticeboardId}, values:`,
+      values
+    );
     const faculty = await db.faculty.findUnique({
       where: { id: facultyId },
     });
     if (!faculty) {
+      return { success: false, message: "Faculty not found" };
+    }
+    const noticeboard = await db.noticeboard.findUnique({
+      where: { id: noticeboardId },
+    });
+    if (!noticeboard) {
       return { success: false, message: "Noticeboard not found" };
     }
     if (values.description && values.description.length > 5000) {
       return { success: false, message: "Description exceeds 5000 characters" };
     }
-
-    await db.faculty.update({
-      where: { id: facultyId },
+    await db.noticeboard.update({
+      where: { id: noticeboardId },
       data: { description: values.description || "" },
     });
     return {
@@ -28,8 +37,11 @@ export async function updateNoticeboard(
       message: "Noticeboard description updated successfully",
     };
   } catch (error) {
-    console.error("Update faculty error:", error);
-    return { success: false, message: "Failed to update faculty description" };
+    console.error(
+      `[${new Date().toISOString()} updateNoticeboard] Error:`,
+      error
+    );
+    return { success: false, message: "Failed to update noticeboard description" };
   }
 }
 
@@ -38,11 +50,15 @@ export async function onReorderAction(
   updateData: { id: string; position: number }[]
 ) {
   try {
+    console.log(
+      `[${new Date().toISOString()} onReorderAction] facultyId: ${facultyId}, updateData:`,
+      updateData
+    );
     const faculty = await db.faculty.findUnique({
       where: { id: facultyId },
     });
     if (!faculty) {
-      return { success: false, message: "Noticeboard not found" };
+      return { success: false, message: "Faculty not found" };
     }
     await db.$transaction(
       updateData.map((update) =>
@@ -54,18 +70,24 @@ export async function onReorderAction(
     );
     return { success: true, message: "Noticeboards reordered successfully" };
   } catch (error) {
-    console.error("Reorder error:", error);
+    console.error(
+      `[${new Date().toISOString()} onReorderAction] Error:`,
+      error
+    );
     return { success: false, message: "Failed to reorder noticeboards" };
   }
 }
 
 export async function onEditAction(facultyId: string, id: string) {
   try {
+    console.log(
+      `[${new Date().toISOString()} onEditAction] facultyId: ${facultyId}, noticeboardId: ${id}`
+    );
     const faculty = await db.faculty.findUnique({
       where: { id: facultyId },
     });
     if (!faculty) {
-      return { success: false, message: "Noticeboard not found" };
+      return { success: false, message: "Faculty not found" };
     }
     const noticeboard = await db.noticeboard.findUnique({ where: { id } });
     if (!noticeboard) {
@@ -73,7 +95,10 @@ export async function onEditAction(facultyId: string, id: string) {
     }
     return { success: true, message: "Edit action triggered" };
   } catch (error) {
-    console.error("Edit error:", error);
+    console.error(
+      `[${new Date().toISOString()} onEditAction] Error:`,
+      error
+    );
     return { success: false, message: "Failed to trigger edit action" };
   }
 }
@@ -83,16 +108,19 @@ export async function createNoticeboard(
   values: { title: string; description?: string }
 ) {
   try {
+    console.log(
+      `[${new Date().toISOString()} createNoticeboard] facultyId: ${facultyId}, values:`,
+      values
+    );
     const faculty = await db.faculty.findUnique({
       where: { id: facultyId },
     });
     if (!faculty) {
-      return { success: false, message: "Noticeboard not found" };
+      return { success: false, message: "Faculty not found" };
     }
     if (values.description && values.description.length > 5000) {
       return { success: false, message: "Description exceeds 5000 characters" };
     }
-
     const noticeboard = await db.noticeboard.create({
       data: {
         title: values.title,
@@ -108,7 +136,10 @@ export async function createNoticeboard(
       message: `Noticeboard "${noticeboard.title}" created successfully`,
     };
   } catch (error) {
-    console.error("Create noticeboard error:", error);
+    console.error(
+      `[${new Date().toISOString()} createNoticeboard] Error:`,
+      error
+    );
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
         return {

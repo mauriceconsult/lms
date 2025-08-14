@@ -89,8 +89,8 @@ const TutorIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Tutor is not published yet. To publish, complete the required* fields; 
-          Click the pencil icon to edit and publish the Assignment, then publish this Tutor."
+          label="This Topic is unpublished. 
+          To publish, you require a brief description of the topic, a video clip of your lesson and an Assignment."
         />
       )}
       <div className="p-6">

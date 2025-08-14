@@ -19,16 +19,13 @@ import { useRouter } from "next/navigation";
 import { Noticeboard } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
-import { updateNoticeboard } from "../actions";
 
-// Define props interface
 interface NoticeboardDescriptionFormProps {
   initialData: Noticeboard;
   facultyId: string;
   noticeboardId: string;
 }
 
-// Dynamically import Editor
 const DynamicEditor = dynamic(
   () => import("@/components/editor").then((mod) => mod.Editor),
   {
@@ -37,19 +34,17 @@ const DynamicEditor = dynamic(
   }
 );
 
-// Custom Preview Component
 const Preview = ({ value }: { value: string }) => {
   const [plainText, setPlainText] = useState("");
 
   useEffect(() => {
     const getPlainText = (html: string) => {
       if (typeof window !== "undefined") {
-        // Ensure browser context
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
         return doc.body.textContent || "";
       }
-      return ""; // Fallback for SSR
+      return "";
     };
 
     setPlainText(getPlainText(value || ""));
@@ -70,6 +65,7 @@ const formSchema = z.object({
 export const NoticeboardDescriptionForm = ({
   initialData,
   facultyId,
+  noticeboardId,
 }: NoticeboardDescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEditing = () => setIsEditing((current) => !current);
@@ -92,7 +88,19 @@ export const NoticeboardDescriptionForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await updateNoticeboard(facultyId, values);
+      console.log(
+        `[${new Date().toISOString()} NoticeboardDescriptionForm] Submitting:`,
+        { facultyId, noticeboardId, values }
+      );
+      const response = await fetch(`/api/noticeboard/update/${facultyId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ noticeboardId, ...values }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const { success, message } = await response.json();
       if (success) {
         toast.success(message);
         toggleEditing();
@@ -103,7 +111,7 @@ export const NoticeboardDescriptionForm = ({
       }
     } catch (error) {
       console.error(
-        `[${new Date().toISOString()} NoticeboardDescriptionForm] Update faculty error:`,
+        `[${new Date().toISOString()} NoticeboardDescriptionForm] Update noticeboard error:`,
         error
       );
       toast.error("Unexpected error occurred");
@@ -122,7 +130,7 @@ export const NoticeboardDescriptionForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Noticeboard Description*
+        Notice Description*
         <Button onClick={toggleEditing} variant="ghost" disabled={isSubmitting}>
           {isEditing ? <>Cancel</> : <>Edit Description</>}
         </Button>
@@ -184,7 +192,7 @@ export const NoticeboardDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {!initialData.description && "Articulate your vision here."}
+          {!initialData.description && "Enter your notice here."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}
