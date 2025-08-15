@@ -1,4 +1,3 @@
-// src/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/course-noticeboard/_components/course-course-noticeboard-form.tsx
 "use client";
 
 import * as z from "zod";
@@ -21,8 +20,8 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { CourseNoticeboard, Course } from "@prisma/client";
 import { CourseCourseNoticeboardList } from "./course-course-noticeboard-list";
-import { createCourseNoticeboard, onEditAction, onReorderAction } from "../course-course-noticeboard/[course-course-noticeboardId]/actions";
-// import { createCourseNoticeboard, onEditAction, onReorderAction } from "../[courseNoticeboardId]/actions";
+import { createCourseNoticeboard, onEditCourseNoticeboardAction, onReorderCourseNoticeboardAction } from "../course-course-noticeboard/[course-course-noticeboardId]/actions";
+
 
 interface CourseCourseNoticeboardFormProps {
   initialData: Course & { courseNoticeboards: CourseNoticeboard[] };
@@ -34,11 +33,11 @@ const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
 });
 
-export function CourseCourseNoticeboardForm({
+export const CourseCourseNoticeboardForm = ({
   initialData,
   courseId,
   facultyId,
-}: CourseCourseNoticeboardFormProps) {
+}: CourseCourseNoticeboardFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const toggleCreating = () => setIsCreating((current) => !current);
@@ -56,17 +55,20 @@ export function CourseCourseNoticeboardForm({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await createCourseNoticeboard(courseId, values);
+      const { success } = await createCourseNoticeboard(
+        courseId,
+        values
+      );
       if (success) {
-        toast.success(message);
+        toast.success("Noticeboard created successfully");
         toggleCreating();
         reset({ title: "" });
         router.refresh();
       } else {
-        toast.error(message);
+        toast.error("Something went wrong.");
       }
     } catch (error) {
-      console.error("Create courseNoticeboard error:", error);
+      console.error("Create noticeboard error:", error);
       toast.error("Unexpected error occurred");
     }
   };
@@ -83,7 +85,7 @@ export function CourseCourseNoticeboardForm({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course Noticeboard
+        Course Noticeboards
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -94,7 +96,7 @@ export function CourseCourseNoticeboardForm({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Course Noticeboard
+              Add a Noticeboard
             </>
           )}
         </Button>
@@ -114,7 +116,7 @@ export function CourseCourseNoticeboardForm({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Course Announcement'"
+                      placeholder="e.g., 'Course Announcements'"
                       {...field}
                     />
                   </FormControl>
@@ -140,23 +142,34 @@ export function CourseCourseNoticeboardForm({
           )}
         >
           {!initialData.courseNoticeboards.length &&
-            "Add your Topic(s)/CourseNoticeboard(s) here. At least one published CourseNoticeboard is required."}
+            "Add your Noticeboard(s) here. At least one published Noticeboard is required."}
           <CourseCourseNoticeboardList
             onEditAction={async (id) => {
-              const result = await onEditAction(courseId, id);
+              const result = await onEditCourseNoticeboardAction(courseId, id);
               if (result.success) {
                 router.push(
-                  `/faculty/create-faculty/${facultyId}/course/${courseId}/course-noticeboard/${id}`
+                  `/faculty/create-faculty/${facultyId}/course/${courseId}/course-course-noticeboard/${id}`
                 );
               } else {
                 toast.error(result.message);
               }
               return result;
             }}
-            onReorderAction={async (updateData) => {
+            onReorderAction={async (
+              updateData: { id: string; position: number }[]
+            ) => {
               setIsUpdating(true);
-              const result = await onReorderAction(courseId, updateData);
+              const noticeboardIds = updateData.map((item) => item.id);
+              const result = await onReorderCourseNoticeboardAction(
+                courseId,
+                noticeboardIds
+              );
               setIsUpdating(false);
+              if (result.success) {
+                toast.success(result.message);
+              } else {
+                toast.error(result.message);
+              }
               router.refresh();
               return result;
             }}
@@ -166,9 +179,9 @@ export function CourseCourseNoticeboardForm({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Topics/CourseNoticeboards
+          Drag and drop to reorder the Noticeboards
         </p>
       )}
     </div>
   );
-}
+};

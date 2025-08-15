@@ -22,8 +22,6 @@ import Link from "next/link";
 import { CourseCourseworkForm } from "./_components/course-coursework-form";
 import { CourseCourseNoticeboardForm } from "./_components/course-course-noticeboard-form";
 
-
-
 const CourseIdPage = async ({
   params,
 }: {
