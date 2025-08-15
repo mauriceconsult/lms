@@ -20,11 +20,8 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Coursework, Course } from "@prisma/client";
 import { CourseCourseworkList } from "./course-coursework-list";
-import {
-  createCoursework,
-  onEditAction,
-  onReorderAction,
-} from "../coursework/[courseworkId]/actions";
+import { createCoursework, onEditCourseworkAction, onReorderCourseworkAction } from "../coursework/[courseworkId]/actions";
+
 
 interface CourseCourseworkFormProps {
   initialData: Course & { courseworks: Coursework[] };
@@ -49,7 +46,6 @@ export const CourseCourseworkForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-    
     },
   });
   const {
@@ -59,14 +55,14 @@ export const CourseCourseworkForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await createCoursework(courseId, values);
+      const { success } = await createCoursework(courseId, values);
       if (success) {
-        toast.success(message);
+        toast.success("Coursework created successfully");
         toggleCreating();
         reset({ title: "" });
         router.refresh();
       } else {
-        toast.error(message);
+        toast.error("Something went wrong.");
       }
     } catch (error) {
       console.error("Create coursework error:", error);
@@ -86,7 +82,7 @@ export const CourseCourseworkForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Coursework*
+        Course Coursework
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -117,7 +113,7 @@ export const CourseCourseworkForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Principles of Fashion Design'"
+                      placeholder="e.g., 'Assignment 1: Project Proposal'"
                       {...field}
                     />
                   </FormControl>
@@ -143,21 +139,34 @@ export const CourseCourseworkForm = ({
           )}
         >
           {!initialData.courseworks.length &&
-            "Add your Topic(s)/Coursework(s) here. At least one published Coursework is required."}
+            "Add your Coursework(s) here. At least one published Coursework is required."}
           <CourseCourseworkList
             onEditAction={async (id) => {
-              const result = await onEditAction(courseId, id);
+              const result = await onEditCourseworkAction(courseId, id);
               if (result.success) {
                 router.push(
                   `/faculty/create-faculty/${facultyId}/course/${courseId}/coursework/${id}`
                 );
+              } else {
+                toast.error(result.message);
               }
               return result;
             }}
-            onReorderAction={async (updateData) => {
+            onReorderAction={async (
+              updateData: { id: string; position: number }[]
+            ) => {
               setIsUpdating(true);
-              const result = await onReorderAction(courseId, updateData);
+              const courseworkIds = updateData.map((item) => item.id);
+              const result = await onReorderCourseworkAction(
+                courseId,
+                courseworkIds
+              );
               setIsUpdating(false);
+              if (result.success) {
+                toast.success(result.message);
+              } else {
+                toast.error(result.message);
+              }
               router.refresh();
               return result;
             }}
@@ -167,7 +176,7 @@ export const CourseCourseworkForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Topics/Courseworks
+          Drag and drop to reorder the Coursework
         </p>
       )}
     </div>
