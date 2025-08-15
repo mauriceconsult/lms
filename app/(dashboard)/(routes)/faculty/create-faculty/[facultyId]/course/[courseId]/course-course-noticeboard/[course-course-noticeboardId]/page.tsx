@@ -52,7 +52,7 @@ const CourseNoticeboardIdPage = async ({
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
-
+  const isComplete = requiredFields.every(Boolean);
   return (
     <>
       {!courseNoticeboard.isPublished && (
@@ -81,11 +81,11 @@ const CourseNoticeboardIdPage = async ({
                 </div>
               </div>
               <CourseCourseNoticeboardActions
-                disabled={false}
+                disabled={!isComplete}
+                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
                 facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
-                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
-                isPublished={false}
+                isPublished={courseNoticeboard.isPublished}
               />
             </div>
           </div>
@@ -99,15 +99,15 @@ const CourseNoticeboardIdPage = async ({
               </div>
               <CourseCourseNoticeboardTitleForm
                 initialData={courseNoticeboard}
+                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
                 facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
-                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
               />
               <CourseCourseNoticeboardCourseForm
                 initialData={courseNoticeboard}
+                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
                 facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
-                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
                 options={course.map((cat) => ({
                   label: cat.title,
                   value: cat.id,
@@ -115,9 +115,9 @@ const CourseNoticeboardIdPage = async ({
               />
               <CourseCourseNoticeboardDescriptionForm
                 initialData={courseNoticeboard}
+                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
                 facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
-                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
               />
             </div>
             <div className="space-y-6">
@@ -128,9 +128,9 @@ const CourseNoticeboardIdPage = async ({
                 </div>
                 <CourseCourseNoticeboardAttachmentForm
                   initialData={courseNoticeboard}
+                  courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
                   facultyId={resolvedParams.facultyId}
                   courseId={resolvedParams.courseId}
-                  courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
                 />
               </div>
             </div>
