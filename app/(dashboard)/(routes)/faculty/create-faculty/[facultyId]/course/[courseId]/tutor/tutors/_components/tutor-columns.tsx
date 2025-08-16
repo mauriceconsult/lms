@@ -1,6 +1,6 @@
 "use client";
 
-import { Tutor } from "@prisma/client";
+import { Assignment } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,25 +14,23 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export const columns: ColumnDef<Tutor>[] = [
+export const columns: ColumnDef<Assignment>[] = [
   {
-    accessorKey: "title",
+    accessorFn: (row) => row.title,
+    id: "title",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Tutor
+        Title
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
   },
   {
-    accessorKey: "objective",
-    header: "Objective",
-  },
-  {
-    accessorKey: "isPublished",
+    accessorFn: (row) => row.isPublished,
+    id: "isPublished",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -52,33 +50,9 @@ export const columns: ColumnDef<Tutor>[] = [
     },
   },
   {
-    accessorKey: "isFree",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Free
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const isFree = row.getValue("isFree") || false;
-      return (
-        <Badge className={cn("bg-slate-500", isFree && "bg-green-700")}>
-          {isFree ? "Free" : "Paid"}
-        </Badge>
-      );
-    },
-  },
-  {
     id: "actions",
-    cell: ({ row, table }) => {
-      const { id, courseId } = row.original;
-      const { facultyId } = table.options.meta as { facultyId: string };
-      if (!id || !courseId || !facultyId) {
-        return <span className="text-red-500">Invalid data</span>;
-      }
+    cell: ({ row }) => {
+      const { id, tutorId } = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -89,7 +63,7 @@ export const columns: ColumnDef<Tutor>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <Link
-              href={`/faculties/${facultyId}/courses/${courseId}/tutor/${id}`}
+              href={`/faculty/create-faculty/${row.original.tutorId || "unknown"}/tutor/${tutorId || "unknown"}/assignments/${id}`}
             >
               <DropdownMenuItem>
                 <Pencil className="h-4 w-4 mr-2" />

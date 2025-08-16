@@ -8,7 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model School {
   id        String    @id @default(uuid())
   name      String    @unique
@@ -78,7 +77,7 @@ model CourseNoticeboard {
   title       String       @db.Text
   partyId     String?      @db.Text
   description String?      @db.Text
-  position    Int? 
+  position    Int?
   attachments Attachment[]
   isPublished Boolean      @default(false)
   course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -105,7 +104,7 @@ model Assignment {
   updatedAt    DateTime       @updatedAt
   tutor        Tutor?         @relation(fields: [tutorId], references: [id], onDelete: Cascade)
   tutorId      String?
-  submissions  Submission[]
+ 
 
   @@index([tutorId])
 }
@@ -122,30 +121,10 @@ model Coursework {
   publishDate  DateTime?
   attachments  Attachment[]
   userProgress UserProgress[]
-  Submission   Submission[]
-  course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId    String?
+  course       Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId     String?
 
   @@index([courseId])
-}
-
-model Submission {
-  id           String      @id @default(uuid())
-  courseworkId String
-  studentId    String
-  submittedAt  DateTime?   @default(now())
-  status       String      @default("Not Submitted")
-  course       Course?     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId     String?
-  assignmentId String?
-  assignment   Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  grade        Int?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt 
-  coursework Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
-
-
-  @@index([courseId, courseworkId, assignmentId, studentId])
 }
 
 model Faculty {
@@ -163,7 +142,7 @@ model Faculty {
   courses      Course[]
   noticeboards Noticeboard[]
   attachments  Attachment[]
- 
+
   @@index([schoolId])
 }
 
@@ -187,7 +166,6 @@ model Course {
   publishDate        DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  submissions        Submission[]
 
   @@index([facultyId])
 }
@@ -203,6 +181,7 @@ model Tutor {
   attachments  Attachment[]
   userProgress UserProgress[]
   assignments  Assignment[]
+  isCompleted  Boolean        @default(false)
   playbackId   String?        @unique
   isPublished  Boolean        @default(false)
   isFree       Boolean?       @default(false)

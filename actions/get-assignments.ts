@@ -1,48 +1,84 @@
+"use server";
+
 import { db } from "@/lib/db";
-import { Assignment, Course } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
-type AssignmentWithCourse = Assignment & {
-  course: Course | null;
-  assignments: { id: string }[];
-};
-
-type GetAssignments = {
-  userId: string;
+interface GetAssignmentsParams {
   title?: string;
-  courseId?: string;
-};
-export const getAssignments = async ({
-  title,
-  courseId,
-}: GetAssignments): Promise<AssignmentWithCourse[]> => {
+  tutorId?: string;
+}
+
+export async function getAssignments(params: GetAssignmentsParams) {
   try {
+    const { title, tutorId } = params;
+
+    const query: Prisma.AssignmentWhereInput = {};
+
+    if (tutorId) {
+      query.tutorId = tutorId;
+    }
+
+    if (title) {
+      query.title = {
+        contains: title,
+        mode: "insensitive",
+      };
+    }
+
     const assignments = await db.assignment.findMany({
-      where: {
-        isPublished: true,
-        title: title ? { contains: title } : undefined,
-        courseId,
-      },
-      include: {
-        course: true,
-        attachments: true,
-      },
+      where: query,
       orderBy: {
-        createdAt: "desc",
+        position: "asc",
+      },
+      select: {
+        id: true,
+        userId: true,
+        tutorId: true,
+        title: true,
+        description: true,
+        objective: true,
+        position: true,
+        isPublished: true,
+        isCompleted: true,
+        // isFree: true,
+        // videoUrl: true,
+        // muxDataId: true,
+        createdAt: true,
+        updatedAt: true,
+        tutor: {
+          select: {
+            id: true,
+            userId: true,
+            courseId: true,
+            title: true,
+            description: true,
+            objective: true,
+            position: true,
+            isPublished: true,
+            isCompleted: true,
+            isFree: true,
+            videoUrl: true,
+            muxDataId: true,
+            createdAt: true,
+            updatedAt: true,
+            // tutorId: true,
+          },
+        },
+        // submissions: {
+        //   select: {
+        //     id: true,
+        //     userId: true,
+        //     assignmentId: true,
+        //     createdAt: true,
+        //     updatedAt: true,
+        //   },
+        // },
       },
     });
-    const assignmentsWithCourse: AssignmentWithCourse[] = await Promise.all(
-      assignments.map(async (assignment) => {
-        return {
-          ...assignment,
-          assignments: assignment.attachments
-            ? assignment.attachments.map((a: { id: string }) => ({ id: a.id }))
-            : [],
-        };
-      })
-    );
-    return assignmentsWithCourse;
+
+    return assignments;
   } catch (error) {
-    console.log("[GET_ASSIGNMENTS]", error);
+    console.error("Get assignments error:", error);
     return [];
   }
-};
+}

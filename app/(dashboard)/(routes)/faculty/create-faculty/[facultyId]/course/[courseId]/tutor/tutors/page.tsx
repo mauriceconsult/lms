@@ -1,3 +1,5 @@
+"use server";
+
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -29,7 +31,7 @@ export default async function TutorsPage({ params }: TutorsPageProps) {
   });
 
   if (!course || !course.facultyId) {
-    return redirect(`/faculties/${facultyId}`);
+    return redirect("/");
   }
 
   const tutors = await db.tutor.findMany({
@@ -40,17 +42,19 @@ export default async function TutorsPage({ params }: TutorsPageProps) {
     select: {
       id: true,
       userId: true,
+      courseId: true,
       title: true,
       description: true,
       objective: true,
       position: true,
       isPublished: true,
+      isCompleted: true,
       isFree: true,
       videoUrl: true,
       muxDataId: true,
       createdAt: true,
       updatedAt: true,
-      courseId: true,
+      tutorId: true,
     },
   });
 
