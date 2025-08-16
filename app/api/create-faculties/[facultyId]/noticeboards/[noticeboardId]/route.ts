@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string; noticeboardId: string } }
+  { params }: { params: Promise<{ facultyId: string; noticeboardId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -14,7 +14,7 @@ export async function POST(
     }
     const noticeboardOwner = db.noticeboard.findUnique({
       where: {
-        id: params.noticeboardId,
+        id: (await params).noticeboardId,
         userId: userId,
       },
     });
@@ -23,7 +23,7 @@ export async function POST(
     }
     const lastNoticeboard = await db.noticeboard.findFirst({
       where: {
-        id: params.noticeboardId,
+        id: (await params).noticeboardId,
       },
       orderBy: {
         position: "desc",
@@ -35,7 +35,7 @@ export async function POST(
     const noticeboard = await db.noticeboard.create({
       data: {
         title,
-        id: params.noticeboardId,
+        id: (await params).noticeboardId,
         position: newPosition,
         userId,
       },
@@ -50,7 +50,7 @@ export async function POST(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { facultyId: string; noticeboardId: string } }
+  { params }: { params: Promise<{ facultyId: string; noticeboardId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -59,7 +59,7 @@ export async function DELETE(
     }
     const facultyOwner = db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId: userId,
       },
     });
@@ -68,7 +68,7 @@ export async function DELETE(
     }
     const noticeboardOwner = db.noticeboard.findUnique({
       where: {
-        id: params.noticeboardId,
+        id: (await params).noticeboardId,
         userId: userId,
       },
     });
@@ -77,7 +77,7 @@ export async function DELETE(
     }
     const deletedFaculty = await db.faculty.delete({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId: userId,
       },
     });

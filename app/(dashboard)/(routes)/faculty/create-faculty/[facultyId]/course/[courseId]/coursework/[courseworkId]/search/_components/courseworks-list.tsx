@@ -1,11 +1,11 @@
 import { CourseworkCard } from "@/components/coursework-card";
-import { Faculty, Coursework } from "@prisma/client";
+import { Course, Coursework } from "@prisma/client";
 
-type CourseworksWithFaculty = Coursework & {
-  faculty: Faculty | null;  
+type CourseworksWithCourse = Coursework & {
+  course: Course | null;  
 };
 interface CourseworksListProps {
-  items: CourseworksWithFaculty[];
+  items: CourseworksWithCourse[];
 }
 export const CourseworksList = ({ items }: CourseworksListProps) => {
   return (
@@ -16,7 +16,7 @@ export const CourseworksList = ({ items }: CourseworksListProps) => {
             key={item.id}
             id={item.id}
             title={item.title}
-            faculty={item?.faculty?.title ?? ""}
+            course={item?.course?.title ?? ""}
             tutorsLength={0} />
         ))}
       </div>

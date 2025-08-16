@@ -24,7 +24,7 @@ export const SchoolsList = ({ item }: SchoolsListProps) => {
             imageUrl={faculty.imageUrl!}
             description={faculty.description ?? ""}
             school={faculty.school?.name ?? ""}
-          />
+            role={null} />
         ))}
       </div>
       {item.length === 0 && <div>No Schools found.</div>}

@@ -3,35 +3,35 @@ import { Attachment, Coursework } from "@prisma/client";
 
 interface GetCourseworkProps {
   userId: string;
-  facultyId: string;
+  courseId: string;
   courseworkId: string;
 }
 export const getCoursework = async ({
   userId,
-  facultyId,
+  courseId,
   courseworkId,
 }: GetCourseworkProps) => {
   try {
-    const faculty = await db.faculty.findUnique({
-      where: { id: facultyId, isPublished: true },
+    const course = await db.course.findUnique({
+      where: { id: courseId, isPublished: true },
     });
     const coursework = await db.coursework.findUnique({
       where: { id: courseworkId, isPublished: true },
     });
-    if (!faculty || !coursework)
+    if (!course || !coursework)
       throw new Error("Faculty or Coursework not found");
 
     let attachments: Attachment[] = [];
     let nextCoursework: Coursework | null = null;
     if (userId) {
       attachments = await db.attachment.findMany({
-        where: { facultyId: facultyId },
+        where: { courseId: courseId },
       });
     }
     if (coursework.userId || userId) {
       nextCoursework = await db.coursework.findFirst({
         where: {
-          facultyId: facultyId,
+          courseId: courseId,
           isPublished: true,
           position: { gt: coursework?.position ?? 0 },
         },
@@ -43,7 +43,7 @@ export const getCoursework = async ({
     });
     return {
       coursework,
-      facultyId,
+      courseId,
       attachments,
       nextCoursework,
       userProgress,
@@ -53,6 +53,7 @@ export const getCoursework = async ({
     return {
       coursework: null,
       faculty: null,
+      course: null,
       attachments: [],
       nextCoursework: null,
       userProgress: null,

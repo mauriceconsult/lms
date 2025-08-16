@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string; courseNoticeboardId: string; } }
+  { params }: { params: Promise<{ facultyId: string; courseId: string; courseNoticeboardId: string; }> }
 ) {
   try {
     const { userId } = await auth();
@@ -13,7 +13,7 @@ export async function DELETE(
     }
     const faculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId: userId,
       },
     });
@@ -22,7 +22,7 @@ export async function DELETE(
     }
     const course = await db.course.findUnique({
       where: {
-        id: params.courseId,
+        id: (await params).courseId,
         userId: userId,
       },
     });
@@ -31,8 +31,8 @@ export async function DELETE(
     }
     const courseNoticeboard = await db.courseNoticeboard.findUnique({
       where: {
-        id: params.courseNoticeboardId,
-        courseId: params.courseId,
+        id: (await params).courseNoticeboardId,
+        courseId: (await params).courseId,
         userId,
       },
     });
@@ -41,7 +41,7 @@ export async function DELETE(
     }
     const deletedCourseNotice = await db.courseNoticeboard.delete({
       where: {
-        id: params.courseNoticeboardId,
+        id: (await params).courseNoticeboardId,
       },
     });
     return NextResponse.json(deletedCourseNotice);
@@ -53,11 +53,11 @@ export async function DELETE(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { facultyId: string; courseId: string; courseNoticeboardId: string; } }
+  { params }: { params: Promise<{ facultyId: string; courseId: string; courseNoticeboardId: string; }> }
 ) {
   try {
     const { userId } = await auth();
-    const { facultyId, courseId, courseNoticeboardId } = params;
+    const { facultyId, courseId, courseNoticeboardId } = await params;
     const values = await req.json();
     if (!userId) {
       return new NextResponse("Unathorized", { status: 401 });

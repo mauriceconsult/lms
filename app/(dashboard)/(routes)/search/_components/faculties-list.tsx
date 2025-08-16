@@ -1,10 +1,11 @@
-import FacultiesListContent from "@/app/(course)/courses/[courseId]/courseworks/_components/faculties-list-content";
 import { db } from "@/lib/db";
 import { School, Faculty } from "@prisma/client";
+import FacultiesListContent from "@/app/(course)/courses/[courseId]/courseCourseNoticeboards/_components/faculties-list-content";
 
 type FacultiesWithSchool = Faculty & {
   school: School | null;
   courses: { id: string }[];
+  noticeboardsCount?: number;
 };
 
 interface FacultiesListProps {
@@ -12,28 +13,38 @@ interface FacultiesListProps {
   viewMode?: "admin" | "student";
 }
 
-export async function FacultiesList({ items, viewMode = "admin" }: FacultiesListProps) {
-  // Fetch coursework counts for filtering in student view
-  const facultyIds = items.map((item) => item.id);
-  const courseworkCounts = viewMode === "student"
-    ? await db.coursework.groupBy({
-        by: ["facultyId"],
-        where: {
-          facultyId: { in: facultyIds },
-          isPublished: true,
-        },
-        _count: {
-          id: true,
-        },
-      })
-    : [];
+export async function FacultiesList({
+  items,
+  viewMode = "admin",
+}: FacultiesListProps) {
+  let processedItems = items;
 
-  // Filter faculties with published courseworks in student view
-  const filteredItems = viewMode === "student"
-    ? items.filter((item) =>
-        courseworkCounts.some((count) => count.facultyId === item.id && count._count.id > 0)
-      )
-    : items;
+  if (viewMode === "student") {
+    const facultyIds = items.map((item) => item.id);
 
-  return <FacultiesListContent items={filteredItems} viewMode={viewMode} />;
-};
+    // Fetch noticeboard counts
+    const noticeboardCounts = await db.noticeboard.groupBy({
+      by: ["facultyId"],
+      where: {
+        facultyId: { in: facultyIds },
+        isPublished: true,
+      },
+      _count: {
+        id: true,
+      },
+    });
+
+    // Map counts and filter
+    const countMap = new Map(
+      noticeboardCounts.map((c) => [c.facultyId, c._count.id])
+    );
+    processedItems = items
+      .map((item) => ({
+        ...item,
+        noticeboardsCount: countMap.get(item.id) ?? 0,
+      }))
+      .filter((item) => item.noticeboardsCount > 0);
+  }
+
+  return <FacultiesListContent items={processedItems} viewMode={viewMode} />;
+}

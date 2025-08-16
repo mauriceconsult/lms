@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { payrollId: string; } }
+  { params }: { params: Promise<{ payrollId: string; }> }
 ) {
   try {
     const { userId } = await auth();
@@ -14,7 +14,7 @@ export async function POST(
     }
     const payrollOwner = await db.payroll.findUnique({
       where: {
-        id: params.payrollId,
+        id: (await params).payrollId,
         userId,
       },
     });
@@ -24,7 +24,7 @@ export async function POST(
     }   
     const lastCourse = await db.course.findFirst({
       where: {
-        id: params.payrollId,
+        id: (await params).payrollId,
       },
       orderBy: {
         position: "desc",
@@ -35,7 +35,7 @@ export async function POST(
     const course = await db.course.create({
       data: {
         title,
-        id: params.payrollId,
+        id: (await params).payrollId,
         position: newPosition,
         userId,
       },

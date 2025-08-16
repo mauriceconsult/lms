@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function POST(
   request: Request,
-  { params }: { params: { facultyId: string;  courseId: string; courseNoticeboardId: string } }
+  { params }: { params: Promise<{ facultyId: string;  courseId: string; courseNoticeboardId: string }> }
 ) {
   const body = await request.json();
   const { description } = body;
@@ -16,7 +16,7 @@ export async function POST(
   }
   const courseNoticeboard = await db.courseNoticeboard.findUnique({
     where: {
-      id: params.courseNoticeboardId,
+      id: (await params).courseNoticeboardId,
       userId,
     },
   });

@@ -7,11 +7,11 @@ import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { FacultyIdSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/search/_components/facultyId-search-input";
 import { CourseSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/search/_components/course-search-input";
-import { TutorSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/search/_components/tutor-search-input";
+// import { TutorSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/search/_components/tutor-search-input";
 import React, { FC, ReactElement } from "react";
 import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
 import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/coursework/[courseworkId]/search/_components/coursework-search-input";
-import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/assignments/[assignmentId]/search/_components/assignment-search-input";
+// import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/assignments/[assignmentId]/search/_components/assignment-search-input";
 import { PayrollSearchInput } from "@/app/(dashboard)/(routes)/payroll/create-payroll/[payrollId]/search/_components/payroll-search-input";
 import { CourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/course-course-noticeboard/[course-course-noticeboardId]/search/_components/course-course-noticeboard-search-input";
 
@@ -30,7 +30,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
 
   let isSearchPages: SearchInputComponent | undefined;
   if (isTutorPage) {
-    isSearchPages = TutorSearchInput;
+    // isSearchPages = TutorSearchInput;
   } else if (isCoursePage) {
     isSearchPages = CourseSearchInput;
   } else if (isNoticeboardPage) {
@@ -38,7 +38,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   } else if (isCourseworkPage) {
     isSearchPages = CourseworkSearchInput;
   } else if (isAssignmentPage) {
-    isSearchPages = AssignmentSearchInput;
+    // isSearchPages = AssignmentSearchInput;
   } else if (isCourseNoticeboardPage) {
     isSearchPages = CourseNoticeboardSearchInput;
   } else if (isPayrollPage) {

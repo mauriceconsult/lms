@@ -1,29 +1,29 @@
 import { db } from "@/lib/db";
-import { Coursework, Faculty, Attachment } from "@prisma/client";
+import { Coursework, Attachment, Course } from "@prisma/client";
 
 type CourseworkWithRelations = Coursework & {
-  faculty: Faculty | null;
+  course: Course | null;
   attachments: Attachment[];
 };
 
 type GetCourseworks = {
   userId: string;
   title?: string;
-  facultyId?: string;
+  courseId?: string;
 };
 export const getCourseworks = async ({
   title,
-  facultyId,
+  courseId,
 }: GetCourseworks): Promise<CourseworkWithRelations[]> => {
   try {
     const courseworks = await db.coursework.findMany({
       where: {
         isPublished: true,
         title: title ? { contains: title } : undefined,
-        facultyId,
+        courseId,
       },
       include: {
-        faculty: true,
+        course: true,
         attachments: true,
       },
       orderBy: {

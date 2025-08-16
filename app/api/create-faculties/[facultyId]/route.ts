@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { facultyId: string } }
+  { params }: { params: Promise<{ facultyId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -14,7 +14,7 @@ export async function POST(
     }
     const facultyOwner = db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId: userId,
       },
     });
@@ -23,7 +23,7 @@ export async function POST(
     }
     const lastFaculty = await db.faculty.findFirst({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
       },
       orderBy: {
         position: "desc",
@@ -33,7 +33,7 @@ export async function POST(
     const faculty = await db.faculty.create({
       data: {
         title,
-        id: params.facultyId,
+        id: (await params).facultyId,
         position: newPosition,
         userId,
       },
@@ -48,7 +48,7 @@ export async function POST(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { facultyId: string } }
+  { params }: { params: Promise<{ facultyId: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -57,7 +57,7 @@ export async function DELETE(
     }
     const facultyOwner = db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId: userId,
       },
       include: {
@@ -83,7 +83,7 @@ export async function DELETE(
     }
     const deletedFaculty = await db.faculty.delete({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId: userId,
       },
     });

@@ -89,26 +89,6 @@ model CourseNoticeboard {
   @@index([courseId])
 }
 
-model Assignment {
-  id           String         @id @default(uuid())
-  userId       String
-  title        String         @db.Text
-  objective    String?        @db.Text
-  description  String?        @db.Text
-  position     Int?
-  attachments  Attachment[]
-  userProgress UserProgress[]
-  isCompleted  Boolean        @default(false)
-  isPublished  Boolean        @default(false)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  tutor        Tutor?         @relation(fields: [tutorId], references: [id], onDelete: Cascade)
-  tutorId      String?
- 
-
-  @@index([tutorId])
-}
-
 model Coursework {
   id           String         @id @default(uuid())
   title        String
@@ -180,7 +160,6 @@ model Tutor {
   position     Int            @default(0)
   attachments  Attachment[]
   userProgress UserProgress[]
-  assignments  Assignment[]
   isCompleted  Boolean        @default(false)
   playbackId   String?        @unique
   isPublished  Boolean        @default(false)
@@ -219,9 +198,7 @@ model Attachment {
   noticeboardId       String?
   coursework          Coursework?        @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
   courseworkId        String?
-  assignment          Assignment?        @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId        String?
-  courseNoticeboard   CourseNoticeboard? @relation(fields: [courseNoticeboardId], references: [id], onDelete: Cascade)
+   courseNoticeboard   CourseNoticeboard? @relation(fields: [courseNoticeboardId], references: [id], onDelete: Cascade)
   courseNoticeboardId String?
   tutor               Tutor?             @relation(fields: [tutorId], references: [id], onDelete: Cascade)
   tutorId             String?
@@ -232,7 +209,7 @@ model Attachment {
   facultyPayroll      FacultyPayroll?    @relation(fields: [facultyPayrollId], references: [id], onDelete: Cascade)
   facultyPayrollId    String?
 
-  @@index([facultyId, courseId, courseworkId, noticeboardId, courseNoticeboardId, assignmentId, payrollId, tuitionId, tutorId])
+  @@index([facultyId, courseId, courseworkId, noticeboardId, courseNoticeboardId, payrollId, tuitionId, tutorId])
 }
 
 model UserProgress {
@@ -240,8 +217,6 @@ model UserProgress {
   userId       String
   tutors       Tutor      @relation(fields: [tutorId], references: [id], onDelete: Cascade)
   tutorId      String
-  assignments  Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId String
   courseworks  Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
   courseworkId String
   courses      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -252,9 +227,8 @@ model UserProgress {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, tutorId])
-  @@unique([userId, assignmentId])
   @@unique([userId, courseworkId])
-  @@index([tutorId, assignmentId, courseworkId])
+  @@index([tutorId, courseworkId])
 }
 
 model Noticeboard {

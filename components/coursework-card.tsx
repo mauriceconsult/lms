@@ -7,7 +7,7 @@ interface CourseworkCardProps {
   id: string;
   title: string;
   tutorsLength: number;
-  faculty: string;
+  course: string;
   description?: string; // Added optional description
 }
 
@@ -15,7 +15,7 @@ export const CourseworkCard = ({
   id,
   title,
   tutorsLength,
-  faculty,
+  course,
   description,
 }: CourseworkCardProps) => {
   // Function to strip HTML tags
@@ -46,7 +46,7 @@ export const CourseworkCard = ({
           <div className="text-lg md:text-base font-medium group-hover:text-sky-700 transition line-clamp-2">
             {title}
           </div>
-          <p className="text-xs text-muted-foreground">{faculty}</p>
+          <p className="text-xs text-muted-foreground">{course}</p>
           {description && (
             <span className="text-slate-950 text-muted-foreground font-normal line-clamp-3">
               {stripHtml(description)}

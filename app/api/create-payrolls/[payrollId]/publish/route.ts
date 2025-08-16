@@ -7,9 +7,9 @@ export async function PATCH(
   {
     params,
   }: {
-    params: {
+    params: Promise<{
       payrollId: string;
-    };
+    }>;
   }
 ) {
   try {
@@ -19,7 +19,7 @@ export async function PATCH(
     }
     const ownPayroll = await db.payroll.findUnique({
       where: {
-        id: params.payrollId,
+        id: (await params).payrollId,
         userId,
       },
     });
@@ -28,7 +28,7 @@ export async function PATCH(
     }
     const payroll = await db.payroll.findUnique({
       where: {
-        id: params.payrollId,
+        id: (await params).payrollId,
         userId,
       },
       include: {
@@ -44,7 +44,7 @@ export async function PATCH(
 
     const publishedpayroll = await db.payroll.update({
       where: {
-        id: params.payrollId,
+        id: (await params).payrollId,
         userId,
       },
       data: {

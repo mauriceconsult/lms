@@ -7,11 +7,11 @@ export async function PATCH(
   {
     params,
   }: {
-    params: {
+    params: Promise<{
       facultyId: string;
       courseId: string;
       courseNoticeboardId: string;
-    };
+    }>;
   }
 ) {
   try {
@@ -21,7 +21,7 @@ export async function PATCH(
     }
     const ownFaculty = await db.faculty.findUnique({
       where: {
-        id: params.facultyId,
+        id: (await params).facultyId,
         userId,
       },
     });
@@ -30,7 +30,7 @@ export async function PATCH(
     }
     const ownCourse = await db.course.findUnique({
       where: {
-        id: params.courseId,
+        id: (await params).courseId,
         userId,
       },
     });
@@ -39,7 +39,7 @@ export async function PATCH(
     }
     const ownCourseNotice = await db.courseNoticeboard.findUnique({
       where: {
-        id: params.courseNoticeboardId,
+        id: (await params).courseNoticeboardId,
         userId,
       },
     });
@@ -49,8 +49,8 @@ export async function PATCH(
 
     const unpublishedCourseNotice = await db.courseNoticeboard.update({
       where: {
-        id: params.courseNoticeboardId,
-        courseId: params.courseId,
+        id: (await params).courseNoticeboardId,
+        courseId: (await params).courseId,
         userId,
       },
       data: {
@@ -59,15 +59,15 @@ export async function PATCH(
     });
     const publishedCourseNotices = await db.courseNoticeboard.findMany({
       where: {
-        id: params.courseNoticeboardId,
-        courseId: params.courseId,
+        id: (await params).courseNoticeboardId,
+        courseId: (await params).courseId,
         isPublished: true,
       },
     });
     if (!publishedCourseNotices.length) {
       await db.courseNoticeboard.update({
         where: {
-          id: params.courseNoticeboardId,
+          id: (await params).courseNoticeboardId,
         },
         data: {
           isPublished: true,

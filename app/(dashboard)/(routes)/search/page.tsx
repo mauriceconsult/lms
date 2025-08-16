@@ -20,10 +20,16 @@ export default async function SearchPage({
   const { q } = await searchParams;
   const query = q?.trim() || "";
 
+  // Fetch faculties with noticeboard count
   const faculties = await db.faculty.findMany({
     where: {
       isPublished: true,
       ...(query && { title: { contains: query, mode: "insensitive" } }),
+      ...(initialRole === "student" && {
+        noticeboards: {
+          some: { isPublished: true },
+        },
+      }),
     },
     select: {
       id: true,
@@ -31,6 +37,11 @@ export default async function SearchPage({
       description: true,
       imageUrl: true,
       school: { select: { name: true } },
+      _count: {
+        select: {
+          noticeboards: { where: { isPublished: true } },
+        },
+      },
     },
     take: 10,
     orderBy: { title: "asc" },
@@ -42,7 +53,7 @@ export default async function SearchPage({
         Search Faculties
       </h1>
       <div className="flex gap-4 mb-6">
-        <form className="flex gap-2 flex-1">
+        <form className="flex gap-2 flex-1" action="/search">
           <Input
             type="text"
             name="q"
@@ -73,6 +84,7 @@ export default async function SearchPage({
                 imageUrl={faculty.imageUrl || "/placeholder.jpg"}
                 description={faculty.description || ""}
                 school={faculty.school?.name || "Unknown School"}
+                // noticeboardsCount={faculty._count.noticeboards}
                 initialRole={initialRole}
               />
             ))}

@@ -19,11 +19,10 @@ export const CoursesList = ({ items }: CoursesListProps) => {
             id={item.id}
             title={item.title}
             imageUrl={item.imageUrl ?? ""}
-            tutorsLength={item.tutors.length}
-            amount={Number(item.amount)}
-            progress={item.progress}
+            amount={item.amount}
             faculty={item?.faculty?.title ?? ""}
-          />
+            facultyId={""}           
+            role={null} />
         ))}
       </div>
       {items.length === 0 && (

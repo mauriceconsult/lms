@@ -1,7 +1,6 @@
 
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 
@@ -12,8 +11,7 @@ interface CourseCardProps {
   imageUrl?: string | null;
   amount: string | null;
   faculty: string;
-  description?: string | null;
-  createdAt: Date;
+  description?: string | null;  
   role: "admin" | "student" | null;
 }
 
@@ -25,15 +23,9 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   amount,
   faculty,
   description,
-  createdAt,
   role,
-}) => {
-  const router = useRouter();
-  const placeholderImage = "/placeholder.png";
-  const isValidImageUrl =
-    imageUrl && imageUrl.startsWith("https://utfs.io/")
-      ? imageUrl
-      : placeholderImage;
+}) => { 
+
 
   console.log(`[${new Date().toISOString()} CourseCard] Rendering course:`, {
     id,
@@ -41,31 +33,10 @@ export const CourseCard: React.FC<CourseCardProps> = ({
     title,
     amount,
     amountType: typeof amount,
-    imageUrl,
-    isValidImageUrl,
+    imageUrl,  
     role,
   });
-
-  const handleClick = () => {
-    if (!id || typeof id !== "string" || id === "undefined") {
-      console.error(
-        `[${new Date().toISOString()} CourseCard] Invalid courseId:`,
-        { id }
-      );
-      return;
-    }
-    if (role === "admin") {
-      console.log(
-        `[${new Date().toISOString()} CourseCard] Navigating to: /courses/${id}`
-      );
-      router.push(`/courses/${id}`);
-    } else {
-      console.log(
-        `[${new Date().toISOString()} CourseCard] Navigating to: /courses/${id}/tutors`
-      );
-      router.push(`/courses/${id}/tutors`);
-    }
-  };
+  
 
   const formattedAmount = amount != null ? amount : "0.00";
   console.log(`[${new Date().toISOString()} CourseCard] Formatted amount:`, {
@@ -74,17 +45,11 @@ export const CourseCard: React.FC<CourseCardProps> = ({
     formattedAmount,
   });
 
-  if (!isValidImageUrl) {
-    console.log(
-      `[${new Date().toISOString()} CourseCard] Using placeholder image for course:`,
-      { id, imageSrc: isValidImageUrl }
-    );
-  }
 
   return (
     <Card
       className="cursor-pointer hover:shadow-lg transition"
-      onClick={handleClick}
+     
     >
       <CardHeader>
         <CardTitle>{title}</CardTitle>
@@ -92,7 +57,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
       <CardContent>
         <div className="relative h-40 w-full mb-4">
           <Image
-            src={imageUrl || placeholderImage}
+            src={imageUrl || ""}
             alt={title}
             fill
             className="object-cover rounded-md"
@@ -107,10 +72,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
             : "No description available"}
         </p>
         <p className="text-xs text-gray-500 mt-2">Faculty: {faculty}</p>
-        <p className="text-xs text-gray-500">Amount: ${formattedAmount}</p>
-        <p className="text-xs text-gray-500">
-          Created: {new Date(createdAt).toLocaleDateString()}
-        </p>
+        <p className="text-xs text-gray-500">Amount: ${formattedAmount}</p>        
       </CardContent>
     </Card>
   );

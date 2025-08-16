@@ -17,7 +17,6 @@ import { TutorDescriptionForm } from "./_components/tutor-description-form";
 import Link from "next/link";
 import { TutorVideoForm } from "./_components/tutor-video-form";
 import { TutorCourseForm } from "./_components/tutor-course-form";
-import { TutorAssignmentForm } from "./_components/tutor-assignment-form";
 import { TutorAccessForm } from "./_components/tutor-access-form";
 import { TutorAttachmentForm } from "./_components/tutor-attachment-form";
 
@@ -42,11 +41,6 @@ const TutorIdPage = async ({
       userId,
     },
     include: {
-      assignments: {
-        orderBy: {
-          position: "asc",
-        },
-      },
       muxData: true,
       attachments: true,
     },
@@ -75,7 +69,6 @@ const TutorIdPage = async ({
     initialData.courseId,
     initialData.description,
     initialData.videoUrl,
-    initialData.assignments.length > 0,
   ];
   const optionalFields = [initialData.attachments.length > 0];
   const allFields = [...requiredFields, ...optionalFields];
@@ -193,13 +186,7 @@ const TutorIdPage = async ({
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
                   <h2 className="text-xl">Tutor Assignments</h2>
-                </div>
-                <TutorAssignmentForm
-                  initialData={initialData}
-                  facultyId={initialData.id}
-                  courseId={resolvedParams.courseId}
-                  tutorId={tutor.id}                   
-                />
+                </div>           
               </div>
             </div>
           </div>

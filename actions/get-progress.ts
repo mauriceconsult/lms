@@ -60,39 +60,39 @@ export const getProgress = async ({
     }
 
     // Fetch data concurrently with included attachments
-    const [assignment, course, coursework, tutor, userProgress] =
+    const [course, coursework, tutor, userProgress] =
       await Promise.all([
-        db.assignment.findUnique({
-          where: {
-            userId,
-            isPublished: true,
-            tutorId,
-            id: assignmentId,
-          },
-          select: {
-            id: true,
-            title: true,
-            attachments: {
-              select: {
-                id: true,
-                // name: true,
-                url: true,
-                createdAt: true,
-                updatedAt: true,
-                courseId: true,
-                facultyId: true,
-                tutorId: true,
-                assignmentId: true,
-                courseworkId: true,
-                noticeboardId: true,
-                courseNoticeboardId: true,
-                tuitionId: true,
-                payrollId: true,
-                facultyPayrollId: true,
-              },
-            },
-          },
-        }),
+        // db.assignment.findUnique({
+        //   where: {
+        //     userId,
+        //     isPublished: true,
+        //     tutorId,
+        //     id: assignmentId,
+        //   },
+        //   select: {
+        //     id: true,
+        //     title: true,
+        //     attachments: {
+        //       select: {
+        //         id: true,
+        //         // name: true,
+        //         url: true,
+        //         createdAt: true,
+        //         updatedAt: true,
+        //         courseId: true,
+        //         facultyId: true,
+        //         tutorId: true,
+        //         assignmentId: true,
+        //         courseworkId: true,
+        //         noticeboardId: true,
+        //         courseNoticeboardId: true,
+        //         tuitionId: true,
+        //         payrollId: true,
+        //         facultyPayrollId: true,
+        //       },
+        //     },
+        //   },
+        // }),
         db.course.findUnique({
           where: {
             isPublished: true,
@@ -120,7 +120,7 @@ export const getProgress = async ({
                 courseId: true,
                 facultyId: true,
                 tutorId: true,
-                assignmentId: true,
+                // assignmentId: true,
                 courseworkId: true,
                 noticeboardId: true,
                 courseNoticeboardId: true,
@@ -151,7 +151,7 @@ export const getProgress = async ({
                 courseId: true,
                 facultyId: true,
                 tutorId: true,
-                assignmentId: true,
+                // assignmentId: true,
                 courseworkId: true,
                 noticeboardId: true,
                 courseNoticeboardId: true,
@@ -180,7 +180,7 @@ export const getProgress = async ({
                 courseId: true,
                 facultyId: true,
                 tutorId: true,
-                assignmentId: true,
+                // assignmentId: true,
                 courseworkId: true,
                 noticeboardId: true,
                 courseNoticeboardId: true,
@@ -207,18 +207,18 @@ export const getProgress = async ({
       ]);
 
     // Check for missing entities
-    if (!coursework || !course || !assignment || !tutor) {
+    if (!coursework || !course || !tutor) {
       const missingEntities = [];
       if (!coursework) missingEntities.push("coursework");
       if (!course) missingEntities.push("course");
-      if (!assignment) missingEntities.push("assignment");
+      // if (!assignment) missingEntities.push("assignment");
       if (!tutor) missingEntities.push("tutor");
       return { error: `Missing entities: ${missingEntities.join(", ")}` };
     }
 
     // Combine attachments from assignment, coursework, and tutor
     const attachments = [
-      ...(assignment.attachments || []),
+      // ...(assignment.attachments || []),
       ...(coursework.attachments || []),
       ...(course.attachments || []),
       ...(tutor.attachments || []),
