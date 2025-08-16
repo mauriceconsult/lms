@@ -82,7 +82,7 @@ export const CourseCourseworkForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course Coursework
+        Coursework
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -139,7 +139,7 @@ export const CourseCourseworkForm = ({
           )}
         >
           {!initialData.courseworks.length &&
-            "At least one Coursework is required to evaluate the student's grasp of the key theme(s) of the Course. This could involve research, internship, or field reports or proposals."}
+            "This is to evaluate the student's grasp of the key theme(s) of the Course. It could involve research, internship, or field reports or proposals. At least one Coursework is required."}
           <CourseCourseworkList
             onEditAction={async (id) => {
               const result = await onEditCourseworkAction(courseId, id);

@@ -142,7 +142,7 @@ export const CourseCourseNoticeboardForm = ({
           )}
         >
           {!initialData.courseNoticeboards.length &&
-            "Although not mandatory, course notices allow instant communication between the Faculty and the students to support knowledge sharing and learning."}
+            "Notices allow instant communication between the Faculty and the students to support knowledge sharing and learning ecosystem. They should added only when necessary, e.g., to make an announcement."}
           <CourseCourseNoticeboardList
             onEditAction={async (id) => {
               const result = await onEditCourseNoticeboardAction(courseId, id);
