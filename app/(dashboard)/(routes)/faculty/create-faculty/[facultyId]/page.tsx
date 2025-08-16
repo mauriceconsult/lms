@@ -26,6 +26,12 @@ const FacultyIdPage = async ({
   }
 
   const resolvedParams = await params;
+  console.log("Resolved params:", resolvedParams);
+  // Validate facultyId
+  if (!resolvedParams.facultyId) {
+    console.error("No facultyId provided in params");
+    return redirect("/"); // Or render an error page
+  }
   const faculty = await db.faculty.findUnique({
     where: {
       id: resolvedParams.facultyId,
@@ -43,30 +49,43 @@ const FacultyIdPage = async ({
         },
       },
       noticeboards: true,
-     
     },
   });
+  console.log("Faculty query result:", faculty);
 
   const school = await db.school.findMany({
     orderBy: {
       name: "asc",
     },
   });
+  console.log("School query result:", school);
 
-  if (!faculty || school.length === 0) {
-    throw new Error("School or Faculty not found");
+  if (!faculty) {
+    console.error(
+      "Faculty not found for facultyId:",
+      resolvedParams.facultyId,
+      "and userId:",
+      userId
+    );
+    throw new Error("Faculty not found");
+  }
+
+  if (school.length === 0) {
+    console.error("No schools found in the database");
+    throw new Error("No schools available");
   }
 
   const initialData = {
     ...faculty,
     description: faculty.description ?? "",
   };
+   
 
   const requiredFields = [
     initialData.title,
     initialData.description,
     initialData.imageUrl,
-    initialData.schoolId, 
+    initialData.schoolId,
     initialData.courses.length > 0,
   ];
   const optionalFields = [
@@ -154,7 +173,7 @@ const FacultyIdPage = async ({
                   initialData={initialData}
                   facultyId={initialData.id}
                 />
-              </div>         
+              </div>
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
@@ -162,7 +181,7 @@ const FacultyIdPage = async ({
                 </div>
                 <FacultyNoticeboardForm
                   initialData={initialData}
-                  facultyId={initialData.id}              
+                  facultyId={initialData.id}
                 />
               </div>
             </div>

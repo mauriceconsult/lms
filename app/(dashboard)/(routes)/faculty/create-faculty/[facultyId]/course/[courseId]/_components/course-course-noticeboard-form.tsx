@@ -85,7 +85,7 @@ export const CourseCourseNoticeboardForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course Noticeboards
+        Course Notices
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -96,7 +96,7 @@ export const CourseCourseNoticeboardForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Noticeboard
+              Add a Course Notice
             </>
           )}
         </Button>
@@ -142,7 +142,7 @@ export const CourseCourseNoticeboardForm = ({
           )}
         >
           {!initialData.courseNoticeboards.length &&
-            "Add your Noticeboard(s) here. At least one published Noticeboard is required."}
+            "Although not mandatory, course notices allow instant communication between the Faculty and the students to support knowledge sharing and learning."}
           <CourseCourseNoticeboardList
             onEditAction={async (id) => {
               const result = await onEditCourseNoticeboardAction(courseId, id);

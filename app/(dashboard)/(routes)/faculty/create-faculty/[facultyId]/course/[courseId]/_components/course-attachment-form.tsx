@@ -74,7 +74,7 @@ export const CourseAttachmentForm = ({
         <>
           {initialData.attachments.length === 0 && (
             <p className="text-sm mt-2 text-slate-500 italic">
-              Course attachments will appear here.
+              Attachments (e.g. pdfs, videos, text, images, etc.) are not mandatory but could be helpful in supporting your Course pitch.
             </p>
           )}
           {initialData.attachments.length > 0 && (

@@ -183,7 +183,7 @@ export const FacultyDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {!initialData.description && "In not more than 5,000 characters, articulate your vision here. Since a Faculty can have many Courses, your vision is the tool for harmony."}
+          {!initialData.description && "In not more than 5,000 characters, articulate your vision here. Since a Faculty can have many Courses, your vision is the tool for harmony. You can also paste rich text (including tables and images)."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}

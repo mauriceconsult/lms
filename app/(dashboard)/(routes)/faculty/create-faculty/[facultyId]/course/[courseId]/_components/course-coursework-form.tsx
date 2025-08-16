@@ -139,7 +139,7 @@ export const CourseCourseworkForm = ({
           )}
         >
           {!initialData.courseworks.length &&
-            "Add your Coursework(s) here. At least one published Coursework is required."}
+            "At least one Coursework is required to evaluate the student's grasp of the key theme(s) of the Course. This could involve research, internship, or field reports or proposals."}
           <CourseCourseworkList
             onEditAction={async (id) => {
               const result = await onEditCourseworkAction(courseId, id);

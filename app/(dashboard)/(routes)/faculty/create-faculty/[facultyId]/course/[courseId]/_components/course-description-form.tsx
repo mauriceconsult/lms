@@ -185,7 +185,7 @@ export const CourseDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {!initialData.description && "Articulate your vision here."}
+          {!initialData.description && "In not more than 5,000 characters, articulate your vision here. Since a Course can have many Tutors (i.e., lessons or topics), you could highlight them cohesively here. You can also paste rich text (including tables and images)."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}

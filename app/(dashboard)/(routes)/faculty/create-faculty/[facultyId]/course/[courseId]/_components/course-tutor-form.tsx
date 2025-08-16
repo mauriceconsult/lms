@@ -143,7 +143,7 @@ export const CourseTutorForm = ({
           )}
         >
           {!initialData.tutors.length &&
-            "Add your Topic(s)/Tutor(s) here. At least one published Tutor is required."}
+            "At least one published Tutor is required. These are the lessons that comprise the entire Course. Each lesson should have an objective or a set of objectives."}
           <CourseTutorList
             onEditAction={async (id) => {
               const result = await onEditAction(courseId, id);
