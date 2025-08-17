@@ -57,7 +57,7 @@ const CourseworkIdPage = async ({
       {!coursework.isPublished && (
         <Banner
           variant="warning"
-          label="This Coursework is unpublished. Once published, students can submit their course projects."
+          label="This Coursework is unpublished. Once published, students can submit their Course projects."
         />
       )}
       <div className="p-6">
@@ -81,6 +81,7 @@ const CourseworkIdPage = async ({
                 disabled={!isComplete}
                 courseworkId={resolvedParams.courseworkId}
                 facultyId={resolvedParams.facultyId}
+                courseId={resolvedParams.courseId}
                 isPublished={coursework.isPublished}
               />
             </div>

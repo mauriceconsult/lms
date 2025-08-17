@@ -49,8 +49,8 @@ export const CourseworkCourseForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/courseworks/${courseworkId}/faculties`, values);
-      toast.success("Coursework faculty updated.");
+      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/courseworks/${courseworkId}/titles`, values);
+      toast.success("Coursework title updated.");
       toggleEdit();
       router.refresh();
     } catch {

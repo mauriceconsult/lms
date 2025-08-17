@@ -11,12 +11,14 @@ import toast from "react-hot-toast";
 interface CourseworkActionsProps {
   disabled: boolean;
   facultyId: string;
+  courseId: string;
   courseworkId: string;
   isPublished: boolean;
 }
 export const CourseworkActions = ({
   disabled,
   facultyId,
+  courseId,
   courseworkId,
   isPublished,
 }: CourseworkActionsProps) => {
@@ -26,11 +28,11 @@ export const CourseworkActions = ({
     try {
       setIsLoading(true);
       if (isPublished) {
-        await axios.patch(`/api/create-faculties/${facultyId}/courseworks/${courseworkId}/unpublish`);
+        await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/courseworks/${courseworkId}/unpublish`);
         toast.success("Coursework unpublished");
       } else {
         await axios.patch(
-          `/api/create-faculties/${facultyId}/courseworks/${courseworkId}/publish`
+          `/api/create-faculties/${facultyId}/courses/${courseId}/courseworks/${courseworkId}/publish`
         );
         toast.success("Coursework published");
       }
