@@ -84,7 +84,7 @@ export const TutorAccessForm = ({
           {initialData.isFree ? (
             <>This topic is free for preview.</>
           ) : (
-            <>This topic is not free.</>
+            <>This topic is not free. You can make any Tutor to be free here.</>
           )}
         </p>
       )}

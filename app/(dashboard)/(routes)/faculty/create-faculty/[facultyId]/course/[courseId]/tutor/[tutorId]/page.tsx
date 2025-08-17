@@ -19,6 +19,7 @@ import { TutorVideoForm } from "./_components/tutor-video-form";
 import { TutorCourseForm } from "./_components/tutor-course-form";
 import { TutorAccessForm } from "./_components/tutor-access-form";
 import { TutorAttachmentForm } from "./_components/tutor-attachment-form";
+import { TutorAssignmentForm } from "./_components/tutor-assignment-form";
 
 const TutorIdPage = async ({
   params,
@@ -43,6 +44,7 @@ const TutorIdPage = async ({
     include: {
       muxData: true,
       attachments: true,
+      assignments: true,
     },
   });
 
@@ -82,8 +84,8 @@ const TutorIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Topic is unpublished. 
-          To publish, you require a brief description of the topic, a video clip of your lesson and an Assignment."
+          label="This Tutor is unpublished. 
+          To publish, prepare and upload a good quality video clip of your lesson and an Assignment for the students."
         />
       )}
       <div className="p-6">
@@ -186,7 +188,13 @@ const TutorIdPage = async ({
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
                   <h2 className="text-xl">Tutor Assignments</h2>
-                </div>           
+                </div>
+                <TutorAssignmentForm
+                  initialData={initialData}
+                  facultyId={initialData.id}
+                  courseId={resolvedParams.courseId}
+                  tutorId={tutor.id}
+                />
               </div>
             </div>
           </div>

@@ -41,7 +41,7 @@ export const TutorTitleForm = ({ initialData, facultyId, courseId, tutorId }: Tu
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}`, values);
+      await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}/titles`, values);
       toast.success('Topic title updated.');
       toggleEdit();
       router.refresh();

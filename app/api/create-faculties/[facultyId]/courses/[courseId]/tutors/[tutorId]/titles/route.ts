@@ -57,30 +57,12 @@ export async function PATCH(
 ) {
   try {
     const { userId } = await auth();
-    const { facultyId, courseId, tutorId } = await params;
+    const { tutorId } = await params;
     const values = await req.json();
     if (!userId) {
       return new NextResponse("Unathorized", { status: 401 });
-    }
-    const faculty = await db.faculty.findUnique({
-      where: {
-        id: facultyId,
-        userId,
-      },
-    });
-    if (!faculty) {
-      return new NextResponse("Not found", { status: 404 });
-    }
-    const course = await db.course.findUnique({
-      where: {
-        id: courseId,
-        userId,
-      },
-    });
-    if (!course) {
-      return new NextResponse("Not found", { status: 404 });
-    }
-    const topic = await db.tutor.update({
+    }    
+    const tutor = await db.tutor.update({
       where: {
         id: tutorId,
         userId,
@@ -89,7 +71,7 @@ export async function PATCH(
         ...values,
       },
     });
-    return NextResponse.json(topic);
+    return NextResponse.json(tutor);
   } catch (error) {
     console.log("[TUTOR_ID]", error);
     return new NextResponse("Internal Error", { status: 500 });

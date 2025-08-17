@@ -135,7 +135,7 @@ export const TutorDescriptionForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Topic objective(s)*
+        Tutor objective(s)*
         <Button onClick={toggleEditing} variant="ghost" disabled={isSubmitting}>
           {isEditing ? <>Cancel</> : <>Edit Description</>}
         </Button>
@@ -198,7 +198,7 @@ export const TutorDescriptionForm = ({
           )}
         >
           {!initialData.description &&
-            "Explain the objective (or goals) of the topic. This is to guide students while they are watching the Topic video and submitting the related assignment"}
+            "Explain the objective (or goals) of the topic. This is to guide students while they are watching your lesson video and submitting the related assignment"}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}

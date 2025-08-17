@@ -159,6 +159,7 @@ model Tutor {
   position     Int            @default(0)
   attachments  Attachment[]
   userProgress UserProgress[]
+  assignments Assignment[]
   isCompleted  Boolean        @default(false)
   playbackId   String?        @unique
   isPublished  Boolean        @default(false)
@@ -171,8 +172,27 @@ model Tutor {
   course       Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
   muxData      MuxData?       @relation(fields: [muxDataId], references: [id], onDelete: Cascade) // Keep onDelete here
 
-  @@index([facultyId, courseId])
+  @@index([courseId])
 }
+
+model Assignment {
+  id                 String              @id @default(uuid())
+  title              String
+  userId             String?
+  description        String?             @db.Text  
+  attachments        Attachment[]  
+  userProgress       UserProgress[]
+  tutor            Tutor?           @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  tutorId          String?
+  position           Int?
+  isPublished        Boolean             @default(false)
+  publishDate        DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([tutorId])
+}
+
 
 model MuxData {
   id         String   @id @default(uuid())
@@ -203,6 +223,8 @@ model Attachment {
   tutorId             String?
   tuition             Tuition?           @relation(fields: [tuitionId], references: [id], onDelete: Cascade)
   tuitionId           String?
+  assignment             Assignment?           @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId           String?
   payrolls            Payroll?           @relation(fields: [payrollId], references: [id], onDelete: Cascade)
   payrollId           String?
   facultyPayroll      FacultyPayroll?    @relation(fields: [facultyPayrollId], references: [id], onDelete: Cascade)
@@ -220,6 +242,8 @@ model UserProgress {
   courseworkId String
   courses      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId     String
+  assignments      Assignment     @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId     String
   isCompleted  Boolean    @default(false)
 
   createdAt DateTime @default(now())
