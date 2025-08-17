@@ -116,7 +116,7 @@ const CourseNoticeboardIdPage = async ({
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
                 <h2 className="text-xl">
-                  Enter the Course Noticeboard details
+                  Enter the Course Notice details
                 </h2>
               </div>
               <CourseCourseNoticeboardTitleForm
