@@ -19,38 +19,20 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const faculty = await db.faculty.findUnique({
-      where: {
-        id: (await params).facultyId,
-        userId,
-      },
-    });
-    if (!faculty) {
-      return new NextResponse("Not found", { status: 404 });
-    }
-        const course = await db.course.findUnique({
-          where: {
-            id: (await params).courseId,
-            userId,
-          },
-        });
-        if (!course) {
-          return new NextResponse("Not found", { status: 404 });
-        }
 
     const tutor = await db.tutor.findUnique({
       where: {
         id: (await params).tutorId,
         courseId: (await params).courseId,
-      },     
-    });   
+      },
+    });
 
     if (
       !tutor ||
       !tutor.description ||
       !tutor.title ||
       !tutor.videoUrl ||
-      !tutor.objective ||
+      !tutor.description ||
       !tutor.courseId
     ) {
       return new NextResponse("Missing credentials", { status: 400 });

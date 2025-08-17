@@ -8,9 +8,9 @@ export async function PATCH(
     params,
   }: {
     params: Promise<{
-      facultyId: string; 
+      facultyId: string;
       courseId: string;
-    }>
+    }>;
   }
 ) {
   try {
@@ -18,40 +18,46 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const faculty = await db.faculty.findUnique({
+    const ownCourse = await db.course.findUnique({
       where: {
-        id: (await params).facultyId,
+        id: (await params).courseId,
         userId,
       },
     });
-    if (!faculty) {
-      return new NextResponse("Not found", { status: 404 });
-    } 
-
+    if (!ownCourse) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
     const course = await db.course.findUnique({
       where: {
         id: (await params).courseId,
-        facultyId: (await params).facultyId,
+        userId,
       },
       include: {
-        tutors: true,      
+        courseNoticeboards: true,
+        tutors: true,
+        tuitions: true,
       },
-    });   
+    });
 
+    const hasPublishedTutor = course?.tutors.some(
+      (tutor) => tutor.isPublished
+    );
     if (
       !course ||
       !course.title ||
-      !course.facultyId ||
       !course.description ||
+      !course.facultyId ||
+      !course.imageUrl ||
       !course.amount ||
-      !course.imageUrl
+      !hasPublishedTutor
     ) {
       return new NextResponse("Missing credentials", { status: 400 });
-    }   
+    }
+
     const publishedCourse = await db.course.update({
       where: {
         id: (await params).courseId,
-        facultyId: (await params).facultyId,
+        userId,
       },
       data: {
         isPublished: true,

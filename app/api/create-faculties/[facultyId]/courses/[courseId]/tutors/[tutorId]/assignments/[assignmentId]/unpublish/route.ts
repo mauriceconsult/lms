@@ -4,53 +4,53 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ facultyId: string; courseId: string; tutorId: string; }> }
+  { params }: { params: Promise<{ facultyId: string; courseId: string; tutorId: string; assignmentId: string; }> }
 ) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
-    }   
-    const ownTutor = await db.tutor.findUnique({
+    }
+    const ownAssignment = await db.assignment.findUnique({
       where: {
-        id: (await params).tutorId,
+        id: (await params).assignmentId,
         userId,
       },
     });
-    if (!ownTutor) {
+    if (!ownAssignment) {
       return new NextResponse("Unauthorized", { status: 401 });
-    }
+    }   
 
-    const unpublishedTutor = await db.tutor.update({
+    const unpublishedAssignment = await db.assignment.update({
       where: {
-        id: (await params).tutorId,
-        courseId: (await params).courseId,
+        id: (await params).assignmentId,
+        tutorId: (await params).tutorId,
         userId,
       },
       data: {
         isPublished: false,
       },
     });
-    const publishedTutors = await db.tutor.findMany({
+    const publishedAssignments = await db.assignment.findMany({
       where: {
-        id: (await params).tutorId,
-        courseId: (await params).courseId,
+        id: (await params).assignmentId,
+        tutorId: (await params).tutorId,
         isPublished: true,
       },
     });
-    if (!publishedTutors.length) {
-      await db.course.update({
+    if (!publishedAssignments.length) {
+      await db.tutor.update({
         where: {
-          id: (await params).courseId,
+          id: (await params).tutorId,
         },
         data: {
           isPublished: false,
         },
       });
     }
-    return NextResponse.json(unpublishedTutor);
+    return NextResponse.json(unpublishedAssignment);
   } catch (error) {
-    console.log("[TUTOR_UNPUBLISH]", error);
+    console.log("[ASSIGNMENT_UNPUBLISH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

@@ -76,7 +76,7 @@ const AssignmentIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Assignment is unpublished. It is not visible to the students. Complete the required* fields to publish."
+          label="This tutorial Assignment is unpublished. It is not visible to the students. Complete the required* fields to publish."
         />
       )}
       <div className="p-6">
@@ -84,12 +84,10 @@ const AssignmentIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${
-                (await params).facultyId
-              }/course/${(await params).courseId}/${(await params).tutorId}`}
+              href={`/faculty/create-faculty/${(await params).facultyId}/course/${(await params).courseId}/tutor/${(await params).tutorId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Tutor creation.
+              Back to Tutorial creation.
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
@@ -114,7 +112,7 @@ const AssignmentIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Enter the Assignment details</h2>
+                <h2 className="text-xl">Enter the assignment details</h2>
               </div>
               <AssignmentTitleForm
                 initialData={initialData}

@@ -1,17 +1,17 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { FacultyTitleForm } from "./_components/faculty-title-form"; 
 import { LayoutDashboard, ListChecks, File } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
-import { FacultyImageForm } from "./_components/faculty-image-form"; 
-import { FacultyDescriptionForm } from "./_components/faculty-description-form"; 
-import { FacultySchoolForm } from "./_components/faculty-school-form"; 
-import { FacultyCourseForm } from "./_components/faculty-course-form"; 
-import { FacultyAttachmentForm } from "./_components/faculty-attachment-form"; 
+import { FacultyTitleForm } from "./_components/faculty-title-form";
+import { FacultyImageForm } from "./_components/faculty-image-form";
+import { FacultyDescriptionForm } from "./_components/faculty-description-form";
+import { FacultySchoolForm } from "./_components/faculty-school-form";
+import { FacultyCourseForm } from "./_components/faculty-course-form";
+import { FacultyAttachmentForm } from "./_components/faculty-attachment-form";
 import { Banner } from "@/components/banner";
-import { FacultyActions } from "./_components/faculty-actions"; 
-import { FacultyNoticeboardForm } from "./_components/faculty-noticeboard-form"; 
+import { FacultyActions } from "./_components/faculty-actions";
+import { FacultyNoticeboardForm } from "./_components/faculty-noticeboard-form";
 
 const FacultyIdPage = async ({
   params,
@@ -27,33 +27,31 @@ const FacultyIdPage = async ({
 
   const resolvedParams = await params;
   console.log("Resolved params:", resolvedParams);
-  // Validate facultyId
+
   if (!resolvedParams.facultyId) {
     console.error("No facultyId provided in params");
-    return redirect("/"); // Or render an error page
+    return <div>No faculty ID provided</div>;
   }
+
   const faculty = await db.faculty.findUnique({
     where: {
       id: resolvedParams.facultyId,
       userId,
     },
     include: {
-      attachments: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-      courses: {
-        orderBy: {
-          position: "asc",
-        },
-      },
-      noticeboards: true,
+      attachments: true, // Include all Attachment fields
+      courses: true, // Include all Course fields
+      noticeboards: true, // Include all Noticeboard fields
     },
   });
-  console.log("Faculty query result:", faculty);
+
+  console.log("Faculty query result:", JSON.stringify(faculty, null, 2));
 
   const school = await db.school.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
     orderBy: {
       name: "asc",
     },
@@ -62,24 +60,24 @@ const FacultyIdPage = async ({
 
   if (!faculty) {
     console.error(
-      "Faculty not found for facultyId:",
-      resolvedParams.facultyId,
-      "and userId:",
-      userId
+      `[${new Date().toISOString()} FacultyIdPage] Faculty not found:`,
+      { facultyId: resolvedParams.facultyId, userId }
     );
-    throw new Error("Faculty not found");
+    return <div>Faculty not found</div>;
   }
 
   if (school.length === 0) {
     console.error("No schools found in the database");
-    throw new Error("No schools available");
+    return <div>No schools available</div>;
   }
 
   const initialData = {
     ...faculty,
     description: faculty.description ?? "",
+    courses: faculty.courses ?? [],
+    noticeboards: faculty.noticeboards ?? [],
+    attachments: faculty.attachments ?? [],
   };
-   
 
   const requiredFields = [
     initialData.title,
@@ -103,8 +101,7 @@ const FacultyIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Faculty is not published yet. 
-          To publish, complete the required* fields and ensure you have at least one published Course."
+          label="This Faculty is not published yet. To publish, complete the required* fields and ensure you have at least one published Course."
         />
       )}
       <div className="p-6">
@@ -112,7 +109,7 @@ const FacultyIdPage = async ({
           <div className="w-full">
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Faculty creation</h1>
+                <h1 className="text-2xl font-medium">Faculty Creation</h1>
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
                 </div>
@@ -130,15 +127,15 @@ const FacultyIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Enter the Faculty details</h2>
+                <h2 className="text-xl">Enter the Faculty Details</h2>
               </div>
               <FacultyTitleForm
                 initialData={initialData}
-                facultyId={initialData.id}
+                facultyId={resolvedParams.facultyId}
               />
               <FacultySchoolForm
                 initialData={initialData}
-                facultyId={initialData.id}
+                facultyId={resolvedParams.facultyId}
                 options={school.map((cat) => ({
                   label: cat.name,
                   value: cat.id,
@@ -146,11 +143,11 @@ const FacultyIdPage = async ({
               />
               <FacultyDescriptionForm
                 initialData={initialData}
-                facultyId={initialData.id}
+                facultyId={resolvedParams.facultyId}
               />
               <FacultyImageForm
                 initialData={initialData}
-                facultyId={initialData.id}
+                facultyId={resolvedParams.facultyId}
               />
             </div>
             <div className="space-y-6">
@@ -161,7 +158,7 @@ const FacultyIdPage = async ({
                 </div>
                 <FacultyAttachmentForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                 />
               </div>
               <div>
@@ -171,7 +168,7 @@ const FacultyIdPage = async ({
                 </div>
                 <FacultyCourseForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                 />
               </div>
               <div>
@@ -181,7 +178,7 @@ const FacultyIdPage = async ({
                 </div>
                 <FacultyNoticeboardForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                 />
               </div>
             </div>

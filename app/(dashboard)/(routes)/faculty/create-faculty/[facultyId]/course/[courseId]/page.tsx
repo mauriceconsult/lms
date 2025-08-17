@@ -21,7 +21,6 @@ import { CourseAmountForm } from "./_components/course-amount-form";
 import Link from "next/link";
 import { CourseCourseworkForm } from "./_components/course-coursework-form";
 import { CourseCourseNoticeboardForm } from "./_components/course-course-noticeboard-form";
-// import { CourseCourseNoticeboardForm } from "./_components/course-course-noticeboard-form";
 
 const CourseIdPage = async ({
   params,
@@ -69,10 +68,9 @@ const CourseIdPage = async ({
     return redirect("/");
   }
 
-  // Memoize faculty data to ensure stability
   const initialData = {
     ...course,
-    description: course.description ?? "", // Ensure description is never null
+    description: course.description ?? "", 
   };
 
   const requiredFields = [
@@ -108,10 +106,10 @@ const CourseIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${(await params).facultyId}`}
+              href={`/faculty/create-faculty/${resolvedParams.facultyId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Faculty creation.
+              Back to Faculty Creation
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">

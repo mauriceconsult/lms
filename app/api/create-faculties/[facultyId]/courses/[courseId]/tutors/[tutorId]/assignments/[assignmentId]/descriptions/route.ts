@@ -25,7 +25,7 @@ export async function PATCH(
     },
   });
   if (!assignment) {
-    return new Response("Tutor not found", { status: 404 });
+    return new Response("Assignment not found", { status: 404 });
   }
   await db.assignment.update({
     where: {
