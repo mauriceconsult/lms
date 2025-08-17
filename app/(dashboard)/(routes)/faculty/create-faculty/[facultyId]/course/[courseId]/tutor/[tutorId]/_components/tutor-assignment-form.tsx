@@ -22,12 +22,11 @@ import { Assignment, Tutor } from "@prisma/client";
 import { TutorAssignmentList } from "./tutor-assignment-list";
 import { createAssignment, onEditAction, onReorderAction } from "../assignment/[assignmentId]/actions";
 
-
 interface TutorAssignmentFormProps {
   initialData: Tutor & { assignments: Assignment[] };
   courseId: string;
   facultyId: string;
-  tutorId: string; 
+  tutorId: string;
 }
 
 const formSchema = z.object({
@@ -39,17 +38,18 @@ export const TutorAssignmentForm = ({
   courseId,
   facultyId,
   tutorId,
-  // assignmentId,
 }: TutorAssignmentFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const toggleCreating = () => setIsCreating((current) => !current);
   const router = useRouter();
+
+  console.log("TutorAssignmentForm props:", { tutorId, courseId, facultyId });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-    
     },
   });
   const {
@@ -59,7 +59,9 @@ export const TutorAssignmentForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await createAssignment(tutorId, values);
+      console.log("Creating assignment with:", { tutorId, values, facultyId, courseId });
+      const { success, message, data } = await createAssignment(tutorId, values, facultyId, courseId);
+      console.log("Create assignment response:", { success, message, data });
       if (success) {
         toast.success(message);
         toggleCreating();
@@ -86,7 +88,7 @@ export const TutorAssignmentForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Assignment*
+        Tutorial Assignment*
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -97,7 +99,7 @@ export const TutorAssignmentForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Assignment
+              Add a tutorial Assignment
             </>
           )}
         </Button>
@@ -143,20 +145,24 @@ export const TutorAssignmentForm = ({
           )}
         >
           {!initialData.assignments.length &&
-            "At least one published Assignment is required. These are the lessons that comprise the entire Tutor. Each lesson should have an objective or a set of objectives."}
+            "At least one published Assignment is required. A tutorial assignment examines the student's understanding of the uploaded video's content."}
           <TutorAssignmentList
             onEditAction={async (id) => {
-              const result = await onEditAction(courseId, id);
+              console.log("Editing assignment with:", { tutorId, assignmentId: id, facultyId, courseId });
+              const result = await onEditAction(tutorId, id, facultyId, courseId);
+              console.log("Edit action response:", result);
               if (result.success) {
                 router.push(
-                  `/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/${id}`
+                  `/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}/assignment/${id}`
                 );
               }
               return result;
             }}
             onReorderAction={async (updateData) => {
+              console.log("Reordering assignments with:", { tutorId, updateData, facultyId, courseId });
               setIsUpdating(true);
-              const result = await onReorderAction(courseId, updateData);
+              const result = await onReorderAction(tutorId, updateData, facultyId, courseId);
+              console.log("Reorder action response:", result);
               setIsUpdating(false);
               router.refresh();
               return result;

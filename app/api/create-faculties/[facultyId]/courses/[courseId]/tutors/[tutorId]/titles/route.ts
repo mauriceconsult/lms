@@ -10,41 +10,24 @@ export async function DELETE(
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
-    }
-    const faculty = await db.faculty.findUnique({
-      where: {
-        id: (await params).facultyId,
-        userId: userId,
-      },
-    });
-    if (!faculty) {
-      return new NextResponse("Not found", { status: 404 });
-    }
-    const course = await db.course.findUnique({
-      where: {
-        id: (await params).courseId,
-        userId: userId,
-      },
-    });
-    if (!course) {
-      return new NextResponse("Not found", { status: 404 });
-    }
-    const topic = await db.tutor.findUnique({
+    }    
+    
+    const tutor = await db.tutor.findUnique({
       where: {
         id: (await params).tutorId,
         courseId: (await params).courseId,
         userId,
       },
     });
-    if (!topic) {
+    if (!tutor) {
       return new NextResponse("Not found", { status: 404 });
     }
-    const deletedTopic = await db.tutor.delete({
+    const deletedTutor = await db.tutor.delete({
       where: {
         id: (await params).tutorId,
       },
     });
-    return NextResponse.json(deletedTopic);
+    return NextResponse.json(deletedTutor);
   } catch (error) {
     console.log("[TUTOR_ID_DELETE]", error);
     return new NextResponse("Internal Error", { status: 500 });

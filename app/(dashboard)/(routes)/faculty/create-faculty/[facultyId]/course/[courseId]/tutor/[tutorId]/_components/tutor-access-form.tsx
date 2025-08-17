@@ -62,7 +62,7 @@ export const TutorAccessForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Topic access
+        Tutorial access settings
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
@@ -82,9 +82,9 @@ export const TutorAccessForm = ({
           )}
         >
           {initialData.isFree ? (
-            <>This topic is free for preview.</>
+            <>This Tutorial is free for preview.</>
           ) : (
-            <>This topic is not free. You can make any Tutor to be free here.</>
+            <>This Tutorial is not free. Click here to change the settings. You can make it available as a free sample.</>
           )}
         </p>
       )}

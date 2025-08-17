@@ -11,15 +11,7 @@ export async function DELETE(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const faculty = await db.faculty.findUnique({
-      where: {
-        id: (await params).facultyId,
-        userId: userId,
-      },
-    });
-    if (!faculty) {
-      return new NextResponse("Not found", { status: 404 });
-    }
+ 
     const course = await db.course.findUnique({
       where: {
         id: (await params).courseId,
@@ -52,16 +44,16 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unathorized", { status: 401 });
     }
-    const faculty = await db.faculty.findUnique({
+    const ownCourse = await db.course.findUnique({
       where: {
-        id: (await params).facultyId,
-        userId: userId,
-      },
-    });
-    if (!faculty) {
-      return new NextResponse("Not found", { status: 404 });
+        id: (await params).courseId,
+        userId,
+      }
+    })
+    if (!ownCourse) {
+      return new NextResponse("Unauthorized", { status: 410 });
     }
-
+  
     const course = await db.course.update({
       where: {
         id: courseId,

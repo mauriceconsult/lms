@@ -71,6 +71,7 @@ const TutorIdPage = async ({
     initialData.courseId,
     initialData.description,
     initialData.videoUrl,
+    initialData.assignments
   ];
   const optionalFields = [initialData.attachments.length > 0];
   const allFields = [...requiredFields, ...optionalFields];
@@ -102,7 +103,7 @@ const TutorIdPage = async ({
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Tutor creation</h1>
+                <h1 className="text-2xl font-medium">Tutorial creation</h1>
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
                 </div>
@@ -122,7 +123,7 @@ const TutorIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Enter the Tutor details</h2>
+                <h2 className="text-xl">Enter tutorial details</h2>
               </div>
               <TutorTitleForm
                 initialData={initialData}
@@ -151,7 +152,7 @@ const TutorIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={Eye} />
-                  <h2 className="text-xl">Access Settings</h2>
+                  <h2 className="text-xl">Access settings</h2>
                 </div>
                 <TutorAccessForm
                   initialData={initialData}
@@ -163,7 +164,7 @@ const TutorIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={Video} />
-                  <h2 className="text-xl">Add a Topic video</h2>
+                  <h2 className="text-xl">Add a tutorial video</h2>
                 </div>
                 <TutorVideoForm
                   initialData={initialData}
@@ -175,7 +176,7 @@ const TutorIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={File} />
-                  <h2 className="text-xl">Resources & Attachments</h2>
+                  <h2 className="text-xl">Resources & attachments</h2>
                 </div>
                 <TutorAttachmentForm
                   initialData={initialData}
@@ -187,7 +188,7 @@ const TutorIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Tutor Assignments</h2>
+                  <h2 className="text-xl">Tutorial assignments</h2>
                 </div>
                 <TutorAssignmentForm
                   initialData={initialData}

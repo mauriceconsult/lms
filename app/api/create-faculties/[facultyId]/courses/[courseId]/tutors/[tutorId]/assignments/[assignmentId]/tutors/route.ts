@@ -4,57 +4,62 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: Promise<{ facultyId: string; courseId: string }> }
+  { params }: { params: Promise<{ facultyId: string; courseId: string; tutorId: string; assignmentId: string; }> }
 ) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
-    }   
-    const course = await db.course.findUnique({
+    }
+    
+ 
+    const assignment = await db.assignment.findUnique({
       where: {
-        id: (await params).courseId,
-        userId: userId,
+        id: (await params).assignmentId,
+        tutorId: (await params).tutorId,
+        userId,
       },
     });
-    if (!course) {
+    if (!assignment) {
       return new NextResponse("Not found", { status: 404 });
     }
-    const deletedCourse = await db.course.delete({
+    const deletedAssignment = await db.assignment.delete({
       where: {
-        id: (await params).courseId,
+        id: (await params).assignmentId,
       },
     });
-    return NextResponse.json(deletedCourse);
+    return NextResponse.json(deletedAssignment);
   } catch (error) {
-    console.log("[FACULTY_ID_DELETE]", error);
+    console.log("[ASSIGNMENT_ID_DELETE]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ facultyId: string; courseId: string }> }
+  { params }: { params: Promise<{ facultyId: string; courseId: string; tutorId: string; assignmentId: string; }> }
 ) {
   try {
     const { userId } = await auth();
-    const { courseId } = await params;
+    const { assignmentId } = await params;
     const values = await req.json();
     if (!userId) {
       return new NextResponse("Unathorized", { status: 401 });
     }
-    const course = await db.course.update({
+
+  
+    const assignment = await db.assignment.update({
       where: {
-        id: courseId,
+        id: assignmentId,
         userId,
       },
       data: {
         ...values,
       },
     });
-    return NextResponse.json(course);
+    return NextResponse.json(assignment);
   } catch (error) {
-    console.log("[COURSE_ID]", error);
+    console.log("[ASSIGNMENT_ID]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

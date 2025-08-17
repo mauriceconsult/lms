@@ -16,16 +16,17 @@ import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { Tutor } from "@prisma/client";
+import { Assignment } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 
 // Define props interface
-interface TutorDescriptionFormProps {
-  initialData: Pick<Tutor, "description">;
+interface AssignmentDescriptionFormProps {
+  initialData: Pick<Assignment, "description">;
   facultyId: string;
   courseId: string;
   tutorId: string;
+  assignmentId: string;
 }
 
 // Dynamically import Editor
@@ -67,12 +68,13 @@ const formSchema = z.object({
     .optional(),
 });
 
-export const TutorDescriptionForm = ({
+export const AssignmentDescriptionForm = ({
   initialData,
   facultyId,
   courseId,
   tutorId,
-}: TutorDescriptionFormProps) => {
+  assignmentId,
+}: AssignmentDescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEditing = () => setIsEditing((current) => !current);
   const router = useRouter();
@@ -87,7 +89,7 @@ export const TutorDescriptionForm = ({
 
   useEffect(() => {
     console.log(
-      `[${new Date().toISOString()} TutorDescriptionForm] initialData.description:`,
+      `[${new Date().toISOString()} AssignmentDescriptionForm] initialData.description:`,
       initialData.description
     );
   }, [initialData.description]);
@@ -95,7 +97,7 @@ export const TutorDescriptionForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await fetch(
-        `/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}`,
+        `/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}/assignments/${assignmentId}/descriptions`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -108,13 +110,13 @@ export const TutorDescriptionForm = ({
         throw new Error(error.message || "Failed to update description");
       }
 
-      toast.success("Topic description updated.");
+      toast.success("Assignment description updated.");
       toggleEditing();
       reset({ description: values.description || "" });
       router.refresh();
     } catch (error) {
       console.error(
-        `[${new Date().toISOString()} TutorDescriptionForm] Update tutor error:`,
+        `[${new Date().toISOString()} AssignmentDescriptionForm] Update tutor error:`,
         error
       );
       toast.error(
@@ -135,7 +137,7 @@ export const TutorDescriptionForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Tutorial objective(s)*
+        Assignment objective(s)*
         <Button onClick={toggleEditing} variant="ghost" disabled={isSubmitting}>
           {isEditing ? <>Cancel</> : <>Edit Description</>}
         </Button>
@@ -198,7 +200,7 @@ export const TutorDescriptionForm = ({
           )}
         >
           {!initialData.description &&
-            "Explain the objective (or goals) of the tutorial. The length of your tutorial video should therefore guided by your objective(s). This is to guide students while they are watching the video tutorial and submitting the related assignment."}
+            "Explain the objective (or goals) of the topic. This is to guide students while they are watching your lesson video and submitting the related assignment"}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}
