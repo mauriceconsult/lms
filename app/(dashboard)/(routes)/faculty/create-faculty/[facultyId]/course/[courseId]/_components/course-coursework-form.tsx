@@ -93,7 +93,7 @@ export const CourseCourseworkForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Coursework
+              Add a coursework
             </>
           )}
         </Button>
@@ -113,7 +113,7 @@ export const CourseCourseworkForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Assignment 1: Project Proposal'"
+                      placeholder="e.g., 'Fashion & design coursework'"
                       {...field}
                     />
                   </FormControl>
@@ -139,7 +139,7 @@ export const CourseCourseworkForm = ({
           )}
         >
           {!initialData.courseworks.length &&
-            "This is to evaluate the student's grasp of the key theme(s) of the Course. It could involve research, internship, or field reports or proposals. At least one Coursework is required."}
+            "This is to evaluate the student's grasp of the key theme(s) across the entire Course. It could describe expectations regarding Course research, internship, or field reports or proposals. At least one Coursework is required."}
           <CourseCourseworkList
             onEditAction={async (id) => {
               const result = await onEditCourseworkAction(courseId, id);

@@ -121,9 +121,9 @@ export const FacultyDescriptionForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Faculty Description*
+        Faculty description*
         <Button onClick={toggleEditing} variant="ghost" disabled={isSubmitting}>
-          {isEditing ? <>Cancel</> : <>Edit Description</>}
+          {isEditing ? <>Cancel</> : <>Edit description</>}
         </Button>
       </div>
       {isEditing && (
@@ -183,7 +183,7 @@ export const FacultyDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {!initialData.description && "In not more than 5,000 characters, articulate your vision here. Since a Faculty can have many Courses, your vision is the tool for harmony. You can also paste rich text (including tables and images)."}
+          {!initialData.description && "In not more than 5,000 characters, articulate or demonstrate your vision here. Since a Faculty can have many Courses, your vision could evolve as you progress. You can use text, tables, and images."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}

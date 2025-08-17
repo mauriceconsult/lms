@@ -198,7 +198,7 @@ export const TutorDescriptionForm = ({
           )}
         >
           {!initialData.description &&
-            "Explain the objective (or goals) of the tutorial. The length of your tutorial video should therefore guided by your objective(s). This is to guide students while they are watching the video tutorial and submitting the related assignment."}
+            "Explain the objective (or goals) of the tutorial. This guides the length of each tutorial video and helps the students to watch and learn from the video and in submitting the related assignment."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}

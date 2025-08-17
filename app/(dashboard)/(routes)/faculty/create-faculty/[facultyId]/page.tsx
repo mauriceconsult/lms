@@ -109,7 +109,7 @@ const FacultyIdPage = async ({
           <div className="w-full">
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Faculty Creation</h1>
+                <h1 className="text-2xl font-medium">Faculty creation</h1>
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
                 </div>
@@ -127,7 +127,7 @@ const FacultyIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Enter the Faculty Details</h2>
+                <h2 className="text-xl">Enter Faculty details</h2>
               </div>
               <FacultyTitleForm
                 initialData={initialData}
@@ -174,7 +174,7 @@ const FacultyIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Noticeboards</h2>
+                  <h2 className="text-xl">Faculty notices</h2>
                 </div>
                 <FacultyNoticeboardForm
                   initialData={initialData}

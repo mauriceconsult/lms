@@ -18,7 +18,7 @@ const CourseNoticeboardIdPage = async ({
   params: Promise<{
     courseId: string;
     facultyId: string;
-    "course-course-noticeboardId": string; // Fixed parameter name
+    "course-course-noticeboardId": string; 
   }>;
 }) => {
   const { userId } = await auth();
@@ -152,7 +152,7 @@ const CourseNoticeboardIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={File} />
-                  <h2 className="text-xl">Resources & Attachments</h2>
+                  <h2 className="text-xl">Resources & attachments</h2>
                 </div>
                 <CourseCourseNoticeboardAttachmentForm
                   initialData={courseNoticeboard}

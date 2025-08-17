@@ -74,7 +74,7 @@ export const CourseworkAttachmentForm = ({
         <>
           {initialData.attachments.length === 0 && (
             <p className="text-sm mt-2 text-slate-500 italic">
-              You may add attachments to assist your students in the Coursework
+              You may add attachments to support your students in the Coursework
             </p>
           )}
           {initialData.attachments.length > 0 && (

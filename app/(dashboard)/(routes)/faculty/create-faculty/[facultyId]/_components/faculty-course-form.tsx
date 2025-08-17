@@ -28,8 +28,7 @@ interface FacultyCourseFormProps {
 }
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  // description: z.string(),
+  title: z.string().min(1, "Title is required"),  
 });
 
 export const FacultyCourseForm = ({
@@ -43,8 +42,7 @@ export const FacultyCourseForm = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      // description: ""
+      title: "",  
     },
   });
   const {
@@ -112,7 +110,7 @@ export const FacultyCourseForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Principles of Fashion Design'"
+                      placeholder="e.g., 'Principals of Fashion Design'"
                       {...field}
                     />
                   </FormControl>
@@ -138,7 +136,7 @@ export const FacultyCourseForm = ({
           )}
         >
           {!initialData.courses.length &&
-            "You can add as many many Courses but at least one published Course is required."}
+            "You can add as many Courses as you like but at least one published Course is required for a Faculty."}
           <FacultyCourseList
             onEditAction={async (id) => {
               const result = await onEditAction(facultyId, id);

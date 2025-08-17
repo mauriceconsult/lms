@@ -82,7 +82,7 @@ export const FacultyNoticeboardForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Noticeboard*
+        Faculty noticeboard*
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -93,7 +93,7 @@ export const FacultyNoticeboardForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Notice
+              Add a notice
             </>
           )}
         </Button>
@@ -139,7 +139,7 @@ export const FacultyNoticeboardForm = ({
           )}
         >
           {!initialData.noticeboards.length &&
-            "Add notices for the Faculty here."}
+            "Faculty notices are ideal for instant messaging across the Faculty. Faculty users' comments on your notices facilitate interaction."}
           <FacultyNoticeboardList
             onEditAction={async (id) => {
               const result = await onEditAction(facultyId, id);
@@ -163,7 +163,7 @@ export const FacultyNoticeboardForm = ({
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Noticeboards
+          Drag and drop to reorder the notices
         </p>
       )}
     </div>

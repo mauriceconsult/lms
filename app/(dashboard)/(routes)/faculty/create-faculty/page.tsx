@@ -50,9 +50,11 @@ const CreateFaculty = () => {
         <p className="text-sm text-slate-600">
           <span>
             {" "}
-            Give your Faculty a name. Don&apos;t worry, you can change
-            the name later. The Faculty is your strategic where you articulate the vision that inspires Courses developed in the Faculty. 
-          </span>         
+            Give your Faculty a name. Don&apos;t worry, you can change the name
+            later. The Faculty is your strategic level where you demonstrate a
+            vision that inspires Course(s) developed in your Faculty. You could
+            keep evaluating your vision as you grow.
+          </span>
         </p>
         <Form {...form}>
           <form
@@ -68,7 +70,7 @@ const CreateFaculty = () => {
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Fashion Design'"
+                      placeholder="e.g., 'Fashion & Design'"
                       {...field}
                     />
                   </FormControl>

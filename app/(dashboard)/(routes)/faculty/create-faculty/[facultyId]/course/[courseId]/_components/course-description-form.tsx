@@ -21,7 +21,6 @@ import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { updateCourse } from "../actions";
 
-// Define props interface
 interface CourseDescriptionFormProps {
   initialData: Course;
   facultyId: string;
@@ -68,8 +67,7 @@ const formSchema = z.object({
 });
 
 export const CourseDescriptionForm = ({
-  initialData,
-  // facultyId,
+  initialData, 
   courseId
 }: CourseDescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -123,9 +121,9 @@ export const CourseDescriptionForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course Description*
+        Course description*
         <Button onClick={toggleEditing} variant="ghost" disabled={isSubmitting}>
-          {isEditing ? <>Cancel</> : <>Edit Description</>}
+          {isEditing ? <>Cancel</> : <>Edit description</>}
         </Button>
       </div>
       {isEditing && (
@@ -185,7 +183,7 @@ export const CourseDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {!initialData.description && "In not more than 5,000 characters, articulate your vision here. Since a Course can have many Tutors (i.e., lessons or topics), you could highlight them cohesively here. You can also paste rich text (including tables and images)."}
+          {!initialData.description && "In not more than 5,000 characters, articulate your mission here. A Course can have many Tutorials (i.e., lessons or sessions), you could highlight them cohesively here using rich text, tables, and images. This could help demonstrate value for money or other desired virtue as the Course evolves."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}

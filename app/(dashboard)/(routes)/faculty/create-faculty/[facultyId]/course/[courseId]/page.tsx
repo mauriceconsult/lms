@@ -1,3 +1,4 @@
+// app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/page.tsx
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -21,6 +22,8 @@ import { CourseAmountForm } from "./_components/course-amount-form";
 import Link from "next/link";
 import { CourseCourseworkForm } from "./_components/course-coursework-form";
 import { CourseCourseNoticeboardForm } from "./_components/course-course-noticeboard-form";
+import { DashboardLayout } from "@/components/dashboard-layout";
+
 
 const CourseIdPage = async ({
   params,
@@ -62,7 +65,7 @@ const CourseIdPage = async ({
 
   if (!course || faculty.length === 0) {
     console.error(
-      `[${new Date().toISOString()} CourseIdPage] Course or school not found:`,
+      `[${new Date().toISOString()} CourseIdPage] Course or faculty not found:`,
       { facultyId: resolvedParams.facultyId, userId }
     );
     return redirect("/");
@@ -70,7 +73,7 @@ const CourseIdPage = async ({
 
   const initialData = {
     ...course,
-    description: course.description ?? "", 
+    description: course.description ?? "",
   };
 
   const requiredFields = [
@@ -80,25 +83,28 @@ const CourseIdPage = async ({
     initialData.imageUrl,
     initialData.amount,
     initialData.tutors.length > 0,
-    initialData.courseworks.length > 0,    
+    initialData.courseworks.length > 0,
   ];
   const optionalFields = [
     initialData.courseNoticeboards.length > 0,
     initialData.attachments.length > 0,
   ];
-  const allFields = [...requiredFields, ...optionalFields];
-  const totalFields = allFields.length;
-  const completedFields = allFields.filter(Boolean).length;
+  const totalFields = [...requiredFields, ...optionalFields].length;
+  const completedFields = [...requiredFields, ...optionalFields].filter(
+    Boolean
+  ).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
 
   return (
-    <>
+    <DashboardLayout
+      facultyId={resolvedParams.facultyId}
+      courseId={resolvedParams.courseId}
+    >
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Course is not published yet. To publish, complete the required* fields. 
-          Ensure that you have at least a published Tutor and an Assignment."
+          label="This Course is not published yet. To publish, complete the required* fields. Ensure that you have at least a published Tutorial and an Assignment."
         />
       )}
       <div className="p-6">
@@ -109,7 +115,7 @@ const CourseIdPage = async ({
               href={`/faculty/create-faculty/${resolvedParams.facultyId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Faculty Creation
+              Back to Faculty creation
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
@@ -136,12 +142,12 @@ const CourseIdPage = async ({
               </div>
               <CourseTitleForm
                 initialData={initialData}
-                facultyId={initialData.id}
+                facultyId={resolvedParams.facultyId}
                 courseId={course.id}
               />
               <CourseFacultyForm
                 initialData={initialData}
-                facultyId={initialData.id}
+                facultyId={resolvedParams.facultyId}
                 courseId={course.id}
                 options={faculty.map((cat) => ({
                   label: cat.title,
@@ -150,12 +156,12 @@ const CourseIdPage = async ({
               />
               <CourseDescriptionForm
                 initialData={initialData}
-                facultyId={initialData.id}
+                facultyId={resolvedParams.facultyId}
                 courseId={course.id}
               />
               <CourseImageForm
                 initialData={initialData}
-                facultyId={initialData.id}
+                facultyId={resolvedParams.facultyId}
                 courseId={course.id}
               />
             </div>
@@ -167,29 +173,29 @@ const CourseIdPage = async ({
                 </div>
                 <CourseAmountForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                   courseId={course.id}
                 />
               </div>
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={File} />
-                  <h2 className="text-xl">Resources & Attachments</h2>
+                  <h2 className="text-xl">Resources & attachments</h2>
                 </div>
                 <CourseAttachmentForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                   courseId={course.id}
                 />
               </div>
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Tutors</h2>
+                  <h2 className="text-xl">Tutorials</h2>
                 </div>
                 <CourseTutorForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                   courseId={course.id}
                 />
               </div>
@@ -200,18 +206,18 @@ const CourseIdPage = async ({
                 </div>
                 <CourseCourseworkForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                   courseId={course.id}
                 />
               </div>
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Course Notices</h2>
+                  <h2 className="text-xl">Course notices</h2>
                 </div>
                 <CourseCourseNoticeboardForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                   courseId={course.id}
                 />
               </div>
@@ -219,7 +225,7 @@ const CourseIdPage = async ({
           </div>
         </div>
       </div>
-    </>
+    </DashboardLayout>
   );
 };
 

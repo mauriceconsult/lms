@@ -88,7 +88,7 @@ export const TutorAssignmentForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Tutorial Assignment*
+        Tutorial assignment*
         <Button
           onClick={toggleCreating}
           variant="ghost"

@@ -84,7 +84,7 @@ export const TutorAccessForm = ({
           {initialData.isFree ? (
             <>This Tutorial is free for preview.</>
           ) : (
-            <>This Tutorial is not free. Click here to change the settings. You can make it available as a free sample.</>
+            <>This Tutorial is not free. Click here if you would like to make this tutorial available as a free sample.</>
           )}
         </p>
       )}

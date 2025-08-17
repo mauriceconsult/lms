@@ -80,7 +80,7 @@ export const CourseworkDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {initialData.description || "Describe what you expect the students to do in this Coursework."}
+          {initialData.description || "Describe what you expect the students to do in this Coursework, e.g., they could be required to conduct a survey of internet fashion trends that have influenced the fashion industry, and so on."}
         </p>
       )}
       {isEditing && (

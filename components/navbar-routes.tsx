@@ -1,23 +1,31 @@
+// components/NavbarRoutes.tsx
 "use client";
 
-import { UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { FacultyIdSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/search/_components/facultyId-search-input";
 import { CourseSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/search/_components/course-search-input";
-// import { TutorSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/search/_components/tutor-search-input";
-import React, { FC, ReactElement } from "react";
 import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
 import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/coursework/[courseworkId]/search/_components/coursework-search-input";
-// import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/assignments/[assignmentId]/search/_components/assignment-search-input";
 import { PayrollSearchInput } from "@/app/(dashboard)/(routes)/payroll/create-payroll/[payrollId]/search/_components/payroll-search-input";
 import { CourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/course-course-noticeboard/[course-course-noticeboardId]/search/_components/course-course-noticeboard-search-input";
+// import { ClientUserButton } from "@/components/ClientUserButton";
+import React, { FC, ReactElement } from "react";
+import ClientUserButton from "./client-user-button";
 
 type SearchInputComponent = FC<object>;
 
-export const NavbarRoutes: FC<object> = (): ReactElement => {
+interface NavbarRoutesProps {
+  facultyId?: string;
+  courseId?: string;
+}
+
+export const NavbarRoutes: FC<NavbarRoutesProps> = ({
+  facultyId,
+  courseId,
+}): ReactElement => {
   const pathname: string | null = usePathname();
   const isFacultyPage = pathname?.startsWith("/faculty");
   const isCoursePage = pathname?.includes("/course");
@@ -30,7 +38,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
 
   let isSearchPages: SearchInputComponent | undefined;
   if (isTutorPage) {
-    // isSearchPages = TutorSearchInput;
+    // isSearchPages = TutorSearchInput; // Uncomment when available
   } else if (isCoursePage) {
     isSearchPages = CourseSearchInput;
   } else if (isNoticeboardPage) {
@@ -38,7 +46,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   } else if (isCourseworkPage) {
     isSearchPages = CourseworkSearchInput;
   } else if (isAssignmentPage) {
-    // isSearchPages = AssignmentSearchInput;
+    // isSearchPages = AssignmentSearchInput; // Uncomment when available
   } else if (isCourseNoticeboardPage) {
     isSearchPages = CourseNoticeboardSearchInput;
   } else if (isPayrollPage) {
@@ -46,6 +54,7 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
   } else if (isFacultyPage) {
     isSearchPages = FacultyIdSearchInput;
   }
+
   return (
     <>
       {(isFacultyPage ||
@@ -87,44 +96,59 @@ export const NavbarRoutes: FC<object> = (): ReactElement => {
             Payroll
           </Button>
         </Link>
-
-        <Link href="/faculty/create-faculty/${facultyId}/course/courses">
-          <Button size="sm" variant="ghost">
-            Course
-          </Button>
-        </Link>
-
-        <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/tutors">
-          <Button size="sm" variant="ghost">
-            Topic
-          </Button>
-        </Link>
-
-        <Link href="/faculty/create-faculty/${facultyId}/noticeboard/noticeboards">
-          <Button size="sm" variant="ghost">
-            Faculty Notice
-          </Button>
-        </Link>
-
-        <Link href="/faculty/create-faculty/${facultyId}/coursework/courseworks">
-          <Button size="sm" variant="ghost">
-            Coursework
-          </Button>
-        </Link>
-
-        <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/courseNoticeboards">
-          <Button size="sm" variant="ghost">
-            Course Notice
-          </Button>
-        </Link>
-
-        <Link href="/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/assignments">
-          <Button size="sm" variant="ghost">
-            Assignment
-          </Button>
-        </Link>
-
-        <UserButton afterSwitchSessionUrl="/" />
+        {facultyId && (
+          <Link href={`/faculty/create-faculty/${facultyId}/course/courses`}>
+            <Button size="sm" variant="ghost">
+              Course
+            </Button>
+          </Link>
+        )}
+        {facultyId && courseId && (
+          <Link
+            href={`/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/tutors`}
+          >
+            <Button size="sm" variant="ghost">
+              Topic
+            </Button>
+          </Link>
+        )}
+        {facultyId && (
+          <Link
+            href={`/faculty/create-faculty/${facultyId}/noticeboard/noticeboards`}
+          >
+            <Button size="sm" variant="ghost">
+              Faculty Notice
+            </Button>
+          </Link>
+        )}
+        {facultyId && (
+          <Link
+            href={`/faculty/create-faculty/${facultyId}/coursework/courseworks`}
+          >
+            <Button size="sm" variant="ghost">
+              Coursework
+            </Button>
+          </Link>
+        )}
+        {facultyId && courseId && (
+          <Link
+            href={`/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/courseNoticeboards`}
+          >
+            <Button size="sm" variant="ghost">
+              Course Notice
+            </Button>
+          </Link>
+        )}
+        {facultyId && courseId && (
+          <Link
+            href={`/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/assignments`}
+          >
+            <Button size="sm" variant="ghost">
+              Assignment
+            </Button>
+          </Link>
+        )}
+        <ClientUserButton />
       </div>
     </>
   );

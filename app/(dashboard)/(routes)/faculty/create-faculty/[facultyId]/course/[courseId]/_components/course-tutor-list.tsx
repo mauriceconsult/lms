@@ -9,10 +9,7 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import {
-  Grip,
-  Pencil,
-} from "lucide-react";
+import { Grip, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
 
@@ -97,6 +94,7 @@ export const CourseTutorList = ({
                       {tutor.title || tutor.id}
                     </span>
                     <div className="ml-auto pr-2 flex items-center gap-x-2">
+                      {tutor.isFree && <Badge>Free</Badge>}
                       <Badge
                         className={cn(
                           "bg-slate-500",

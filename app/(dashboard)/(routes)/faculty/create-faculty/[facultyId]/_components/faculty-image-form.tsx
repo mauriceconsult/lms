@@ -48,7 +48,7 @@ export const FacultyImageForm = ({
           {!isEditing && !initialData.imageUrl && (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Cover image
+              Edit cover image
             </>
           )}
           {!isEditing && initialData.imageUrl && (

@@ -1,3 +1,4 @@
+// app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/page.tsx
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -20,6 +21,8 @@ import { TutorCourseForm } from "./_components/tutor-course-form";
 import { TutorAccessForm } from "./_components/tutor-access-form";
 import { TutorAttachmentForm } from "./_components/tutor-attachment-form";
 import { TutorAssignmentForm } from "./_components/tutor-assignment-form";
+import { DashboardLayout } from "@/components/dashboard-layout";
+
 
 const TutorIdPage = async ({
   params,
@@ -49,6 +52,10 @@ const TutorIdPage = async ({
   });
 
   const course = await db.course.findMany({
+    select: {
+      id: true,
+      title: true,
+    },
     orderBy: {
       title: "asc",
     },
@@ -56,14 +63,19 @@ const TutorIdPage = async ({
 
   if (!tutor || course.length === 0) {
     console.error(
-      `[${new Date().toISOString()} TutorIdPage] Tutor or school not found:`,
-      { courseId: resolvedParams.courseId, userId }
+      `[${new Date().toISOString()} TutorIdPage] Tutor or course not found:`,
+      { tutorId: resolvedParams.tutorId, userId }
     );
     return redirect("/");
   }
+
   const initialData = {
     ...tutor,
-    description: tutor.description ?? "", 
+    description: tutor.description ?? "",
+    videoUrl: tutor.videoUrl ?? null,
+    muxData: tutor.muxData ?? null,
+    attachments: tutor.attachments ?? [],
+    assignments: tutor.assignments ?? [],
   };
 
   const requiredFields = [
@@ -71,22 +83,25 @@ const TutorIdPage = async ({
     initialData.courseId,
     initialData.description,
     initialData.videoUrl,
-    initialData.assignments
+    initialData.assignments.length > 0,
   ];
   const optionalFields = [initialData.attachments.length > 0];
-  const allFields = [...requiredFields, ...optionalFields];
-  const totalFields = allFields.length;
-  const completedFields = allFields.filter(Boolean).length;
+  const totalFields = [...requiredFields, ...optionalFields].length;
+  const completedFields = [...requiredFields, ...optionalFields].filter(
+    Boolean
+  ).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
 
   return (
-    <>
+    <DashboardLayout
+      facultyId={resolvedParams.facultyId}
+      courseId={resolvedParams.courseId}
+    >
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Tutor is unpublished. 
-          To publish, prepare and upload a good quality video clip of your lesson and an Assignment for the students."
+          label="This Tutorial is unpublished. To publish, prepare and upload a good quality video clip of your lesson and an Assignment for the students."
         />
       )}
       <div className="p-6">
@@ -94,12 +109,10 @@ const TutorIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${
-                (await params).facultyId
-              }/course/${(await params).courseId}`}
+              href={`/faculty/create-faculty/${resolvedParams.facultyId}/course/${resolvedParams.courseId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Course creation.
+              Back to Course creation
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
@@ -127,13 +140,13 @@ const TutorIdPage = async ({
               </div>
               <TutorTitleForm
                 initialData={initialData}
-                facultyId={initialData.id}
+                facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
                 tutorId={tutor.id}
               />
               <TutorCourseForm
                 initialData={initialData}
-                facultyId={initialData.id}
+                facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
                 tutorId={tutor.id}
                 options={course.map((cat) => ({
@@ -143,7 +156,7 @@ const TutorIdPage = async ({
               />
               <TutorDescriptionForm
                 initialData={initialData}
-                facultyId={initialData.id}
+                facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
                 tutorId={tutor.id}
               />
@@ -156,7 +169,7 @@ const TutorIdPage = async ({
                 </div>
                 <TutorAccessForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                   courseId={resolvedParams.courseId}
                   tutorId={tutor.id}
                 />
@@ -168,7 +181,7 @@ const TutorIdPage = async ({
                 </div>
                 <TutorVideoForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                   courseId={resolvedParams.courseId}
                   tutorId={tutor.id}
                 />
@@ -180,7 +193,7 @@ const TutorIdPage = async ({
                 </div>
                 <TutorAttachmentForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                   courseId={resolvedParams.courseId}
                   tutorId={tutor.id}
                 />
@@ -192,7 +205,7 @@ const TutorIdPage = async ({
                 </div>
                 <TutorAssignmentForm
                   initialData={initialData}
-                  facultyId={initialData.id}
+                  facultyId={resolvedParams.facultyId}
                   courseId={resolvedParams.courseId}
                   tutorId={tutor.id}
                 />
@@ -201,7 +214,7 @@ const TutorIdPage = async ({
           </div>
         </div>
       </div>
-    </>
+    </DashboardLayout>
   );
 };
 

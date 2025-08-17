@@ -86,7 +86,7 @@ export const CourseTutorForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Tutor*
+        Tutorial*
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -97,7 +97,7 @@ export const CourseTutorForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Tutor
+              Add a tutorial
             </>
           )}
         </Button>
@@ -117,7 +117,7 @@ export const CourseTutorForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Principles of Fashion Design'"
+                      placeholder="e.g., 'Introduction to Fashion & Design'"
                       {...field}
                     />
                   </FormControl>
@@ -143,7 +143,7 @@ export const CourseTutorForm = ({
           )}
         >
           {!initialData.tutors.length &&
-            "At least one published Tutor is required. These are the lessons that comprise the entire Course. Each lesson should have an objective or a set of objectives."}
+            "At least one published Tutorial is required. Tutorials break the entire Course into manageable lessons achievable within shorter session. Each tutorial should have an achievable objective or a set of objectives."}
           <CourseTutorList
             onEditAction={async (id) => {
               const result = await onEditAction(courseId, id);
