@@ -34,24 +34,17 @@ export async function PATCH(
         facultyId: (await params).facultyId,
       },
       include: {
-        tutors: true,
-        assignments: true,
+        tutors: true,      
       },
-    });
-    // const hasPublishedTopic = course?.tutors?.some((tutor) => tutor.isPublished);
-    //  const hasPublishedAssignment = course?.assignments?.some(
-    //    (assignment) => assignment.isPublished
-    //  );
+    });   
 
     if (
       !course ||
-      !course.description ||
       !course.title ||
-      !course.imageUrl ||
-      !course.amount
-      // ||
-      // !hasPublishedTopic ||
-      // !hasPublishedAssignment
+      !course.facultyId ||
+      !course.description ||
+      !course.amount ||
+      !course.imageUrl
     ) {
       return new NextResponse("Missing credentials", { status: 400 });
     }   
