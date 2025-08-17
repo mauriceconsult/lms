@@ -10,7 +10,7 @@ export async function PATCH(
     params: Promise<{
       facultyId: string;
       courseId: string;
-      courseNoticeboardId: string;
+      courseCourseNoticeboardId: string;
     }>;
   }
 ) {
@@ -19,64 +19,43 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const ownFaculty = await db.faculty.findUnique({
+    const ownCourseNoticeboard = await db.courseNoticeboard.findUnique({
       where: {
-        id: (await params).facultyId,
+        id: (await params).courseCourseNoticeboardId,
         userId,
       },
     });
-    if (!ownFaculty) {
+    if (!ownCourseNoticeboard) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const ownCourse = await db.course.findUnique({
+    const unpublishedCourseNoticeboard = await db.courseNoticeboard.update({
       where: {
-        id: (await params).courseId,
-        userId,
-      },
-    });
-    if (!ownCourse) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-    const ownCourseNotice = await db.courseNoticeboard.findUnique({
-      where: {
-        id: (await params).courseNoticeboardId,
-        userId,
-      },
-    });
-    if (!ownCourseNotice) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    const unpublishedCourseNotice = await db.courseNoticeboard.update({
-      where: {
-        id: (await params).courseNoticeboardId,
-        courseId: (await params).courseId,
+        id: (await params).courseCourseNoticeboardId,
         userId,
       },
       data: {
-        isPublished: true,
+        isPublished: false,
       },
     });
-    const publishedCourseNotices = await db.courseNoticeboard.findMany({
+    const publishedCourseNoticeboard = await db.courseNoticeboard.findMany({
       where: {
-        id: (await params).courseNoticeboardId,
-        courseId: (await params).courseId,
+        id: (await params).courseCourseNoticeboardId,
         isPublished: true,
       },
     });
-    if (!publishedCourseNotices.length) {
+    if (!publishedCourseNoticeboard.length) {
       await db.courseNoticeboard.update({
         where: {
-          id: (await params).courseNoticeboardId,
+          id: (await params).courseCourseNoticeboardId,
         },
         data: {
-          isPublished: true,
+          isPublished: false,
         },
       });
     }
-    return NextResponse.json(unpublishedCourseNotice);
+    return NextResponse.json(unpublishedCourseNoticeboard);
   } catch (error) {
-    console.log("[COURSE_NOTICE_PUBLISH]", error);
+    console.log("[COURSE_NOTICEBOARD_UNPUBLISH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

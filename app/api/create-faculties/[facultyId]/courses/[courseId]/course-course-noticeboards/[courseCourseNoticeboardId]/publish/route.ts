@@ -10,7 +10,7 @@ export async function PATCH(
     params: Promise<{
       facultyId: string;
       courseId: string;
-      courseNoticeboardId: string;
+      courseCourseNoticeboardId: string;
     }>;
   }
 ) {
@@ -19,48 +19,41 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const ownFaculty = await db.faculty.findUnique({
+    const ownCourseNoticeboard = await db.courseNoticeboard.findUnique({
       where: {
-        id: (await params).facultyId,
+        id: (await params).courseCourseNoticeboardId,
         userId,
       },
     });
-    if (!ownFaculty) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-    const ownCourse = await db.course.findUnique({
-      where: {
-        id: (await params).courseId,
-        userId,
-      },
-    });
-    if (!ownCourse) {
+    if (!ownCourseNoticeboard) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const courseNoticeboard = await db.courseNoticeboard.findUnique({
       where: {
-        id: (await params).courseNoticeboardId,
-        courseId: (await params).courseId,
-      },
+        id: (await params).courseCourseNoticeboardId,
+        userId,
+      },     
     });
 
     if (
       !courseNoticeboard ||
       !courseNoticeboard.description ||
-      !courseNoticeboard.title
+      !courseNoticeboard.title    
+   
     ) {
       return new NextResponse("Missing credentials", { status: 400 });
     }
-    const publishedCourseNotice = await db.courseNoticeboard.update({
+
+    const publishedcourseNoticeboard = await db.courseNoticeboard.update({
       where: {
-        id: (await params).courseNoticeboardId,
-        courseId: (await params).courseId,
+        id: (await params).courseCourseNoticeboardId,
+        userId,
       },
       data: {
         isPublished: true,
       },
     });
-    return NextResponse.json(publishedCourseNotice);
+    return NextResponse.json(publishedcourseNoticeboard);
   } catch (error) {
     console.log("[COURSE_NOTICEBOARD_PUBLISH]", error);
     return new NextResponse("Internal Error", { status: 500 });

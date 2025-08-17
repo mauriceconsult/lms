@@ -35,7 +35,7 @@ export const CourseCourseNoticeboardAttachmentForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/attachments`, values);
-      toast.success("CourseCourseNoticeboardBoard updated.");
+      toast.success("Course Notice updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -46,7 +46,7 @@ export const CourseCourseNoticeboardAttachmentForm = ({
     try {
       setDeletingId(id);
       await axios.delete(
-        `/api/create-faculties/${facultyId}/courses/${courseId}/courseCourseNoticeboards/${courseCourseNoticeboardId}/attachments/${id}`
+        `/api/create-faculties/${facultyId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/attachments/${id}`
       );
       toast.success("Course Notice attachment deleted");
       router.refresh();

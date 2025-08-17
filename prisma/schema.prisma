@@ -74,8 +74,7 @@ model Tuition {
 model CourseNoticeboard {
   id          String       @id @default(uuid())
   userId      String
-  title       String       @db.Text
-  partyId     String?      @db.Text
+  title       String       @db.Text  
   description String?      @db.Text
   position    Int?
   attachments Attachment[]

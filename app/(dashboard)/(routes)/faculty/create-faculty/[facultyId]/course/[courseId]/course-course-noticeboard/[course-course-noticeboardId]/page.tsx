@@ -92,7 +92,7 @@ const CourseNoticeboardIdPage = async ({
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">
-                  Course Noticeboard creation
+                  Course notice creation
                 </h1>
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
@@ -116,7 +116,7 @@ const CourseNoticeboardIdPage = async ({
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
                 <h2 className="text-xl">
-                  Enter the Course Notice details
+                  Enter the Course notice details
                 </h2>
               </div>
               <CourseCourseNoticeboardTitleForm

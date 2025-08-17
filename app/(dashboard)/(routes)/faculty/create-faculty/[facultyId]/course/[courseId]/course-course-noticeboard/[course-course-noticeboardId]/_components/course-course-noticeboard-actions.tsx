@@ -28,11 +28,11 @@ export const CourseCourseNoticeboardActions = ({
     try {
       setIsLoading(true);
       if (isPublished) {
-        await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/courseCourseNoticeboards/${courseCourseNoticeboardId}/unpublish`);
+        await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/unpublish`);
         toast.success("Course Noticeboard unpublished");
       } else {
         await axios.patch(
-          `/api/create-faculties/${facultyId}/courses/${courseId}/courseCourseNoticeboards/${courseCourseNoticeboardId}/publish`
+          `/api/create-faculties/${facultyId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/publish`
         );
         toast.success("Course Noticeboard published");
       }
@@ -47,11 +47,13 @@ export const CourseCourseNoticeboardActions = ({
     try {
       setIsLoading(true);
       await axios.delete(
-        `/api/create-faculty/${facultyId}/courses/${courseId}/courseNoticeboards/${courseCourseNoticeboardId}`
+        `/api/create-faculty/${facultyId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}`
       );
       toast.success("Course Noticeboard deleted");
       router.refresh();
-      router.push(`/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard`);
+      router.push(
+        `/faculty/create-faculty/${facultyId}/course/${courseId}/course-course-noticeboard`
+      );
     } catch {
       toast.error("Something went wrong");
     } finally {

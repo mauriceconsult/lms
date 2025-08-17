@@ -12,24 +12,24 @@ export async function POST(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const courseOwner = await db.course.findUnique({
+    const courseNoticeboardOwner = await db.courseNoticeboard.findUnique({
       where: {
-        id: (await params).courseId,
+        id: (await params).courseCourseNoticeboardId,
       },
     });
-    if (!courseOwner) {
+    if (!courseNoticeboardOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     
     const attachment = await db.attachment.create({
       data: {
         url,       
-        courseId: (await params).courseId,       
+        courseNoticeboardId: (await params).courseCourseNoticeboardId,       
       }
     });
     return NextResponse.json(attachment)
   } catch (error) {
-    console.log("COURSE_NOTICEBOARD_ID_ATTACHMENT", error);
+    console.log("COURSE_ID_ATTACHMENT", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
