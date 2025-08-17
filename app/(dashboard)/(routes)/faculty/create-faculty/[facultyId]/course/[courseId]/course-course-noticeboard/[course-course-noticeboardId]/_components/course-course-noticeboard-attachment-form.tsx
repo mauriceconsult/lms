@@ -34,7 +34,7 @@ export const CourseCourseNoticeboardAttachmentForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/courseCourseNoticeboards/${courseCourseNoticeboardId}/attachments`, values);
+      await axios.post(`/api/create-faculties/${facultyId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/attachments`, values);
       toast.success("CourseCourseNoticeboardBoard updated.");
       toggleEdit();
       router.refresh();
@@ -59,7 +59,7 @@ export const CourseCourseNoticeboardAttachmentForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        CourseCourseNoticeboard attachments
+        Course Notice attachments
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing && <>Cancel</>}
           {!isEditing && (
@@ -74,7 +74,7 @@ export const CourseCourseNoticeboardAttachmentForm = ({
         <>
           {initialData.attachments.length === 0 && (
             <p className="text-sm mt-2 text-slate-500 italic">
-              You may add attachments to the notice(s).
+              You may add attachments to the notice.
             </p>
           )}
           {initialData.attachments.length > 0 && (

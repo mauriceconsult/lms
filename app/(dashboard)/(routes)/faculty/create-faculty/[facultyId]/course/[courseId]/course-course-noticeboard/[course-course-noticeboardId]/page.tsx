@@ -1,3 +1,4 @@
+// app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/course-course-noticeboard/[courseCourseNoticeboardId]/page.tsx
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -11,14 +12,13 @@ import { CourseCourseNoticeboardCourseForm } from "./_components/course-course-n
 import { CourseCourseNoticeboardDescriptionForm } from "./_components/course-course-noticeboard-description-form";
 import { CourseCourseNoticeboardAttachmentForm } from "./_components/course-course-noticeboard-attachment-form";
 
-
 const CourseNoticeboardIdPage = async ({
   params,
 }: {
   params: Promise<{
     courseId: string;
     facultyId: string;
-    courseNoticeboardId: string;
+    "course-course-noticeboardId": string; // Fixed parameter name
   }>;
 }) => {
   const { userId } = await auth();
@@ -27,10 +27,19 @@ const CourseNoticeboardIdPage = async ({
   }
 
   const resolvedParams = await params;
-  const courseNoticeboard = await db.courseNoticeboard.findFirst({
+  console.log("Page params:", resolvedParams);
+
+  // Validate course-course-noticeboardId
+  if (!resolvedParams["course-course-noticeboardId"]) {
+    return redirect(
+      `/faculty/create-faculty/${resolvedParams.facultyId}/course/${resolvedParams.courseId}`
+    );
+  }
+
+  const courseNoticeboard = await db.courseNoticeboard.findUnique({
     where: {
-      id: resolvedParams.courseNoticeboardId,
-      courseId: resolvedParams.facultyId,     
+      id: resolvedParams["course-course-noticeboardId"],
+      courseId: resolvedParams.courseId,
     },
     include: {
       attachments: {
@@ -40,25 +49,34 @@ const CourseNoticeboardIdPage = async ({
       },
     },
   });
+
   const course = await db.course.findMany({
     orderBy: {
       title: "asc",
     },
   });
-  if (!courseNoticeboard || !course) {
-    return redirect("/");
+
+  if (!courseNoticeboard || !course.length) {
+    return redirect(
+      `/faculty/create-faculty/${resolvedParams.facultyId}/course/${resolvedParams.courseId}`
+    );
   }
-  const requiredFields = [courseNoticeboard.title, courseNoticeboard.description];
+
+  const requiredFields = [
+    courseNoticeboard.title,
+    courseNoticeboard.description,
+  ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
+
   return (
     <>
       {!courseNoticeboard.isPublished && (
         <Banner
           variant="warning"
-          label="This CourseNoticeboard is unpublished. Once published, students can submit their course projects."
+          label="This Course Notice is unpublished. Once published, it will be visible to the students."
         />
       )}
       <div className="p-6">
@@ -74,7 +92,7 @@ const CourseNoticeboardIdPage = async ({
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
                 <h1 className="text-2xl font-medium">
-                  CourseNoticeboard creation
+                  Course Noticeboard creation
                 </h1>
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
@@ -82,7 +100,9 @@ const CourseNoticeboardIdPage = async ({
               </div>
               <CourseCourseNoticeboardActions
                 disabled={!isComplete}
-                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
+                courseCourseNoticeboardId={
+                  resolvedParams["course-course-noticeboardId"]
+                }
                 facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
                 isPublished={courseNoticeboard.isPublished}
@@ -95,17 +115,23 @@ const CourseNoticeboardIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Enter the CourseNoticeboard details</h2>
+                <h2 className="text-xl">
+                  Enter the Course Noticeboard details
+                </h2>
               </div>
               <CourseCourseNoticeboardTitleForm
                 initialData={courseNoticeboard}
-                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
+                courseCourseNoticeboardId={
+                  resolvedParams["course-course-noticeboardId"]
+                }
                 facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
               />
               <CourseCourseNoticeboardCourseForm
                 initialData={courseNoticeboard}
-                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
+                courseCourseNoticeboardId={
+                  resolvedParams["course-course-noticeboardId"]
+                }
                 facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
                 options={course.map((cat) => ({
@@ -115,7 +141,9 @@ const CourseNoticeboardIdPage = async ({
               />
               <CourseCourseNoticeboardDescriptionForm
                 initialData={courseNoticeboard}
-                courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
+                courseCourseNoticeboardId={
+                  resolvedParams["course-course-noticeboardId"]
+                }
                 facultyId={resolvedParams.facultyId}
                 courseId={resolvedParams.courseId}
               />
@@ -128,7 +156,9 @@ const CourseNoticeboardIdPage = async ({
                 </div>
                 <CourseCourseNoticeboardAttachmentForm
                   initialData={courseNoticeboard}
-                  courseCourseNoticeboardId={resolvedParams.courseNoticeboardId}
+                  courseCourseNoticeboardId={
+                    resolvedParams["course-course-noticeboardId"]
+                  }
                   facultyId={resolvedParams.facultyId}
                   courseId={resolvedParams.courseId}
                 />

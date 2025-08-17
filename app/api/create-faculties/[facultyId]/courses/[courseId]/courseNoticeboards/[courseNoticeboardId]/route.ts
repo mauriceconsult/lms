@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ facultyId: string; courseId: string; }> }
+  { params }: { params: Promise<{ facultyId: string;  courseId: string; courseNoticeboardId: string }> }
 ) {
   const body = await request.json();
   const { description } = body;
@@ -14,7 +14,6 @@ export async function PATCH(
   if (!description || description.length === 0) {
     return new Response("No data provided", { status: 400 });
   }
- 
   const course = await db.course.findUnique({
     where: {
       id: (await params).courseId,
@@ -22,16 +21,15 @@ export async function PATCH(
     },
   });
   if (!course) {
-    return new Response("Faculty not found", { status: 404 });
+    return new Response("Course not found", { status: 404 });
   }
-  await db.course.update({
+  await db.courseNoticeboard.update({
     where: {
-      id: course.id,
+      id: (await params).courseNoticeboardId
     },
     data: {
-      description,
+      description,      
     },
   });
   return new Response("Success", { status: 200 });
 }
-

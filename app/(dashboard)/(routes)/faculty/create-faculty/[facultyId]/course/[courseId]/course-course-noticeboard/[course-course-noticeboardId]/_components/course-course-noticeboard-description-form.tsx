@@ -1,3 +1,4 @@
+// app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/course-course-noticeboard/[courseCourseNoticeboardId]/_components/course-course-noticeboard-description-form.tsx
 "use client";
 import * as z from "zod";
 import axios from "axios";
@@ -19,13 +20,13 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { CourseNoticeboard } from "@prisma/client";
 
-
 interface CourseCourseNoticeboardDescriptionProps {
   initialData: CourseNoticeboard;
   facultyId: string;
   courseId: string;
-  courseCourseNoticeboardId: string;
+  courseCourseNoticeboardId: string; // Keep camelCase for prop
 }
+
 const formSchema = z.object({
   description: z.string().min(1, {
     message: "Course Notice description is required.",
@@ -35,29 +36,51 @@ const formSchema = z.object({
 export const CourseCourseNoticeboardDescriptionForm = ({
   initialData,
   facultyId,
-  courseCourseNoticeboardId,
   courseId,
+  courseCourseNoticeboardId,
 }: CourseCourseNoticeboardDescriptionProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
+
+  console.log("courseCourseNoticeboardId:", courseCourseNoticeboardId);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       description: initialData?.description || "",
     },
   });
+
   const { isSubmitting, isValid } = form.formState;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/course/${courseId}/courseCourseNoticeboards/${courseCourseNoticeboardId}/descriptions`, values);
+      if (
+        !courseCourseNoticeboardId ||
+        courseCourseNoticeboardId === "undefined"
+      ) {
+        toast.error(`Invalid noticeboard ID: ${courseCourseNoticeboardId}`);
+        console.error(
+          "Invalid courseCourseNoticeboardId:",
+          courseCourseNoticeboardId
+        );
+        return;
+      }
+
+      await axios.patch(
+        `/api/create-faculties/${facultyId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/descriptions`,
+        values
+      );
       toast.success("Course Notice description updated.");
       toggleEdit();
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error("Something went wrong.");
+      console.error("Error updating noticeboard:", error);
     }
   };
+
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
@@ -68,7 +91,7 @@ export const CourseCourseNoticeboardDescriptionForm = ({
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit Course Notice description
+              Edit Course notice description
             </>
           )}
         </Button>
@@ -80,7 +103,7 @@ export const CourseCourseNoticeboardDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {initialData.description || "Your student notices will list here."}
+          {initialData.description || "Enter your text."}
         </p>
       )}
       {isEditing && (
