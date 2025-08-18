@@ -1,3 +1,4 @@
+// app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/page.tsx
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -22,6 +23,7 @@ const FacultyIdPage = async ({
 }) => {
   const { userId } = await auth();
   if (!userId) {
+    console.error(`[${new Date().toISOString()} FacultyIdPage] No userId from auth`);
     return redirect("/");
   }
 
@@ -29,7 +31,7 @@ const FacultyIdPage = async ({
   console.log("Resolved params:", resolvedParams);
 
   if (!resolvedParams.facultyId) {
-    console.error("No facultyId provided in params");
+    console.error(`[${new Date().toISOString()} FacultyIdPage] No facultyId provided in params`);
     return <div>No faculty ID provided</div>;
   }
 
@@ -39,9 +41,9 @@ const FacultyIdPage = async ({
       userId,
     },
     include: {
-      attachments: true, // Include all Attachment fields
-      courses: true, // Include all Course fields
-      noticeboards: true, // Include all Noticeboard fields
+      attachments: true,
+      courses: true,
+      noticeboards: true,
     },
   });
 
@@ -63,12 +65,24 @@ const FacultyIdPage = async ({
       `[${new Date().toISOString()} FacultyIdPage] Faculty not found:`,
       { facultyId: resolvedParams.facultyId, userId }
     );
-    return <div>Faculty not found</div>;
+    return (
+      <div className="p-6">
+        <h2 className="text-2xl font-medium">Faculty Not Found</h2>
+        <p>The requested faculty does not exist or you do not have access to it.</p>
+        <p>Faculty ID: {resolvedParams.facultyId}</p>
+        <p>User ID: {userId}</p>
+      </div>
+    );
   }
 
   if (school.length === 0) {
-    console.error("No schools found in the database");
-    return <div>No schools available</div>;
+    console.error(`[${new Date().toISOString()} FacultyIdPage] No schools found in the database`);
+    return (
+      <div className="p-6">
+        <h2 className="text-2xl font-medium">No Schools Available</h2>
+        <p>No schools are available in the database. Please create a school first.</p>
+      </div>
+    );
   }
 
   const initialData = {

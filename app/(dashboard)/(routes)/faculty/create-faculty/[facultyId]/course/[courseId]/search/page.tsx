@@ -11,6 +11,7 @@ interface CourseSearchPageProps {
   searchParams: Promise<{
     title: string;
     facultyId: string;
+    courseId: string;
   }>;
 }
 const CourseSearchPage = async ({

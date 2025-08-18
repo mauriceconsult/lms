@@ -22,7 +22,8 @@ export const CoursesList = ({ items }: CoursesListProps) => {
             amount={item.amount}
             faculty={item?.faculty?.title ?? ""}
             facultyId={""}           
-            role={null} />
+            role={null}
+          />
         ))}
       </div>
       {items.length === 0 && (

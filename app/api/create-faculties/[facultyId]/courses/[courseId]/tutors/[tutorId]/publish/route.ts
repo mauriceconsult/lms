@@ -20,33 +20,48 @@ export async function PATCH(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
+    const { courseId, tutorId } = await params;
+
     const tutor = await db.tutor.findUnique({
       where: {
-        id: (await params).tutorId,
-        courseId: (await params).courseId,
+        id: tutorId,
+        courseId,
+        userId,
+      },
+      include: {
+        assignments: {
+          where: {
+            isPublished: true,
+          },
+        },
       },
     });
 
     if (
       !tutor ||
-      !tutor.description ||
       !tutor.title ||
-      !tutor.videoUrl ||
       !tutor.description ||
-      !tutor.courseId
+      !tutor.videoUrl ||
+      !tutor.courseId ||
+      tutor.assignments.length === 0
     ) {
-      return new NextResponse("Missing credentials", { status: 400 });
+      return new NextResponse(
+        "Missing required fields or no published assignments",
+        { status: 400 }
+      );
     }
+
     const publishedTutor = await db.tutor.update({
       where: {
-        id: (await params).tutorId,
-        courseId: (await params).courseId,
-        // tutorId: (await params).tutorId
+        id: tutorId,
+        courseId,
+        userId,
       },
       data: {
         isPublished: true,
       },
     });
+
     return NextResponse.json(publishedTutor);
   } catch (error) {
     console.log("[TUTOR_PUBLISH]", error);
