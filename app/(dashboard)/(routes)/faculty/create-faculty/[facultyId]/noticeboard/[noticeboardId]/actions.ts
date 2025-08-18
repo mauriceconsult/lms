@@ -46,18 +46,18 @@ export async function updateNoticeboard(
 }
 
 export async function onReorderAction(
-  facultyId: string,
+  noticeboardId: string,
   updateData: { id: string; position: number }[]
 ) {
   try {
     console.log(
-      `[${new Date().toISOString()} onReorderAction] facultyId: ${facultyId}, updateData:`,
+      `[${new Date().toISOString()} onReorderAction] noticeboardId: ${noticeboardId}, updateData:`,
       updateData
     );
-    const faculty = await db.faculty.findUnique({
-      where: { id: facultyId },
+    const noticeboard = await db.noticeboard.findUnique({
+      where: { id: noticeboardId },
     });
-    if (!faculty) {
+    if (!noticeboard) {
       return { success: false, message: "Faculty not found" };
     }
     await db.$transaction(
@@ -78,17 +78,17 @@ export async function onReorderAction(
   }
 }
 
-export async function onEditAction(facultyId: string, id: string) {
+export async function onEditAction(noticeboardId: string, id: string) {
   try {
     console.log(
-      `[${new Date().toISOString()} onEditAction] facultyId: ${facultyId}, noticeboardId: ${id}`
+      `[${new Date().toISOString()} onEditAction] noticeboardId: ${noticeboardId}, noticeboardId: ${id}`
     );
-    const faculty = await db.faculty.findUnique({
-      where: { id: facultyId },
-    });
-    if (!faculty) {
-      return { success: false, message: "Faculty not found" };
-    }
+    // const noticeboard = await db.noticeboard.findUnique({
+    //   where: { id: noticeboardId },
+    // });
+    // if (!noticeboard) {
+    //   return { success: false, message: "Faculty not found" };
+    // }
     const noticeboard = await db.noticeboard.findUnique({ where: { id } });
     if (!noticeboard) {
       return { success: false, message: "Noticeboard not found" };

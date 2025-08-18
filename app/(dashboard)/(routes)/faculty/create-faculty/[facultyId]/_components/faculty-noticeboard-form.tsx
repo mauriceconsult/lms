@@ -30,7 +30,6 @@ interface FacultyNoticeboardFormProps {
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  // description: z.string(),
 });
 
 export const FacultyNoticeboardForm = ({
@@ -44,8 +43,7 @@ export const FacultyNoticeboardForm = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      // description: ""
+      title: "",     
     },
   });
   const {
@@ -65,7 +63,7 @@ export const FacultyNoticeboardForm = ({
         toast.error(message);
       }
     } catch (error) {
-      console.error("Create Noticeboard error:", error);
+      console.error("Create noticeboard error:", error);
       toast.error("Unexpected error occurred");
     }
   };

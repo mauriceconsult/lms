@@ -130,9 +130,9 @@ export const NoticeboardDescriptionForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Notice Description*
+        Notice description*
         <Button onClick={toggleEditing} variant="ghost" disabled={isSubmitting}>
-          {isEditing ? <>Cancel</> : <>Edit Description</>}
+          {isEditing ? <>Cancel</> : <>Edit description</>}
         </Button>
       </div>
       {isEditing && (
@@ -146,7 +146,7 @@ export const NoticeboardDescriptionForm = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>description</FormLabel>
                   <FormControl>
                     {typeof field.onChange === "function" ? (
                       <DynamicEditor
