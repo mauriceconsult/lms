@@ -244,6 +244,7 @@ model UserProgress {
   courseId     String
   assignments      Assignment     @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   assignmentId     String
+  isEnrolled  Boolean @default(false)
   isCompleted  Boolean    @default(false)
 
   createdAt DateTime @default(now())

@@ -9,7 +9,7 @@ import { FacultyIdSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-
 import { CourseSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/search/_components/course-search-input";
 import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
 import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/coursework/[courseworkId]/search/_components/coursework-search-input";
-import { PayrollSearchInput } from "@/app/(dashboard)/(routes)/payroll/create-payroll/[payrollId]/search/_components/payroll-search-input";
+// import { PayrollSearchInput } from "@/app/(dashboard)/(routes)/payroll/create-payroll/[payrollId]/search/_components/payroll-search-input";
 import { CourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/course-course-noticeboard/[course-course-noticeboardId]/search/_components/course-course-noticeboard-search-input";
 // import { ClientUserButton } from "@/components/ClientUserButton";
 import React, { FC, ReactElement } from "react";
@@ -22,10 +22,7 @@ interface NavbarRoutesProps {
   courseId?: string;
 }
 
-export const NavbarRoutes: FC<NavbarRoutesProps> = ({
-  facultyId,
-  courseId,
-}): ReactElement => {
+export const NavbarRoutes: FC<NavbarRoutesProps> = ({ facultyId, courseId }): ReactElement => {
   const pathname: string | null = usePathname();
   const isFacultyPage = pathname?.startsWith("/faculty");
   const isCoursePage = pathname?.includes("/course");
@@ -49,8 +46,8 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = ({
     // isSearchPages = AssignmentSearchInput; // Uncomment when available
   } else if (isCourseNoticeboardPage) {
     isSearchPages = CourseNoticeboardSearchInput;
-  } else if (isPayrollPage) {
-    isSearchPages = PayrollSearchInput;
+  // } else if (isPayrollPage) {
+  //   isSearch = PayrollSearchInput;
   } else if (isFacultyPage) {
     isSearchPages = FacultyIdSearchInput;
   }
@@ -104,45 +101,35 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = ({
           </Link>
         )}
         {facultyId && courseId && (
-          <Link
-            href={`/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/tutors`}
-          >
+          <Link href={`/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/tutors`}>
             <Button size="sm" variant="ghost">
               Topic
             </Button>
           </Link>
         )}
         {facultyId && (
-          <Link
-            href={`/faculty/create-faculty/${facultyId}/noticeboard/noticeboards`}
-          >
+          <Link href={`/faculty/create-faculty/${facultyId}/noticeboard/noticeboards`}>
             <Button size="sm" variant="ghost">
               Faculty Notice
             </Button>
           </Link>
         )}
         {facultyId && (
-          <Link
-            href={`/faculty/create-faculty/${facultyId}/coursework/courseworks`}
-          >
+          <Link href={`/faculty/create-faculty/${facultyId}/coursework/courseworks`}>
             <Button size="sm" variant="ghost">
               Coursework
             </Button>
           </Link>
         )}
         {facultyId && courseId && (
-          <Link
-            href={`/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/courseNoticeboards`}
-          >
+          <Link href={`/faculty/create-faculty/${facultyId}/course/${courseId}/courseNoticeboard/courseNoticeboards`}>
             <Button size="sm" variant="ghost">
               Course Notice
             </Button>
           </Link>
         )}
         {facultyId && courseId && (
-          <Link
-            href={`/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/assignments`}
-          >
+          <Link href={`/faculty/create-faculty/${facultyId}/course/${courseId}/assignment/assignments`}>
             <Button size="sm" variant="ghost">
               Assignment
             </Button>

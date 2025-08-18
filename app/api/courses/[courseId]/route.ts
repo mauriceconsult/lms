@@ -1,69 +1,34 @@
+// app/api/faculties/[facultyId]/courses/[courseId]/route.ts
 import { db } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function GET(
-  req: Request,
-  { params }: { params: Promise<{ courseId: string }> }
+  request: Request,
+  { params }: { params: Promise<{ facultyId: string; courseId: string }> }
 ) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    const { courseId } = await params;
-
-    const course = await db.course.findFirst({
-      where: { id: courseId, userId },
+    const { facultyId, courseId } = await params;
+    const course = await db.course.findUnique({
+      where: {
+        id: courseId,
+        facultyId,
+        isPublished: true,
+      },
       select: {
         id: true,
         title: true,
-        description: true,
-        imageUrl: true,
-        isPublished: true,
-        tutors: {
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            videoUrl: true,
-            isPublished: true,
-          },
-          orderBy: { title: "asc" },
-        },
+        amount: true,
+        facultyId: true,
       },
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, message: "Course not found or unauthorized" },
-        { status: 404 }
-      );
+      return new NextResponse("Course not found", { status: 404 });
     }
 
-    console.log(
-      `[${new Date().toISOString()} GET /api/courses/${courseId}] Course fetched:`,
-      course
-    );
-
-    return NextResponse.json({
-      success: true,
-      data: course,
-    });
+    return NextResponse.json(course, { status: 200 });
   } catch (error) {
-    console.error(
-      `[${new Date().toISOString()} GET /api/courses/${
-        (await params).courseId
-      }] Error:`,
-      error
-    );
-    return NextResponse.json(
-      { success: false, message: "Failed to fetch course" },
-      { status: 500 }
-    );
+    console.error("[COURSE_FETCH_ERROR]", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

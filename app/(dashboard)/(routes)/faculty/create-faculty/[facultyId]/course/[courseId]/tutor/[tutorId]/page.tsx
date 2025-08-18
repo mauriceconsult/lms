@@ -2,27 +2,19 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import {
-  LayoutDashboard,
-  ListChecks,
-  File,
-  ArrowLeft,
-  Eye,
-  Video,
-} from "lucide-react";
+import { LayoutDashboard, ListChecks, File, ArrowLeft, Eye, Video } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
 import { TutorActions } from "./_components/tutor-actions";
 import { TutorTitleForm } from "./_components/tutor-title-form";
 import { TutorDescriptionForm } from "./_components/tutor-description-form";
-import Link from "next/link";
 import { TutorVideoForm } from "./_components/tutor-video-form";
 import { TutorCourseForm } from "./_components/tutor-course-form";
 import { TutorAccessForm } from "./_components/tutor-access-form";
 import { TutorAttachmentForm } from "./_components/tutor-attachment-form";
 import { TutorAssignmentForm } from "./_components/tutor-assignment-form";
+import Link from "next/link";
 import { DashboardLayout } from "@/components/dashboard-layout";
-
 
 const TutorIdPage = async ({
   params,
@@ -47,7 +39,9 @@ const TutorIdPage = async ({
     include: {
       muxData: true,
       attachments: true,
-      assignments: true,
+      assignments: {
+        where: { isPublished: true },
+      },
     },
   });
 
@@ -87,21 +81,16 @@ const TutorIdPage = async ({
   ];
   const optionalFields = [initialData.attachments.length > 0];
   const totalFields = [...requiredFields, ...optionalFields].length;
-  const completedFields = [...requiredFields, ...optionalFields].filter(
-    Boolean
-  ).length;
+  const completedFields = [...requiredFields, ...optionalFields].filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
 
   return (
-    <DashboardLayout
-      facultyId={resolvedParams.facultyId}
-      courseId={resolvedParams.courseId}
-    >
+    <DashboardLayout facultyId={resolvedParams.facultyId} courseId={resolvedParams.courseId}>
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Tutorial is unpublished. To publish, prepare and upload a good quality video clip of your lesson and an Assignment for the students."
+          label="This Tutorial is unpublished. To publish, prepare and upload a good quality video clip of your lesson and at least one published assignment."
         />
       )}
       <div className="p-6">

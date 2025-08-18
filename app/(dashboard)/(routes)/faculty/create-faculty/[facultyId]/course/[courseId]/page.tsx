@@ -6,24 +6,22 @@ import {
   LayoutDashboard,
   ListChecks,
   File,
-  DollarSign,
   ArrowLeft,
+  Eye,
+  Image,
 } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
-import { CourseFacultyForm } from "./_components/course-faculty-form";
 import { CourseActions } from "./_components/course-actions";
 import { CourseTitleForm } from "./_components/course-title-form";
 import { CourseDescriptionForm } from "./_components/course-description-form";
+import { CourseFacultyForm } from "./_components/course-faculty-form";
+import { CourseAccessForm } from "./_components/course-access-form";
 import { CourseImageForm } from "./_components/course-image-form";
 import { CourseAttachmentForm } from "./_components/course-attachment-form";
 import { CourseTutorForm } from "./_components/course-tutor-form";
-import { CourseAmountForm } from "./_components/course-amount-form";
 import Link from "next/link";
-import { CourseCourseworkForm } from "./_components/course-coursework-form";
-import { CourseCourseNoticeboardForm } from "./_components/course-course-noticeboard-form";
 import { DashboardLayout } from "@/components/dashboard-layout";
-
 
 const CourseIdPage = async ({
   params,
@@ -35,60 +33,102 @@ const CourseIdPage = async ({
 }) => {
   const { userId } = await auth();
   if (!userId) {
+    console.error(
+      `[${new Date().toISOString()} CourseIdPage] No userId from auth`
+    );
     return redirect("/");
   }
 
   const resolvedParams = await params;
+  console.log("Resolved params:", resolvedParams);
+
+  if (!resolvedParams.facultyId || !resolvedParams.courseId) {
+    console.error(
+      `[${new Date().toISOString()} CourseIdPage] Invalid params`,
+      resolvedParams
+    );
+    return <div>Invalid faculty or course ID</div>;
+  }
+
   const course = await db.course.findUnique({
     where: {
       id: resolvedParams.courseId,
       userId,
+      facultyId: resolvedParams.facultyId,
     },
     include: {
-      courseworks: {
-        orderBy: {
-          position: "asc",
-        },
+      tutors: {
+        where: { isPublished: true },
       },
       attachments: true,
-      courseNoticeboards: true,
-      tuitions: true,
-      tutors: true,
+      courseworks: true,
     },
   });
 
-  const faculty = await db.faculty.findMany({
+  const faculty = await db.faculty.findUnique({
+    where: {
+      id: resolvedParams.facultyId,
+      userId,
+    },
+  });
+
+  // Fetch all faculties for the options prop
+  const faculties = await db.faculty.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      title: true,
+    },
     orderBy: {
       title: "asc",
     },
   });
 
-  if (!course || faculty.length === 0) {
+  console.log("Course query result:", JSON.stringify(course, null, 2));
+  console.log("Faculty query result:", JSON.stringify(faculty, null, 2));
+  console.log("Faculties for options:", JSON.stringify(faculties, null, 2));
+
+  if (!course || !faculty) {
     console.error(
       `[${new Date().toISOString()} CourseIdPage] Course or faculty not found:`,
-      { facultyId: resolvedParams.facultyId, userId }
+      {
+        facultyId: resolvedParams.facultyId,
+        courseId: resolvedParams.courseId,
+        userId,
+      }
     );
-    return redirect("/");
+    return (
+      <div className="p-6">
+        <h2 className="text-2xl font-medium">Course or Faculty Not Found</h2>
+        <p>
+          The requested course or faculty does not exist or you do not have
+          access to it.
+        </p>
+        <p>Faculty ID: {resolvedParams.facultyId}</p>
+        <p>Course ID: {resolvedParams.courseId}</p>
+        <p>User ID: {userId}</p>
+      </div>
+    );
   }
 
   const initialData = {
     ...course,
     description: course.description ?? "",
+    imageUrl: course.imageUrl ?? null,
+    attachments: course.attachments ?? [],
+    tutors: course.tutors ?? [],
+    courseworks: course.courseworks ?? [],
   };
 
   const requiredFields = [
     initialData.title,
-    initialData.facultyId,
     initialData.description,
     initialData.imageUrl,
-    initialData.amount,
+    initialData.facultyId,
     initialData.tutors.length > 0,
     initialData.courseworks.length > 0,
   ];
-  const optionalFields = [
-    initialData.courseNoticeboards.length > 0,
-    initialData.attachments.length > 0,
-  ];
+  const optionalFields = [initialData.attachments.length > 0];
   const totalFields = [...requiredFields, ...optionalFields].length;
   const completedFields = [...requiredFields, ...optionalFields].filter(
     Boolean
@@ -104,7 +144,7 @@ const CourseIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Course is not published yet. To publish, complete the required* fields. Ensure that you have at least a published Tutorial and an Assignment."
+          label="This Course is unpublished. To publish, complete the required* fields and ensure you have at least one published Tutor and one Coursework."
         />
       )}
       <div className="p-6">
@@ -127,7 +167,7 @@ const CourseIdPage = async ({
               <CourseActions
                 disabled={!isComplete}
                 facultyId={resolvedParams.facultyId}
-                courseId={course.id}
+                courseId={resolvedParams.courseId}
                 isPublished={initialData.isPublished}
               />
             </div>
@@ -138,43 +178,49 @@ const CourseIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Enter the Course details</h2>
+                <h2 className="text-xl">Enter course details</h2>
               </div>
               <CourseTitleForm
                 initialData={initialData}
                 facultyId={resolvedParams.facultyId}
-                courseId={course.id}
+                courseId={resolvedParams.courseId}
               />
               <CourseFacultyForm
                 initialData={initialData}
                 facultyId={resolvedParams.facultyId}
-                courseId={course.id}
-                options={faculty.map((cat) => ({
-                  label: cat.title,
-                  value: cat.id,
+                courseId={resolvedParams.courseId}
+                options={faculties.map((faculty) => ({
+                  label: faculty.title,
+                  value: faculty.id,
                 }))}
               />
               <CourseDescriptionForm
                 initialData={initialData}
                 facultyId={resolvedParams.facultyId}
-                courseId={course.id}
-              />
-              <CourseImageForm
-                initialData={initialData}
-                facultyId={resolvedParams.facultyId}
-                courseId={course.id}
+                courseId={resolvedParams.courseId}
               />
             </div>
             <div className="space-y-6">
               <div>
                 <div className="flex items-center gap-x-2">
-                  <IconBadge icon={DollarSign} />
-                  <h2 className="text-xl">Sell Your Course</h2>
+                  <IconBadge icon={Eye} />
+                  <h2 className="text-xl">Access settings</h2>
                 </div>
-                <CourseAmountForm
+                <CourseAccessForm
                   initialData={initialData}
                   facultyId={resolvedParams.facultyId}
-                  courseId={course.id}
+                  courseId={resolvedParams.courseId}
+                />
+              </div>
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={Image} />
+                  <h2 className="text-xl">Add a course image</h2>
+                </div>
+                <CourseImageForm
+                  initialData={initialData}
+                  facultyId={resolvedParams.facultyId}
+                  courseId={resolvedParams.courseId}
                 />
               </div>
               <div>
@@ -185,40 +231,18 @@ const CourseIdPage = async ({
                 <CourseAttachmentForm
                   initialData={initialData}
                   facultyId={resolvedParams.facultyId}
-                  courseId={course.id}
+                  courseId={resolvedParams.courseId}
                 />
               </div>
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Tutorials</h2>
+                  <h2 className="text-xl">Course tutors</h2>
                 </div>
                 <CourseTutorForm
                   initialData={initialData}
                   facultyId={resolvedParams.facultyId}
-                  courseId={course.id}
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-x-2">
-                  <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Courseworks</h2>
-                </div>
-                <CourseCourseworkForm
-                  initialData={initialData}
-                  facultyId={resolvedParams.facultyId}
-                  courseId={course.id}
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-x-2">
-                  <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Course notices</h2>
-                </div>
-                <CourseCourseNoticeboardForm
-                  initialData={initialData}
-                  facultyId={resolvedParams.facultyId}
-                  courseId={course.id}
+                  courseId={resolvedParams.courseId}
                 />
               </div>
             </div>

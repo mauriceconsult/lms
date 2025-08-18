@@ -13,6 +13,8 @@ import { FacultyAttachmentForm } from "./_components/faculty-attachment-form";
 import { Banner } from "@/components/banner";
 import { FacultyActions } from "./_components/faculty-actions";
 import { FacultyNoticeboardForm } from "./_components/faculty-noticeboard-form";
+import { DashboardLayout } from "@/components/dashboard-layout";
+
 
 const FacultyIdPage = async ({
   params,
@@ -23,7 +25,9 @@ const FacultyIdPage = async ({
 }) => {
   const { userId } = await auth();
   if (!userId) {
-    console.error(`[${new Date().toISOString()} FacultyIdPage] No userId from auth`);
+    console.error(
+      `[${new Date().toISOString()} FacultyIdPage] No userId from auth`
+    );
     return redirect("/");
   }
 
@@ -31,8 +35,15 @@ const FacultyIdPage = async ({
   console.log("Resolved params:", resolvedParams);
 
   if (!resolvedParams.facultyId) {
-    console.error(`[${new Date().toISOString()} FacultyIdPage] No facultyId provided in params`);
-    return <div>No faculty ID provided</div>;
+    console.error(
+      `[${new Date().toISOString()} FacultyIdPage] No facultyId provided in params`
+    );
+    return (
+      <div className="p-6">
+        <h2 className="text-2xl font-medium">Invalid Faculty ID</h2>
+        <p>No faculty ID was provided in the URL.</p>
+      </div>
+    );
   }
 
   const faculty = await db.faculty.findUnique({
@@ -42,7 +53,9 @@ const FacultyIdPage = async ({
     },
     include: {
       attachments: true,
-      courses: true,
+      courses: {
+        where: { isPublished: true },
+      },
       noticeboards: true,
     },
   });
@@ -68,7 +81,9 @@ const FacultyIdPage = async ({
     return (
       <div className="p-6">
         <h2 className="text-2xl font-medium">Faculty Not Found</h2>
-        <p>The requested faculty does not exist or you do not have access to it.</p>
+        <p>
+          The requested faculty does not exist or you do not have access to it.
+        </p>
         <p>Faculty ID: {resolvedParams.facultyId}</p>
         <p>User ID: {userId}</p>
       </div>
@@ -76,11 +91,16 @@ const FacultyIdPage = async ({
   }
 
   if (school.length === 0) {
-    console.error(`[${new Date().toISOString()} FacultyIdPage] No schools found in the database`);
+    console.error(
+      `[${new Date().toISOString()} FacultyIdPage] No schools found in the database`
+    );
     return (
       <div className="p-6">
         <h2 className="text-2xl font-medium">No Schools Available</h2>
-        <p>No schools are available in the database. Please create a school first.</p>
+        <p>
+          No schools are available in the database. Please create a school
+          first.
+        </p>
       </div>
     );
   }
@@ -104,14 +124,15 @@ const FacultyIdPage = async ({
     initialData.noticeboards.length > 0,
     initialData.attachments.length > 0,
   ];
-  const allFields = [...requiredFields, ...optionalFields];
-  const totalFields = allFields.length;
-  const completedFields = allFields.filter(Boolean).length;
+  const totalFields = [...requiredFields, ...optionalFields].length;
+  const completedFields = [...requiredFields, ...optionalFields].filter(
+    Boolean
+  ).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
 
   return (
-    <>
+    <DashboardLayout facultyId={resolvedParams.facultyId}>
       {!initialData.isPublished && (
         <Banner
           variant="warning"
@@ -199,7 +220,7 @@ const FacultyIdPage = async ({
           </div>
         </div>
       </div>
-    </>
+    </DashboardLayout>
   );
 };
 

@@ -7,9 +7,11 @@ import { LayoutDashboard } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
+import { sanitizeDescription } from "@/lib/sanitize";
 
 interface Tutor {
   id: string;
@@ -17,6 +19,7 @@ interface Tutor {
   description: string | null;
   videoUrl: string | null;
   isPublished: boolean;
+  position: number;
 }
 
 interface Course {
@@ -36,6 +39,7 @@ interface ApiResponse {
 
 const CoursePage = () => {
   const [course, setCourse] = useState<Course | null>(null);
+  const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -60,15 +64,10 @@ const CoursePage = () => {
       return;
     }
 
-    const fetchCourse = async () => {
+    const fetchCourseAndEnrollment = async () => {
       try {
-        console.log(
-          `[${new Date().toISOString()} CoursePage] Fetching from: /api/courses/${
-            params.courseId
-          }, User ID:`,
-          user?.id
-        );
-        const response = await fetch(
+        // Fetch course data
+        const courseResponse = await fetch(
           `${
             process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
           }/api/courses/${params.courseId}`,
@@ -78,33 +77,32 @@ const CoursePage = () => {
             credentials: "include",
           }
         );
-        console.log(
-          `[${new Date().toISOString()} CoursePage] Response status:`,
-          response.status,
-          response.statusText
-        );
-        if (!response.ok) {
-          throw new Error(
-            `HTTP error! Status: ${response.status} ${response.statusText}`
-          );
+        if (!courseResponse.ok) {
+          throw new Error(`HTTP error! Status: ${courseResponse.status}`);
         }
-        const result: ApiResponse = await response.json();
-        console.log(
-          `[${new Date().toISOString()} CoursePage] Response data:`,
-          result
-        );
-        if (result.success && result.data) {
-          setCourse(result.data);
-        } else {
-          throw new Error(result.message || "Failed to load course");
+        const courseResult: ApiResponse = await courseResponse.json();
+        if (!courseResult.success || !courseResult.data) {
+          throw new Error(courseResult.message || "Failed to load course");
         }
+        setCourse(courseResult.data);
+
+        // Check enrollment status
+        const enrollmentResponse = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+          }/api/courses/${params.courseId}/enrollment`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          }
+        );
+        const enrollmentResult = await enrollmentResponse.json();
+        setIsEnrolled(enrollmentResult.isEnrolled || false);
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : "Unexpected error occurred";
-        console.error(
-          `[${new Date().toISOString()} CoursePage] Error fetching course:`,
-          error
-        );
+        console.error(`[${new Date().toISOString()} CoursePage] Error:`, error);
         setError(errorMessage);
         toast.error(errorMessage);
       } finally {
@@ -112,7 +110,7 @@ const CoursePage = () => {
       }
     };
 
-    fetchCourse();
+    fetchCourseAndEnrollment();
   }, [isSignedIn, router, user, params.courseId]);
 
   if (loading) {
@@ -143,6 +141,8 @@ const CoursePage = () => {
     );
   }
 
+  // const firstTutorial = course.tutors[0]; // First tutor by position
+
   return (
     <div className="p-6">
       <div className="flex items-center gap-x-2 mb-6">
@@ -171,7 +171,7 @@ const CoursePage = () => {
             </div>
           )}
           <p className="text-sm text-slate-600">
-            {course.description || "No description available."}
+            {sanitizeDescription(course.description)}
           </p>
           <Badge variant={course.isPublished ? "default" : "secondary"}>
             {course.isPublished ? "Published" : "Draft"}
@@ -179,17 +179,19 @@ const CoursePage = () => {
         </CardContent>
       </Card>
       <div className="space-y-4">
-        <h2 className="text-xl font-medium">Tutors</h2>
+        <h2 className="text-xl font-medium">Tutorials</h2>
         {course.tutors.length === 0 ? (
-          <p className="text-sm text-slate-500 italic">No tutors available</p>
+          <p className="text-sm text-slate-500 italic">
+            No tutorials available
+          </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {course.tutors.map((tutor) => (
+            {course.tutors.map((tutor, index) => (
               <Card key={tutor.id} className="border bg-slate-50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-x-2">
                     <IconBadge icon={LayoutDashboard} />
-                    <span>{tutor.title}</span>
+                    <span>Tutorial {index + 1}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -206,9 +208,7 @@ const CoursePage = () => {
                       </p>
                     )}
                     <p className="text-sm text-slate-600 mt-1">
-                      {tutor.description && tutor.description.length > 100
-                        ? `${tutor.description.slice(0, 100)}...`
-                        : tutor.description || "No description available"}
+                      {sanitizeDescription(tutor.description)}
                     </p>
                     <Badge
                       variant={tutor.isPublished ? "default" : "secondary"}
@@ -219,8 +219,13 @@ const CoursePage = () => {
                       href={`/tutor/${tutor.id}`}
                       className="inline-block mt-2 text-sm text-blue-600 hover:underline"
                     >
-                      View Tutor
+                      View Tutorial
                     </Link>
+                    {index === 0 && !isEnrolled && (
+                      <Link href={`/courses/${params.courseId}/payment`}>
+                        <Button className="mt-4 w-full">Course Enroll</Button>
+                      </Link>
+                    )}
                   </div>
                 </CardContent>
               </Card>
