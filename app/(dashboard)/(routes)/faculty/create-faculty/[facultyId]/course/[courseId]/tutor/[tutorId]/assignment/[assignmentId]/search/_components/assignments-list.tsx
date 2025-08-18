@@ -20,8 +20,8 @@ export const AssignmentsList = ({ item }: AssignmentsListProps) => {
             id={assignment.id}
             title={assignment.title}
             description={assignment.description ?? ""}
-            assignmentsLength={item.length} // Use actual length
-            assignment={assignment.title} // Use assignment title
+            assignmentsLength={item.length} 
+            assignment={assignment.title} 
           />
         ))}
       </div>
