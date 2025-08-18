@@ -1,3 +1,4 @@
+// app/(course)/courses/[courseId]/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -28,6 +29,7 @@ interface Course {
   description: string | null;
   imageUrl: string | null;
   isPublished: boolean;
+  facultyId: string;
   tutors: Tutor[];
 }
 
@@ -37,16 +39,23 @@ interface ApiResponse {
   message?: string;
 }
 
+interface EnrollmentResponse {
+  success: boolean;
+  isEnrolled: boolean;
+  message?: string;
+}
+
 const CoursePage = () => {
   const [course, setCourse] = useState<Course | null>(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn } = useUser(); // Removed unused 'user'
   const params = useParams<{ courseId: string }>();
 
   useEffect(() => {
+    console.log(`[${new Date().toISOString()} CoursePage] Params:`, params);
     if (!isSignedIn) {
       console.error(
         `[${new Date().toISOString()} CoursePage] User not signed in`
@@ -64,54 +73,88 @@ const CoursePage = () => {
       return;
     }
 
-    const fetchCourseAndEnrollment = async () => {
+    const fetchCourseAndEnrollment = async (retryCount = 0) => {
       try {
+        setLoading(true);
         // Fetch course data
-        const courseResponse = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-          }/api/courses/${params.courseId}`,
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-          }
+        const courseUrl = `${
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+        }/api/courses/${params.courseId}`;
+        console.log(
+          `[${new Date().toISOString()} CoursePage] Fetching course from:`,
+          courseUrl
+        );
+        const courseResponse = await fetch(courseUrl, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+        const courseResult: ApiResponse = await courseResponse.json();
+        console.log(
+          `[${new Date().toISOString()} CoursePage] Course response:`,
+          courseResult
         );
         if (!courseResponse.ok) {
-          throw new Error(`HTTP error! Status: ${courseResponse.status}`);
+          throw new Error(
+            `Course fetch failed: ${courseResponse.status} ${
+              courseResult.message || courseResponse.statusText
+            }`
+          );
         }
-        const courseResult: ApiResponse = await courseResponse.json();
         if (!courseResult.success || !courseResult.data) {
           throw new Error(courseResult.message || "Failed to load course");
         }
         setCourse(courseResult.data);
 
-        // Check enrollment status
-        const enrollmentResponse = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-          }/api/courses/${params.courseId}/enrollment`,
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-          }
+        // Fetch enrollment status
+        const enrollmentUrl = `${
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+        }/api/courses/${params.courseId}/enrollment`;
+        console.log(
+          `[${new Date().toISOString()} CoursePage] Fetching enrollment from:`,
+          enrollmentUrl
         );
-        const enrollmentResult = await enrollmentResponse.json();
-        setIsEnrolled(enrollmentResult.isEnrolled || false);
+        const enrollmentResponse = await fetch(enrollmentUrl, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+        const enrollmentResult: EnrollmentResponse =
+          await enrollmentResponse.json();
+        console.log(
+          `[${new Date().toISOString()} CoursePage] Enrollment response:`,
+          enrollmentResult
+        );
+        if (!enrollmentResponse.ok && enrollmentResponse.status !== 404) {
+          throw new Error(
+            `Enrollment fetch failed: ${enrollmentResponse.status} ${
+              enrollmentResult.message || "Unknown error"
+            }`
+          );
+        }
+        setIsEnrolled(enrollmentResult.success && enrollmentResult.isEnrolled);
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : "Unexpected error occurred";
         console.error(`[${new Date().toISOString()} CoursePage] Error:`, error);
+        if (retryCount < 2) {
+          console.log(
+            `[${new Date().toISOString()} CoursePage] Retrying (${
+              retryCount + 1
+            }/2)...`
+          );
+          setTimeout(() => fetchCourseAndEnrollment(retryCount + 1), 1000);
+          return;
+        }
         setError(errorMessage);
-        toast.error(errorMessage);
+        toast.error(`Failed to load course details: ${errorMessage}`);
       } finally {
         setLoading(false);
       }
     };
 
     fetchCourseAndEnrollment();
-  }, [isSignedIn, router, user, params.courseId]);
+  }, [isSignedIn, router, params]);
 
   if (loading) {
     return (
@@ -141,8 +184,6 @@ const CoursePage = () => {
     );
   }
 
-  // const firstTutorial = course.tutors[0]; // First tutor by position
-
   return (
     <div className="p-6">
       <div className="flex items-center gap-x-2 mb-6">
@@ -171,7 +212,7 @@ const CoursePage = () => {
             </div>
           )}
           <p className="text-sm text-slate-600">
-            {sanitizeDescription(course.description)}
+            {sanitizeDescription(course.description) || "No description"}
           </p>
           <Badge variant={course.isPublished ? "default" : "secondary"}>
             {course.isPublished ? "Published" : "Draft"}
@@ -208,7 +249,8 @@ const CoursePage = () => {
                       </p>
                     )}
                     <p className="text-sm text-slate-600 mt-1">
-                      {sanitizeDescription(tutor.description)}
+                      {sanitizeDescription(tutor.description) ||
+                        "No description"}
                     </p>
                     <Badge
                       variant={tutor.isPublished ? "default" : "secondary"}
@@ -216,7 +258,9 @@ const CoursePage = () => {
                       {tutor.isPublished ? "Published" : "Draft"}
                     </Badge>
                     <Link
-                      href={`/tutor/${tutor.id}`}
+                      href={`/faculty/create-faculty/${
+                        course.facultyId || "default-faculty"
+                      }/course/${params.courseId}/tutor/${tutor.id}`}
                       className="inline-block mt-2 text-sm text-blue-600 hover:underline"
                     >
                       View Tutorial

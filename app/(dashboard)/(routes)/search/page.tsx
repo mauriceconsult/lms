@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, ListCheck } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -133,7 +133,7 @@ const SearchPage = () => {
           <Card key={school.id} className="border bg-slate-50">
             <CardHeader>
               <CardTitle className="flex items-center gap-x-2">
-                <IconBadge icon={LayoutDashboard} />
+                <IconBadge icon={ListCheck} />
                 <span>{school.name}</span>
               </CardTitle>
             </CardHeader>
@@ -163,14 +163,22 @@ const SearchPage = () => {
                               />
                             ) : (
                               <div className="w-20 h-20 bg-slate-200 rounded-md flex items-center justify-center">
-                                <span className="text-sm text-slate-500">No Image</span>
+                                <span className="text-sm text-slate-500">
+                                  No Image
+                                </span>
                               </div>
                             )}
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">{faculty.title}</span>
+                                <span className="text-sm font-medium">
+                                  {faculty.title}
+                                </span>
                                 <Badge
-                                  variant={faculty.isPublished ? "default" : "secondary"}
+                                  variant={
+                                    faculty.isPublished
+                                      ? "default"
+                                      : "secondary"
+                                  }
                                 >
                                   {faculty.isPublished ? "Published" : "Draft"}
                                 </Badge>
