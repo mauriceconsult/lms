@@ -1,31 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 26.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 1075 841.89" style="enable-background:new 0 0 1075 841.89;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#021F5F;}
-	.st1{fill:#FDFFFF;}
-	.st2{font-family:'Arial-Black';}
-	.st3{font-size:22.0197px;}
-	.st4{fill:#001F5F;}
-	.st5{font-size:75.2813px;}
-	.st6{font-size:70.379px;}
-	.st7{fill:#FFFFFF;}
-	.st8{font-family:'ArialMT';}
-	.st9{font-size:29.9098px;}
-</style>
-<g>
-	<path class="st0" d="M851.43,318.35c0,0,94.99,3,111.99,75c0,0,28,88.99-100.99,109.99H219.48c0,0-85.99-1.8-107.99-82.39
-		c0,0-7-83.6,103.99-102.59h613.96v-43c0,0-163.99-53-389.97-34s-311.98,96.99-311.98,96.99s-131.99,94.99,54,187.99
-		s465.97,63,465.97,63s141.99-6,272.98-75.99s54-155.99,54-155.99s-33-41-120.99-72L851.43,318.35z"/>
-	<path class="st0" d="M861.18,288.16c0,0-22.38-10.6-40.57-15.43v41.3v4.32H857L861.18,288.16z"/>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" version="1.1" width="1075" height="841.89" viewBox="0 0 1075 841.89">
+<defs>
+<clipPath id="clip_0">
+<path transform="matrix(1,0,0,-1,0,841.89)" d="M0 841.89H1075V0H0Z"/>
+</clipPath>
+</defs>
+<g inkscape:groupmode="layer" inkscape:label="Layer 1">
+<g clip-path="url(#clip_0)">
+<path transform="matrix(1,0,0,-1,851.433,318.35084)" d="M0 0C0 0 94.994-3 111.992-74.995 111.992-74.995 139.991-163.989 10.999-184.988H-631.958C-631.958-184.988-717.952-183.19-739.951-102.594-739.951-102.594-746.95-18.999-635.958 0H-21.999V42.997C-21.999 42.997-185.988 95.994-411.973 76.995-637.958 57.996-723.952-19.999-723.952-19.999-723.952-19.999-855.943-114.992-669.955-207.986-483.968-300.98-203.986-270.982-203.986-270.982-203.986-270.982-61.996-264.982 68.995-194.987 199.987-124.992 122.992-38.997 122.992-38.997 122.992-38.997 89.994 2 2 32.998Z" fill="#021f5f"/>
+<path transform="matrix(1,0,0,-1,861.1849,288.16194)" d="M0 0C0 0-22.379 10.596-40.569 15.427V-25.871-30.189H-4.185Z" fill="#021f5f"/>
 </g>
-<g>
-	<text transform="matrix(1.0263 0 0 1 471.0723 290.923)" class="st1 st2 st3">EST. 2025</text>
+<text fill="#fdffff" xml:space="preserve" transform="matrix(1.0130441 0 -0 .98712387 0 841.89)" font-size="22.306927" font-family="Arial"><tspan y="-558.1537" x="465.00669 481.11228 497.21788 509.91947 517.34768 524.7759 539.6546 554.5333 569.41207">EST. 2025</tspan></text>
+<text fill="#001f5f" xml:space="preserve" transform="matrix(1.3004545 0 -0 .76896199 0 841.89)" font-size="66.743358" font-family="Arial"><tspan y="-610.2186" x="294.93638 320.89955 376.49678 424.6855 468.35566">INSTA</tspan></text>
+<text fill="#021f5f" xml:space="preserve" transform="matrix(1.3212103 0 -0 .75688186 0 841.89)" font-size="179.39749" font-family="Arial"><tspan y="-459.44438" x="134.1218 263.64683 413.08494 562.5231">SKUL</tspan></text>
+<text fill="#ffffff" xml:space="preserve" transform="matrix(1.0154606 0 -0 .98477467 0 841.89)" font-size="30.372227" font-family="ArialMT"><tspan y="-294.73545" x="334.9215 351.80848 368.69544 385.5824 395.69636 412.5833 419.32597 436.21293 453.09986 461.54338 486.8434 503.73039 520.6174 537.50436 554.39138 571.2783 596.5784 613.4654 630.35238 638.7959 647.2394 662.4255 677.6116 692.7977 701.2412 718.1282">Learning management system</tspan></text>
 </g>
-<g>
-	<text transform="matrix(2.3232 0 0 1 232.3805 407.6717)" class="st4 st2 st5">INSTA</text>
-</g>
-<text transform="matrix(1.453 0 0 1 375.2061 478.5744)" class="st0 st2 st6">SKUL</text>
-<text transform="matrix(1.0312 0 0 1 340.0996 551.6418)" class="st7 st8 st9">Learning management system</text>
 </svg>

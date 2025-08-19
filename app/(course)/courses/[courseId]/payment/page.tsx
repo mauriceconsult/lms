@@ -17,8 +17,14 @@ interface FormData {
 interface Course {
   id: string;
   title: string;
-  amount: number;
+  amount: string;
   facultyId: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data?: Course;
+  message?: string;
 }
 
 const TuitionPaymentPage = () => {
@@ -31,34 +37,76 @@ const TuitionPaymentPage = () => {
   const params = useParams<{ courseId: string }>();
 
   useEffect(() => {
-    console.log("Params:", params);
+    console.log(`[${new Date().toISOString()} TuitionPaymentPage] Params:`, params);
+    if (!isSignedIn || !user?.id) {
+      console.error(
+        `[${new Date().toISOString()} TuitionPaymentPage] User not signed in`
+      );
+      router.push("/sign-in");
+      return;
+    }
+
     if (!params.courseId) {
+      console.error(
+        `[${new Date().toISOString()} TuitionPaymentPage] No courseId provided`
+      );
       toast.error("Missing course ID");
       return;
     }
 
-    const fetchCourse = async () => {
+    const fetchCourse = async (retryCount = 0) => {
       try {
         const url = `${
           process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
         }/api/courses/${params.courseId}`;
-        console.log("Fetching course from:", url);
-        const response = await fetch(url, { credentials: "include" });
-        if (!response.ok)
-          throw new Error(
-            `Fetch failed: ${response.status} ${response.statusText}`
-          );
-        const data = await response.json();
-        console.log("Course data:", data);
-        setCourse(data);
-      } catch (error) {
-        console.error("Error fetching course:", error);
-        toast.error("Failed to load course details");
+        console.log(`[${new Date().toISOString()} TuitionPaymentPage] Fetching course from:`, url);
+        const response = await fetch(url, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+        console.log(`[${new Date().toISOString()} TuitionPaymentPage] Fetch status: ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          const errorMessage = `Course fetch failed: ${response.status} ${errorText || response.statusText}`;
+          if (response.status === 404) {
+            throw new Error("Course not found");
+          }
+          if (response.status >= 500 && retryCount < 2) {
+            console.log(`[${new Date().toISOString()} TuitionPaymentPage] Retrying (${retryCount + 1}/2)...`);
+            setTimeout(() => fetchCourse(retryCount + 1), 1000);
+            return;
+          }
+          throw new Error(errorMessage);
+        }
+        const result: ApiResponse = await response.json();
+        console.log(`[${new Date().toISOString()} TuitionPaymentPage] Course response:`, JSON.stringify(result, null, 2));
+        if (!result.success || !result.data) {
+          throw new Error(result.message || "Failed to load course");
+        }
+        const amountNum = Number(result.data.amount);
+        console.log(`[${new Date().toISOString()} TuitionPaymentPage] Parsed amount: ${amountNum}`);
+        if (!result.data.amount || isNaN(amountNum) || amountNum <= 0) {
+          throw new Error(`Course amount is invalid or missing: ${result.data.amount}`);
+        }
+        setCourse(result.data);
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Unexpected error occurred";
+        console.error(
+          `[${new Date().toISOString()} TuitionPaymentPage] Error fetching course:`,
+          error
+        );
+        toast.error(
+          errorMessage.includes("Course not found")
+            ? "The requested course does not exist."
+            : `Failed to load course details: ${errorMessage}`
+        );
       }
     };
 
     fetchCourse();
-  }, [params.courseId]);
+  }, [isSignedIn, user, params, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -67,7 +115,7 @@ const TuitionPaymentPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isSignedIn) {
+    if (!isSignedIn || !user?.id) {
       router.push("/sign-in");
       return;
     }
@@ -75,12 +123,13 @@ const TuitionPaymentPage = () => {
       toast.error("Missing course or faculty information");
       return;
     }
-    if (!formData.msisdn.match(/^256\d{7}$/)) {
-      toast.error("Phone number must be in format 2561234567");
+    if (!formData.msisdn.match(/^256\d{9}$/)) {
+      toast.error("Phone number must be in format 256123456789 (12 digits)");
       return;
     }
-    if (!course?.amount) {
-      toast.error("Course amount not available");
+    const amountNum = Number(course?.amount);
+    if (!course?.amount || isNaN(amountNum) || amountNum <= 0) {
+      toast.error(`Course amount is invalid or missing: ${course?.amount}`);
       return;
     }
 
@@ -95,12 +144,13 @@ const TuitionPaymentPage = () => {
           body: JSON.stringify({
             msisdn: formData.msisdn,
             username: formData.username,
-            userId: user?.id,
-            amount: course.amount,
+            userId: user.id,
+            amount: course.amount, // String for MoMo
           }),
         }
       );
       const result = await response.json();
+      console.log(`[${new Date().toISOString()} TuitionPaymentPage] Tuition creation response:`, JSON.stringify(result, null, 2));
       if (!response.ok || !result.success) {
         throw new Error(result.message || "Failed to create tuition");
       }
@@ -110,10 +160,10 @@ const TuitionPaymentPage = () => {
       const errorMessage =
         error instanceof Error ? error.message : "Unexpected error occurred";
       console.error(
-        `[${new Date().toISOString()} TuitionPaymentPage] Error:`,
+        `[${new Date().toISOString()} TuitionPaymentPage] Error creating tuition:`,
         error
       );
-      toast.error(errorMessage);
+      toast.error(`Failed to create student account: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -129,7 +179,7 @@ const TuitionPaymentPage = () => {
     );
   };
 
-  if (!isSignedIn) {
+  if (!isSignedIn || !user?.id) {
     return <div className="p-6">Please sign in to proceed with payment.</div>;
   }
 
@@ -156,9 +206,9 @@ const TuitionPaymentPage = () => {
                 name="msisdn"
                 value={formData.msisdn}
                 onChange={handleInputChange}
-                placeholder="2561234567"
+                placeholder="256123456789"
                 required
-                pattern="256\d{7}"
+                pattern="256\d{9}"
                 className="mt-1"
                 disabled={tuitionCreated}
               />
@@ -184,7 +234,7 @@ const TuitionPaymentPage = () => {
             ) : (
               <Button
                 type="submit"
-                disabled={loading || !course}
+                disabled={loading || !course || !course.amount || Number(course.amount) <= 0}
                 className="w-full"
               >
                 {loading
