@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
-import Link from "next/link";
+import { CourseCard } from "@/components/course-card";
 
 interface Course {
   id: string;
@@ -18,6 +18,8 @@ interface Course {
   imageUrl: string | null;
   isPublished: boolean;
   tutorId: string | null;
+  amount: string | null;
+  facultyId: string;
 }
 
 interface Faculty {
@@ -70,10 +72,7 @@ const FacultyPage = () => {
           user?.id
         );
         const response = await fetch(
-          `${
-          process.env.NEXT_PUBLIC_API_URL
-          // || "http://localhost:3000"
-          }/api/faculties/${params.facultyId}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/faculties/${params.facultyId}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -96,7 +95,22 @@ const FacultyPage = () => {
           result
         );
         if (result.success && result.data) {
-          setFaculty(result.data);
+          // Normalize imageUrl
+          const facultyData = {
+            ...result.data,
+            imageUrl:
+              result.data.imageUrl && result.data.imageUrl !== ""
+                ? result.data.imageUrl
+                : null,
+            courses: result.data.courses.map((course) => ({
+              ...course,
+              imageUrl:
+                course.imageUrl && course.imageUrl !== ""
+                  ? course.imageUrl
+                  : null,
+            })),
+          };
+          setFaculty(facultyData);
         } else {
           throw new Error(result.message || "Failed to load faculty");
         }
@@ -187,51 +201,32 @@ const FacultyPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {faculty.courses.map((course) => (
-              <Card key={course.id} className="border bg-slate-50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-x-2">
-                    <IconBadge icon={LayoutDashboard} />
-                    <span>{course.title}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    {course.imageUrl ? (
-                      <Image
-                        src={course.imageUrl}
-                        alt={course.title}
-                        width={80}
-                        height={80}
-                        className="rounded-md object-cover"
-                      />
-                    ) : (
-                      <div className="w-20 h-20 bg-slate-200 rounded-md flex items-center justify-center">
-                        <span 
-                        className="text-sm text-slate-500">No Image</span>
-                      </div>
-                    )}
-                    <p className="text-sm text-slate-600 mt-1">
-                      {course.description && course.description.length > 100
-                        ? `${course.description.slice(0, 100)}...`
-                        : course.description || "No description available"}
-                    </p>
-                    <Badge
-                      variant={course.isPublished ? "default" : "secondary"}
-                    >
-                      {course.isPublished ? "Published" : "Draft"}
-                    </Badge>
-                    <Link
-                      href={`/courses/${course.id}`}
-                      className="inline-block mt-2 text-sm text-blue-600 hover:underline"
-                    >
-                      View Course
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
+              <CourseCard
+                key={course.id}
+                id={course.id}
+                facultyId={course.facultyId}
+                title={course.title}
+                imageUrl={course.imageUrl}
+                amount={course.amount}
+                faculty={faculty.title}
+                description={course.description}
+                role={user?.publicMetadata?.role as "admin" | "student" | null}
+              />
             ))}
           </div>
         )}
+        <button
+          onClick={() => {
+            console.log(
+              `[${new Date().toISOString()} FacultyPage] Test navigation to /courses/76d1ed13-eb74-49f3-872f-81ed4fe88ee0`
+            );
+            window.location.href =
+              "/courses/76d1ed13-eb74-49f3-872f-81ed4fe88ee0";
+          }}
+          className="mt-4 p-2 bg-blue-600 text-white rounded"
+        >
+          Test Navigate to Course
+        </button>
       </div>
     </div>
   );

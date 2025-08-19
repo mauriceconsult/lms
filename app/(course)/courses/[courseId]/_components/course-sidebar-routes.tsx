@@ -1,8 +1,8 @@
 "use client";
 
-import { Logo } from "@/app/(dashboard)/_components/logo";
 import { FC } from "react";
-import CourseSidebarRoutes from "./course-sidebar-routes";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 interface ProgressCount {
   course: {
@@ -71,7 +71,7 @@ interface ProgressCount {
   attachments: { id: string; url: string }[] | null;
 }
 
-interface SidebarProps {
+interface CourseSidebarRoutesProps {
   course: {
     id: string;
     title: string;
@@ -106,12 +106,29 @@ interface SidebarProps {
   progressCount: ProgressCount;
 }
 
-const CourseSidebar: FC<SidebarProps> = ({ course, progressCount }) => {
-  console.log(`[${new Date().toISOString()} CourseSidebar] Rendering:`, {
+const CourseSidebarRoutes: FC<CourseSidebarRoutesProps> = ({
+  course,
+  progressCount,
+}) => {
+  const params = useParams<{ courseId: string }>();
+
+  // Calculate progress percentage, excluding course.userProgress
+  const totalItems = [
+    ...(progressCount.tutor?.userProgress || []),
+    ...(progressCount.coursework?.userProgress || []),
+    ...(progressCount.assignment?.userProgress || []),
+  ].length;
+  const completedItems = [
+    ...(progressCount.tutor?.userProgress || []),
+    ...(progressCount.coursework?.userProgress || []),
+    ...(progressCount.assignment?.userProgress || []),
+  ].filter((p) => p.isCompleted).length;
+  const progressPercentage =
+    totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+  console.log(`[${new Date().toISOString()} CourseSidebarRoutes] Rendering:`, {
     courseId: course.id,
     title: course.title,
-    imageUrl: course.imageUrl,
-    facultyId: course.facultyId,
     tutors: course.tutors.map((t) => ({
       id: t.id,
       title: t.title,
@@ -121,6 +138,7 @@ const CourseSidebar: FC<SidebarProps> = ({ course, progressCount }) => {
         isEnrolled: up.isEnrolled,
       })),
     })),
+    progressPercentage,
     progressCount: {
       course: progressCount.course
         ? { id: progressCount.course.id, title: progressCount.course.title }
@@ -146,15 +164,30 @@ const CourseSidebar: FC<SidebarProps> = ({ course, progressCount }) => {
   });
 
   return (
-    <div className="h-full border-r flex flex-col overflow-y-auto bg-white shadow-sm">
-      <div className="p-6">
-        <Logo />
-      </div>
-      <div className="flex flex-col w-full">
-        <CourseSidebarRoutes course={course} progressCount={progressCount} />
-      </div>
+    <div className="flex flex-col space-y-2 p-4">
+      <Link
+        href={`/courses/${params.courseId}`}
+        className="text-sm font-medium text-gray-700 hover:text-blue-600"
+      >
+        Overview
+      </Link>
+      {course.tutors && Array.isArray(course.tutors) ? (
+        course.tutors.map((tutor) => (
+          <div key={tutor.id} className="space-y-1">
+            <Link
+              href={`/courses/${params.courseId}/tutor/${tutor.id}`}
+              className="text-sm font-medium text-gray-700 hover:text-blue-600"
+            >
+              {tutor.title || `Tutorial ${tutor.id}`}
+            </Link>
+          </div>
+        ))
+      ) : (
+        <p className="text-xs text-gray-500">No tutorials available</p>
+      )}
+      <p className="text-xs text-gray-500">Progress: {progressPercentage}%</p>
     </div>
   );
 };
 
-export default CourseSidebar;
+export default CourseSidebarRoutes;
