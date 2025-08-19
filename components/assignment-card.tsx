@@ -39,7 +39,7 @@ export const AssignmentCard = ({
             fill
             className="object-cover"
             alt={title}
-            src={"/mcalogo.png"}
+            src={"/instaskul_logo.svg"}
           />
         </div>
         <div className="flex flex-col pt-2">

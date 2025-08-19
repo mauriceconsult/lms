@@ -253,6 +253,7 @@ model UserProgress {
   @@unique([userId, tutorId])
   @@unique([userId, courseworkId])
   @@index([tutorId, courseworkId])
+  @@index([userId, courseId])
 }
 
 model Noticeboard {

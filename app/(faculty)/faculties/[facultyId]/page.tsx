@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, ListChecks } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -71,7 +71,8 @@ const FacultyPage = () => {
         );
         const response = await fetch(
           `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+          process.env.NEXT_PUBLIC_API_URL
+          // || "http://localhost:3000"
           }/api/faculties/${params.facultyId}`,
           {
             method: "GET",
@@ -153,7 +154,7 @@ const FacultyPage = () => {
       <Card className="border bg-slate-50 mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-x-2">
-            <IconBadge icon={LayoutDashboard} />
+            <IconBadge icon={ListChecks} />
             <span>Faculty Details</span>
           </CardTitle>
         </CardHeader>
@@ -205,7 +206,8 @@ const FacultyPage = () => {
                       />
                     ) : (
                       <div className="w-20 h-20 bg-slate-200 rounded-md flex items-center justify-center">
-                        <span className="text-sm text-slate-500">No Image</span>
+                        <span 
+                        className="text-sm text-slate-500">No Image</span>
                       </div>
                     )}
                     <p className="text-sm text-slate-600 mt-1">

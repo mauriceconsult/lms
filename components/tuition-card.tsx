@@ -26,7 +26,7 @@ export const TuitionCard = ({
             fill
             className="object-cover"
             alt="title"
-            src={"/mcalogo.png"}
+            src={"/instaskul_logo.svg"}
           />
         </div>
         <div className="flex flex-col pt-2">
@@ -38,8 +38,7 @@ export const TuitionCard = ({
             <div className="flex items-center gap-x-1 text-slate-500">
               <IconBadge size={"sm"} icon={BookOpen} />
               <span>
-                {tuitionsLength}{" "}
-                {tuitionsLength === 1 ? "Tuition" : "Tuitions"}
+                {tuitionsLength} {tuitionsLength === 1 ? "Tuition" : "Tuitions"}
               </span>
             </div>
           </div>

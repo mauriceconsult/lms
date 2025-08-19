@@ -4,9 +4,6 @@ import { Attachment } from "@prisma/client";
 interface GetProgressProps {
   userId: string;
   courseId: string;
-  tutorId: string;
-  courseworkId: string;
-  assignmentId: string;
 }
 
 interface GetProgressResult {
@@ -15,24 +12,64 @@ interface GetProgressResult {
     title: string;
     description?: string | null;
     createdAt: Date;
-    amount?: string | null;
-    faculty?: string | null;
+    userProgress: {
+      id: string;
+      userId: string;
+      courseId: string;
+      tutorId?: string | null;
+      courseworkId?: string | null;
+      assignmentId?: string | null;
+      isCompleted: boolean;
+      isEnrolled: boolean;
+    }[];
     attachments: Attachment[];
   } | null;
   tutor: {
     id: string;
-    title: string | null; // Allow null to match schema
+    title: string | null;
+    userProgress: {
+      id: string;
+      userId: string;
+      courseId: string;
+      tutorId: string;
+      courseworkId?: string | null;
+      assignmentId?: string | null;
+      isCompleted: boolean;
+      isEnrolled: boolean;
+    }[];
     attachments: Attachment[];
   } | null;
   coursework: {
     id: string;
     title: string;
+    userProgress: {
+      id: string;
+      userId: string;
+      courseId: string;
+      tutorId?: string | null;
+      courseworkId: string;
+      assignmentId?: string | null;
+      isCompleted: boolean;
+      isEnrolled: boolean;
+    }[];
     attachments: Attachment[];
   } | null;
-  userProgress: {
+  assignment: {
     id: string;
-    userId: string;
-    completed?: boolean;
+    title: string;
+    description?: string | null;
+    createdAt: Date;
+    userProgress: {
+      id: string;
+      userId: string;
+      courseId: string;
+      tutorId?: string | null;
+      courseworkId?: string | null;
+      assignmentId: string;
+      isCompleted: boolean;
+      isEnrolled: boolean;
+    }[];
+    attachments: Attachment[];
   } | null;
   attachments: Attachment[];
 }
@@ -40,209 +77,222 @@ interface GetProgressResult {
 export const getProgress = async ({
   userId,
   courseId,
-  tutorId,
-  courseworkId,
-  assignmentId,
 }: GetProgressProps): Promise<GetProgressResult | { error: string }> => {
   try {
     // Validate inputs
     if (
       !userId ||
       !courseId ||
-      !tutorId ||
-      !courseworkId ||
-      !assignmentId ||
-      [userId, courseId, tutorId, courseworkId, assignmentId].some(
+      [userId, courseId].some(
         (id) => typeof id !== "string" || id.trim() === ""
       )
     ) {
       return { error: "Invalid or missing required parameters" };
     }
 
-    // Fetch data concurrently with included attachments
-    const [course, coursework, tutor, userProgress] =
-      await Promise.all([
-        // db.assignment.findUnique({
-        //   where: {
-        //     userId,
-        //     isPublished: true,
-        //     tutorId,
-        //     id: assignmentId,
-        //   },
-        //   select: {
-        //     id: true,
-        //     title: true,
-        //     attachments: {
-        //       select: {
-        //         id: true,
-        //         // name: true,
-        //         url: true,
-        //         createdAt: true,
-        //         updatedAt: true,
-        //         courseId: true,
-        //         facultyId: true,
-        //         tutorId: true,
-        //         assignmentId: true,
-        //         courseworkId: true,
-        //         noticeboardId: true,
-        //         courseNoticeboardId: true,
-        //         tuitionId: true,
-        //         payrollId: true,
-        //         facultyPayrollId: true,
-        //       },
-        //     },
-        //   },
-        // }),
-        db.course.findUnique({
-          where: {
-            isPublished: true,
-            id: courseId,
-          },
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            createdAt: true,
-            amount: true,
-            faculty: {
-              select: {
-                title: true, // Or name, depending on schema
-              },
-            },
-            attachments: {
-              // Added attachments
-              select: {
-                id: true,
-                // name: true,
-                url: true,
-                createdAt: true,
-                updatedAt: true,
-                courseId: true,
-                facultyId: true,
-                tutorId: true,
-                // assignmentId: true,
-                courseworkId: true,
-                noticeboardId: true,
-                courseNoticeboardId: true,
-                tuitionId: true,
-                payrollId: true,
-                facultyPayrollId: true,
-              },
+    // Fetch data concurrently with included attachments and userProgress
+    const [course, tutors, coursework, assignments] = await Promise.all([
+      db.course.findUnique({
+        where: {
+          id: courseId,
+          isPublished: true,
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          createdAt: true,
+          attachments: {
+            select: {
+              id: true,
+              url: true,
+              createdAt: true,
+              updatedAt: true,
+              courseId: true,
+              facultyId: true,
+              tutorId: true,
+              assignmentId: true,
+              courseworkId: true,
+              noticeboardId: true,
+              courseNoticeboardId: true,
+              tuitionId: true,
+              payrollId: true,
+              facultyPayrollId: true,
             },
           },
-        }),
-        db.coursework.findUnique({
-          where: {
-            userId,
-            id: courseworkId,
-            isPublished: true,
-            courseId,
-          },
-          select: {
-            id: true,
-            title: true,
-            attachments: {
-              select: {
-                id: true,
-                // name: true,
-                url: true,
-                createdAt: true,
-                updatedAt: true,
-                courseId: true,
-                facultyId: true,
-                tutorId: true,
-                // assignmentId: true,
-                courseworkId: true,
-                noticeboardId: true,
-                courseNoticeboardId: true,
-                tuitionId: true,
-                payrollId: true,
-                facultyPayrollId: true,
-              },
+          userProgress: {
+            where: { userId },
+            select: {
+              id: true,
+              userId: true,
+              courseId: true,
+              tutorId: true,
+              courseworkId: true,
+              assignmentId: true,
+              isCompleted: true,
+              isEnrolled: true,
             },
           },
-        }),
-        db.tutor.findUnique({
-          where: {
-            id: tutorId,
-            isPublished: true,
-          },
-          select: {
-            id: true,
-            title: true,
-            attachments: {
-              select: {
-                id: true,
-                // name: true,
-                url: true,
-                createdAt: true,
-                updatedAt: true,
-                courseId: true,
-                facultyId: true,
-                tutorId: true,
-                // assignmentId: true,
-                courseworkId: true,
-                noticeboardId: true,
-                courseNoticeboardId: true,
-                tuitionId: true,
-                payrollId: true,
-                facultyPayrollId: true,
-              },
+        },
+      }),
+      db.tutor.findMany({
+        where: {
+          courseId,
+          isPublished: true,
+        },
+        select: {
+          id: true,
+          title: true,
+          attachments: {
+            select: {
+              id: true,
+              url: true,
+              createdAt: true,
+              updatedAt: true,
+              courseId: true,
+              facultyId: true,
+              tutorId: true,
+              assignmentId: true,
+              courseworkId: true,
+              noticeboardId: true,
+              courseNoticeboardId: true,
+              tuitionId: true,
+              payrollId: true,
+              facultyPayrollId: true,
             },
           },
-        }),
-        db.userProgress.findUnique({
-          where: {
-            userId_tutorId: {
-              userId,
-              tutorId,
+          userProgress: {
+            where: { userId },
+            select: {
+              id: true,
+              userId: true,
+              courseId: true,
+              tutorId: true,
+              courseworkId: true,
+              assignmentId: true,
+              isCompleted: true,
+              isEnrolled: true,
             },
           },
-          select: {
-            id: true,
-            userId: true,
-            isCompleted: true,
+        },
+      }),
+      db.coursework.findMany({
+        where: {
+          courseId,
+          isPublished: true,
+          userId,
+        },
+        select: {
+          id: true,
+          title: true,
+          attachments: {
+            select: {
+              id: true,
+              url: true,
+              createdAt: true,
+              updatedAt: true,
+              courseId: true,
+              facultyId: true,
+              tutorId: true,
+              assignmentId: true,
+              courseworkId: true,
+              noticeboardId: true,
+              courseNoticeboardId: true,
+              tuitionId: true,
+              payrollId: true,
+              facultyPayrollId: true,
+            },
           },
-        }),
-      ]);
+          userProgress: {
+            where: { userId },
+            select: {
+              id: true,
+              userId: true,
+              courseId: true,
+              tutorId: true,
+              courseworkId: true,
+              assignmentId: true,
+              isCompleted: true,
+              isEnrolled: true,
+            },
+          },
+        },
+      }),
+      db.assignment.findMany({
+        where: {
+          // tutorId,
+          isPublished: true,
+          userId,
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          createdAt: true,
+          attachments: {
+            select: {
+              id: true,
+              url: true,
+              createdAt: true,
+              updatedAt: true,
+              courseId: true,
+              facultyId: true,
+              tutorId: true,
+              assignmentId: true,
+              courseworkId: true,
+              noticeboardId: true,
+              courseNoticeboardId: true,
+              tuitionId: true,
+              payrollId: true,
+              facultyPayrollId: true,
+            },
+          },
+          userProgress: {
+            where: { userId },
+            select: {
+              id: true,
+              userId: true,
+              courseId: true,
+              tutorId: true,
+              courseworkId: true,
+              assignmentId: true,
+              isCompleted: true,
+              isEnrolled: true,
+            },
+          },
+        },
+      }),
+    ]);
 
     // Check for missing entities
-    if (!coursework || !course || !tutor) {
-      const missingEntities = [];
-      if (!coursework) missingEntities.push("coursework");
-      if (!course) missingEntities.push("course");
-      // if (!assignment) missingEntities.push("assignment");
-      if (!tutor) missingEntities.push("tutor");
-      return { error: `Missing entities: ${missingEntities.join(", ")}` };
+    if (!course) {
+      return { error: "Course not found" };
     }
 
-    // Combine attachments from assignment, coursework, and tutor
+    // Select the first tutor and coursework for simplicity (or adjust based on your needs)
+    const tutor = tutors[0] || null;
+    const courseworkItem = coursework[0] || null;
+    const assignment = assignments[0] || null;
+
+    // Combine attachments from course, tutor, coursework, and assignment
     const attachments = [
-      // ...(assignment.attachments || []),
-      ...(coursework.attachments || []),
       ...(course.attachments || []),
-      ...(tutor.attachments || []),
+      ...(tutor?.attachments || []),
+      ...(courseworkItem?.attachments || []),
+      ...(assignment?.attachments || []),
     ];
 
     console.debug("[GET_USER_PROGRESS_SUCCESS]", {
       userId,
       courseId,
-      tutorId,
-      courseworkId,
-      assignmentId,
     });
 
     return {
+      course,
       tutor,
-      course: course
-        ? {
-            ...course,
-            faculty: course.faculty?.title || null,
-          }
-        : null,
-      coursework,
+      coursework: courseworkItem,
+      assignment,
       attachments,
-      userProgress,
     };
   } catch (error) {
     console.error("[GET_USER_PROGRESS_ERROR]", {
@@ -250,9 +300,6 @@ export const getProgress = async ({
       stack: error instanceof Error ? error.stack : undefined,
       userId,
       courseId,
-      tutorId,
-      courseworkId,
-      assignmentId,
     });
     return { error: "Failed to fetch progress data" };
   }

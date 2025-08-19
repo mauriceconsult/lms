@@ -1,7 +1,19 @@
+import { auth } from "@clerk/nextjs/server";
 import FacultyNavbar from "./_components/faculty-navbar";
 import FacultySidebar from "./_components/faculty-sidebar";
+import { redirect } from "next/navigation";
 
-const FacultyLayout = ({ children }: { children: React.ReactNode }) => {
+const FacultyLayout = async ({
+  children,
+  // params,
+}: {
+  children: React.ReactNode;
+  // params: { facultyId: string };
+  }) => {
+    const { userId } = await auth();
+    if (!userId) {
+      return redirect("/");
+  }  
   return (
     <div className="h-full">
       <div className="h-[80px] md:pl-56 fixed inset-y-0 w-full z-50">
