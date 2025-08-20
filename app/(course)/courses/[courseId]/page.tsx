@@ -1,313 +1,160 @@
-"use client";
+"use server";
 
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
-import { LayoutDashboard } from "lucide-react";
-import { IconBadge } from "@/components/icon-badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
+import ErrorBoundary from "@/components/error-boundary";
 import { Button } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
-import Image from "next/image";
-import Link from "next/link";
-import { sanitizeDescription } from "@/lib/sanitize";
 
-interface Tutor {
-  id: string;
-  title: string;
-  description: string | null;
-  videoUrl: string | null;
-  isPublished: boolean;
-  position: number;
-}
+export default async function CoursePage({
+  params,
+}: {
+  params: Promise<{ courseId: string }>;
+}) {
+  const { userId } = await auth();
+  if (!userId) {
+    console.log(
+      `[${new Date().toISOString()} CoursePage] No userId, redirecting to /sign-in`
+    );
+    return redirect("/sign-in");
+  }
 
-interface Course {
-  id: string;
-  title: string;
-  description: string | null;
-  imageUrl: string | null;
-  isPublished: boolean;
-  facultyId: string;
-  tutors: Tutor[];
-}
+  const { courseId } = await params;
+  if (!courseId || typeof courseId !== "string") {
+    console.log(
+      `[${new Date().toISOString()} CoursePage] Invalid courseId, redirecting to /`
+    );
+    return redirect("/");
+  }
 
-interface ApiResponse {
-  success: boolean;
-  data?: Course;
-  message?: string;
-}
+  try {
+    // Check enrollment status
+    const enrollment = await db.userProgress.findFirst({
+      where: {
+        userId,
+        courseId,
+        isEnrolled: true,
+      },
+      select: { id: true, tutorId: true },
+    });
 
-interface EnrollmentResponse {
-  success: boolean;
-  isEnrolled: boolean;
-  message?: string;
-}
+    // Fetch first tutor (prioritize free tutors)
+    const firstTutor =
+      (await db.tutor.findFirst({
+        where: { courseId, isPublished: true, isFree: true },
+        select: { id: true, isFree: true },
+        orderBy: { position: "asc" },
+      })) ||
+      (await db.tutor.findFirst({
+        where: { courseId, isPublished: true },
+        select: { id: true, isFree: true },
+        orderBy: { position: "asc" },
+      }));
 
-const CoursePage = () => {
-  const [course, setCourse] = useState<Course | null>(null);
-  const [isEnrolled, setIsEnrolled] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const { isSignedIn } = useUser();
-  const params = useParams<{ courseId: string }>();
-
-  useEffect(() => {
-    console.log(`[${new Date().toISOString()} CoursePage] Params:`, params);
-    if (!isSignedIn) {
-      console.error(
-        `[${new Date().toISOString()} CoursePage] User not signed in`
-      );
-      router.push("/sign-in");
-      return;
-    }
-
-    if (!params.courseId) {
-      console.error(
-        `[${new Date().toISOString()} CoursePage] No courseId provided`
-      );
-      setError("No course ID provided");
-      setLoading(false);
-      return;
-    }
-
-    const fetchCourseAndEnrollment = async (retryCount = 0) => {
-      try {
-        setLoading(true);
-        const courseUrl = `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-        }/api/courses/${params.courseId}`;
+    // Redirect to player page if enrolled or tutor is free
+    if (enrollment || (firstTutor && firstTutor.isFree)) {
+      if (!firstTutor) {
         console.log(
-          `[${new Date().toISOString()} CoursePage] Fetching course from:`,
-          courseUrl
+          `[${new Date().toISOString()} CoursePage] No tutors available for courseId: ${courseId}`
         );
-        const courseResponse = await fetch(courseUrl, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-        });
-        const courseResult: ApiResponse = await courseResponse.json();
-        console.log(
-          `[${new Date().toISOString()} CoursePage] Course response:`,
-          courseResult
-        );
-        if (!courseResponse.ok) {
-          throw new Error(
-            `Course fetch failed: ${courseResponse.status} ${
-              courseResult.message || courseResponse.statusText
-            }`
-          );
-        }
-        if (!courseResult.success || !courseResult.data) {
-          throw new Error(courseResult.message || "Failed to load course");
-        }
-        // Normalize imageUrl and videoUrl
-        const courseData = {
-          ...courseResult.data,
-          imageUrl:
-            courseResult.data.imageUrl && courseResult.data.imageUrl !== ""
-              ? courseResult.data.imageUrl
-              : null,
-          tutors: courseResult.data.tutors.map((tutor) => ({
-            ...tutor,
-            videoUrl:
-              tutor.videoUrl && tutor.videoUrl !== "" ? tutor.videoUrl : null,
-          })),
-        };
-        setCourse(courseData);
-
-        const enrollmentUrl = `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-        }/api/courses/${params.courseId}/enrollment`;
-        console.log(
-          `[${new Date().toISOString()} CoursePage] Fetching enrollment from:`,
-          enrollmentUrl
-        );
-        const enrollmentResponse = await fetch(enrollmentUrl, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-        });
-        const enrollmentResult: EnrollmentResponse =
-          await enrollmentResponse.json();
-        console.log(
-          `[${new Date().toISOString()} CoursePage] Enrollment response:`,
-          enrollmentResult
-        );
-        if (!enrollmentResponse.ok && enrollmentResponse.status !== 404) {
-          throw new Error(
-            `Enrollment fetch failed: ${enrollmentResponse.status} ${
-              enrollmentResult.message || "Unknown error"
-            }`
-          );
-        }
-        setIsEnrolled(enrollmentResult.success && enrollmentResult.isEnrolled);
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Unexpected error occurred";
-        console.error(`[${new Date().toISOString()} CoursePage] Error:`, error);
-        if (retryCount < 2) {
-          console.log(
-            `[${new Date().toISOString()} CoursePage] Retrying (${
-              retryCount + 1
-            }/2)...`
-          );
-          setTimeout(() => fetchCourseAndEnrollment(retryCount + 1), 1000);
-          return;
-        }
-        setError(errorMessage);
-        toast.error(`Failed to load course details: ${errorMessage}`);
-      } finally {
-        setLoading(false);
+        return redirect("/");
       }
-    };
+      // Enroll user for free tutor
+      if (firstTutor.isFree && !enrollment) {
+        const firstCoursework = await db.coursework.findFirst({
+          where: { courseId },
+          select: { id: true },
+        });
+        const firstAssignment = await db.assignment.findFirst({
+          where: { tutorId: firstTutor.id },
+          select: { id: true },
+        });
+        await db.userProgress.create({
+          data: {
+            userId,
+            courseId,
+            tutorId: firstTutor.id,
+            courseworkId: firstCoursework?.id || "",
+            assignmentId: firstAssignment?.id || "",
+            isEnrolled: true,
+            isCompleted: false,
+          },
+        });
+        console.log(
+          `[${new Date().toISOString()} CoursePage] Enrolled user for free tutor:`,
+          {
+            userId,
+            courseId,
+            tutorId: firstTutor.id,
+          }
+        );
+      }
+      console.log(
+        `[${new Date().toISOString()} CoursePage] Redirecting to /tutor/${
+          firstTutor.id
+        }`
+      );
+      return redirect(`/tutor/${firstTutor.id}`);
+    }
 
-    fetchCourseAndEnrollment();
-  }, [isSignedIn, router, params]);
+    // Fetch course details
+    const course = await db.course.findUnique({
+      where: { id: courseId },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        amount: true,
+        facultyId: true,
+      },
+    });
 
-  if (loading) {
+    if (!course) {
+      console.log(
+        `[${new Date().toISOString()} CoursePage] Course not found for courseId: ${courseId}, redirecting to /`
+      );
+      return redirect("/");
+    }
+
+    console.log(`[${new Date().toISOString()} CoursePage] Course response:`, {
+      courseId: course.id,
+      title: course.title,
+      imageUrl: course.imageUrl,
+      amount: course.amount,
+      facultyId: course.facultyId,
+    });
+
     return (
-      <div className="p-6">
-        <h2 className="text-2xl font-medium">Loading...</h2>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <h2 className="text-2xl font-medium">Error</h2>
-        <p>{error}</p>
-      </div>
-    );
-  }
-
-  if (!course) {
-    return (
-      <div className="p-6">
-        <h2 className="text-2xl font-medium">Course Not Found</h2>
-        <p>
-          The requested course does not exist or you do not have access to it.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <ErrorBoundary>
-      <div className="p-6">
-        <div className="flex items-center gap-x-2 mb-6">
-          <IconBadge icon={LayoutDashboard} />
+      <ErrorBoundary>
+        <div className="p-6">
           <h1 className="text-2xl font-medium">{course.title}</h1>
-        </div>
-        <Card className="border bg-slate-50 mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-x-2">
-              <IconBadge icon={LayoutDashboard} />
-              <span>Course Details</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {course.imageUrl ? (
-              <Image
-                src={course.imageUrl}
-                alt={course.title}
-                width={200}
-                height={200}
-                className="rounded-md object-cover"
-              />
-            ) : (
-              <div className="w-[200px] h-[200px] bg-slate-200 rounded-md flex items-center justify-center">
-                <span className="text-sm text-slate-500">No Image</span>
-              </div>
-            )}
-            <p className="text-sm text-slate-600">
-              {sanitizeDescription(course.description) || "No description"}
-            </p>
-            <Badge variant={course.isPublished ? "default" : "secondary"}>
-              {course.isPublished ? "Published" : "Draft"}
-            </Badge>
-          </CardContent>
-        </Card>
-        <div className="space-y-4">
-          <h2 className="text-xl font-medium">Tutorials</h2>
-          {course.tutors.length === 0 ? (
-            <p className="text-sm text-slate-500 italic">
-              No tutorials available
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {course.tutors.map((tutor, index) => (
-                <Card key={tutor.id} className="border bg-slate-50">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-x-2">
-                      <IconBadge icon={LayoutDashboard} />
-                      <span>Tutorial {index + 1}</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      {tutor.videoUrl ? (
-                        <video
-                          controls
-                          src={tutor.videoUrl}
-                          className="w-full h-auto rounded-md"
-                        />
-                      ) : (
-                        <p className="text-sm text-slate-500 italic">
-                          No video available
-                        </p>
-                      )}
-                      <p className="text-sm text-slate-600 mt-1">
-                        {sanitizeDescription(tutor.description) ||
-                          "No description"}
-                      </p>
-                      <Badge
-                        variant={tutor.isPublished ? "default" : "secondary"}
-                      >
-                        {tutor.isPublished ? "Published" : "Draft"}
-                      </Badge>
-                      <Link
-                        href={`/faculty/create-faculty/${
-                          course.facultyId || "default-faculty"
-                        }/course/${params.courseId}/tutor/${tutor.id}`}
-                        className="inline-block mt-2 text-sm text-blue-600 hover:underline"
-                      >
-                        View Tutorial
-                      </Link>
-                      {index === 0 && !isEnrolled && (
-                        <Link href={`/courses/${params.courseId}/payment`}>
-                          <Button className="mt-4 w-full">Course Enroll</Button>
-                        </Link>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          <p className="text-gray-600">{course.description}</p>
+          {course.amount && Number(course.amount) > 0 && (
+            <Button
+              onClick={() => {
+                console.log(
+                  `[${new Date().toISOString()} CoursePage] Navigating to /courses/${courseId}/payment`
+                );
+                window.location.href = `/courses/${courseId}/payment`;
+              }}
+              className="mt-4 bg-blue-600 text-white"
+            >
+              Course Enroll
+            </Button>
           )}
         </div>
-      </div>
-    </ErrorBoundary>
-  );
-};
-
-const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
-  try {
-    return <>{children}</>;
-  } catch (error) {
-    console.error(
-      `[${new Date().toISOString()} CoursePage] Rendering error:`,
-      error
+      </ErrorBoundary>
     );
+  } catch (error) {
+    console.error(`[${new Date().toISOString()} CoursePage] Error:`, error);
     return (
-      <div className="p-6">
-        <h2 className="text-2xl font-medium">Error</h2>
-        <p className="text-red-500">Failed to render course page</p>
-      </div>
+      <ErrorBoundary>
+        <div className="p-6">
+          <h2 className="text-2xl font-medium">Error</h2>
+          <p className="text-red-500">Failed to load course</p>
+        </div>
+      </ErrorBoundary>
     );
   }
-};
-
-export default CoursePage;
+}

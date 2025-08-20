@@ -233,26 +233,25 @@ model Attachment {
 }
 
 model UserProgress {
-  id           String     @id @default(uuid())
+  id           String      @id @default(uuid())
   userId       String
-  tutors       Tutor      @relation(fields: [tutorId], references: [id], onDelete: Cascade)
-  tutorId      String
-  courseworks  Coursework @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
-  courseworkId String
-  courses      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  tutors       Tutor?      @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  tutorId      String?
+  courseworks  Coursework? @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
+  courseworkId String?
+  courses      Course?     @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId     String
-  assignments  Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId String
-  isEnrolled   Boolean    @default(false)
-  isCompleted  Boolean    @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  assignments  Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId String?
+  isEnrolled   Boolean     @default(false)
+  isCompleted  Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
   @@unique([userId, tutorId])
   @@unique([userId, courseworkId])
-  @@index([tutorId, assignmentId])
-  @@index([userId, courseId])
+  @@unique([userId, courseId])
+  @@unique([userId, assignmentId])
+  @@index([courseId, courseworkId, tutorId, assignmentId])
 }
 
 model Noticeboard {
