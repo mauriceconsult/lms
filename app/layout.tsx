@@ -2,17 +2,20 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ToastProvider } from "@/components/providers/toaster-provider";
+import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "InstaSkul",
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
-  },
   description: "IT Consulting & Training Agency",
-  keywords: ["IT", "Consulting", "Agency", "digital courses", "online courses", "education", "Training"],
-  authors: [{ name: "Maurice Consulting Agency" }],
+  keywords: [
+    "IT",
+    "Consulting",
+    "Agency",
+    "digital courses",
+    "online courses",
+    "education",
+    "Training",
+  ],
 };
 
 export default function RootLayout({
@@ -22,10 +25,11 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body>
-          <ToastProvider/>
-          {children}
+      <html lang="en" className="min-h-full">
+        <body className="flex flex-col min-h-full bg-gray-50">
+          <ToastProvider />
+          <main className="flex-grow">{children}</main>
+          <Footer />
         </body>
       </html>
     </ClerkProvider>
