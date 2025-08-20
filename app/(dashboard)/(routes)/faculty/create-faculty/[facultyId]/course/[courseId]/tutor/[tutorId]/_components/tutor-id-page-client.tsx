@@ -82,7 +82,7 @@ export default function TutorIdPageClient({
                 <h2 className="text-xl">Customize your tutor</h2>
               </div>
               <TutorTitleForm
-                initialData={{ title: tutor.title || "" }}
+                initialData={{ title: tutor.title }}
                 facultyId={facultyId}
                 courseId={courseId}
                 tutorId={tutorId}

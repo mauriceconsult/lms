@@ -4,26 +4,18 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import ErrorBoundary from "@/components/error-boundary";
-import { Button } from "@/components/ui/button";
+import EnrollButton from "./_components/enroll-button";
 
-export default async function CoursePage({
-  params,
-}: {
-  params: Promise<{ courseId: string }>;
-}) {
+export default async function CoursePage({ params }: { params: Promise<{ courseId: string }> }) {
   const { userId } = await auth();
   if (!userId) {
-    console.log(
-      `[${new Date().toISOString()} CoursePage] No userId, redirecting to /sign-in`
-    );
+    console.log(`[${new Date().toISOString()} CoursePage] No userId, redirecting to /sign-in`);
     return redirect("/sign-in");
   }
 
   const { courseId } = await params;
   if (!courseId || typeof courseId !== "string") {
-    console.log(
-      `[${new Date().toISOString()} CoursePage] Invalid courseId, redirecting to /`
-    );
+    console.log(`[${new Date().toISOString()} CoursePage] Invalid courseId, redirecting to /`);
     return redirect("/");
   }
 
@@ -39,24 +31,20 @@ export default async function CoursePage({
     });
 
     // Fetch first tutor (prioritize free tutors)
-    const firstTutor =
-      (await db.tutor.findFirst({
-        where: { courseId, isPublished: true, isFree: true },
-        select: { id: true, isFree: true },
-        orderBy: { position: "asc" },
-      })) ||
-      (await db.tutor.findFirst({
-        where: { courseId, isPublished: true },
-        select: { id: true, isFree: true },
-        orderBy: { position: "asc" },
-      }));
+    const firstTutor = await db.tutor.findFirst({
+      where: { courseId, isPublished: true, isFree: true },
+      select: { id: true, isFree: true },
+      orderBy: { position: "asc" },
+    }) || await db.tutor.findFirst({
+      where: { courseId, isPublished: true },
+      select: { id: true, isFree: true },
+      orderBy: { position: "asc" },
+    });
 
     // Redirect to player page if enrolled or tutor is free
     if (enrollment || (firstTutor && firstTutor.isFree)) {
       if (!firstTutor) {
-        console.log(
-          `[${new Date().toISOString()} CoursePage] No tutors available for courseId: ${courseId}`
-        );
+        console.log(`[${new Date().toISOString()} CoursePage] No tutors available for courseId: ${courseId}`);
         return redirect("/");
       }
       // Enroll user for free tutor
@@ -80,20 +68,13 @@ export default async function CoursePage({
             isCompleted: false,
           },
         });
-        console.log(
-          `[${new Date().toISOString()} CoursePage] Enrolled user for free tutor:`,
-          {
-            userId,
-            courseId,
-            tutorId: firstTutor.id,
-          }
-        );
+        console.log(`[${new Date().toISOString()} CoursePage] Enrolled user for free tutor:`, {
+          userId,
+          courseId,
+          tutorId: firstTutor.id,
+        });
       }
-      console.log(
-        `[${new Date().toISOString()} CoursePage] Redirecting to /tutor/${
-          firstTutor.id
-        }`
-      );
+      console.log(`[${new Date().toISOString()} CoursePage] Redirecting to /tutor/${firstTutor.id}`);
       return redirect(`/tutor/${firstTutor.id}`);
     }
 
@@ -111,9 +92,7 @@ export default async function CoursePage({
     });
 
     if (!course) {
-      console.log(
-        `[${new Date().toISOString()} CoursePage] Course not found for courseId: ${courseId}, redirecting to /`
-      );
+      console.log(`[${new Date().toISOString()} CoursePage] Course not found for courseId: ${courseId}, redirecting to /`);
       return redirect("/");
     }
 
@@ -131,17 +110,7 @@ export default async function CoursePage({
           <h1 className="text-2xl font-medium">{course.title}</h1>
           <p className="text-gray-600">{course.description}</p>
           {course.amount && Number(course.amount) > 0 && (
-            <Button
-              onClick={() => {
-                console.log(
-                  `[${new Date().toISOString()} CoursePage] Navigating to /courses/${courseId}/payment`
-                );
-                window.location.href = `/courses/${courseId}/payment`;
-              }}
-              className="mt-4 bg-blue-600 text-white"
-            >
-              Course Enroll
-            </Button>
+            <EnrollButton courseId={courseId} />
           )}
         </div>
       </ErrorBoundary>

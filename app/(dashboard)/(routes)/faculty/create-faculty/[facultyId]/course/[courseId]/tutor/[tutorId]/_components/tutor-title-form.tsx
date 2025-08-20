@@ -23,8 +23,7 @@ const formSchema = z.object({
 });
 
 interface TutorTitleFormProps {
-  initialData: {
-    id: string;
+  initialData: {  
     title: string;
   };
   facultyId: string;
