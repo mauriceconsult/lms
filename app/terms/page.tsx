@@ -18,9 +18,13 @@ export default function TermsPage() {
           © 2025 InstaSkul. All rights reserved.
         </p>
         <p className="text-gray-600 mb-4">
-          By using InstaSkul, you agree to these terms. Users retain copyright
-          over their content but grant InstaSkul a worldwide, non-exclusive,
-          royalty-free license to host and distribute it.
+          InstaSkul’s codebase is licensed under the MIT License (see{" "}
+          <Link href="/LICENSE" className="text-blue-600 hover:underline">
+            LICENSE
+          </Link>
+          ). Users retain copyright over their content but grant InstaSkul a
+          worldwide, non-exclusive, royalty-free license to host and distribute
+          it.
         </p>
         <p className="text-gray-600 mb-4">
           To report copyright infringement, contact{" "}

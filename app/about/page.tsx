@@ -22,12 +22,16 @@ export default function AboutPage() {
         <h1 className="text-4xl font-bold text-gray-900 mb-6">
           About InstaSkul
         </h1>
-        <p className="text-lg text-gray-600 mb-8">
-          InstaSkul is a vibrant Learning Management System (LMS) dedicated to
-          empowering communities through IT consulting and training. Our
-          platform connects educators and learners worldwide, enabling anyone to
-          create, share, and monetize online courses in a collaborative
-          ecosystem that drives social and economic growth.
+        <p className="text-gray-600 mb-8">
+          InstaSkul is open-source under the MIT License, inviting developers to
+          contribute to our mission. Join us at{" "}
+          <Link
+            href="https://github.com/your-org/instaskul"
+            className="text-blue-600 hover:underline"
+          >
+            GitHub
+          </Link>
+          .
         </p>
 
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
