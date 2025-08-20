@@ -4,17 +4,11 @@ export default function Footer() {
   return (
     <footer className="bg-gray-50 border-t py-6 text-center text-gray-500 text-sm">
       <p className="mb-2">
-        InstaSkul empowers communities through IT consulting and online
-        training.{" "}
+        Courses in Engineering, Arts, Social
+        Sciences, Natural Sciences, Business, Health, and Sports to share
+        knowledge globally.{" "}
         <Link href="/about" className="text-blue-600 hover:underline">
           Learn more
-        </Link>{" "}
-        or{" "}
-        <Link
-          href="mailto:beta@instaskul.com"
-          className="text-blue-600 hover:underline"
-        >
-          join our beta
         </Link>
         .
       </p>

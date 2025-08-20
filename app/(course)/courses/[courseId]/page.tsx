@@ -1,162 +1,121 @@
-"use server";
+"use client";
 
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { db } from "@/lib/db";
-import ErrorBoundary from "@/components/error-boundary";
-import EnrollButton from "./_components/enroll-button";
+import { Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
+import CourseNavbar from "./_components/course-navbar";
+import { auth } from "@clerk/nextjs/server";
 
-export default async function CoursePage({
+export default function CoursePage({
   params,
 }: {
   params: Promise<{ courseId: string }>;
 }) {
-  const { userId } = await auth();
-  if (!userId) {
-    console.log(
-      `[${new Date().toISOString()} CoursePage] No userId, redirecting to /sign-in`
-    );
-    return redirect("/sign-in");
-  }
+  const [loading, setLoading] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const router = useRouter();
 
-  const { courseId } = await params;
-  if (!courseId || typeof courseId !== "string") {
-    console.log(
-      `[${new Date().toISOString()} CoursePage] Invalid courseId, redirecting to /`
-    );
-    return redirect("/");
-  }
-
-  try {
-    // Check enrollment status
-    const enrollment = await db.userProgress.findFirst({
-      where: {
-        userId,
-        courseId,
-        isEnrolled: true,
-      },
-      select: { id: true, tutorId: true },
-    });
-
-    // Fetch first tutor (prioritize free tutors)
-    const firstTutor =
-      (await db.tutor.findFirst({
-        where: { courseId, isPublished: true, isFree: true },
-        select: { id: true, isFree: true, videoUrl: true },
-        orderBy: { position: "asc" },
-      })) ||
-      (await db.tutor.findFirst({
-        where: { courseId, isPublished: true },
-        select: { id: true, isFree: true, videoUrl: true },
-        orderBy: { position: "asc" },
-      }));
-
-    // Redirect to player page if enrolled or tutor is free
-    if (enrollment || (firstTutor && firstTutor.isFree)) {
-      if (!firstTutor) {
-        console.log(
-          `[${new Date().toISOString()} CoursePage] No tutors available for courseId: ${courseId}`
-        );
-        return redirect("/");
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const { userId } = await auth();
+      if (!userId) {
+        toast.error("Error, Please sign in.");
+        router.push("/sign-in");
+        return;
       }
-      // Enroll user for free tutor
-      if (firstTutor.isFree && !enrollment) {
-        const firstCoursework = await db.coursework.findFirst({
-          where: { courseId },
-          select: { id: true },
-        });
-        const firstAssignment = await db.assignment.findFirst({
-          where: { tutorId: firstTutor.id },
-          select: { id: true },
-        });
-        await db.userProgress.create({
-          data: {
-            userId,
-            courseId,
-            tutorId: firstTutor.id,
-            courseworkId: firstCoursework?.id || null,
-            assignmentId: firstAssignment?.id || null,
-            isEnrolled: true,
-            isCompleted: false,
-          },
-        });
-        console.log(
-          `[${new Date().toISOString()} CoursePage] Enrolled user for free tutor:`,
-          {
-            userId,
-            courseId,
-            tutorId: firstTutor.id,
-          }
-        );
+
+      const { courseId } = await params;
+      const course = await db.course.findUnique({
+        where: { id: courseId },
+        select: { amount: true, isPublished: true },
+      });
+
+      if (!course) {
+        toast.error("Error, Course not found.");
+        return;
       }
-      console.log(
-        `[${new Date().toISOString()} CoursePage] Redirecting to /tutor/${
-          firstTutor.id
-        }`
+
+      if (!course.isPublished) {
+         toast.error("Error, Course not available.");
+        return;
+      }
+
+      if (!course.amount) {
+         toast.error("Error, Course amount not set.");
+        return;
+      }
+
+      const formattedAmount = course.amount; // Already a string from schema
+      const response = await fetch(
+        `/api/faculties/test-faculty-id/courses/${courseId}/checkout`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            partyId: phoneNumber,
+            amount: formattedAmount,
+          }),
+        }
       );
-      return redirect(`/tutor/${firstTutor.id}`);
-    }
 
-    // Fetch course details
-    const course = await db.course.findUnique({
-      where: { id: courseId },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        imageUrl: true,
-        amount: true,
-        facultyId: true,
-      },
-    });
-
-    if (!course) {
-      console.log(
-        `[${new Date().toISOString()} CoursePage] Course not found for courseId: ${courseId}, redirecting to /`
+      const data = await response.json();
+      if (response.ok && data.success) {
+        toast.success("Payment Successful, You are now enrolled!");
+        if (data.firstTutorId) {
+          router.push(`/tutor/${data.firstTutorId}`);
+        }
+      } else {
+        toast.error( "Payment Failed, Payment error");
+      }
+    } catch (error) {
+      console.error(
+        `[${new Date().toISOString()} CoursePage] Checkout error:`,
+        error
       );
-      return redirect("/");
+      toast.error("Error, An error occurred during payment");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    console.log(`[${new Date().toISOString()} CoursePage] Course response:`, {
-      courseId: course.id,
-      title: course.title,
-      imageUrl: course.imageUrl,
-      amount: course.amount,
-      facultyId: course.facultyId,
-    });
-
-    return (
-      <ErrorBoundary>
-        <div className="p-6 max-w-4xl mx-auto">
-          <h1 className="text-2xl font-medium">{course.title}</h1>
-          <p className="text-gray-600 mt-2">{course.description}</p>
-          {firstTutor?.videoUrl ? (
-            <div className="mt-4">
-              <video
-                className="w-full rounded-md"
-                src={firstTutor.videoUrl}
-                controls
-                poster={course.imageUrl ?? undefined}
-              />
-            </div>
-          ) : (
-            <p className="text-gray-500 mt-4">No preview video available</p>
-          )}
-          {course.amount && Number(course.amount) > 0 && (
-            <EnrollButton courseId={courseId} />
-          )}
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <CourseNavbar />
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <h1 className="text-3xl font-bold mb-6">Course Enrollment</h1>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Pay with MTN MoMo</h2>
+          <input
+            type="text"
+            placeholder="Enter MoMo phone number (e.g., 256123456789)"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="w-full p-2 mb-4 border rounded-md"
+            disabled={loading}
+          />
+          <button
+            onClick={handleCheckout}
+            disabled={loading || !phoneNumber}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin inline" />
+            ) : (
+              "Enroll Now"
+            )}
+          </button>
         </div>
-      </ErrorBoundary>
-    );
-  } catch (error) {
-    console.error(`[${new Date().toISOString()} CoursePage] Error:`, error);
-    return (
-      <ErrorBoundary>
-        <div className="p-6">
-          <h2 className="text-2xl font-medium">Error</h2>
-          <p className="text-red-500">Failed to load course</p>
-        </div>
-      </ErrorBoundary>
-    );
-  }
+        <Link
+          href="/"
+          className="text-blue-600 hover:underline mt-4 inline-block"
+        >
+          Back to Courses
+        </Link>
+      </div>
+    </div>
+  );
 }

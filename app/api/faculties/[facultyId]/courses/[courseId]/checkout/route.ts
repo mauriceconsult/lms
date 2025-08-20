@@ -1,168 +1,185 @@
+"use server";
+
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { Collections } from "mtn-momo";
-import { PartyIdType } from "mtn-momo/lib/common";
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ facultyId: string; courseId: string }> }
 ) {
-  try {
-    const user = await currentUser();
-    if (!user || !user.id || !user.emailAddresses?.[0]?.emailAddress) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+  const { userId } = await auth();
+  if (!userId) {
+    console.log(
+      `[${new Date().toISOString()} CheckoutAPI] Unauthorized: No userId`
+    );
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
 
-    const { facultyId, courseId } = await params;
+  const { facultyId, courseId } = await params;
+  const body = await request.json();
+  const { partyId, amount } = body;
+
+  if (!partyId || !amount) {
+    console.log(
+      `[${new Date().toISOString()} CheckoutAPI] Invalid request: Missing partyId or amount`
+    );
+    return new NextResponse("Invalid request", { status: 400 });
+  }
+
+  // Validate amount as a string representing a positive number
+  if (typeof amount !== "string" || !/^\d+(\.\d{1,2})?$/.test(amount)) {
+    console.log(
+      `[${new Date().toISOString()} CheckoutAPI] Invalid amount format: ${amount} (must be a string like '100.00')`
+    );
+    return new NextResponse("Invalid amount format (e.g., '100.00')", {
+      status: 400,
+    });
+  }
+
+  try {
+    // Verify course and faculty
     const course = await db.course.findUnique({
-      where: {
-        id: courseId,
-        facultyId,
+      where: { id: courseId, facultyId },
+      select: {
+        id: true,
+        amount: true,
         isPublished: true,
+        tutors: {
+          select: { id: true, isPublished: true },
+          orderBy: { position: "asc" },
+          take: 1,
+        },
       },
     });
 
     if (!course) {
+      console.log(
+        `[${new Date().toISOString()} CheckoutAPI] Course not found: ${courseId}`
+      );
       return new NextResponse("Course not found", { status: 404 });
     }
-    if (!course.amount) {
-      return new NextResponse("Course amount not specified", { status: 400 });
-    }
 
-    const { partyId, amount } = await request.json();
-    if (!partyId || amount !== course.amount) {
-      return new NextResponse("Invalid payment details", { status: 400 });
-    }
-
-    const existingTuition = await db.tuition.findUnique({
-      where: {
-        userId_courseId: {
-          userId: user.id,
-          courseId,
-        },
-      },
-    });
-    if (!existingTuition) {
-      return new NextResponse("Tuition record not found", { status: 400 });
-    }
-    if (existingTuition.isPaid) {
-      return new NextResponse("Tuition already paid", { status: 400 });
-    }
-
-    const subscriptionKey = process.env.MOMO_PRIMARY_KEY;
-    const apiKey = process.env.MOMO_API_KEY;
-    const apiUser = process.env.MOMO_API_USER;
-    const targetEnvironment = process.env.MOMO_TARGET_ENVIRONMENT || "sandbox";
-    if (!subscriptionKey || !apiKey || !apiUser) {
-      return new NextResponse("Momo configuration missing", { status: 500 });
-    }
-
-    const collections = new Collections({
-      userId: apiUser,
-      userSecret: apiKey,
-      primaryKey: subscriptionKey,
-      environment: targetEnvironment as "sandbox" | "live",
-    });
-
-    const externalId = `${user.id}-${courseId}`;
-    const payerMessage = `Tuition payment for ${course.title}`;
-    const payeeNote = `Tuition payment for ${course.title}`;
-    const currency = "EUR";
-    const partyIdType: PartyIdType = (process.env.MOMO_PARTY_ID_TYPE ||
-      "MSISDN") as PartyIdType;
-
-    const transactionId = await collections.requestToPay({
-      amount: course.amount,
-      currency,
-      externalId,
-      payer: {
-        partyIdType,
-        partyId,
-      },
-      payerMessage,
-      payeeNote,
-    });
-
-    const transaction = await collections.getTransaction(transactionId);
-    if (transaction.status !== "SUCCESSFUL") {
-      return new NextResponse(
-        `Payment failed: ${transaction.reason || "Unknown error"}`,
-        { status: 400 }
+    if (!course.isPublished) {
+      console.log(
+        `[${new Date().toISOString()} CheckoutAPI] Course not published: ${courseId}`
       );
+      return new NextResponse("Course not published", { status: 400 });
     }
 
-    const firstTutor = await db.tutor.findFirst({
-      where: { courseId, isPublished: true },
-      select: { id: true },
-      orderBy: { position: "asc" },
-    });
-
-    if (!firstTutor) {
-      return new NextResponse("No tutors available for this course", {
-        status: 400,
-      });
+    if (course.amount === null) {
+      console.log(
+        `[${new Date().toISOString()} CheckoutAPI] Course amount is null: ${courseId}`
+      );
+      return new NextResponse("Course amount not set", { status: 400 });
     }
 
-    const firstCoursework = await db.coursework.findFirst({
-      where: { courseId },
-      select: { id: true },
+    // Compare amounts as strings
+    if (course.amount !== amount) {
+      console.log(
+        `[${new Date().toISOString()} CheckoutAPI] Amount mismatch: ${amount} vs ${
+          course.amount
+        }`
+      );
+      return new NextResponse("Amount mismatch", { status: 400 });
+    }
+
+    // Initialize MoMo
+    const collections = Collections({
+      userSecret: process.env.MOMO_COLLECTIONS_USER_SECRET!,
+      userId: process.env.MOMO_COLLECTIONS_USER_ID!,
+      primaryKey: process.env.MOMO_COLLECTIONS_PRIMARY_KEY!,
     });
 
-    const firstAssignment = await db.assignment.findFirst({
-      where: { tutorId: firstTutor.id },
-      select: { id: true },
+    // Request to pay
+    const transactionId = await collections.requestToPay({
+      amount: amount,
+      currency: "EUR", // Sandbox uses EUR
+      externalId: `${userId}-${courseId}`,
+      payer: {
+        partyIdType: "MSISDN",
+        partyId: partyId,
+      },
+      payerMessage: `Payment for course: ${courseId}`,
+      payeeNote: "InstaSkul course enrollment",
     });
-
-    await db.$transaction([
-      db.tuition.update({
-        where: {
-          userId_courseId: {
-            userId: user.id,
-            courseId,
-          },
-        },
-        data: {
-          isPaid: true,
-          isActive: true,
-        },
-      }),
-      db.userProgress.upsert({
-        where: {
-          userId_courseId: {
-            userId: user.id,
-            courseId,
-          },
-        },
-        update: { isEnrolled: true },
-        create: {
-          userId: user.id,
-          courseId,
-          tutorId: firstTutor.id,
-          courseworkId: firstCoursework?.id || null,
-          assignmentId: firstAssignment?.id || null,
-          isEnrolled: true,
-          isCompleted: false,
-        },
-      }),
-    ]);
 
     console.log(
-      `[${new Date().toISOString()} CourseCheckout] Payment successful:`,
-      {
-        userId: user.id,
-        courseId,
-        transactionId,
-        firstTutorId: firstTutor.id,
-      }
+      `[${new Date().toISOString()} CheckoutAPI] MoMo payment initiated`,
+      { transactionId, courseId, userId, amount }
     );
 
-    return NextResponse.json(
-      { success: true, transactionId, firstTutorId: firstTutor.id },
-      { status: 200 }
+    // Poll transaction status
+    let attempts = 0;
+    const maxAttempts = 5;
+    while (attempts < maxAttempts) {
+      await new Promise((resolve) => setTimeout(resolve, 3000)); // Wait 3s
+      const transaction = await collections.getTransaction(transactionId);
+      console.log(
+        `[${new Date().toISOString()} CheckoutAPI] Transaction status`,
+        {
+          transactionId,
+          status: transaction.status,
+          transactionAmount: transaction.amount,
+        }
+      );
+
+      if (transaction.status === "SUCCESSFUL") {
+        // Validate transaction amount matches
+        if (transaction.amount !== amount) {
+          console.log(
+            `[${new Date().toISOString()} CheckoutAPI] Transaction amount mismatch: ${
+              transaction.amount
+            } vs ${amount}`
+          );
+          return new NextResponse("Transaction amount mismatch", {
+            status: 400,
+          });
+        }
+
+        // Update UserProgress
+        await db.userProgress.upsert({
+          where: { userId_courseId: { userId, courseId } },
+          update: { isEnrolled: true },
+          create: { userId, courseId, isEnrolled: true },
+        });
+
+        const firstTutorId =
+          course.tutors.length > 0 ? course.tutors[0].id : null;
+        console.log(
+          `[${new Date().toISOString()} CheckoutAPI] Enrollment successful`,
+          { transactionId, courseId, userId, firstTutorId }
+        );
+
+        return NextResponse.json({
+          success: true,
+          transactionId,
+          firstTutorId,
+        });
+      }
+
+      if (
+        transaction.status === "FAILED" ||
+        transaction.status === "REJECTED"
+      ) {
+        console.log(
+          `[${new Date().toISOString()} CheckoutAPI] Payment failed`,
+          { transactionId, status: transaction.status }
+        );
+        return new NextResponse("Payment failed", { status: 400 });
+      }
+
+      attempts++;
+    }
+
+    console.log(
+      `[${new Date().toISOString()} CheckoutAPI] Payment timeout after ${maxAttempts} attempts`,
+      { transactionId }
     );
+    return new NextResponse("Payment timeout", { status: 408 });
   } catch (error) {
-    console.error(`[${new Date().toISOString()} CourseCheckout] Error:`, error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    console.error(`[${new Date().toISOString()} CheckoutAPI] Error:`, error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
 }

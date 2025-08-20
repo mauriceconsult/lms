@@ -77,6 +77,3 @@ Support: support@instaskul.com
 Beta Testing: beta@instaskul.com
 GitHub Issues: Report bugs or suggest features
 
-## Why MIT License?
-- **For Founders**: Retain copyright while enabling community contributions and commercialization.
-- **For Contributors**: Freely use, modify, and build upon InstaSkul’s code for personal or commercial projects.
