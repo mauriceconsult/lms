@@ -138,6 +138,7 @@ model Course {
   tutors             Tutor[]
   userProgress       UserProgress[]
   courseworks        Coursework[]
+  enrollments        Enrollment[]
   faculty            Faculty?            @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   facultyId          String?
   position           Int?
@@ -147,6 +148,17 @@ model Course {
   updatedAt          DateTime            @updatedAt
 
   @@index([facultyId])
+}
+model Enrollment {
+  id        String   @id @default(uuid())
+  userId    String
+  courseId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
 }
 
 model Tutor {

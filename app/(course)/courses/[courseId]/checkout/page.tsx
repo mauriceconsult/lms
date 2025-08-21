@@ -68,14 +68,24 @@ export default async function CheckoutPage({
       throw new Error("User ID is required");
     }
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/courses/${courseId}/checkout`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      }
-    );
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const response = await fetch(`${apiUrl}/api/courses/${courseId}/checkout`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error(`[${new Date().toISOString()} Checkout] API error:`, {
+        status: response.status,
+        statusText: response.statusText,
+        body: text,
+      });
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}`
+      );
+    }
 
     const result = await response.json();
     if (result.success && result.data.paymentUrl) {

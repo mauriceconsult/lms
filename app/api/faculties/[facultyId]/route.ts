@@ -1,45 +1,39 @@
 // app/api/faculties/[facultyId]/route.ts
-import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
+import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ facultyId: string }> }
 ) {
+  const { facultyId } = await params;
+  const { userId } = await auth();
+
+  if (!userId) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    const { facultyId } = await params;
-
-    const faculty = await db.faculty.findFirst({
-      where: {
-        id: facultyId,
-        userId,
-      },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        imageUrl: true,
-        isPublished: true,
+    const faculty = await db.faculty.findUnique({
+      where: { id: facultyId, isPublished: true },
+      include: {
         courses: {
+          where: { isPublished: true },
           select: {
             id: true,
             title: true,
             description: true,
             imageUrl: true,
+            amount: true,
+            facultyId: true,
             isPublished: true,
-            // tutorId: true,
-          },
-          orderBy: {
-            title: "asc",
+            tutors: {
+              select: {
+                id: true,
+                title: true, // Adjust based on Tutor model fields
+              },
+            },
           },
         },
       },
@@ -47,29 +41,19 @@ export async function GET(
 
     if (!faculty) {
       return NextResponse.json(
-        { success: false, message: "Faculty not found or unauthorized" },
+        { success: false, message: "Faculty not found" },
         { status: 404 }
       );
     }
 
-    console.log(
-      `[${new Date().toISOString()} GET /api/faculties/${facultyId}] Faculty fetched:`,
-      faculty
-    );
-
-    return NextResponse.json({
-      success: true,
-      data: faculty,
-    });
+    return NextResponse.json({ success: true, data: faculty });
   } catch (error) {
     console.error(
-      `[${new Date().toISOString()} GET /api/faculties/${
-        (await params).facultyId
-      }] Error:`,
+      `[${new Date().toISOString()} API] Error fetching faculty:`,
       error
     );
     return NextResponse.json(
-      { success: false, message: "Failed to fetch faculty" },
+      { success: false, message: "Internal server error" },
       { status: 500 }
     );
   }
