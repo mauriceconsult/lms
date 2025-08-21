@@ -53,16 +53,18 @@ model FacultyPayroll {
 }
 
 model Tuition {
-  id          String       @id @default(uuid())
-  userId      String
-  partyId     String?      @db.Text
-  username    String?      @db.Text
-  courseId    String?
-  amount      String?
-  course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  attachments Attachment[]
-  isActive    Boolean      @default(true)
-  isPaid      Boolean      @default(false)
+  id            String       @id @default(uuid())
+  userId        String
+  partyId       String?      @db.Text
+  username      String?      @db.Text
+  courseId      String?
+  amount        String?
+  transactionId String?
+  status        String?
+  course        Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  attachments   Attachment[]
+  isActive      Boolean      @default(true)
+  isPaid        Boolean      @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -149,6 +151,7 @@ model Course {
 
   @@index([facultyId])
 }
+
 model Enrollment {
   id        String   @id @default(uuid())
   userId    String
@@ -156,6 +159,7 @@ model Enrollment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
   @@unique([userId, courseId])
   @@index([userId])
   @@index([courseId])
@@ -259,6 +263,7 @@ model UserProgress {
   isCompleted  Boolean     @default(false)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
+
   @@unique([userId, tutorId])
   @@unique([userId, courseworkId])
   @@unique([userId, courseId])

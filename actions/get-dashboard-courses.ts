@@ -1,10 +1,10 @@
 import { db } from "@/lib/db";
-import { Course, Faculty } from "@prisma/client";
+import { Course, Faculty, Tutor } from "@prisma/client";
 import { getProgress } from "./get-progress";
 
 type CourseWithProgressWithFaculty = Course & {
   faculty: Faculty | null;
-  tutors: { id: string; name: string }[];
+  tutors: Tutor[];
   progress: number | null;
 };
 
@@ -37,7 +37,7 @@ export const getDashboardCourses = async (
 
     const courses: CourseWithProgressWithFaculty[] = await Promise.all(
       purchasedCourses.map(async (tuition) => {
-        const course = tuition.;
+        
         const progress = await getProgress(userId, course.id);
         return {
           ...course,
