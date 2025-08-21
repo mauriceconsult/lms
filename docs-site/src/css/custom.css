@@ -1,0 +1,30 @@
+/* Tailwind CSS for consistency with InstaSkul */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ifm-color-primary: #2563eb;
+  --ifm-color-primary-dark: #1e40af;
+  --ifm-color-primary-darker: #1e3a8a;
+  --ifm-color-primary-darkest: #172554;
+  --ifm-color-primary-light: #3b82f6;
+  --ifm-color-primary-lighter: #60a5fa;
+  --ifm-color-primary-lightest: #93c5fd;
+}
+
+.prose {
+  @apply max-w-none text-gray-600;
+}
+
+.prose h1 {
+  @apply text-4xl font-bold text-gray-900 mb-6;
+}
+
+.prose h2 {
+  @apply text-2xl font-semibold text-gray-800 mb-4;
+}
+
+.prose a {
+  @apply text-blue-600 hover:underline;
+}
