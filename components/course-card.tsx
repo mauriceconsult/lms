@@ -3,16 +3,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Course } from "@prisma/client";
+import { Course, Tuition } from "@prisma/client";
 
 interface CourseCardProps {
   course: Course & {
     tutors: { id: string; title: string }[];
+    tuition: Tuition | null;
+    progress: number | null;
   };
 }
 
 export function CourseCard({ course }: CourseCardProps) {
-  const { id, title, description, imageUrl, amount, tutors } = course;
+  const {
+    id,
+    title,
+    description,
+    imageUrl,
+    amount,
+    tutors,
+    tuition,
+    progress,
+  } = course;
 
   return (
     <div className="border rounded-lg shadow-sm p-4">
@@ -41,6 +52,13 @@ export function CourseCard({ course }: CourseCardProps) {
       </p>
       <p className="text-gray-600 mb-4">
         Price: {amount ? `$${amount}` : "Free"}
+      </p>
+      <p className="text-gray-600 mb-4">
+        Payment Status: {tuition?.status ?? "Not enrolled"}
+      </p>
+      <p className="text-gray-600 mb-4">
+        Progress:{" "}
+        {progress !== null ? `${progress.toFixed(2)}%` : "Not started"}
       </p>
       <Link href={`/courses/${id}`}>
         <Button>View Course</Button>

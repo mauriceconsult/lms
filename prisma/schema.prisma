@@ -66,11 +66,23 @@ model Tuition {
   isActive      Boolean      @default(true)
   isPaid        Boolean      @default(false)
 
+  transId       String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([userId, courseId])
   @@index([courseId])
+}
+model Content {
+  id          String   @id @default(uuid())
+  courseId    String
+  userId      String
+  isCompleted Boolean  @default(false)
+  title       String
+  course      Course   @relation(fields: [courseId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model CourseNoticeboard {
@@ -141,6 +153,7 @@ model Course {
   userProgress       UserProgress[]
   courseworks        Coursework[]
   enrollments        Enrollment[]
+   contents  Content[]
   faculty            Faculty?            @relation(fields: [facultyId], references: [id], onDelete: Cascade)
   facultyId          String?
   position           Int?

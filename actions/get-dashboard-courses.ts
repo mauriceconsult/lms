@@ -1,11 +1,12 @@
 import { db } from "@/lib/db";
-import { Course, Faculty, Tutor } from "@prisma/client";
+import { Course, Faculty, Tuition } from "@prisma/client";
 import { getProgress } from "./get-progress";
 
 type CourseWithProgressWithFaculty = Course & {
   faculty: Faculty | null;
-  tutors: Tutor[];
+  tutors: { id: string; title: string }[];
   progress: number | null;
+  tuition: Tuition | null;
 };
 
 type DashboardCourses = {
@@ -20,7 +21,7 @@ export const getDashboardCourses = async (
     const purchasedCourses = await db.tuition.findMany({
       where: {
         userId,
-        status: "completed", // Only include completed payments
+        status: { in: ["pending", "completed"] },
       },
       select: {
         course: {
@@ -32,27 +33,60 @@ export const getDashboardCourses = async (
             },
           },
         },
+        id: true,
+        userId: true,
+        courseId: true,
+        amount: true,
+        transactionId: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        transId: true,
+        partyId: true, // Added
+        username: true, // Added
+        isActive: true, // Added
+        isPaid: true, // Added
       },
     });
 
     const courses: CourseWithProgressWithFaculty[] = await Promise.all(
-      purchasedCourses.map(async (tuition) => {
-        
-        const progress = await getProgress(userId, course.id);
-        return {
-          ...course,
-          faculty: course.faculty || null,
-          tutors: course.tutors,
-          progress,
-        };
-      })
+      purchasedCourses
+        .filter((tuition) => tuition.course !== null)
+        .map(async (tuition) => {
+          const course = tuition.course!;
+          const progress = await getProgress(userId, course.id);
+          return {
+            ...course,
+            faculty: course.faculty || null,
+            tutors: course.tutors,
+            progress,
+            tuition: {
+              id: tuition.id,
+              userId: tuition.userId,
+              courseId: tuition.courseId,
+              amount: tuition.amount,
+              transactionId: tuition.transactionId,
+              status: tuition.status,
+              createdAt: tuition.createdAt,
+              updatedAt: tuition.updatedAt,
+              transId: tuition.transId,
+              partyId: tuition.partyId,
+              username: tuition.username,
+              isActive: tuition.isActive,
+              isPaid: tuition.isPaid,
+            },
+          };
+        })
     );
 
     const completedCourses = courses.filter(
-      (course) => course.progress === 100
+      (course) =>
+        course.progress === 100 && course.tuition?.status === "completed"
     );
     const coursesInProgress = courses.filter(
-      (course) => course.progress !== null && course.progress < 100
+      (course) =>
+        (course.progress !== null && course.progress < 100) ||
+        course.tuition?.status === "pending"
     );
 
     return {
