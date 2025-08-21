@@ -1,39 +1,70 @@
-"use client";
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Title,
+  Tooltip,
+  Legend,
+  ChartOptions,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 
-import { Card } from "@/components/ui/card";
-import { Bar, ResponsiveContainer, BarChart, XAxis, YAxis } from "recharts";
+ChartJS.register(
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Title,
+  Tooltip,
+  Legend
+);
 
-interface ChartProps {
-  data: {
-    name: string;
-    total: number;
-  }[];
-}
-
-const Chart = ({ data }: ChartProps) => {
-  return (
-    <Card>
-      <ResponsiveContainer width="100%" height={350}>
-        <BarChart data={data}>
-          <XAxis
-            dataKey={"name"}
-            stroke="888888"
-            fontSize={12}
-            tickLine={false}
-            axisLine={false}
-          />
-          <YAxis
-            stroke="888888"
-            fontSize={12}
-            tickLine={false}
-            axisLine={false}
-            tickFormatter={(value) => `$${value}`}
-          />
-          <Bar dataKey={"total"} fill="#0369a1" radius={[4, 4, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
-    </Card>
-  );
+type ChartProps = {
+  data: { name: string; total: number }[];
 };
 
-export default Chart;
+export const Chart = ({ data }: ChartProps) => {
+  const chartData = {
+    labels: data.map((item) => item.name),
+    datasets: [
+      {
+        label: "Revenue by Course ($)",
+        data: data.map((item) => item.total),
+        backgroundColor: ["#4CAF50", "#2196F3", "#FF9800"],
+        borderColor: ["#388E3C", "#1976D2", "#F57C00"],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions: ChartOptions<"bar"> = {
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Revenue ($)",
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Course Title",
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: "top" as const, // Explicitly set to literal type
+      },
+      title: {
+        display: true,
+        text: "Revenue by Course",
+      },
+    },
+  };
+
+  return <Bar data={chartData} options={chartOptions} />;
+};

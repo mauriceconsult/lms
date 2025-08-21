@@ -1,8 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getAnalytics } from "@/actions/get-analytics";
-import DataCard from "./_components/data-card";
-import Chart from "./_components/chart";
+// import DataCard from "./_components/data-card";
+import { Chart } from "./_components/chart";
+import { DataCard } from "./_components/data-card";
 
 
 export default async function FacultyAnalyticsPage() {

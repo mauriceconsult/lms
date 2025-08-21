@@ -1,25 +1,16 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatAmount } from "@/lib/format";
 
-interface DataCardProps {
-  value: number;
+type DataCardProps = {
   label: string;
+  value: number;
   shouldFormat: boolean;
-}
-
-const DataCard = ({ value, label, shouldFormat }: DataCardProps) => {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{label}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">
-          {shouldFormat ? formatAmount(value) : value}
-        </div>
-      </CardContent>
-    </Card>
-  );
 };
 
-export default DataCard;
+export const DataCard = ({ label, value, shouldFormat }: DataCardProps) => {
+  return (
+    <div className="p-4 bg-gray-100 rounded-lg shadow">
+      <h3 className="text-lg font-semibold">{label}</h3>
+      <p className="text-2xl">{shouldFormat ? formatAmount(value) : value}</p>
+    </div>
+  );
+};
