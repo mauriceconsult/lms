@@ -1,5 +1,3 @@
-import { themes as prismThemes } from "prism-react-renderer";
-
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "InstaSkul Documentation",
@@ -17,12 +15,12 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          sidebarPath: "./sidebars.js",
+          sidebarPath: require.resolve("./sidebars.js"),
           routeBasePath: "/",
         },
         blog: false,
         theme: {
-          customCss: "./src/css/custom.css",
+          customCss: require.resolve("./src/css/custom.css"),
         },
       }),
     ],
@@ -105,8 +103,8 @@ const config = {
         copyright: `© ${new Date().getFullYear()} InstaSkul. All rights reserved.`,
       },
       prism: {
-        theme: prismThemes.github,
-        darkTheme: prismThemes.dracula,
+        theme: require("prism-react-renderer/themes/github"),
+        darkTheme: require("prism-react-renderer/themes/dracula"),
       },
     }),
   plugins: [
@@ -123,4 +121,4 @@ const config = {
   ],
 };
 
-export default config;
+module.exports = config;

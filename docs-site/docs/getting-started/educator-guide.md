@@ -1,5 +1,5 @@
 Educator Guide
-InstaSkul empowers underpaid intellectuals in Engineering, Arts, Social Sciences, Natural Sciences, Business, Health, and Sports to share expertise with global learners. This guide explains how to create and publish courses.
+InstaSkul empowers intellectuals in Engineering & Technology, Arts, Social Sciences, Natural Sciences, Business, Health, and Sports to share expertise with global learners. This guide explains how to create and publish courses.
 Creating a Course
 
 Sign In: Log in with Clerk at /sign-in.
@@ -25,7 +25,7 @@ Verify content (videos, assignments) is ready.
 Monetization
 
 Payments are processed via MoMo (/api/faculties/[facultyId]/courses/[courseId]/checkout).
-Set affordable prices to reach average internet seekers.
+Set affordable prices to reach average internet knowledge and skills seekers.
 Track earnings in your dashboard.
 
 Community Engagement
