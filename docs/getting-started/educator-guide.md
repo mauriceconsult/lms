@@ -25,7 +25,7 @@ Verify content (videos, assignments) is ready.
 Monetization
 
 Payments are processed via MoMo (/api/faculties/[facultyId]/courses/[courseId]/checkout).
-Set affordable prices to reach average internet knowledge and skills seekers.
+Set affordable prices to reach average internet seekers.
 Track earnings in your dashboard.
 
 Community Engagement

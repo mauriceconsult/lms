@@ -75,7 +75,7 @@ export default function AboutPage() {
         </h2>
         <p className="text-gray-600 mb-8">
           InstaSkul is a transformative knowledge-sharing ecosystem designed for
-          street-level intellectuals—underpaid and overlooked professionals in
+          street-level intellectuals professionals in
           Engineering & Technology, Arts & Humanities, Social Sciences, Natural
           Sciences, Business & Management, Health Sciences, Sports & Fitness. We
           empower these passionate experts to share their knowledge with average

@@ -4,7 +4,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "InstaSkul Documentation",
   description:
-    "Documentation for InstaSkul, a transformative LMS for intellectuals and knowledge sharing enthusiasts in Engineering, Arts, Social Sciences, Natural Sciences, Business, Health, and Sports.",
+    "Documentation for InstaSkul, a transformative LMS for underpaid intellectuals in Engineering, Arts, Social Sciences, Natural Sciences, Business, Health, and Sports.",
   keywords: [
     "InstaSkul",
     "LMS",
@@ -23,7 +23,7 @@ export default function DocsPage() {
         </h1>
         <p className="text-gray-600 mb-8">
           Welcome to the official documentation for InstaSkul, empowering
-          intellectuals to share knowledge globally. Explore our
+          underpaid intellectuals to share knowledge globally. Explore our
           guides below.
         </p>
 

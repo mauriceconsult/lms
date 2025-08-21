@@ -1,5 +1,5 @@
 Contribution Guidelines
-InstaSkul is an open-source LMS empowering intellectuals and knowledge-sharing enthusiasts. We welcome contributions from developers and educators.
+InstaSkul is an open-source LMS empowering intellectuals. We welcome contributions from developers and educators.
 How to Contribute
 
 Fork the Repository: Fork at GitHub.
