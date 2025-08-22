@@ -3,14 +3,7 @@
 import { VideoPlayer } from "@/app/(course)/courses/[courseId]/(tutor)/tutors/[tutorId]/_components/video-player";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-
-interface Tutor {
-  id: string;
-  title: string;
-  isFree: boolean | null;
-  position: number;
-  playbackId: string | null;
-}
+import { Tutor } from "@/actions/get-dashboard-courses";
 
 interface TutorListProps {
   tutors: Tutor[];
@@ -32,7 +25,7 @@ export default function TutorList({ tutors, courseId, isEnrolled }: TutorListPro
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 text-sm sm:text-base">
       {tutors.map((tutor, index) => {
         const { isLocked, completeOnEnd, nextTutorId } = getTutorStatus(tutor, index);
         return (
@@ -55,11 +48,11 @@ export default function TutorList({ tutors, courseId, isEnrolled }: TutorListPro
               <div className="flex items-center justify-between">
                 <span>{tutor.title}</span>
                 {(tutor.isFree ?? false) ? (
-                  <span className="text-green-500 text-sm">(Free)</span>
+                  <span className="text-green-500 text-xs sm:text-sm">(Free)</span>
                 ) : isLocked ? (
-                  <span className="text-red-500 text-sm">(Locked)</span>
+                  <span className="text-red-500 text-xs sm:text-sm">(Locked)</span>
                 ) : (
-                  <span className="text-blue-500 text-sm">(Unlocked)</span>
+                  <span className="text-blue-500 text-xs sm:text-sm">(Unlocked)</span>
                 )}
               </div>
             </Link>
@@ -78,7 +71,7 @@ export default function TutorList({ tutors, courseId, isEnrolled }: TutorListPro
         );
       })}
       {tutors.length === 0 && (
-        <div className="text-center text-sm text-muted-foreground mt-4">
+        <div className="text-center text-xs sm:text-sm text-muted-foreground mt-4">
           No Tutorials found.
         </div>
       )}

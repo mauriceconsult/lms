@@ -1,190 +1,159 @@
-"use server";
+"use client";
 
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import ErrorBoundary from "@/components/error-boundary";
+import { useAuth } from "@clerk/nextjs";
 import { CourseWithProgressWithFaculty } from "@/actions/get-dashboard-courses";
+import { getCourseData } from "@/actions/get-course-data";
+import ErrorBoundary from "@/components/error-boundary";
 import { VideoPlayer } from "@/app/(course)/courses/[courseId]/(tutor)/tutors/[tutorId]/_components/video-player";
+import { Menu } from "lucide-react";
 import TutorList from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/search/_components/tutors-list";
 import EnrollButton from "./_components/enroll-button";
+import React from "react";
 
-export default async function CoursePage({
-  params,
+export default function CoursePage({
+  params: paramsPromise,
 }: {
   params: Promise<{ courseId: string }>;
 }) {
-  const { userId } = await auth();
-  if (!userId) {
-    console.log(
-      `[${new Date().toISOString()} CoursePage] No userId, redirecting to /sign-in`
-    );
-    return redirect("/sign-in");
-  }
+  const router = useRouter();
+  const { userId } = useAuth();
+  const [course, setCourse] = useState<CourseWithProgressWithFaculty | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const params = React.use(paramsPromise); // Unwrap params with React.use()
 
-  const { courseId } = await params;
-  if (!courseId || typeof courseId !== "string") {
-    console.log(
-      `[${new Date().toISOString()} CoursePage] Invalid courseId, redirecting to /`
-    );
-    return redirect("/");
-  }
+  useEffect(() => {
+    async function fetchCourse() {
+      if (!userId) {
+        console.log(
+          `[${new Date().toISOString()} CoursePage] No userId, redirecting to /sign-in`
+        );
+        router.push("/sign-in");
+        return;
+      }
 
-  try {
-    const course = await db.course.findUnique({
-      where: { id: courseId, isPublished: true },
-      include: {
-        tutors: {
-          select: { id: true, title: true, isFree: true, position: true, playbackId: true },
-          orderBy: { position: "asc" },
-        },
-        faculty: {
-          select: {
-            id: true,
-            title: true,
-            userId: true,
-            description: true,
-            imageUrl: true,
-            position: true,
-            isPublished: true,
-            createdAt: true,
-            updatedAt: true,
-            schoolId: true,
-          },
-        },
-        tuitions: {
-          where: { userId },
-          select: {
-            id: true,
-            userId: true,
-            courseId: true,
-            amount: true,
-            status: true,
-            partyId: true,
-            username: true,
-            transactionId: true,
-            isActive: true,
-            isPaid: true,
-            transId: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
-        userProgress: {
-          where: { userId },
-          select: { isCompleted: true, isEnrolled: true, tutorId: true },
-        },
-      },
-    });
+      const courseData = await getCourseData(params.courseId, userId);
+      if (!courseData) {
+        console.log(
+          `[${new Date().toISOString()} CoursePage] No course data, redirecting to /`
+        );
+        router.push("/");
+        return;
+      }
 
-    if (!course) {
-      console.log(
-        `[${new Date().toISOString()} CoursePage] Course not found for courseId: ${courseId}`
-      );
-      return redirect("/");
+      setCourse(courseData);
     }
+    fetchCourse();
+  }, [params.courseId, userId, router]);
 
-    const totalTutors = course.tutors.length;
-    const completedTutors = course.userProgress.filter((up) => up.isCompleted).length;
-    const progress = totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
-    const isEnrolled = course.userProgress[0]?.isEnrolled || false;
-    const isPaid = course.tuitions[0]?.isPaid || false;
-
-    const courseWithProgress: CourseWithProgressWithFaculty = {
-      ...course,
-      progress,
-      tuition: course.tuitions[0] || null,
-    };
-
-    const firstNonFreeTutor = course.tutors.find((tutor) => !(tutor.isFree ?? false)) || course.tutors[0];
-
-    console.log(`[${new Date().toISOString()} CoursePage] Course response:`, {
-      courseId,
-      title: course.title,
-      isEnrolled,
-      isPaid,
-      progress,
-      tutors: course.tutors.map((t) => ({ id: t.id, title: t.title, isFree: t.isFree })),
-      firstNonFreeTutor: firstNonFreeTutor ? { id: firstNonFreeTutor.id, title: firstNonFreeTutor.title } : null,
-    });
-
+  if (!course) {
     return (
       <ErrorBoundary>
-        <div className="flex min-h-screen bg-gray-50">
-          <div className="w-64 bg-white p-4 border-r">
-            <h2 className="text-xl font-semibold mb-4">Tutorials</h2>
-            <TutorList tutors={course.tutors} courseId={courseId} isEnrolled={isEnrolled} />
+        <div className="p-4 sm:p-6">
+          <h2 className="text-xl sm:text-2xl font-medium">Loading...</h2>
+        </div>
+      </ErrorBoundary>
+    );
+  }
+
+  const isEnrolled = course.userProgress[0]?.isEnrolled || false;
+  const isPaid = course.tuition?.isPaid || false;
+  const firstNonFreeTutor = course.tutors.find((tutor) => !(tutor.isFree ?? false)) || course.tutors[0];
+
+  return (
+    <ErrorBoundary>
+      <div className="flex min-h-screen bg-gray-50">
+        {/* Sidebar */}
+        <div
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-white p-4 border-r transform transition-transform duration-300 ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } sm:transform-none sm:static sm:w-64 sm:block`}
+          id="mobile-sidebar"
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Tutorials</h2>
+            <button
+              className="sm:hidden p-2"
+              onClick={() => {
+                setIsSidebarOpen(false);
+                console.log(`[${new Date().toISOString()} CoursePage] Sidebar closed`);
+              }}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
           </div>
-          <div className="flex-1 p-6">
-            <h1 className="text-3xl font-bold mb-4">{course.title}</h1>
+          <TutorList tutors={course.tutors} courseId={params.courseId} isEnrolled={isEnrolled} />
+        </div>
+        {/* Main Content */}
+        <div className="flex-1 p-4 sm:p-6">
+          <button
+            className="sm:hidden mb-4 p-2 bg-gray-200 rounded-md"
+            onClick={() => {
+              setIsSidebarOpen(true);
+              console.log(`[${new Date().toISOString()} CoursePage] Sidebar opened`);
+            }}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">{course.title}</h1>
+          <div className="mb-4 text-sm sm:text-base">
+            <span className="font-semibold">Description:</span>{" "}
+            {course.description ?? "No description available"}
+          </div>
+          <div className="relative w-full h-40 sm:h-48 mb-4">
+            <Image
+              src={course.imageUrl ?? "/placeholder.png"}
+              alt={`${course.title} image`}
+              fill
+              sizes="(max-width: 640px) 100vw, 50vw"
+              objectFit="cover"
+              className="rounded-md"
+              placeholder="blur"
+              blurDataURL="/placeholder.png"
+            />
+          </div>
+          {firstNonFreeTutor && (
             <div className="mb-4">
-              <span className="font-semibold">Description:</span>{" "}
-              {course.description ?? "No description available"}
-            </div>
-            <div className="relative w-full h-40 mb-4">
-              <Image
-                src={course.imageUrl ?? "/placeholder.png"}
-                alt={`${course.title} image`}
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                objectFit="cover"
-                className="rounded-md"
-                placeholder="blur"
-                blurDataURL="/placeholder.png"
+              <VideoPlayer
+                playbackId={firstNonFreeTutor.playbackId ?? ""}
+                courseId={params.courseId}
+                tutorId={firstNonFreeTutor.id}
+                nextTutorId={course.tutors[course.tutors.findIndex((t) => t.id === firstNonFreeTutor.id) + 1]?.id ?? ""}
+                isLocked={!(firstNonFreeTutor.isFree ?? false) && !isEnrolled}
+                completeOnEnd={!(firstNonFreeTutor.isFree ?? false) && isEnrolled}
+                title={firstNonFreeTutor.title}
               />
             </div>
-            {firstNonFreeTutor && (
-              <div className="mb-4">
-                <VideoPlayer
-                  playbackId={firstNonFreeTutor.playbackId ?? ""}
-                  courseId={courseId}
-                  tutorId={firstNonFreeTutor.id}
-                  nextTutorId={course.tutors[course.tutors.findIndex((t) => t.id === firstNonFreeTutor.id) + 1]?.id ?? ""}
-                  isLocked={!(firstNonFreeTutor.isFree ?? false) && !isEnrolled}
-                  completeOnEnd={!(firstNonFreeTutor.isFree ?? false) && isEnrolled}
-                  title={firstNonFreeTutor.title}
-                />
+          )}
+          {isPaid ? (
+            <div className="space-y-4">
+              <div>
+                <span className="font-semibold">Progress:</span>{" "}
+                {course.progress?.toFixed(2) ?? "0.00"}%
               </div>
-            )}
-            {isPaid ? (
-              <div className="space-y-4">
-                <div>
-                  <span className="font-semibold">Progress:</span>{" "}
-                  {courseWithProgress.progress?.toFixed(2) ?? "0.00"}%
-                </div>
-                <div>
-                  <span className="font-semibold">Payment Status:</span>{" "}
-                  {courseWithProgress.tuition?.status ?? "Not Enrolled"}
-                </div>
-                <div>
-                  <span className="font-semibold">Amount:</span> $
-                  {courseWithProgress.tuition?.amount &&
-                  /^[0-9]+(\.[0-9]{1,2})?$/.test(courseWithProgress.tuition.amount)
-                    ? parseFloat(courseWithProgress.tuition.amount).toFixed(2)
-                    : "0.00"}
-                </div>
-                <div>
-                  <span className="font-semibold">Faculty:</span>{" "}
-                  {courseWithProgress.faculty?.title ?? "No Faculty"}
-                </div>
+              <div>
+                <span className="font-semibold">Payment Status:</span>{" "}
+                {course.tuition?.status ?? "Not Enrolled"}
               </div>
-            ) : (
-              <EnrollButton courseId={courseId} />
-            )}
-          </div>
+              <div>
+                <span className="font-semibold">Amount:</span> $
+                {course.tuition?.amount &&
+                /^[0-9]+(\.[0-9]{1,2})?$/.test(course.tuition.amount)
+                  ? parseFloat(course.tuition.amount).toFixed(2)
+                  : "0.00"}
+              </div>
+              <div>
+                <span className="font-semibold">Faculty:</span>{" "}
+                {course.faculty?.title ?? "No Faculty"}
+              </div>
+            </div>
+          ) : (
+            <EnrollButton courseId={params.courseId} />
+          )}
         </div>
-      </ErrorBoundary>
-    );
-  } catch (error) {
-    console.error(`[${new Date().toISOString()} CoursePage] Error:`, error);
-    return (
-      <ErrorBoundary>
-        <div className="p-6">
-          <h2 className="text-2xl font-medium">Error</h2>
-          <p className="text-red-500">Failed to load course</p>
-        </div>
-      </ErrorBoundary>
-    );
-  }
+      </div>
+    </ErrorBoundary>
+  );
 }
