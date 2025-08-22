@@ -1,68 +1,51 @@
-"use client";
-
-import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Course, Tuition } from "@prisma/client";
+import { CourseWithProgressWithFaculty } from "@/actions/get-dashboard-courses";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 interface CourseCardProps {
-  course: Course & {
-    tutors: { id: string; title: string }[];
-    tuition: Tuition | null;
-    progress: number | null;
-  };
+  course: CourseWithProgressWithFaculty;
 }
 
 export function CourseCard({ course }: CourseCardProps) {
-  const {
-    id,
-    title,
-    description,
-    imageUrl,
-    amount,
-    tutors,
-    tuition,
-    progress,
-  } = course;
+  const { title, progress, tuition, faculty, tutors } = course;
+  const formattedProgress = progress !== null ? progress.toFixed(2) : "0.00";
+  const paymentStatus = tuition?.status ?? "Not Enrolled";
+  const amount = tuition?.amount
+    ? parseFloat(tuition.amount).toFixed(2)
+    : "0.00";
+  const facultyName = faculty?.title ?? "No Faculty";
+  const tutorTitles =
+    tutors.length > 0
+      ? tutors.map((tutor) => tutor.title).join(", ")
+      : "No Tutors";
 
   return (
-    <div className="border rounded-lg shadow-sm p-4">
-      {imageUrl ? (
-        <Image
-          src={imageUrl}
-          alt={title}
-          width={300}
-          height={200}
-          className="rounded-md object-cover mb-4"
-        />
-      ) : (
-        <div className="w-[300px] h-[200px] bg-slate-200 rounded-md flex items-center justify-center mb-4">
-          <span className="text-sm text-slate-500">Image Coming Soon</span>
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <div>
+            <span className="font-semibold">Progress:</span> {formattedProgress}
+            %
+          </div>
+          <Progress value={progress ?? 0} />
+          <div>
+            <span className="font-semibold">Payment Status:</span>{" "}
+            {paymentStatus}
+          </div>
+          <div>
+            <span className="font-semibold">Amount:</span> ${amount}
+          </div>
+          <div>
+            <span className="font-semibold">Faculty:</span> {facultyName}
+          </div>
+          <div>
+            <span className="font-semibold">Tutors:</span> {tutorTitles}
+          </div>
         </div>
-      )}
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-gray-600 mb-4">
-        {description || "No description available."}
-      </p>
-      <p className="text-gray-600 mb-4">
-        Tutors:{" "}
-        {(tutors ?? []).length > 0
-          ? tutors.map((t) => t.title).join(", ")
-          : "None assigned"}
-      </p>
-      <p className="text-gray-600 mb-4">
-        Price: {amount ? `$${amount}` : "Free"}
-      </p>
-      <p className="text-gray-600 mb-4">
-        Payment Status: {tuition?.status ?? "Not enrolled"}
-      </p>
-      <p className="text-gray-600 mb-4">
-        Progress:{" "}
-        {progress !== null ? `${progress.toFixed(2)}%` : "Not started"}
-      </p>
-      <Link href={`/courses/${id}`}>
-        <Button>View Course</Button>
-      </Link>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

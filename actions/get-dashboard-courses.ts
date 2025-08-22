@@ -2,14 +2,14 @@ import { db } from "@/lib/db";
 import { Course, Faculty, Tuition } from "@prisma/client";
 import { getProgress } from "./get-progress";
 
-type CourseWithProgressWithFaculty = Course & {
+export type CourseWithProgressWithFaculty = Course & {
   faculty: Faculty | null;
   tutors: { id: string; title: string }[];
   progress: number | null;
   tuition: Tuition | null;
 };
 
-type DashboardCourses = {
+export type DashboardCourses = {
   completedCourses: CourseWithProgressWithFaculty[];
   coursesInProgress: CourseWithProgressWithFaculty[];
 };
@@ -42,10 +42,10 @@ export const getDashboardCourses = async (
         createdAt: true,
         updatedAt: true,
         transId: true,
-        partyId: true, // Added
-        username: true, // Added
-        isActive: true, // Added
-        isPaid: true, // Added
+        partyId: true,
+        username: true,
+        isActive: true,
+        isPaid: true,
       },
     });
 
@@ -87,6 +87,11 @@ export const getDashboardCourses = async (
       (course) =>
         (course.progress !== null && course.progress < 100) ||
         course.tuition?.status === "pending"
+    );
+
+    console.log(
+      `[${new Date().toISOString()} GET_DASHBOARD_COURSES] Courses:`,
+      JSON.stringify(courses, null, 2)
     );
 
     return {

@@ -1,13 +1,14 @@
 {
-  "name": "lms",
-  "version": "0.1.0",
+  "name": "instaskul-lms",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "test": "jest"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.846.0",
@@ -29,6 +30,7 @@
     "@radix-ui/react-dropdown-menu": "^2.1.2",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-popover": "^1.1.11",
+    "@radix-ui/react-progress": "^1.1.7",
     "@radix-ui/react-scroll-area": "^1.2.6",
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-separator": "^1.1.0",
@@ -94,6 +96,7 @@
   },
   "devDependencies": {
     "@types/accounting": "^0.4.5",
+    "@types/jest": "^30.0.0",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^24.0.13",
     "@types/qs": "^6.14.0",
@@ -102,9 +105,12 @@
     "@types/sanitize-html": "^2.16.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.18",
+    "jest": "^30.0.5",
     "postcss": "^8",
     "prisma": "^6.13.0",
     "tailwindcss": "^3.4.1",
+    "ts-jest": "^29.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
 }
