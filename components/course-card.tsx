@@ -8,11 +8,13 @@ interface CourseCardProps {
 
 export function CourseCard({ course }: CourseCardProps) {
   const { title, progress, tuition, faculty, tutors } = course;
-  const formattedProgress = progress !== null ? progress.toFixed(2) : "0.00";
+  const formattedProgress =
+    typeof progress === "number" ? progress.toFixed(2) : "0.00";
   const paymentStatus = tuition?.status ?? "Not Enrolled";
-  const amount = tuition?.amount
-    ? parseFloat(tuition.amount).toFixed(2)
-    : "0.00";
+  const amount =
+    tuition?.amount && /^[0-9]+(\.[0-9]{1,2})?$/.test(tuition.amount)
+      ? parseFloat(tuition.amount).toFixed(2)
+      : "0.00";
   const facultyName = faculty?.title ?? "No Faculty";
   const tutorTitles =
     tutors.length > 0
