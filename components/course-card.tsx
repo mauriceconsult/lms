@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -28,48 +29,51 @@ export function CourseCard({ course }: CourseCardProps) {
   console.log('CourseCard imageUrl:', { courseId: id, imageUrl });
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>
-          <Link href={`/courses/${id}`} className="hover:underline">
-            {title}
-          </Link>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          <div className="relative w-full h-40">
-            <Image
-              src={courseImage}
-              alt={`${title} image`}
-              fill
-              objectFit="cover"
-              className="rounded-md"
-              placeholder="blur"
-              blurDataURL="/placeholder.png"
-            />
+    <Link
+      href={`/courses/${id}`}
+      className="block"
+      onClick={() => console.log(`[${new Date().toISOString()} CourseCard] Navigating to /courses/${id}`)}
+    >
+      <Card className="w-full max-w-sm hover:shadow-lg transition-shadow">
+        <CardHeader>
+          <CardTitle className="hover:underline">{title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="relative w-full h-40">
+              <Image
+                src={courseImage}
+                alt={`${title} image`}
+                fill
+                sizes="(max-width: 640px) 100vw, 320px"
+                objectFit="cover"
+                className="rounded-md"
+                placeholder="blur"
+                blurDataURL="/placeholder.png"
+              />
+            </div>
+            <div>
+              <span className="font-semibold">Description:</span> {courseDescription}
+            </div>
+            <div>
+              <span className="font-semibold">Progress:</span> {formattedProgress}%
+            </div>
+            <Progress value={progress ?? 0} />
+            <div>
+              <span className="font-semibold">Payment Status:</span> {paymentStatus}
+            </div>
+            <div>
+              <span className="font-semibold">Amount:</span> ${amount}
+            </div>
+            <div>
+              <span className="font-semibold">Faculty:</span> {facultyName}
+            </div>
+            <div>
+              <span className="font-semibold">Tutors:</span> {tutorTitles}
+            </div>
           </div>
-          <div>
-            <span className="font-semibold">Description:</span> {courseDescription}
-          </div>
-          <div>
-            <span className="font-semibold">Progress:</span> {formattedProgress}%
-          </div>
-          <Progress value={progress ?? 0} />
-          <div>
-            <span className="font-semibold">Payment Status:</span> {paymentStatus}
-          </div>
-          <div>
-            <span className="font-semibold">Amount:</span> ${amount}
-          </div>
-          <div>
-            <span className="font-semibold">Faculty:</span> {facultyName}
-          </div>
-          <div>
-            <span className="font-semibold">Tutors:</span> {tutorTitles}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

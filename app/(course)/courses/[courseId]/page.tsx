@@ -6,10 +6,9 @@ import { db } from "@/lib/db";
 import Image from "next/image";
 import ErrorBoundary from "@/components/error-boundary";
 import { CourseWithProgressWithFaculty } from "@/actions/get-dashboard-courses";
+import { VideoPlayer } from "@/app/(course)/courses/[courseId]/(tutor)/tutors/[tutorId]/_components/video-player";
 import TutorList from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/search/_components/tutors-list";
 import EnrollButton from "./_components/enroll-button";
-// import EnrollButton from "@/components/enroll-button";
-// import TutorList from "./_components/tutor-list";
 
 export default async function CoursePage({
   params,
@@ -89,6 +88,8 @@ export default async function CoursePage({
     const totalTutors = course.tutors.length;
     const completedTutors = course.userProgress.filter((up) => up.isCompleted).length;
     const progress = totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
+    const isEnrolled = course.userProgress[0]?.isEnrolled || false;
+    const isPaid = course.tuitions[0]?.isPaid || false;
 
     const courseWithProgress: CourseWithProgressWithFaculty = {
       ...course,
@@ -96,14 +97,16 @@ export default async function CoursePage({
       tuition: course.tuitions[0] || null,
     };
 
-    const isEnrolled = course.userProgress[0]?.isEnrolled || false;
+    const firstNonFreeTutor = course.tutors.find((tutor) => !(tutor.isFree ?? false)) || course.tutors[0];
 
     console.log(`[${new Date().toISOString()} CoursePage] Course response:`, {
       courseId,
       title: course.title,
       isEnrolled,
+      isPaid,
       progress,
       tutors: course.tutors.map((t) => ({ id: t.id, title: t.title, isFree: t.isFree })),
+      firstNonFreeTutor: firstNonFreeTutor ? { id: firstNonFreeTutor.id, title: firstNonFreeTutor.title } : null,
     });
 
     return (
@@ -111,7 +114,7 @@ export default async function CoursePage({
         <div className="flex min-h-screen bg-gray-50">
           <div className="w-64 bg-white p-4 border-r">
             <h2 className="text-xl font-semibold mb-4">Tutorials</h2>
-            <TutorList tutors={course.tutors} courseId={courseId} />
+            <TutorList tutors={course.tutors} courseId={courseId} isEnrolled={isEnrolled} />
           </div>
           <div className="flex-1 p-6">
             <h1 className="text-3xl font-bold mb-4">{course.title}</h1>
@@ -124,13 +127,27 @@ export default async function CoursePage({
                 src={course.imageUrl ?? "/placeholder.png"}
                 alt={`${course.title} image`}
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 objectFit="cover"
                 className="rounded-md"
                 placeholder="blur"
                 blurDataURL="/placeholder.png"
               />
             </div>
-            {isEnrolled ? (
+            {firstNonFreeTutor && (
+              <div className="mb-4">
+                <VideoPlayer
+                  playbackId={firstNonFreeTutor.playbackId ?? ""}
+                  courseId={courseId}
+                  tutorId={firstNonFreeTutor.id}
+                  nextTutorId={course.tutors[course.tutors.findIndex((t) => t.id === firstNonFreeTutor.id) + 1]?.id ?? ""}
+                  isLocked={!(firstNonFreeTutor.isFree ?? false) && !isEnrolled}
+                  completeOnEnd={!(firstNonFreeTutor.isFree ?? false) && isEnrolled}
+                  title={firstNonFreeTutor.title}
+                />
+              </div>
+            )}
+            {isPaid ? (
               <div className="space-y-4">
                 <div>
                   <span className="font-semibold">Progress:</span>{" "}

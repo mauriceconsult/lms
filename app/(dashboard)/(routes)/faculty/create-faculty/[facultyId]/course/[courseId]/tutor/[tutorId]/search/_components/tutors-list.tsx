@@ -3,7 +3,6 @@
 import { VideoPlayer } from "@/app/(course)/courses/[courseId]/(tutor)/tutors/[tutorId]/_components/video-player";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
 
 interface Tutor {
   id: string;
@@ -16,37 +15,18 @@ interface Tutor {
 interface TutorListProps {
   tutors: Tutor[];
   courseId: string;
+  isEnrolled: boolean;
 }
 
-export default function TutorList({ tutors, courseId }: TutorListProps) {
+export default function TutorList({ tutors, courseId, isEnrolled }: TutorListProps) {
   const searchParams = useSearchParams();
   const selectedTutorId = searchParams.get("tutorId");
-  const [enrollment, setEnrollment] = useState<{ isEnrolled: boolean } | null>(null);
-
-  useEffect(() => {
-    async function fetchEnrollment() {
-      try {
-        const response = await fetch(`/api/courses/${courseId}/enrollment`);
-        if (response.ok) {
-          const data = await response.json();
-          setEnrollment(data);
-        } else {
-          console.error(`[${new Date().toISOString()} TutorList] Failed to fetch enrollment`);
-          setEnrollment({ isEnrolled: false });
-        }
-      } catch (error) {
-        console.error(`[${new Date().toISOString()} TutorList] Error fetching enrollment:`, error);
-        setEnrollment({ isEnrolled: false });
-      }
-    }
-    fetchEnrollment();
-  }, [courseId]);
 
   const getTutorStatus = (tutor: Tutor, index: number) => {
     const nextTutor = tutors[index + 1];
     return {
-      isLocked: !(tutor.isFree ?? false) && !(enrollment?.isEnrolled ?? false),
-      completeOnEnd: !(tutor.isFree ?? false) && (enrollment?.isEnrolled ?? false),
+      isLocked: !(tutor.isFree ?? false) && !isEnrolled,
+      completeOnEnd: !(tutor.isFree ?? false) && isEnrolled,
       nextTutorId: nextTutor?.id ?? null,
     };
   };
@@ -58,12 +38,32 @@ export default function TutorList({ tutors, courseId }: TutorListProps) {
         return (
           <div key={tutor.id} className="space-y-2">
             <Link
-              href={`/courses/${courseId}?tutorId=${tutor.id}`}
-              className={`block p-2 rounded-md ${selectedTutorId === tutor.id ? "bg-blue-100" : "hover:bg-gray-100"}`}
+              href={isLocked ? "#" : `/courses/${courseId}?tutorId=${tutor.id}`}
+              className={`block p-2 rounded-md ${
+                selectedTutorId === tutor.id
+                  ? "bg-blue-100"
+                  : isLocked
+                  ? "bg-gray-200 cursor-not-allowed"
+                  : "hover:bg-gray-100"
+              }`}
+              onClick={() =>
+                isLocked
+                  ? console.log(`[${new Date().toISOString()} TutorList] Locked tutor clicked: ${tutor.id}`)
+                  : console.log(`[${new Date().toISOString()} TutorList] Navigating to tutor: ${tutor.id}`)
+              }
             >
-              {tutor.title} {(tutor.isFree ?? false) && <span className="text-green-500 text-sm">(Free)</span>}
+              <div className="flex items-center justify-between">
+                <span>{tutor.title}</span>
+                {(tutor.isFree ?? false) ? (
+                  <span className="text-green-500 text-sm">(Free)</span>
+                ) : isLocked ? (
+                  <span className="text-red-500 text-sm">(Locked)</span>
+                ) : (
+                  <span className="text-blue-500 text-sm">(Unlocked)</span>
+                )}
+              </div>
             </Link>
-            {selectedTutorId === tutor.id && (
+            {selectedTutorId === tutor.id && !isLocked && (
               <VideoPlayer
                 playbackId={tutor.playbackId ?? ""}
                 courseId={courseId}

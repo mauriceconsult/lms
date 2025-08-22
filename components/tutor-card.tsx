@@ -24,7 +24,7 @@ export const TutorCard = ({
             fill
             className="object-cover"
             alt="title"
-            src={"/mcalog.png"}
+            src={"/instaskul_logo.svg"}
           />
         </div>
         <div className="flex flex-col pt-2">
