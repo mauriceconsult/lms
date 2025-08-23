@@ -12,7 +12,7 @@ export interface CourseWithProgressWithFaculty extends Course {
   faculty: Faculty | null;
   tutors: Tutor[];
   progress: number | null;
-  tuition: (Omit<Tuition, "amount"> & { amount: number | null }) | null;
+  tuition: (Omit<Tuition, "amount"> & { amount: string | null }) | null;
   userProgress: {
     isCompleted: boolean;
     isEnrolled: boolean;

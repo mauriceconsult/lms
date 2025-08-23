@@ -1,11 +1,12 @@
 "use server";
 
+import { CourseWithProgressWithAdmin } from "@/app/(eduplat)/types/course";
 import { db } from "@/lib/db";
-import { CourseWithProgressWithFaculty } from "@/types/course";
+// import { CourseWithProgressWithAdmin } from "@/types/course";
 
 export async function getDashboardCourses(userId: string): Promise<{
-  completedCourses: CourseWithProgressWithFaculty[];
-  coursesInProgress: CourseWithProgressWithFaculty[];
+  completedCourses: CourseWithProgressWithAdmin[];
+  coursesInProgress: CourseWithProgressWithAdmin[];
 }> {
   if (!userId) {
     console.log(
@@ -15,6 +16,7 @@ export async function getDashboardCourses(userId: string): Promise<{
   }
 
   try {
+    console.time("getDashboardCoursesQuery"); // Static label
     const courses = await db.course.findMany({
       where: { isPublished: true },
       select: {
@@ -54,7 +56,7 @@ export async function getDashboardCourses(userId: string): Promise<{
             id: true,
             userId: true,
             courseId: true,
-            amount: true, // Float? maps to number | null
+            amount: true,
             status: true,
             partyId: true,
             username: true,
@@ -73,15 +75,16 @@ export async function getDashboardCourses(userId: string): Promise<{
       },
       orderBy: { position: "asc" },
     });
+    console.timeEnd("getDashboardCoursesQuery"); // Match static label
 
-    const coursesWithProgress: CourseWithProgressWithFaculty[] = courses.map((course) => {
+    const coursesWithProgress: CourseWithProgressWithAdmin[] = courses.map((course) => {
       const totalTutors = course.tutors.length;
       const completedTutors = course.userProgress.filter((up) => up.isCompleted).length;
       const progress = totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
       const tuition = course.tuitions[0]
         ? {
             ...course.tuitions[0],
-            amount: course.tuitions[0].amount != null ? Number(course.tuitions[0].amount) : null,
+            amount: course.tuitions[0].amount,
           }
         : null;
       return {
@@ -89,6 +92,7 @@ export async function getDashboardCourses(userId: string): Promise<{
         progress,
         tuition,
         userProgress: course.userProgress,
+        admin: course.faculty,
       };
     });
 

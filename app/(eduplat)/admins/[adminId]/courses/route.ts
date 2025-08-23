@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ facultyId: string }> }
+  { params }: { params: Promise<{ adminId: string }> }
 ) {
   const { userId } = await auth();
   if (!userId) {
@@ -16,7 +16,7 @@ export async function POST(
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const { facultyId } = await params;
+  const { adminId } = await params;
   const body = await request.json();
   const { title, description, imageUrl, amount, isPublished } = body;
 
@@ -55,16 +55,16 @@ export async function POST(
   }
 
   try {
-    // Verify faculty exists
+    // Verify faculty exists (mapped as admin)
     const faculty = await db.faculty.findUnique({
-      where: { id: facultyId },
+      where: { id: adminId },
     });
 
     if (!faculty) {
       console.log(
-        `[${new Date().toISOString()} CourseCreateAPI] Faculty not found: ${facultyId}`
+        `[${new Date().toISOString()} CourseCreateAPI] Faculty not found: ${adminId}`
       );
-      return new NextResponse("Faculty not found", { status: 404 });
+      return new NextResponse("Admin not found", { status: 404 });
     }
 
     const course = await db.course.create({
@@ -72,8 +72,8 @@ export async function POST(
         title,
         description,
         imageUrl,
-        amount: amount || null, // Allow null for drafts
-        facultyId,
+        amount, // Keep as string
+        facultyId: adminId,
         userId,
         isPublished: isPublished || false,
         publishDate: isPublished ? new Date() : null,
@@ -82,7 +82,7 @@ export async function POST(
 
     console.log(
       `[${new Date().toISOString()} CourseCreateAPI] Course created`,
-      { courseId: course.id, facultyId, userId }
+      { courseId: course.id, adminId, userId }
     );
 
     return NextResponse.json({ success: true, course });

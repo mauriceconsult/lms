@@ -3,39 +3,40 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { CourseWithProgressWithFaculty } from "@/actions/get-dashboard-courses";
-import { CourseCard } from "@/components/course-card";
+import { CourseWithProgressWithAdmin } from "@/actions/get-dashboard-courses";
+import { CourseCard } from "@/app/(eduplat)/_components/course-card"; // Updated path
 import ErrorBoundary from "@/components/error-boundary";
 
-export default async function FacultyPage({
+export default async function AdminPage({
   params,
 }: {
-  params: Promise<{ facultyId: string }>;
+  params: Promise<{ adminId: string }>;
 }) {
   const { userId } = await auth();
   if (!userId) {
     console.log(
-      `[${new Date().toISOString()} FacultyPage] No userId, redirecting to /sign-in`
+      `[${new Date().toISOString()} AdminPage] No userId, redirecting to /sign-in`
     );
     return redirect("/sign-in");
   }
 
-  const { facultyId } = await params;
-  if (!facultyId || typeof facultyId !== "string") {
+  const { adminId } = await params;
+  if (!adminId || typeof adminId !== "string") {
     console.log(
-      `[${new Date().toISOString()} FacultyPage] Invalid facultyId, redirecting to /`
+      `[${new Date().toISOString()} AdminPage] Invalid adminId, redirecting to /`
     );
     return redirect("/");
   }
 
   try {
-    const faculty = await db.faculty.findUnique({
-      where: { id: facultyId, isPublished: true },
+    console.time(`[${new Date().toISOString()} AdminPage] Query time`);
+    const admin = await db.admin.findUnique({
+      where: { id: adminId, isPublished: true },
       include: {
         courses: {
           where: { isPublished: true },
           include: {
-            faculty: {
+            admin: {
               select: {
                 id: true,
                 title: true,
@@ -50,7 +51,8 @@ export default async function FacultyPage({
               },
             },
             tutors: {
-              select: { id: true, title: true, isFree: true },
+              select: { id: true, title: true, isFree: true, position: true, playbackId: true },
+              orderBy: { position: "asc" },
             },
             tuitions: {
               where: { userId },
@@ -72,50 +74,64 @@ export default async function FacultyPage({
             },
             userProgress: {
               where: { userId },
-              select: { isCompleted: true, isEnrolled: true },
+              select: { isCompleted: true, isEnrolled: true, tutorId: true },
             },
           },
           orderBy: { position: "asc" },
         },
       },
     });
+    console.timeEnd(`[${new Date().toISOString()} AdminPage] Query time`);
 
-    if (!faculty) {
+    if (!admin) {
       console.log(
-        `[${new Date().toISOString()} FacultyPage] Faculty not found for facultyId: ${facultyId}`
+        `[${new Date().toISOString()} AdminPage] Admin not found for adminId: ${adminId}`
       );
       return redirect("/");
     }
 
-    const courses: CourseWithProgressWithFaculty[] = faculty.courses.map((course) => {
+    const courses: CourseWithProgressWithAdmin[] = admin.courses.map((course) => {
       const totalTutors = course.tutors.length;
       const completedTutors = course.userProgress.filter((up) => up.isCompleted).length;
       const progress = totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
+      const tuition = course.tuitions[0]
+        ? {
+            ...course.tuitions[0],
+            amount: course.tuitions[0].amount != null ? Number(course.tuitions[0].amount) : null,
+          }
+        : null;
       return {
         ...course,
         progress,
-        tuition: course.tuitions[0] || null,
+        tuition,
+        userProgress: course.userProgress,
       };
     });
 
-    console.log(`[${new Date().toISOString()} FacultyPage] Faculty response:`, {
-      facultyId,
-      title: faculty.title,
+    console.log(`[${new Date().toISOString()} AdminPage] Admin response:`, {
+      adminId,
+      title: admin.title,
       courses: courses.map((c) => ({ id: c.id, title: c.title, progress: c.progress })),
     });
 
     return (
       <ErrorBoundary>
         <div className="p-6">
-          <h1 className="text-3xl font-bold mb-4">{faculty.title}</h1>
+          <h1 className="text-3xl font-bold mb-4">{admin.title}</h1>
           <div className="mb-4">
             <span className="font-semibold">Description:</span>{" "}
-            {faculty.description ?? "No description available"}
+            {admin.description ?? "No description available"}
           </div>
           <h2 className="text-2xl font-semibold mb-4">Courses</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {courses.map((course) => (
-              <CourseCard key={course.id} course={course} />
+              <CourseCard
+                key={course.id}
+                course={{
+                  ...course,
+                  admin: course.admin ?? null, // Ensure admin is passed
+                }}
+              />
             ))}
           </div>
           {courses.length === 0 && (
@@ -127,12 +143,12 @@ export default async function FacultyPage({
       </ErrorBoundary>
     );
   } catch (error) {
-    console.error(`[${new Date().toISOString()} FacultyPage] Error:`, error);
+    console.error(`[${new Date().toISOString()} AdminPage] Error:`, error);
     return (
       <ErrorBoundary>
         <div className="p-6">
           <h2 className="text-2xl font-medium">Error</h2>
-          <p className="text-red-500">Failed to load faculty</p>
+          <p className="text-red-500">Failed to load admin</p>
         </div>
       </ErrorBoundary>
     );
