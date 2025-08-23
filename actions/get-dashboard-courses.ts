@@ -1,53 +1,109 @@
-export interface Tutor {
-  id: string;
-  title: string;
-  isFree: boolean | null;
-  position: number;
-  playbackId: string | null;
-}
+"use server";
 
-export interface CourseWithProgressWithFaculty {
-  id: string;
-  title: string;
-  description: string | null;
-  imageUrl: string | null;
-  position: number | null;
-  isPublished: boolean;
-  facultyId: string | null; // Changed to allow null
-  faculty: {
-    id: string;
-    title: string;
-    userId: string;
-    description: string | null;
-    imageUrl: string | null;
-    position: number | null;
-    isPublished: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    schoolId: string | null;
-  } | null;
-  tutors: Tutor[];
-  progress: number | null;
-  tuition: {
-    id: string;
-    userId: string;
-    courseId: string | null;
-    amount: string | null;
-    status: string | null;
-    partyId: string | null;
-    username: string | null;
-    transactionId: string | null;
-    isActive: boolean;
-    isPaid: boolean;
-    transId: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-  } | null;
-  userProgress: {
-    isCompleted: boolean;
-    isEnrolled: boolean;
-    tutorId: string | null;
-  }[];
-  createdAt: Date;
-  updatedAt: Date;
-};
+import { db } from "@/lib/db";
+import { CourseWithProgressWithFaculty } from "@/types/course";
+
+export async function getDashboardCourses(userId: string): Promise<{
+  completedCourses: CourseWithProgressWithFaculty[];
+  coursesInProgress: CourseWithProgressWithFaculty[];
+}> {
+  if (!userId) {
+    console.log(
+      `[${new Date().toISOString()} getDashboardCourses] No userId, returning empty arrays`
+    );
+    return { completedCourses: [], coursesInProgress: [] };
+  }
+
+  try {
+    const courses = await db.course.findMany({
+      where: { isPublished: true },
+      select: {
+        id: true,
+        userId: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        amount: true,
+        position: true,
+        isPublished: true,
+        facultyId: true,
+        publishDate: true,
+        createdAt: true,
+        updatedAt: true,
+        faculty: {
+          select: {
+            id: true,
+            title: true,
+            userId: true,
+            description: true,
+            imageUrl: true,
+            position: true,
+            isPublished: true,
+            createdAt: true,
+            updatedAt: true,
+            schoolId: true,
+          },
+        },
+        tutors: {
+          select: { id: true, title: true, isFree: true, position: true, playbackId: true },
+          orderBy: { position: "asc" },
+        },
+        tuitions: {
+          where: { userId },
+          select: {
+            id: true,
+            userId: true,
+            courseId: true,
+            amount: true, // Float? maps to number | null
+            status: true,
+            partyId: true,
+            username: true,
+            transactionId: true,
+            isActive: true,
+            isPaid: true,
+            transId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+        userProgress: {
+          where: { userId },
+          select: { isCompleted: true, isEnrolled: true, tutorId: true },
+        },
+      },
+      orderBy: { position: "asc" },
+    });
+
+    const coursesWithProgress: CourseWithProgressWithFaculty[] = courses.map((course) => {
+      const totalTutors = course.tutors.length;
+      const completedTutors = course.userProgress.filter((up) => up.isCompleted).length;
+      const progress = totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
+      const tuition = course.tuitions[0]
+        ? {
+            ...course.tuitions[0],
+            amount: course.tuitions[0].amount != null ? Number(course.tuitions[0].amount) : null,
+          }
+        : null;
+      return {
+        ...course,
+        progress,
+        tuition,
+        userProgress: course.userProgress,
+      };
+    });
+
+    const completedCourses = coursesWithProgress.filter((course) => course.progress === 100);
+    const coursesInProgress = coursesWithProgress.filter((course) => course.progress !== 100);
+
+    console.log(`[${new Date().toISOString()} getDashboardCourses] Courses response:`, {
+      userId,
+      completedCourses: completedCourses.map((c) => ({ id: c.id, title: c.title, progress: c.progress })),
+      coursesInProgress: coursesInProgress.map((c) => ({ id: c.id, title: c.title, progress: c.progress })),
+    });
+
+    return { completedCourses, coursesInProgress };
+  } catch (error) {
+    console.error(`[${new Date().toISOString()} getDashboardCourses] Error:`, error);
+    return { completedCourses: [], coursesInProgress: [] };
+  }
+}
