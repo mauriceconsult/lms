@@ -1,10 +1,11 @@
+// app/(eduplat)/admins/[adminId]/courses/page.tsx
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { CourseWithProgressWithAdmin } from "@/actions/get-dashboard-courses";
-import { CourseCard } from "@/app/(eduplat)/_components/course-card"; // Updated path
+import { CourseCard } from "@/app/(eduplat)/_components/course-card";
 import ErrorBoundary from "@/components/error-boundary";
 
 export default async function AdminPage({
@@ -51,7 +52,12 @@ export default async function AdminPage({
               },
             },
             tutors: {
-              select: { id: true, title: true, isFree: true, position: true, playbackId: true },
+              include: {
+                course: true,
+                attachments: {
+                  select: { id: true },
+                },
+              },
               orderBy: { position: "asc" },
             },
             tuitions: {
@@ -74,7 +80,18 @@ export default async function AdminPage({
             },
             userProgress: {
               where: { userId },
-              select: { isCompleted: true, isEnrolled: true, tutorId: true },
+              select: {
+                id: true,
+                userId: true,
+                createdAt: true,
+                updatedAt: true,
+                isCompleted: true,
+                courseId: true,
+                tutorId: true,
+                courseworkId: true,
+                assignmentId: true,
+                isEnrolled: true,
+              },
             },
           },
           orderBy: { position: "asc" },
@@ -90,28 +107,37 @@ export default async function AdminPage({
       return redirect("/");
     }
 
-    const courses: CourseWithProgressWithAdmin[] = admin.courses.map((course) => {
-      const totalTutors = course.tutors.length;
-      const completedTutors = course.userProgress.filter((up) => up.isCompleted).length;
-      const progress = totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
-      const tuition = course.tuitions[0]
-        ? {
-            ...course.tuitions[0],
-            amount: course.tuitions[0].amount != null ? Number(course.tuitions[0].amount) : null,
-          }
-        : null;
-      return {
-        ...course,
-        progress,
-        tuition,
-        userProgress: course.userProgress,
-      };
-    });
+    const courses: CourseWithProgressWithAdmin[] = admin.courses.map(
+      (course) => {
+        const totalTutors = course.tutors.length;
+        const completedTutors = course.userProgress.filter(
+          (up) => up.isCompleted
+        ).length;
+        const progress =
+          totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
+        const tuition = course.tuitions[0] || undefined;
+        return {
+          ...course,
+          tutors: course.tutors.map((tutor) => ({
+            ...tutor,
+            attachmentIds: tutor.attachments.map((a) => ({ id: a.id })),
+          })),
+          progress,
+          tuition,
+          userProgress: course.userProgress,
+          admin: course.admin || undefined,
+        };
+      }
+    );
 
     console.log(`[${new Date().toISOString()} AdminPage] Admin response:`, {
       adminId,
       title: admin.title,
-      courses: courses.map((c) => ({ id: c.id, title: c.title, progress: c.progress })),
+      courses: courses.map((c) => ({
+        id: c.id,
+        title: c.title,
+        progress: c.progress,
+      })),
     });
 
     return (
@@ -125,13 +151,7 @@ export default async function AdminPage({
           <h2 className="text-2xl font-semibold mb-4">Courses</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {courses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={{
-                  ...course,
-                  admin: course.admin ?? null, // Ensure admin is passed
-                }}
-              />
+              <CourseCard key={course.id} course={course} />
             ))}
           </div>
           {courses.length === 0 && (

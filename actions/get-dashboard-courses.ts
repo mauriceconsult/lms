@@ -1,38 +1,58 @@
+// actions/get-dashboard-courses.ts
 "use server";
 
-import { CourseWithProgressWithAdmin } from "@/app/(eduplat)/types/course";
 import { db } from "@/lib/db";
-// import { CourseWithProgressWithAdmin } from "@/types/course";
+import {
+  Course,
+  Tutor,
+  Tuition,
+  // UserProgress,
+  Admin
+} from "@prisma/client";
 
-export async function getDashboardCourses(userId: string): Promise<{
-  completedCourses: CourseWithProgressWithAdmin[];
-  coursesInProgress: CourseWithProgressWithAdmin[];
-}> {
-  if (!userId) {
-    console.log(
-      `[${new Date().toISOString()} getDashboardCourses] No userId, returning empty arrays`
-    );
-    return { completedCourses: [], coursesInProgress: [] };
-  }
+// Suppress ESLint warnings for unused imports
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Attachment } from "@prisma/client";
+
+export type CourseWithProgressWithAdmin = Course & {
+  tutors: (Tutor & {
+    course: Course | null;
+    attachmentIds: { id: string }[];
+  })[];
+  userProgress: {
+    id: string;
+    userId: string;
+    createdAt: Date;
+    updatedAt: Date;
+    isCompleted: boolean;
+    courseId: string;
+    tutorId: string | null;
+    courseworkId: string | null;
+    assignmentId: string | null;
+    isEnrolled: boolean;
+  }[];
+  tuition?: Tuition;
+  admin?: Admin;
+  progress?: number;
+};
+
+export async function getDashboardCourses(userId: string) {
   try {
-    console.time("getDashboardCoursesQuery"); // Static label
     const courses = await db.course.findMany({
       where: { isPublished: true },
-      select: {
-        id: true,
-        userId: true,
-        title: true,
-        description: true,
-        imageUrl: true,
-        amount: true,
-        position: true,
-        isPublished: true,
-        facultyId: true,
-        publishDate: true,
-        createdAt: true,
-        updatedAt: true,
-        faculty: {
+      include: {
+        tutors: {
+          include: {
+            course: true,
+            attachments: {
+              select: { id: true },
+            },
+          },
+          orderBy: { position: "asc" },
+        },
+        admin: {
           select: {
             id: true,
             title: true,
@@ -45,10 +65,6 @@ export async function getDashboardCourses(userId: string): Promise<{
             updatedAt: true,
             schoolId: true,
           },
-        },
-        tutors: {
-          select: { id: true, title: true, isFree: true, position: true, playbackId: true },
-          orderBy: { position: "asc" },
         },
         tuitions: {
           where: { userId },
@@ -70,44 +86,50 @@ export async function getDashboardCourses(userId: string): Promise<{
         },
         userProgress: {
           where: { userId },
-          select: { isCompleted: true, isEnrolled: true, tutorId: true },
+          select: {
+            id: true,
+            userId: true,
+            createdAt: true,
+            updatedAt: true,
+            isCompleted: true,
+            courseId: true,
+            tutorId: true,
+            courseworkId: true,
+            assignmentId: true,
+            isEnrolled: true,
+          },
         },
       },
       orderBy: { position: "asc" },
     });
-    console.timeEnd("getDashboardCoursesQuery"); // Match static label
 
-    const coursesWithProgress: CourseWithProgressWithAdmin[] = courses.map((course) => {
-      const totalTutors = course.tutors.length;
-      const completedTutors = course.userProgress.filter((up) => up.isCompleted).length;
-      const progress = totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
-      const tuition = course.tuitions[0]
-        ? {
-            ...course.tuitions[0],
-            amount: course.tuitions[0].amount,
-          }
-        : null;
-      return {
-        ...course,
-        progress,
-        tuition,
-        userProgress: course.userProgress,
-        admin: course.faculty,
-      };
-    });
+    const coursesWithProgress: CourseWithProgressWithAdmin[] = courses.map(
+      (course) => {
+        const totalTutors = course.tutors.length;
+        const completedTutors = course.userProgress.filter(
+          (up) => up.isCompleted
+        ).length;
+        const progress =
+          totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
+        return {
+          ...course,
+          tutors: course.tutors.map((tutor) => ({
+            ...tutor,
+            attachmentIds: tutor.attachments.map((a) => ({ id: a.id })),
+          })),
+          progress,
+          tuition: course.tuitions[0] || undefined,
+          admin: course.admin || undefined,
+        };
+      }
+    );
 
-    const completedCourses = coursesWithProgress.filter((course) => course.progress === 100);
-    const coursesInProgress = coursesWithProgress.filter((course) => course.progress !== 100);
-
-    console.log(`[${new Date().toISOString()} getDashboardCourses] Courses response:`, {
-      userId,
-      completedCourses: completedCourses.map((c) => ({ id: c.id, title: c.title, progress: c.progress })),
-      coursesInProgress: coursesInProgress.map((c) => ({ id: c.id, title: c.title, progress: c.progress })),
-    });
-
-    return { completedCourses, coursesInProgress };
+    return coursesWithProgress;
   } catch (error) {
-    console.error(`[${new Date().toISOString()} getDashboardCourses] Error:`, error);
-    return { completedCourses: [], coursesInProgress: [] };
+    console.error(
+      `[${new Date().toISOString()} getDashboardCourses] Error:`,
+      error
+    );
+    return [];
   }
 }
