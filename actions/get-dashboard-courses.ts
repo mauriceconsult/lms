@@ -2,17 +2,11 @@
 "use server";
 
 import { db } from "@/lib/db";
-import {
-  Course,
-  Tutor,
-  Tuition,
-  // UserProgress,
-  Admin
-} from "@prisma/client";
+import { Course, Tutor, Tuition, Admin } from "@prisma/client";
 
 // Suppress ESLint warnings for unused imports
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
+import type { UserProgress } from "@prisma/client";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Attachment } from "@prisma/client";
 
@@ -38,7 +32,17 @@ export type CourseWithProgressWithAdmin = Course & {
   progress?: number;
 };
 
-export async function getDashboardCourses(userId: string) {
+export async function getDashboardCourses(userId: string): Promise<{
+  completedCourses: CourseWithProgressWithAdmin[];
+  coursesInProgress: CourseWithProgressWithAdmin[];
+}> {
+  if (!userId) {
+    console.log(
+      `[${new Date().toISOString()} getDashboardCourses] No userId, returning empty arrays`
+    );
+    return { completedCourses: [], coursesInProgress: [] };
+  }
+
   try {
     const courses = await db.course.findMany({
       where: { isPublished: true },
@@ -117,19 +121,28 @@ export async function getDashboardCourses(userId: string) {
             ...tutor,
             attachmentIds: tutor.attachments.map((a) => ({ id: a.id })),
           })),
-          progress,
+          progress, // Ensure progress is always defined
           tuition: course.tuitions[0] || undefined,
           admin: course.admin || undefined,
         };
       }
     );
 
-    return coursesWithProgress;
+    const completedCourses = coursesWithProgress.filter(
+      (course) => (course.progress ?? 0) === 100
+    );
+    const coursesInProgress = coursesWithProgress.filter(
+      (course) =>
+        course.userProgress.some((up) => up.isEnrolled) &&
+        (course.progress ?? 0) < 100
+    );
+
+    return { completedCourses, coursesInProgress };
   } catch (error) {
     console.error(
       `[${new Date().toISOString()} getDashboardCourses] Error:`,
       error
     );
-    return [];
+    return { completedCourses: [], coursesInProgress: [] };
   }
 }

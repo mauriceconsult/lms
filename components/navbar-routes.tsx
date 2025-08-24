@@ -10,10 +10,11 @@ import { CourseSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin
 import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
 import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/coursework/[courseworkId]/search/_components/coursework-search-input";
 // import { PayrollSearchInput } from "@/app/(dashboard)/(routes)/payroll/create-payroll/[payrollId]/search/_components/payroll-search-input";
-import { CourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/course-course-noticeboard/[course-course-noticeboardId]/search/_components/course-course-noticeboard-search-input";
+// import { CourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/course-course-noticeboard/[course-course-noticeboardId]/search/_components/course-course-noticeboard-search-input";
 // import { ClientUserButton } from "@/components/ClientUserButton";
 import React, { FC, ReactElement } from "react";
 import ClientUserButton from "./client-user-button";
+import { CourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/course-coursenoticeboard/[course-coursenoticeboardId]/search/_components/course-coursenoticeboard-search-input";
 
 type SearchInputComponent = FC<object>;
 

@@ -20,11 +20,12 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Tutor, Course } from "@prisma/client";
 import { CourseTutorList } from "./course-tutor-list";
-import {
-  createTutor,
-  onEditAction,
-  onReorderAction,
-} from "../tutorials/[tutorialId]/actions";
+import { createTutor, onEditAction, onReorderAction } from "../tutorial/[tutorialId]/actions";
+// import {
+//   createTutor,
+//   onEditAction,
+//   onReorderAction,
+// } from "../tutors/[tutorId]/actions";
 
 interface CourseTutorFormProps {
   initialData: Course & { tutors: Tutor[] };
