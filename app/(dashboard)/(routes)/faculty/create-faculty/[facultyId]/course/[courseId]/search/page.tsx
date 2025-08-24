@@ -4,8 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { CoursesList } from "./_components/courses-list";
 import { getCourses } from "@/actions/get-courses";
-import { Faculties } from "../../../search/_components/faculties";
-
+import { Faculties } from "../../../../../../admin/create-admin/[adminId]/search/_components/admins";
 
 interface CourseSearchPageProps {
   searchParams: Promise<{
@@ -14,23 +13,21 @@ interface CourseSearchPageProps {
     courseId: string;
   }>;
 }
-const CourseSearchPage = async ({
-  searchParams
-}: CourseSearchPageProps) => {
+const CourseSearchPage = async ({ searchParams }: CourseSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
   }
   const faculties = await db.faculty.findMany({
     orderBy: {
-      title: "asc"
-    }
-  })
+      title: "asc",
+    },
+  });
   const courses = await getCourses({
     userId,
-    ...await searchParams,
+    ...(await searchParams),
   });
-  
+
   return (
     <>
       <div className="px-6 pt-6 md:hidden md:mb-0 block">

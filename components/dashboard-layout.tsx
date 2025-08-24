@@ -5,19 +5,19 @@ import { NavbarRoutes } from "./navbar-routes";
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  facultyId?: string;
+  adminId?: string;
   courseId?: string;
 }
 
 export const DashboardLayout = ({
   children,
-  facultyId,
+  adminId,
   courseId,
 }: DashboardLayoutProps) => {
   return (
     <div className="h-full">
       <div className="h-[80px]">
-        <NavbarRoutes facultyId={facultyId} courseId={courseId} />
+        <NavbarRoutes adminId={adminId} courseId={courseId} />
       </div>
       {children}
     </div>

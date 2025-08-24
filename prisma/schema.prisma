@@ -9,23 +9,23 @@ datasource db {
 }
 
 model School {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  faculties Faculty[]
-  payroll   Payroll[]
+  id      String    @id @default(uuid())
+  name    String    @unique
+  admins  Admin[]
+  payroll Payroll[]
 }
 
 model Payroll {
-  id              String           @id @default(uuid())
-  userId          String
-  title           String           @db.Text
-  partyId         String?
-  position        Int?
-  isPublished     Boolean          @default(false)
-  attachments     Attachment[]
-  facultyPayrolls FacultyPayroll[]
-  school          School?          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  schoolId        String?
+  id            String         @id @default(uuid())
+  userId        String
+  title         String         @db.Text
+  partyId       String?
+  position      Int?
+  isPublished   Boolean        @default(false)
+  attachments   Attachment[]
+  adminPayrolls AdminPayroll[]
+  school        School?        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  schoolId      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -34,12 +34,12 @@ model Payroll {
   @@index([schoolId])
 }
 
-model FacultyPayroll {
+model AdminPayroll {
   id          String       @id @default(uuid())
   userId      String
   title       String       @db.Text
   payrollId   String?
-  facultyId   String?
+  adminId     String?
   position    Int?
   isPaid      Boolean      @default(false)
   attachments Attachment[]
@@ -48,8 +48,8 @@ model FacultyPayroll {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, payrollId, facultyId])
-  @@index([payrollId, facultyId, userId])
+  @@unique([userId, payrollId, adminId])
+  @@index([payrollId, adminId, userId])
 }
 
 model Tuition {
@@ -66,7 +66,7 @@ model Tuition {
   isActive      Boolean      @default(true)
   isPaid        Boolean      @default(false)
 
-  transId       String?
+  transId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -74,6 +74,7 @@ model Tuition {
   @@unique([userId, courseId])
   @@index([courseId])
 }
+
 model Content {
   id          String   @id @default(uuid())
   courseId    String
@@ -120,7 +121,7 @@ model Coursework {
   @@index([courseId])
 }
 
-model Faculty {
+model Admin {
   id           String        @id @default(uuid())
   userId       String
   title        String        @db.Text
@@ -153,16 +154,16 @@ model Course {
   userProgress       UserProgress[]
   courseworks        Coursework[]
   enrollments        Enrollment[]
-   contents  Content[]
-  faculty            Faculty?            @relation(fields: [facultyId], references: [id], onDelete: Cascade)
-  facultyId          String?
+  contents           Content[]
+  admin              Admin?              @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminId            String?
   position           Int?
   isPublished        Boolean             @default(false)
   publishDate        DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
-  @@index([facultyId])
+  @@index([adminId])
 }
 
 model Enrollment {
@@ -197,7 +198,7 @@ model Tutor {
   updatedAt    DateTime       @updatedAt
   courseId     String?
   muxDataId    String?        @unique
-  facultyId    String?
+  adminId      String?
   course       Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
   muxData      MuxData?       @relation(fields: [muxDataId], references: [id], onDelete: Cascade) // Keep onDelete here
 
@@ -235,8 +236,8 @@ model MuxData {
 model Attachment {
   id                  String             @id @default(uuid())
   url                 String             @db.Text
-  facultyId           String?
-  faculty             Faculty?           @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  adminId             String?
+  admin               Admin?             @relation(fields: [adminId], references: [id], onDelete: Cascade)
   courseId            String?
   course              Course?            @relation(fields: [courseId], references: [id], onDelete: Cascade)
   createdAt           DateTime           @default(now())
@@ -255,10 +256,10 @@ model Attachment {
   assignmentId        String?
   payrolls            Payroll?           @relation(fields: [payrollId], references: [id], onDelete: Cascade)
   payrollId           String?
-  facultyPayroll      FacultyPayroll?    @relation(fields: [facultyPayrollId], references: [id], onDelete: Cascade)
-  facultyPayrollId    String?
+  adminPayroll        AdminPayroll?      @relation(fields: [adminPayrollId], references: [id], onDelete: Cascade)
+  adminPayrollId      String?
 
-  @@index([facultyId, courseId, courseworkId, noticeboardId, courseNoticeboardId, payrollId, tuitionId, tutorId])
+  @@index([adminId, courseId, courseworkId, noticeboardId, courseNoticeboardId, payrollId, tuitionId, tutorId])
 }
 
 model UserProgress {
@@ -289,8 +290,8 @@ model Noticeboard {
   title       String
   userId      String
   description String?      @db.Text
-  facultyId   String?
-  faculty     Faculty?     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  adminId     String?
+  admin       Admin?       @relation(fields: [adminId], references: [id], onDelete: Cascade)
   position    Int?
   attachments Attachment[]
   comments    Comment[]
@@ -299,7 +300,7 @@ model Noticeboard {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  @@index([facultyId])
+  @@index([adminId])
 }
 
 model Comment {
