@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { CourseworkSearchInput } from "./_components/coursework-search-input";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { Courses } from "../../../search/_components/courses";
+import { Courses } from "../../../../../../../../admin/create-admin/[adminId]/course/[courseId]/search/_components/courses";
 import { CourseworksList } from "./_components/courseworks-list";
 import { getCourseworks } from "@/actions/get-courseworks";
 
@@ -28,7 +28,7 @@ const CourseworkSearchPage = async ({
   });
   const courseworks = await getCourseworks({
     userId,
-    ...await searchParams,
+    ...(await searchParams),
   });
 
   return (

@@ -1,11 +1,10 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { Courses } from "../../../search/_components/courses";
+import { Courses } from "../../../../../../../../admin/create-admin/[adminId]/course/[courseId]/search/_components/courses";
 import { getCourseNoticeboards } from "@/actions/get-courseNoticeboards";
 import { CourseNoticeboardSearchInput } from "./_components/course-course-noticeboard-search-input";
 import { CourseNoticeboardsList } from "./_components/course-course-noticeboard-list";
-
 
 interface CourseNoticeboardIdSearchPageProps {
   searchParams: Promise<{
@@ -29,7 +28,7 @@ const CourseNoticeboardSearchPage = async ({
   });
   const courseCourseNoticeboards = await getCourseNoticeboards({
     userId,
-    ...await searchParams,
+    ...(await searchParams),
   });
 
   return (

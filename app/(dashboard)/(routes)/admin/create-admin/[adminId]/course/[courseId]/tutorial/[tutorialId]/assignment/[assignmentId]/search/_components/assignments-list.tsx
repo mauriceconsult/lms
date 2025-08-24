@@ -1,0 +1,31 @@
+// components/AssignmentsList.tsx
+import { AssignmentCard } from "@/components/assignment-card";
+import { Assignment, Tutor } from "@prisma/client";
+
+type AssignmentWithTutorial = Assignment & {
+  tutorial: Tutor | null;
+};
+
+interface AssignmentsListProps {
+  item: AssignmentWithTutorial[];
+}
+
+export const AssignmentsList = ({ item }: AssignmentsListProps) => {
+  return (
+    <div>
+      <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
+        {item.map((assignment) => (
+          <AssignmentCard
+            key={assignment.id}
+            id={assignment.id}
+            title={assignment.title}
+            description={assignment.description ?? ""}
+            assignmentsLength={item.length} 
+            assignment={assignment.title} 
+          />
+        ))}
+      </div>
+      {item.length === 0 && <div>No Assignments found.</div>}
+    </div>
+  );
+};

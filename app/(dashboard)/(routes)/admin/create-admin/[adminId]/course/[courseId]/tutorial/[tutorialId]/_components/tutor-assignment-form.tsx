@@ -18,38 +18,39 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Tutor, Course } from "@prisma/client";
-import { CourseTutorList } from "./course-tutor-list";
-import {
-  createTutor,
-  onEditAction,
-  onReorderAction,
-} from "../tutorials/[tutorialId]/actions";
+import { Assignment, Tutor } from "@prisma/client";
+import { TutorAssignmentList } from "./tutor-assignment-list";
+import { createAssignment, onEditAction, onReorderAction } from "../assignment/[assignmentId]/actions";
 
-interface CourseTutorFormProps {
-  initialData: Course & { tutors: Tutor[] };
+
+interface TutorAssignmentFormProps {
+  initialData: Tutor & { assignments: Assignment[] };
   courseId: string;
   adminId: string;
+  tutorialId: string;
 }
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
 });
 
-export const CourseTutorForm = ({
+export const TutorAssignmentForm = ({
   initialData,
   courseId,
   adminId,
-}: CourseTutorFormProps) => {
+  tutorialId,
+}: TutorAssignmentFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const toggleCreating = () => setIsCreating((current) => !current);
   const router = useRouter();
+
+  console.log("TutorAssignmentForm props:", { tutorialId, courseId, adminId });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-    
     },
   });
   const {
@@ -59,7 +60,9 @@ export const CourseTutorForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await createTutor(courseId, values);
+      console.log("Creating assignment with:", { tutorialId, values, adminId, courseId });
+      const { success, message, data } = await createAssignment(tutorialId, values, adminId, courseId);
+      console.log("Create assignment response:", { success, message, data });
       if (success) {
         toast.success(message);
         toggleCreating();
@@ -69,7 +72,7 @@ export const CourseTutorForm = ({
         toast.error(message);
       }
     } catch (error) {
-      console.error("Create tutor error:", error);
+      console.error("Create assignment error:", error);
       toast.error("Unexpected error occurred");
     }
   };
@@ -86,7 +89,7 @@ export const CourseTutorForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Tutorial*
+        Tutorial assignment*
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -97,7 +100,7 @@ export const CourseTutorForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a tutorial
+              Add a tutorial Assignment
             </>
           )}
         </Button>
@@ -117,7 +120,7 @@ export const CourseTutorForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Introduction to Fashion & Design Technology'"
+                      placeholder="e.g., 'Principles of Fashion Design: Assignment 1'"
                       {...field}
                     />
                   </FormControl>
@@ -139,35 +142,39 @@ export const CourseTutorForm = ({
         <div
           className={cn(
             "text-sm mt-2",
-            !initialData.tutors.length && "text-slate-500 italic"
+            !initialData.assignments.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.tutors.length &&
-            "At least one published Tutorial is required. Tutorials break the entire Course into manageable lessons achievable within shorter session. Each tutorial should have an achievable objective or a set of objectives."}
-          <CourseTutorList
+          {!initialData.assignments.length &&
+            "At least one published Assignment is required. A tutorial assignment examines the student's understanding of the uploaded video's content."}
+          <TutorAssignmentList
             onEditAction={async (id) => {
-              const result = await onEditAction(courseId, id);
+              console.log("Editing assignment with:", { tutorialId, assignmentId: id, adminId, courseId });
+              const result = await onEditAction(tutorialId, id, adminId, courseId);
+              console.log("Edit action response:", result);
               if (result.success) {
                 router.push(
-                  `/admin/create-admin/${adminId}/course/${courseId}/tutor/${id}`
+                  `/admin/create-admin/${adminId}/course/${courseId}/tutorial/${tutorialId}/assignment/${id}`
                 );
               }
               return result;
             }}
             onReorderAction={async (updateData) => {
+              console.log("Reordering assignments with:", { tutorialId, updateData, adminId, courseId });
               setIsUpdating(true);
-              const result = await onReorderAction(courseId, updateData);
+              const result = await onReorderAction(tutorialId, updateData, adminId, courseId);
+              console.log("Reorder action response:", result);
               setIsUpdating(false);
               router.refresh();
               return result;
             }}
-            items={initialData.tutors || []}
+            items={initialData.assignments || []}
           />
         </div>
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Topics/Tutors
+          Drag and drop to reorder the Assignments
         </p>
       )}
     </div>

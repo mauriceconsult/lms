@@ -3,7 +3,7 @@ import { Tutor, Course } from "@prisma/client";
 
 type TutorWithCourse = Tutor & {
   course: Course | null;
-  tutors: { id: string }[];
+  tutorials: { id: string }[];
 };
 
 type GetTutors = {
@@ -16,7 +16,7 @@ export const getTutors = async ({
   courseId,
 }: GetTutors): Promise<TutorWithCourse[]> => {
   try {
-    const tutors = await db.tutor.findMany({
+    const tutorials = await db.tutor.findMany({
       where: {
         isPublished: true,
         title: title ? { contains: title } : undefined,
@@ -30,8 +30,8 @@ export const getTutors = async ({
         createdAt: "desc",
       },
     });
-    const tutorsWithCourse: TutorWithCourse[] = await Promise.all(
-      tutors.map(async (tutor) => {
+    const tutorialsWithCourse: TutorWithCourse[] = await Promise.all(
+      tutorials.map(async (tutor) => {
         return {
           ...tutor,
           tutors: tutor.attachments
@@ -40,9 +40,9 @@ export const getTutors = async ({
         };
       })
     );
-    return tutorsWithCourse;
+    return tutorialsWithCourse;
   } catch (error) {
-    console.log("[GET_COURSENOTICEBOARDS]", error);
+    console.log("[GET_TUTORIALS]", error);
     return [];
   }
 };

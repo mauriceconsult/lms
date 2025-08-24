@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Coursework, Course } from "@prisma/client";
 import { CourseCourseworkList } from "./course-coursework-list";
-import { createCoursework, onEditCourseworkAction, onReorderCourseworkAction } from "../../../../../../faculty/create-faculty/[facultyId]/course/[courseId]/coursework/[courseworkId]/actions";
+import { createCoursework, onEditCourseworkAction, onReorderCourseworkAction } from "../coursework/[courseworkId]/actions";
 
 
 interface CourseCourseworkFormProps {

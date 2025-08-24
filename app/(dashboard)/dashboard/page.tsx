@@ -15,7 +15,7 @@ import {
   ChartOptions,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import { CoursesList } from "../(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/search/_components/courses-list";
+import { CoursesList } from "../(routes)/admin/create-admin/[adminId]/course/[courseId]/search/_components/courses-list";
 
 ChartJS.register(
   BarElement,
