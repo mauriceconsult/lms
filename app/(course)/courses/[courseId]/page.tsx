@@ -1,17 +1,18 @@
+// app/(course)/courses/[courseId]/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@clerk/nextjs";
-import { CourseWithProgressWithFaculty } from "@/actions/get-dashboard-courses";
 import { getCourseData } from "@/actions/get-course-data";
 import ErrorBoundary from "@/components/error-boundary";
 import { VideoPlayer } from "@/app/(course)/courses/[courseId]/(tutor)/tutors/[tutorId]/_components/video-player";
 import { Menu } from "lucide-react";
-import TutorList from "@/app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/tutor/[tutorId]/search/_components/tutors-list";
 import EnrollButton from "./_components/enroll-button";
+import { CourseWithProgressWithAdmin } from "@/app/(eduplat)/types/course";
 import React from "react";
+import TutorList from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/tutorial/[tutorialId]/search/_components/tutors-list";
 
 export default function CoursePage({
   params: paramsPromise,
@@ -20,9 +21,11 @@ export default function CoursePage({
 }) {
   const router = useRouter();
   const { userId } = useAuth();
-  const [course, setCourse] = useState<CourseWithProgressWithFaculty | null>(null);
+  const [course, setCourse] = useState<CourseWithProgressWithAdmin | null>(
+    null
+  );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const params = React.use(paramsPromise); // Unwrap params with React.use()
+  const params = React.use(paramsPromise);
 
   useEffect(() => {
     async function fetchCourse() {
@@ -60,12 +63,12 @@ export default function CoursePage({
 
   const isEnrolled = course.userProgress[0]?.isEnrolled || false;
   const isPaid = course.tuition?.isPaid || false;
-  const firstNonFreeTutor = course.tutors.find((tutor) => !(tutor.isFree ?? false)) || course.tutors[0];
+  const firstNonFreeTutor =
+    course.tutors.find((tutor) => !(tutor.isFree ?? false)) || course.tutors[0];
 
   return (
     <ErrorBoundary>
       <div className="flex min-h-screen bg-gray-50">
-        {/* Sidebar */}
         <div
           className={`fixed inset-y-0 left-0 z-50 w-64 bg-white p-4 border-r transform transition-transform duration-300 ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -78,26 +81,35 @@ export default function CoursePage({
               className="sm:hidden p-2"
               onClick={() => {
                 setIsSidebarOpen(false);
-                console.log(`[${new Date().toISOString()} CoursePage] Sidebar closed`);
+                console.log(
+                  `[${new Date().toISOString()} CoursePage] Sidebar closed`
+                );
               }}
             >
               <Menu className="w-6 h-6" />
             </button>
           </div>
-          <TutorList tutors={course.tutors} courseId={params.courseId} isEnrolled={isEnrolled} />
+          <TutorList
+            tutorials={course.tutors}
+            courseId={params.courseId}
+            isEnrolled={isEnrolled}
+          />
         </div>
-        {/* Main Content */}
         <div className="flex-1 p-4 sm:p-6">
           <button
             className="sm:hidden mb-4 p-2 bg-gray-200 rounded-md"
             onClick={() => {
               setIsSidebarOpen(true);
-              console.log(`[${new Date().toISOString()} CoursePage] Sidebar opened`);
+              console.log(
+                `[${new Date().toISOString()} CoursePage] Sidebar opened`
+              );
             }}
           >
             <Menu className="w-6 h-6" />
           </button>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-4">{course.title}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">
+            {course.title}
+          </h1>
           <div className="mb-4 text-sm sm:text-base">
             <span className="font-semibold">Description:</span>{" "}
             {course.description ?? "No description available"}
@@ -108,7 +120,7 @@ export default function CoursePage({
               alt={`${course.title} image`}
               fill
               sizes="(max-width: 640px) 100vw, 50vw"
-              objectFit="cover"
+              style={{ objectFit: "cover" }}
               className="rounded-md"
               placeholder="blur"
               blurDataURL="/placeholder.png"
@@ -120,9 +132,17 @@ export default function CoursePage({
                 playbackId={firstNonFreeTutor.playbackId ?? ""}
                 courseId={params.courseId}
                 tutorId={firstNonFreeTutor.id}
-                nextTutorId={course.tutors[course.tutors.findIndex((t) => t.id === firstNonFreeTutor.id) + 1]?.id ?? ""}
+                nextTutorId={
+                  course.tutors[
+                    course.tutors.findIndex(
+                      (t) => t.id === firstNonFreeTutor.id
+                    ) + 1
+                  ]?.id ?? ""
+                }
                 isLocked={!(firstNonFreeTutor.isFree ?? false) && !isEnrolled}
-                completeOnEnd={!(firstNonFreeTutor.isFree ?? false) && isEnrolled}
+                completeOnEnd={
+                  !(firstNonFreeTutor.isFree ?? false) && isEnrolled
+                }
                 title={firstNonFreeTutor.title}
               />
             </div>
@@ -145,8 +165,8 @@ export default function CoursePage({
                   : "0.00"}
               </div>
               <div>
-                <span className="font-semibold">Faculty:</span>{" "}
-                {course.faculty?.title ?? "No Faculty"}
+                <span className="font-semibold">Admin:</span>{" "}
+                {course.admin?.title ?? "No Admin"}
               </div>
             </div>
           ) : (

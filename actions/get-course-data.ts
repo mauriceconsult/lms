@@ -1,9 +1,41 @@
+// actions/get-course-data.ts
 "use server";
 
 import { db } from "@/lib/db";
-import { CourseWithProgressWithFaculty } from "@/actions/get-dashboard-courses";
+import { Course, Tutor, Tuition, Admin } from "@prisma/client";
 
-export async function getCourseData(courseId: string, userId: string): Promise<CourseWithProgressWithFaculty | null> {
+// Suppress ESLint warnings for unused imports
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { UserProgress } from "@prisma/client";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Attachment } from "@prisma/client";
+
+export type CourseWithProgressWithAdmin = Course & {
+  tutors: (Tutor & {
+    course: Course | null;
+    attachmentIds: { id: string }[];
+  })[];
+  userProgress: {
+    id: string;
+    userId: string;
+    createdAt: Date;
+    updatedAt: Date;
+    isCompleted: boolean;
+    courseId: string;
+    tutorId: string | null;
+    courseworkId: string | null;
+    assignmentId: string | null;
+    isEnrolled: boolean;
+  }[];
+  tuition?: Tuition;
+  admin?: Admin;
+  progress?: number;
+};
+
+export async function getCourseData(
+  courseId: string,
+  userId: string
+): Promise<CourseWithProgressWithAdmin | null> {
   if (!userId) {
     console.log(
       `[${new Date().toISOString()} getCourseData] No userId, returning null`
@@ -23,10 +55,15 @@ export async function getCourseData(courseId: string, userId: string): Promise<C
       where: { id: courseId, isPublished: true },
       include: {
         tutors: {
-          select: { id: true, title: true, isFree: true, position: true, playbackId: true },
+          include: {
+            course: true,
+            attachments: {
+              select: { id: true },
+            },
+          },
           orderBy: { position: "asc" },
         },
-        faculty: {
+        admin: {
           select: {
             id: true,
             title: true,
@@ -60,7 +97,18 @@ export async function getCourseData(courseId: string, userId: string): Promise<C
         },
         userProgress: {
           where: { userId },
-          select: { isCompleted: true, isEnrolled: true, tutorId: true },
+          select: {
+            id: true,
+            userId: true,
+            createdAt: true,
+            updatedAt: true,
+            isCompleted: true,
+            courseId: true,
+            tutorId: true,
+            courseworkId: true,
+            assignmentId: true,
+            isEnrolled: true,
+          },
         },
       },
     });
@@ -73,24 +121,39 @@ export async function getCourseData(courseId: string, userId: string): Promise<C
     }
 
     const totalTutors = course.tutors.length;
-    const completedTutors = course.userProgress.filter((up) => up.isCompleted).length;
-    const progress = totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
+    const completedTutors = course.userProgress.filter(
+      (up) => up.isCompleted
+    ).length;
+    const progress =
+      totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
 
-    const courseWithProgress: CourseWithProgressWithFaculty = {
+    const courseWithProgress: CourseWithProgressWithAdmin = {
       ...course,
+      tutors: course.tutors.map((tutor) => ({
+        ...tutor,
+        attachmentIds: tutor.attachments.map((a) => ({ id: a.id })),
+      })),
       progress,
-      tuition: course.tuitions[0] || null,
-      userProgress: course.userProgress,
+      tuition: course.tuitions[0] || undefined,
+      admin: course.admin || undefined,
     };
 
-    console.log(`[${new Date().toISOString()} getCourseData] Course response:`, {
-      courseId,
-      title: course.title,
-      isEnrolled: course.userProgress[0]?.isEnrolled || false,
-      isPaid: course.tuitions[0]?.isPaid || false,
-      progress,
-      tutors: course.tutors.map((t) => ({ id: t.id, title: t.title, isFree: t.isFree })),
-    });
+    console.log(
+      `[${new Date().toISOString()} getCourseData] Course response:`,
+      {
+        courseId,
+        title: course.title,
+        isEnrolled: course.userProgress[0]?.isEnrolled || false,
+        isPaid: course.tuitions[0]?.isPaid || false,
+        progress,
+        tutors: course.tutors.map((t) => ({
+          id: t.id,
+          title: t.title,
+          isFree: t.isFree,
+          attachmentIds: t.attachments.map((a) => a.id),
+        })),
+      }
+    );
 
     return courseWithProgress;
   } catch (error) {

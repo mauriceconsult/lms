@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation";
 
 type TutorWithCourse = Tutor & {
   course: Course | null;
-  attachmentIds: { id: string }[]; // Renamed from 'tutors' for clarity
+  attachmentIds: { id: string }[];
 };
 
 interface TutorListProps {

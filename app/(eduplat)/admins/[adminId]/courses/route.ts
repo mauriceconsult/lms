@@ -55,12 +55,12 @@ export async function POST(
   }
 
   try {
-    // Verify faculty exists (mapped as admin)
-    const faculty = await db.faculty.findUnique({
+    // Verify admin exists (mapped as admin)
+    const admin = await db.admin.findUnique({
       where: { id: adminId },
     });
 
-    if (!faculty) {
+    if (!admin) {
       console.log(
         `[${new Date().toISOString()} CourseCreateAPI] Faculty not found: ${adminId}`
       );
@@ -73,7 +73,7 @@ export async function POST(
         description,
         imageUrl,
         amount, // Keep as string
-        facultyId: adminId,
+        adminId: adminId,
         userId,
         isPublished: isPublished || false,
         publishDate: isPublished ? new Date() : null,
