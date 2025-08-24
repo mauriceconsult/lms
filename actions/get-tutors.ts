@@ -1,9 +1,10 @@
+// actions/get-tutors.ts
 import { db } from "@/lib/db";
 import { Tutor, Course } from "@prisma/client";
 
 type TutorWithCourse = Tutor & {
   course: Course | null;
-  tutorials: { id: string }[];
+  attachmentIds: { id: string }[];
 };
 
 type GetTutors = {
@@ -11,6 +12,7 @@ type GetTutors = {
   title?: string;
   courseId?: string;
 };
+
 export const getTutors = async ({
   title,
   courseId,
@@ -30,19 +32,13 @@ export const getTutors = async ({
         createdAt: "desc",
       },
     });
-    const tutorialsWithCourse: TutorWithCourse[] = await Promise.all(
-      tutorials.map(async (tutor) => {
-        return {
-          ...tutor,
-          tutors: tutor.attachments
-            ? tutor.attachments.map((a: { id: string }) => ({ id: a.id }))
-            : [],
-        };
-      })
-    );
+    const tutorialsWithCourse: TutorWithCourse[] = tutorials.map((tutor) => ({
+      ...tutor,
+      attachmentIds: tutor.attachments.map((a) => ({ id: a.id })),
+    }));
     return tutorialsWithCourse;
   } catch (error) {
-    console.log("[GET_TUTORIALS]", error);
+    console.log("[GET_TUTORS]", error);
     return [];
   }
 };

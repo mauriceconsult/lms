@@ -11,7 +11,7 @@ import { toast } from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
 
-interface Faculty {
+interface Admin {
   id: string;
   title: string;
   description: string | null;
@@ -22,7 +22,7 @@ interface Faculty {
 interface School {
   id: string;
   name: string;
-  faculties: Faculty[];
+  admins: Admin[];
 }
 
 interface ApiResponse {
@@ -140,16 +140,16 @@ const SearchPage = () => {
             <CardContent className="space-y-4">
               <div>
                 <h3 className="text-lg font-medium">Faculties</h3>
-                {school.faculties.length === 0 ? (
+                {school.admins.length === 0 ? (
                   <p className="text-sm text-slate-500 italic">
-                    No faculties available
+                    No admins available
                   </p>
                 ) : (
                   <ul className="space-y-4">
-                    {school.faculties.map((faculty) => (
+                    {school.admins.map((faculty) => (
                       <li key={faculty.id}>
                         <Link
-                          href={`/faculties/${faculty.id}`}
+                          href={`/admins/${faculty.id}`}
                           className="block hover:bg-slate-100 rounded-md transition p-2"
                         >
                           <div className="flex items-center gap-x-4">

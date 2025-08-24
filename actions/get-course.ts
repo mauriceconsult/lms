@@ -3,12 +3,12 @@ import { Attachment, Course } from "@prisma/client";
 
 interface GetCourseProps {
   userId: string;
-  facultyId: string;
+  adminId: string;
   courseId: string;
 }
 export const getCourse = async ({
   userId,
-  facultyId,
+  adminId,
   courseId,
 }: GetCourseProps) => {
   try {
@@ -18,7 +18,7 @@ export const getCourse = async ({
         isPublished: true,
       },
     });
-    if (!facultyId || !course) {
+    if (!adminId || !course) {
       throw new Error("Faculty or Course not found");
     }
     let attachments: Attachment[] = [];
@@ -31,7 +31,7 @@ export const getCourse = async ({
       });
       nextCourse = await db.course.findFirst({
         where: {
-          facultyId: facultyId,
+          adminId: adminId,
           isPublished: true,
           position: {
             gt: course?.position ?? 0,

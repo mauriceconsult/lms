@@ -1,42 +1,108 @@
+import {
+  Course,
+  Coursework,
+  Tutor,
+  CourseNoticeboard,
+  // Admin,
+} from "@prisma/client";
 import { db } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { getCourses } from "@/actions/get-courses";
-import { CourseSearchInput } from "./_components/course-search-input";
-import { CoursesList } from "./_components/courses-list";
+import { CourseAdminForm } from "../_components/course-admin-form";
 
-interface CourseSearchPageProps {
-  searchParams: Promise<{
-    title: string;
-    adminId: string;
-    courseId: string;
-  }>;
+async function getCourse(
+  courseId: string,
+  search?: string
+): Promise<
+  | (Course & {
+      courseworks: Coursework[];
+      tutors: Tutor[];
+      courseNoticeboards: CourseNoticeboard[];
+    })
+  | null
+> {
+  "use server";
+  try {
+    return await db.course.findUnique({
+      where: { id: courseId },
+      include: {
+        courseworks: {
+          where: search
+            ? { title: { contains: search, mode: "insensitive" } }
+            : {},
+          orderBy: { position: "asc" },
+        },
+        tutors: {
+          where: search
+            ? { title: { contains: search, mode: "insensitive" } }
+            : {},
+          orderBy: { position: "asc" },
+        },
+        courseNoticeboards: {
+          where: search
+            ? { title: { contains: search, mode: "insensitive" } }
+            : {},
+          orderBy: { position: "asc" },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Get course error:", error);
+    return null;
+  }
 }
-const CourseSearchPage = async ({ searchParams }: CourseSearchPageProps) => {
-  const { userId } = await auth();
-  if (!userId) {
+
+async function getAdminOptions(): Promise<{ label: string; value: string }[]> {
+  "use server";
+  try {
+    const admins = await db.admin.findMany({
+      select: { id: true, title: true },
+    });
+    return admins.map((admin) => ({
+      label: admin.title,
+      value: admin.id,
+    }));
+  } catch (error) {
+    console.error("Get admins error:", error);
+    return [];
+  }
+}
+
+export default async function SearchPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ courseId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const searchTerm = Array.isArray(resolvedSearchParams.search)
+    ? resolvedSearchParams.search[0] // Take first element if array
+    : resolvedSearchParams.search ?? ""; // Use string or fallback to ""
+
+  const course = await getCourse((await params).courseId, searchTerm);
+  const adminOptions = await getAdminOptions();
+
+  if (!course) {
     return redirect("/");
   }
-  const admins = await db.admin.findMany({
-    orderBy: {
-      title: "asc",
-    },
-  });
-  const courses = await getCourses({
-    userId,
-    ...(await searchParams),
-  });
 
   return (
-    <>
-      <div className="px-6 pt-6 md:hidden md:mb-0 block">
-        <CourseSearchInput />
-      </div>
-      <div className="p-6 space-y-4">
-        <Admins items={admins} />
-        <CoursesList items={courses} />
-      </div>
-    </>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-semibold mb-4">Manage Course</h1>
+      <p className="text-sm text-muted-foreground mb-2">
+        Course ID: {(await params).courseId}
+      </p>
+      {searchTerm && (
+        <p className="text-sm text-muted-foreground mb-4">
+          Search Term: {searchTerm}
+        </p>
+      )}
+      <CourseAdminForm
+        initialData={course}
+        courseId={(await params).courseId}
+        adminId={course.adminId || ""}
+        options={adminOptions}
+      />
+    </div>
   );
-};
-export default CourseSearchPage;
+}

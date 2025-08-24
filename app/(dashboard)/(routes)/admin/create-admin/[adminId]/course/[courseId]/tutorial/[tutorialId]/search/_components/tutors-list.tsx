@@ -1,21 +1,31 @@
+// components/tutor-list.tsx
 "use client";
 
 import { VideoPlayer } from "@/app/(course)/courses/[courseId]/(tutor)/tutors/[tutorId]/_components/video-player";
+import { Tutor, Course } from "@prisma/client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Tutor } from "@/actions/get-dashboard-courses";
+
+type TutorWithCourse = Tutor & {
+  course: Course | null;
+  attachmentIds: { id: string }[]; // Renamed from 'tutors' for clarity
+};
 
 interface TutorListProps {
-  tutorials: Tutor[];
+  tutorials: TutorWithCourse[];
   courseId: string;
   isEnrolled: boolean;
 }
 
-export default function TutorList({ tutorials, courseId, isEnrolled }: TutorListProps) {
+export default function TutorList({
+  tutorials,
+  courseId,
+  isEnrolled,
+}: TutorListProps) {
   const searchParams = useSearchParams();
   const selectedTutorId = searchParams.get("tutorId");
 
-  const getTutorStatus = (tutor: Tutor, index: number) => {
+  const getTutorStatus = (tutor: TutorWithCourse, index: number) => {
     const nextTutor = tutorials[index + 1];
     return {
       isLocked: !(tutor.isFree ?? false) && !isEnrolled,
@@ -27,11 +37,16 @@ export default function TutorList({ tutorials, courseId, isEnrolled }: TutorList
   return (
     <div className="space-y-2 text-sm sm:text-base">
       {tutorials.map((tutor, index) => {
-        const { isLocked, completeOnEnd, nextTutorId } = getTutorStatus(tutor, index);
+        const { isLocked, completeOnEnd, nextTutorId } = getTutorStatus(
+          tutor,
+          index
+        );
         return (
           <div key={tutor.id} className="space-y-2">
             <Link
-              href={isLocked ? "#" : `/courses/${courseId}?tutorialId=${tutor.id}`}
+              href={
+                isLocked ? "#" : `/courses/${courseId}?tutorialId=${tutor.id}`
+              }
               className={`block p-2 rounded-md ${
                 selectedTutorId === tutor.id
                   ? "bg-blue-100"
@@ -41,18 +56,32 @@ export default function TutorList({ tutorials, courseId, isEnrolled }: TutorList
               }`}
               onClick={() =>
                 isLocked
-                  ? console.log(`[${new Date().toISOString()} TutorList] Locked tutor clicked: ${tutor.id}`)
-                  : console.log(`[${new Date().toISOString()} TutorList] Navigating to tutor: ${tutor.id}`)
+                  ? console.log(
+                      `[${new Date().toISOString()} TutorList] Locked tutor clicked: ${
+                        tutor.id
+                      }`
+                    )
+                  : console.log(
+                      `[${new Date().toISOString()} TutorList] Navigating to tutor: ${
+                        tutor.id
+                      }`
+                    )
               }
             >
               <div className="flex items-center justify-between">
                 <span>{tutor.title}</span>
-                {(tutor.isFree ?? false) ? (
-                  <span className="text-green-500 text-xs sm:text-sm">(Free)</span>
+                {tutor.isFree ?? false ? (
+                  <span className="text-green-500 text-xs sm:text-sm">
+                    (Free)
+                  </span>
                 ) : isLocked ? (
-                  <span className="text-red-500 text-xs sm:text-sm">(Locked)</span>
+                  <span className="text-red-500 text-xs sm:text-sm">
+                    (Locked)
+                  </span>
                 ) : (
-                  <span className="text-blue-500 text-xs sm:text-sm">(Unlocked)</span>
+                  <span className="text-blue-500 text-xs sm:text-sm">
+                    (Unlocked)
+                  </span>
                 )}
               </div>
             </Link>
@@ -60,7 +89,7 @@ export default function TutorList({ tutorials, courseId, isEnrolled }: TutorList
               <VideoPlayer
                 playbackId={tutor.playbackId ?? ""}
                 courseId={courseId}
-                tutorialId={tutor.id}
+                tutorId={tutor.id}
                 nextTutorId={nextTutorId ?? ""}
                 isLocked={isLocked}
                 completeOnEnd={completeOnEnd}
