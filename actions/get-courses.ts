@@ -1,8 +1,8 @@
 import { db } from "@/lib/db";
-import { Course, Faculty } from "@prisma/client";
+import { Course, Admin } from "@prisma/client";
 
-type CourseWithProgressWithFaculty = Course & {
-  faculty: Faculty | null;
+type CourseWithProgressWithAdmin = Course & {
+  admin: Admin | null;
   tutors: { id: string }[];
   progress: number | null;
 };
@@ -10,12 +10,12 @@ type CourseWithProgressWithFaculty = Course & {
 type GetCourses = {
   userId: string;
   title?: string;
-  facultyId?: string;
+  adminId?: string;
 };
 export const getCourses = async ({
   title,
-  facultyId,
-}: GetCourses): Promise<CourseWithProgressWithFaculty[]> => {
+  adminId,
+}: GetCourses): Promise<CourseWithProgressWithAdmin[]> => {
   try {
     const courses = await db.course.findMany({
       where: {
@@ -23,10 +23,10 @@ export const getCourses = async ({
         title: {
           contains: title,
         },
-        facultyId,
+        adminId,
       },
       include: {
-        faculty: true,
+        admin: true,
         tutors: {
           where: {
             isPublished: true,         
@@ -40,7 +40,7 @@ export const getCourses = async ({
         },
       },
     });
-    const coursesWithProgressWithFaculty: CourseWithProgressWithFaculty[] = await Promise.all(
+    const coursesWithProgressWithAdmin: CourseWithProgressWithAdmin[] = await Promise.all(
       courses.map(async (course) => {
         return {
           ...course,
@@ -51,7 +51,7 @@ export const getCourses = async ({
         };
       })
     );
-    return coursesWithProgressWithFaculty;
+    return coursesWithProgressWithAdmin;
   } catch (error) {
     console.log("[GET_COURSES]", error);
     return [];

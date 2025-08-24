@@ -1,6 +1,6 @@
-import { CourseCourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/course-coursenoticeboard/[course-coursenoticeboardId]/search/_components/course-coursenoticeboard-search-input";
+// app/(eduplat)/_components/eduplat-navbar.tsx
 import Link from "next/link";
-
+// import { CourseNoticeboardSearchInput } from "@/app/(eduplat)/_components/course-noticeboard-search-input";
 
 export const EduplatNavbar = () => {
   return (
@@ -11,7 +11,7 @@ export const EduplatNavbar = () => {
         <Link href="/tutors">Tutors</Link>
         <Link href="/about">About</Link>
       </div>
-      <CourseCourseNoticeboardSearchInput />
+      <CourseNoticeboardSearchInput />
     </nav>
   );
 };

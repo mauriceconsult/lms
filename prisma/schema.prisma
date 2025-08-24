@@ -14,6 +14,12 @@ model School {
   admins  Admin[]
   payroll Payroll[]
 }
+model About {
+  id        String   @id @default(uuid())
+  content   String
+  updatedAt DateTime @updatedAt
+  updatedBy String?  @map("updated_by")
+}
 
 model Payroll {
   id            String         @id @default(uuid())

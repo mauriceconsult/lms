@@ -51,10 +51,20 @@ const CreateAdmin = () => {
       <div>
         <h1 className="text-2xl">Create Admin</h1>
         <p className="text-sm text-slate-600">
-          Name your Admin account, which represents an academic unit (e.g., a faculty or department). You can change it later. For guidance, see the <Link href="/about" className="text-blue-600 underline">About page</Link>.
+          Name your Admin account, which represents an academic unit like a
+          faculty or department. For example, use a name like &quot;Fashion & Design
+          Faculty&quot; to reflect the scope of your courses. You can change it
+          later. See the{" "}
+          <Link href="/about" className="text-blue-600 underline">
+            About page
+          </Link>{" "}
+          for more details.
         </p>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-8">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 mt-8"
+          >
             <FormField
               control={form.control}
               name="title"
@@ -69,7 +79,7 @@ const CreateAdmin = () => {
                     />
                   </FormControl>
                   <FormDescription>
-                    What is the scope of this Admin account (e.g., a faculty or department)?
+                    What academic unit does this Admin account represent?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

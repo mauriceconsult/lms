@@ -1,48 +1,47 @@
+// actions/get-courseNoticeboards.ts
 import { db } from "@/lib/db";
-import { CourseNoticeboard, Course } from "@prisma/client";
 
-type CourseNoticeboardWithCourse = CourseNoticeboard & {
-  course: Course | null;
-  courseNoticeboards: { id: string }[];
-};
-
-type GetCourseNoticeboards = {
-  userId: string;
+interface GetCourseNoticeboardsParams {
   title?: string;
+  courseCourseCourseNoticeboardId?: string;
   courseId?: string;
-};
-export const getCourseNoticeboards = async ({
-  title,
-  courseId,
-}: GetCourseNoticeboards): Promise<CourseNoticeboardWithCourse[]> => {
+  adminId?: string;
+}
+
+export const getCourseNoticeboards = async (
+  params: GetCourseNoticeboardsParams
+) => {
   try {
+    const { title, courseCourseCourseNoticeboardId, courseId, adminId } =
+      params;
+
     const courseNoticeboards = await db.courseNoticeboard.findMany({
       where: {
-        isPublished: true,
-        title: title ? { contains: title } : undefined,
         courseId,
+        course: { adminId },
+        ...(title && { title: { contains: title, mode: "insensitive" } }),
+        ...(courseCourseCourseNoticeboardId && {
+          id: courseCourseCourseNoticeboardId,
+        }),
       },
       include: {
-        course: true,
-        attachments: true,
+        course: {
+          include: {
+            courseNoticeboards: true, // For courseNoticeboardsLength
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
-    const courseNoticeboardsWithCourse: CourseNoticeboardWithCourse[] = await Promise.all(
-      courseNoticeboards.map(async (courseNoticeboard) => {
-        return {
-          ...courseNoticeboard,
-          courseNoticeboards: courseNoticeboard.attachments
-            ? courseNoticeboard.attachments.map((a: { id: string }) => ({ id: a.id }))
-            : [],
-        };
-      })
-    );
-    return courseNoticeboardsWithCourse;
+
+    return courseNoticeboards;
   } catch (error) {
-    console.log("[GET_COURSENOTICEBOARDS]", error);
+    console.error(
+      `[${new Date().toISOString()} getCourseNoticeboards] Error:`,
+      error
+    );
     return [];
   }
 };
