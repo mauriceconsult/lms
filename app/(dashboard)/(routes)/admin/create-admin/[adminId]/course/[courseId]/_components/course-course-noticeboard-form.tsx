@@ -20,8 +20,11 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { CourseNoticeboard, Course } from "@prisma/client";
 import { CourseCourseNoticeboardList } from "./course-course-noticeboard-list";
-import { createCourseNoticeboard, onEditCourseNoticeboardAction, onReorderCourseNoticeboardAction } from "../../../../../../faculty/create-faculty/[facultyId]/course/[courseId]/course-course-noticeboard/[course-course-noticeboardId]/actions";
-
+import {
+  createCourseNoticeboard,
+  onEditCourseNoticeboardAction,
+  onReorderCourseNoticeboardAction,
+} from "../course-coursenoticeboard/[course-coursenoticeboardId]/actions";
 
 interface CourseCourseNoticeboardFormProps {
   initialData: Course & { courseNoticeboards: CourseNoticeboard[] };
@@ -55,10 +58,7 @@ export const CourseCourseNoticeboardForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success } = await createCourseNoticeboard(
-        courseId,
-        values
-      );
+      const { success } = await createCourseNoticeboard(courseId, values);
       if (success) {
         toast.success("Noticeboard created successfully");
         toggleCreating();

@@ -1,7 +1,7 @@
 "use client";
 
 import { CourseNoticeboard } from "@prisma/client";
-import { CourseNoticeboardItem } from "./course-course-noticeboard-item";
+import { CourseNoticeboardItem } from "./course-coursenoticeboard-item";
 
 interface CourseNoticeboardItemProps {
   items: CourseNoticeboard[];

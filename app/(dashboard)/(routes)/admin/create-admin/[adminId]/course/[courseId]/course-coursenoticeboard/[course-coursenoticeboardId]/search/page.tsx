@@ -1,17 +1,18 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { Courses } from "../../../../../../../../admin/create-admin/[adminId]/course/[courseId]/search/_components/courses";
+import { Courses } from "../../../search/_components/courses";
 import { getCourseNoticeboards } from "@/actions/get-courseNoticeboards";
-import { CourseNoticeboardSearchInput } from "./_components/course-course-noticeboard-search-input";
-import { CourseNoticeboardsList } from "./_components/course-course-noticeboard-list";
+import { CourseNoticeboardSearchInput } from "./_components/course-coursenoticeboard-search-input";
+import { CourseNoticeboardsList } from "./_components/course-coursenoticeboard-list";
+
 
 interface CourseNoticeboardIdSearchPageProps {
   searchParams: Promise<{
     title: string;
     courseCourseNoticeboardId: string;
     courseId: string;
-    facultyId: string;
+    adminId: string;
   }>;
 }
 const CourseNoticeboardSearchPage = async ({

@@ -6,11 +6,11 @@ import { LayoutDashboard, File, ArrowLeft } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
 import Link from "next/link";
-import { CourseCourseNoticeboardActions } from "./_components/course-course-noticeboard-actions";
-import { CourseCourseNoticeboardTitleForm } from "./_components/course-course-noticeboard-title-form";
-import { CourseCourseNoticeboardCourseForm } from "./_components/course-course-noticeboard-course-form";
-import { CourseCourseNoticeboardDescriptionForm } from "./_components/course-course-noticeboard-description-form";
-import { CourseCourseNoticeboardAttachmentForm } from "./_components/course-course-noticeboard-attachment-form";
+import { CourseCourseNoticeboardActions } from "./_components/course-coursenoticeboard-actions";
+import { CourseCourseNoticeboardTitleForm } from "./_components/course-coursenoticeboard-title-form";
+import { CourseCourseNoticeboardCourseForm } from "./_components/course-coursenoticeboard-course-form";
+import { CourseCourseNoticeboardDescriptionForm } from "./_components/course-coursenoticeboard-description-form";
+import { CourseCourseNoticeboardAttachmentForm } from "./_components/course-coursenoticeboard-attachment-form";
 
 const CourseNoticeboardIdPage = async ({
   params,
@@ -18,7 +18,7 @@ const CourseNoticeboardIdPage = async ({
   params: Promise<{
     courseId: string;
     facultyId: string;
-    "course-course-noticeboardId": string; 
+    "course-course-noticeboardId": string;
   }>;
 }) => {
   const { userId } = await auth();
@@ -91,9 +91,7 @@ const CourseNoticeboardIdPage = async ({
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">
-                  Course notice creation
-                </h1>
+                <h1 className="text-2xl font-medium">Course notice creation</h1>
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
                 </div>
@@ -115,9 +113,7 @@ const CourseNoticeboardIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">
-                  Enter the Course notice details
-                </h2>
+                <h2 className="text-xl">Enter the Course notice details</h2>
               </div>
               <CourseCourseNoticeboardTitleForm
                 initialData={courseNoticeboard}
