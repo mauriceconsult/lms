@@ -1,49 +1,44 @@
-// app/(eduplat)/search/page.tsx
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { Courses } from "../../../search/_components/courses";
+import { CourseCourseNoticeboardSearchInput } from "./_components/course-coursenoticeboard-search-input";
+import { CourseCourseNoticeboardsList } from "./_components/course-coursenoticeboard-list";
+// import { CoursesList } from "./_components/courses-list";
 import { getCourseNoticeboards } from "@/actions/get-courseNoticeboards";
-import { CourseNoticeboardSearchInput } from "@/app/(eduplat)/_components/course-course-noticeboard-search-input";
-import { CourseNoticeboardList } from "@/app/(eduplat)/_components/course-coursenoticeboard-list";
-// import { CourseNoticeboardSearchInput } from "./_components/course-noticeboard-search-input";
-// import { CourseNoticeboardList } from "./_components/course-coursenoticeboard-list";
+import CoursesList from "./_components/courses-list";
 
-interface CourseNoticeboardSearchPageProps {
+interface CourseNoticeboardIdSearchPageProps {
   searchParams: Promise<{
     title: string;
-    courseCourseCourseNoticeboardId: string;
-    courseId: string;
     adminId: string;
   }>;
 }
 
 const CourseNoticeboardSearchPage = async ({
   searchParams,
-}: CourseNoticeboardSearchPageProps) => {
+}: CourseNoticeboardIdSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
   }
-
   const courses = await db.course.findMany({
     orderBy: {
       title: "asc",
     },
   });
-
   const courseNoticeboards = await getCourseNoticeboards({
+    userId, // Ensure GetCourseNoticeboardsParams includes userId
     ...(await searchParams),
   });
 
   return (
     <>
       <div className="px-6 pt-6 md:hidden md:mb-0 block">
-        <CourseNoticeboardSearchInput />
+        <CourseCourseNoticeboardSearchInput />
       </div>
       <div className="p-6 space-y-4">
-        <Courses items={courses} />
-        <CourseNoticeboardList items={courseNoticeboards} />
+        <CoursesList items={courses} />
+        <CourseCourseNoticeboardsList items={courseNoticeboards} />
       </div>
     </>
   );

@@ -1,13 +1,17 @@
 import { CourseNoticeboardCard } from "@/components/courseNoticeboard-card";
 import { Course, CourseNoticeboard } from "@prisma/client";
 
-type CourseCourseNoticeboardsWithCourse = Course & {
-  courseNoticeboard: CourseNoticeboard | null;  
+type CourseCourseNoticeboardsWithCourse = CourseNoticeboard & {
+  course: Course | null;
 };
+
 interface CourseCourseNoticeboardsListProps {
   items: CourseCourseNoticeboardsWithCourse[];
 }
-export const CourseCourseNoticeboardsList = ({ items }: CourseCourseNoticeboardsListProps) => {
+
+export const CourseCourseNoticeboardsList = ({
+  items,
+}: CourseCourseNoticeboardsListProps) => {
   return (
     <div>
       <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
@@ -16,9 +20,9 @@ export const CourseCourseNoticeboardsList = ({ items }: CourseCourseNoticeboards
             key={item.id}
             id={item.id}
             title={item.title}
-            course={item?.course?.title ?? ""}
-            courseNoticeboardsLength={0}
-            progress={null}           
+            course={item.course?.title ?? ""}
+            courseNoticeboardsLength={0} // Update if you have logic to compute this
+            progress={null}
           />
         ))}
       </div>

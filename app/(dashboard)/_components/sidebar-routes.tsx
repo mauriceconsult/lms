@@ -17,29 +17,29 @@ const guestRoutes = [
   },
 ];
 
-const facultyRoutes = (facultyId: string) => [
+const adminRoutes = (adminId: string) => [
   {
     icon: List,
-    label: "Faculties",
-    href: `/faculties/${facultyId}`,
+    label: "Admins",
+    href: `/admins/${adminId}`,
   },
   {
     icon: Compass,
-    label: "Browse Faculties",
-    href: `/faculties/${facultyId}/search`,
+    label: "Browse Admins",
+    href: `/admins/${adminId}/search`,
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/faculties/${facultyId}/analytics`,
+    href: `/admins/${adminId}/analytics`,
   },
 ];
 
-const courseRoutes = (facultyId: string, courseId: string) => [
+const courseRoutes = (adminId: string, courseId: string) => [
   {
     icon: List,
     label: "Courses",
-    href: `/faculties/${facultyId}/courses`,
+    href: `/admins/${adminId}/courses`,
   },
   {
     icon: Compass,
@@ -53,93 +53,93 @@ const courseRoutes = (facultyId: string, courseId: string) => [
   },
 ];
 
-const tutorRoutes = (facultyId: string, courseId: string) => [
+const tutorRoutes = (adminId: string, courseId: string) => [
   {
     icon: List,
-    label: "Topics",
-    href: `/faculties/${facultyId}/courses/${courseId}/tutors`,
+    label: "Tutorials",
+    href: `/admins/${adminId}/courses/${courseId}/tutors`,
   },
   {
     icon: Compass,
-    label: "Browse Topics",
-    href: `/faculties/${facultyId}/courses/${courseId}/tutors/search`,
+    label: "Browse Tutorials",
+    href: `/admins/${adminId}/courses/${courseId}/tutors/search`,
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/faculties/${facultyId}/courses/${courseId}/tutors/analytics`,
+    href: `/admins/${adminId}/courses/${courseId}/tutors/analytics`,
   },
 ];
 
-const noticeboardRoutes = (facultyId: string) => [
+const noticeboardRoutes = (adminId: string) => [
   {
     icon: List,
     label: "Noticeboards",
-    href: `/faculties/${facultyId}/noticeboards`,
+    href: `/admins/${adminId}/noticeboards`,
   },
   {
     icon: Compass,
-    label: "Browse Faculty Notices",
-    href: `/faculties/${facultyId}/noticeboards/search`,
+    label: "Browse Admin Notices",
+    href: `/admins/${adminId}/noticeboards/search`,
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/faculties/${facultyId}/noticeboards/analytics`,
+    href: `/admins/${adminId}/noticeboards/analytics`,
   },
 ];
 
-const courseworkRoutes = (facultyId: string) => [
+const courseworkRoutes = (adminId: string) => [
   {
     icon: List,
     label: "Courseworks",
-    href: `/faculties/${facultyId}/courseworks`,
+    href: `/admins/${adminId}/courseworks`,
   },
   {
     icon: Compass,
     label: "Browse Courseworks",
-    href: `/faculties/${facultyId}/courseworks/search`,
+    href: `/admins/${adminId}/courseworks/search`,
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/faculties/${facultyId}/courseworks/analytics`,
+    href: `/admins/${adminId}/courseworks/analytics`,
   },
 ];
 
-const assignmentRoutes = (facultyId: string, courseId: string) => [
+const assignmentRoutes = (adminId: string, courseId: string) => [
   {
     icon: List,
     label: "Assignments",
-    href: `/faculties/${facultyId}/courses/${courseId}/assignments`,
+    href: `/admins/${adminId}/courses/${courseId}/assignments`,
   },
   {
     icon: Compass,
     label: "Browse Assignments",
-    href: `/faculties/${facultyId}/courses/${courseId}/assignments/search`,
+    href: `/admins/${adminId}/courses/${courseId}/assignments/search`,
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/faculties/${facultyId}/courses/${courseId}/assignments/analytics`,
+    href: `/admins/${adminId}/courses/${courseId}/assignments/analytics`,
   },
 ];
 
-const courseNoticeboardRoutes = (facultyId: string, courseId: string) => [
+const courseNoticeboardRoutes = (adminId: string, courseId: string) => [
   {
     icon: List,
     label: "Course Notices",
-    href: `/faculties/${facultyId}/courses/${courseId}/courseNoticeboards`,
+    href: `/admins/${adminId}/courses/${courseId}/courseNoticeboards`,
   },
   {
     icon: Compass,
     label: "Browse Course Notices",
-    href: `/faculties/${facultyId}/courses/${courseId}/courseNoticeboards/search`,
+    href: `/admins/${adminId}/courses/${courseId}/courseNoticeboards/search`,
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/faculties/${facultyId}/courses/${courseId}/courseNoticeboards/analytics`,
+    href: `/admins/${adminId}/courses/${courseId}/courseNoticeboards/analytics`,
   },
 ];
 
@@ -163,8 +163,8 @@ const payrollRoutes = [
 
 export const SidebarRoutes = () => {
   const pathname = usePathname();
-  const params = useParams<{ facultyId: string; courseId: string }>();
-  const isFacultyPage = pathname?.includes("/faculties");
+  const params = useParams<{ adminId: string; courseId: string }>();
+  const isAdminPage = pathname?.includes("/admins");
   const isCoursePage = pathname?.includes("/courses");
   const isTutorPage = pathname?.includes("/tutors");
   const isNoticeboardPage = pathname?.includes("/noticeboards");
@@ -174,22 +174,22 @@ export const SidebarRoutes = () => {
   const isPayrollPage = pathname?.includes("/payroll");
 
   let routes;
-  if (isTutorPage && params.facultyId && params.courseId) {
-    routes = tutorRoutes(params.facultyId, params.courseId);
-  } else if (isNoticeboardPage && params.facultyId) {
-    routes = noticeboardRoutes(params.facultyId);
-  } else if (isCourseNoticeboardPage && params.facultyId && params.courseId) {
-    routes = courseNoticeboardRoutes(params.facultyId, params.courseId);
-  } else if (isCourseworkPage && params.facultyId) {
-    routes = courseworkRoutes(params.facultyId);
-  } else if (isAssignmentPage && params.facultyId && params.courseId) {
-    routes = assignmentRoutes(params.facultyId, params.courseId);
+  if (isTutorPage && params.adminId && params.courseId) {
+    routes = tutorRoutes(params.adminId, params.courseId);
+  } else if (isNoticeboardPage && params.adminId) {
+    routes = noticeboardRoutes(params.adminId);
+  } else if (isCourseNoticeboardPage && params.adminId && params.courseId) {
+    routes = courseNoticeboardRoutes(params.adminId, params.courseId);
+  } else if (isCourseworkPage && params.adminId) {
+    routes = courseworkRoutes(params.adminId);
+  } else if (isAssignmentPage && params.adminId && params.courseId) {
+    routes = assignmentRoutes(params.adminId, params.courseId);
   } else if (isPayrollPage) {
     routes = payrollRoutes;
-  } else if (isCoursePage && params.facultyId && params.courseId) {
-    routes = courseRoutes(params.facultyId, params.courseId);
-  } else if (isFacultyPage && params.facultyId) {
-    routes = facultyRoutes(params.facultyId);
+  } else if (isCoursePage && params.adminId && params.courseId) {
+    routes = courseRoutes(params.adminId, params.courseId);
+  } else if (isAdminPage && params.adminId) {
+    routes = adminRoutes(params.adminId);
   } else {
     routes = guestRoutes;
   }

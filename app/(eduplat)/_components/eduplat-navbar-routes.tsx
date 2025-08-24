@@ -1,35 +1,36 @@
-// components/NavbarRoutes.tsx
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import Link from "next/link";
-import { AdminIdSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/search/_components/adminId-search-input";
+import React, { FC, ReactElement } from "react";
 import { CourseSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/search/_components/course-search-input";
 import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
 import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/coursework/[courseworkId]/search/_components/coursework-search-input";
-import React, { FC, ReactElement } from "react";
-import ClientUserButton from "./client-user-button";
+import { AdminIdSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/search/_components/adminId-search-input";
 import { CourseCourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/course-coursenoticeboard/[course-coursenoticeboardId]/search/_components/course-coursenoticeboard-search-input";
-
+import ClientUserButton from "@/components/client-user-button";
 
 type SearchInputComponent = FC<object>;
 
-interface NavbarRoutesProps {
-  adminId?: string;
+interface EduplatNavbarRoutesProps {
+  eduplatId?: string;
   courseId?: string;
 }
 
-export const NavbarRoutes: FC<NavbarRoutesProps> = ({ adminId, courseId }): ReactElement => {
+export const EduplatNavbarRoutes: FC<EduplatNavbarRoutesProps> = ({
+  eduplatId,
+  courseId,
+}): ReactElement => {
   const pathname: string | null = usePathname();
-  const isAdminPage = pathname?.startsWith("/admin");
-  const isCoursePage = pathname?.includes("/course");
-  const isNoticeboardPage = pathname?.includes("/noticeboard");
-  const isCourseworkPage = pathname?.includes("/coursework");
-  const isTutorPage = pathname?.includes("/tutor");
-  const isAssignmentPage = pathname?.includes("/assignment");
-  const isCourseNoticeboardPage = pathname?.includes("/courseNoticeboard");
+  const isAdminPage = pathname?.startsWith("/eduplats/[eduplatId]/admins");
+  const isCoursePage = pathname?.includes("/courses");
+  const isNoticeboardPage = pathname?.includes("/noticeboards");
+  const isCourseworkPage = pathname?.includes("/courseworks");
+  const isTutorPage = pathname?.includes("/tutors");
+  const isAssignmentPage = pathname?.includes("/assignments");
+  const isCourseNoticeboardPage = pathname?.includes("/courseNoticeboards");
   const isPayrollPage = pathname?.includes("/payroll");
 
   let isSearchPages: SearchInputComponent | undefined;
@@ -45,8 +46,8 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = ({ adminId, courseId }): Reac
     // isSearchPages = AssignmentSearchInput; // Uncomment when available
   } else if (isCourseNoticeboardPage) {
     isSearchPages = CourseCourseNoticeboardSearchInput;
-  // } else if (isPayrollPage) {
-  //   isSearch = PayrollSearchInput;
+  } else if (isPayrollPage) {
+    // isSearchPages = PayrollSearchInput; // Uncomment when available
   } else if (isAdminPage) {
     isSearchPages = AdminIdSearchInput;
   }
@@ -81,7 +82,7 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = ({ adminId, courseId }): Reac
             </Button>
           </Link>
         ) : (
-          <Link href="/admin/admins">
+          <Link href={`/eduplats/${eduplatId}/admins`}>
             <Button size="sm" variant="ghost">
               Admins
             </Button>
@@ -92,43 +93,45 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = ({ adminId, courseId }): Reac
             Payrolls
           </Button>
         </Link>
-        {adminId && (
-          <Link href={`/admin/create-admin/${adminId}/course/courses`}>
+        {eduplatId && (
+          <Link href={`/eduplats/${eduplatId}/courses`}>
             <Button size="sm" variant="ghost">
               Courses
             </Button>
           </Link>
         )}
-        {adminId && courseId && (
-          <Link href={`/admin/create-admin/${adminId}/course/${courseId}/tutor/tutors`}>
+        {eduplatId && courseId && (
+          <Link href={`/eduplats/${eduplatId}/courses/${courseId}/tutors`}>
             <Button size="sm" variant="ghost">
               Tutorials
             </Button>
           </Link>
         )}
-        {adminId && (
-          <Link href={`/admin/create-admin/${adminId}/noticeboard/noticeboards`}>
+        {eduplatId && (
+          <Link href={`/eduplats/${eduplatId}/noticeboards`}>
             <Button size="sm" variant="ghost">
-              Admin Notices
+              Notices
             </Button>
           </Link>
         )}
-        {adminId && (
-          <Link href={`/admin/create-admin/${adminId}/coursework/courseworks`}>
+        {eduplatId && (
+          <Link href={`/eduplats/${eduplatId}/courseworks`}>
             <Button size="sm" variant="ghost">
               Courseworks
             </Button>
           </Link>
         )}
-        {adminId && courseId && (
-          <Link href={`/admin/create-admin/${adminId}/course/${courseId}/courseNoticeboard/courseNoticeboards`}>
+        {eduplatId && courseId && (
+          <Link
+            href={`/eduplats/${eduplatId}/courses/${courseId}/courseNoticeboards`}
+          >
             <Button size="sm" variant="ghost">
               Course Notices
             </Button>
           </Link>
         )}
-        {adminId && courseId && (
-          <Link href={`/admin/create-admin/${adminId}/course/${courseId}/assignment/assignments`}>
+        {eduplatId && courseId && (
+          <Link href={`/eduplats/${eduplatId}/courses/${courseId}/assignments`}>
             <Button size="sm" variant="ghost">
               Assignments
             </Button>

@@ -23,4 +23,5 @@ const AdminsPage = async () => {
     </div>
   );
 };
+
 export default AdminsPage;

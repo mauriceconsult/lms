@@ -2,9 +2,10 @@ import { db } from "@/lib/db";
 import { NoticeboardSearchInput } from "./_components/noticeboard-search-input";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-// import { Admins } from "../../../search/_components/admins";
 import { NoticeboardsList } from "./_components/noticeboards-list";
 import { getNoticeboards } from "@/actions/get-noticeboards";
+import AdminsList from "./_components/admins-list";
+// import { AdminsList } from "./_components/admins-list"; // Add this import
 
 interface NoticeboardIdSearchPageProps {
   searchParams: Promise<{
@@ -12,6 +13,7 @@ interface NoticeboardIdSearchPageProps {
     adminId: string;
   }>;
 }
+
 const NoticeboardSearchPage = async ({
   searchParams,
 }: NoticeboardIdSearchPageProps) => {
@@ -35,10 +37,11 @@ const NoticeboardSearchPage = async ({
         <NoticeboardSearchInput />
       </div>
       <div className="p-6 space-y-4">
-        <Admins items={admins} />
+        <AdminsList items={admins} /> {/* Update to AdminsList */}
         <NoticeboardsList items={noticeboards} />
       </div>
     </>
   );
 };
+
 export default NoticeboardSearchPage;
