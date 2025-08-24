@@ -18,27 +18,34 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Course, Admin } from "@prisma/client";
-import { AdminCourseList } from "./admin-course-list";
-import { createCourse, onEditAction, onReorderAction } from "../actions";
+import { Assignment, Tutor } from "@prisma/client";
+import { TutorAssignmentList } from "./tutor-assignment-list";
+import { createAssignment, onEditAction, onReorderAction } from "../../../../../../../../admin/create-admin/[adminId]/course/[courseId]/tutor/[tutorId]/assignment/[assignmentId]/actions";
 
-interface AdminCourseFormProps {
-  initialData: Admin & { courses: Course[] };
+interface TutorAssignmentFormProps {
+  initialData: Tutor & { assignments: Assignment[] };
+  courseId: string;
   adminId: string;
+  tutorialId: string;
 }
 
 const formSchema = z.object({
-  title: z.string().min(1, "Course name is required"),
+  title: z.string().min(1, "Title is required"),
 });
 
-export const AdminCourseForm = ({
+export const TutorAssignmentForm = ({
   initialData,
+  courseId,
   adminId,
-}: AdminCourseFormProps) => {
+  tutorialId,
+}: TutorAssignmentFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const toggleCreating = () => setIsCreating((current) => !current);
   const router = useRouter();
+
+  console.log("TutorAssignmentForm props:", { tutorialId, courseId, adminId });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,7 +59,9 @@ export const AdminCourseForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await createCourse(adminId, values);
+      console.log("Creating assignment with:", { tutorialId, values, adminId, courseId });
+      const { success, message, data } = await createAssignment(tutorialId, values, adminId, courseId);
+      console.log("Create assignment response:", { success, message, data });
       if (success) {
         toast.success(message);
         toggleCreating();
@@ -62,7 +71,7 @@ export const AdminCourseForm = ({
         toast.error(message);
       }
     } catch (error) {
-      console.error("Create course error:", error);
+      console.error("Create assignment error:", error);
       toast.error("Unexpected error occurred");
     }
   };
@@ -79,7 +88,7 @@ export const AdminCourseForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course*
+        Tutorial assignment*
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -90,7 +99,7 @@ export const AdminCourseForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Course
+              Add a tutorial Assignment
             </>
           )}
         </Button>
@@ -110,7 +119,7 @@ export const AdminCourseForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Fashion Design Technology'"
+                      placeholder="e.g., 'Principles of Fashion Design'"
                       {...field}
                     />
                   </FormControl>
@@ -132,35 +141,39 @@ export const AdminCourseForm = ({
         <div
           className={cn(
             "text-sm mt-2",
-            !initialData.courses.length && "text-slate-500 italic"
+            !initialData.assignments.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.courses.length &&
-            "You can add as many Courses as you like but at least one published Course is required for a Admin."}
-          <AdminCourseList
+          {!initialData.assignments.length &&
+            "At least one published Assignment is required. A tutorial assignment examines the student's understanding of the uploaded video's content."}
+          <TutorAssignmentList
             onEditAction={async (id) => {
-              const result = await onEditAction(adminId, id);
+              console.log("Editing assignment with:", { tutorialId, assignmentId: id, adminId, courseId });
+              const result = await onEditAction(tutorialId, id, adminId, courseId);
+              console.log("Edit action response:", result);
               if (result.success) {
                 router.push(
-                  `/admin/create-admin/${adminId}/course/${id}`
+                  `/admin/create-admin/${adminId}/course/${courseId}/tutor/${tutorialId}/assignment/${id}`
                 );
               }
               return result;
             }}
             onReorderAction={async (updateData) => {
+              console.log("Reordering assignments with:", { tutorialId, updateData, adminId, courseId });
               setIsUpdating(true);
-              const result = await onReorderAction(adminId, updateData);
+              const result = await onReorderAction(tutorialId, updateData, adminId, courseId);
+              console.log("Reorder action response:", result);
               setIsUpdating(false);
               router.refresh();
               return result;
             }}
-            items={initialData.courses || []}
+            items={initialData.assignments || []}
           />
         </div>
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Courses
+          Drag and drop to reorder the Assignments
         </p>
       )}
     </div>

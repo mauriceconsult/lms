@@ -18,23 +18,29 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Course, Admin } from "@prisma/client";
-import { AdminCourseList } from "./admin-course-list";
-import { createCourse, onEditAction, onReorderAction } from "../actions";
+import { Tutor, Course } from "@prisma/client";
+import { CourseTutorList } from "./course-tutor-list";
+import {
+  createTutor,
+  onEditAction,
+  onReorderAction,
+} from "../../../../../../admin/create-admin/[adminId]/course/[courseId]/tutorials/[tutorialId]/actions";
 
-interface AdminCourseFormProps {
-  initialData: Admin & { courses: Course[] };
+interface CourseTutorFormProps {
+  initialData: Course & { tutors: Tutor[] };
+  courseId: string;
   adminId: string;
 }
 
 const formSchema = z.object({
-  title: z.string().min(1, "Course name is required"),
+  title: z.string().min(1, "Title is required"),
 });
 
-export const AdminCourseForm = ({
+export const CourseTutorForm = ({
   initialData,
+  courseId,
   adminId,
-}: AdminCourseFormProps) => {
+}: CourseTutorFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const toggleCreating = () => setIsCreating((current) => !current);
@@ -43,6 +49,7 @@ export const AdminCourseForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
+    
     },
   });
   const {
@@ -52,7 +59,7 @@ export const AdminCourseForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await createCourse(adminId, values);
+      const { success, message } = await createTutor(courseId, values);
       if (success) {
         toast.success(message);
         toggleCreating();
@@ -62,7 +69,7 @@ export const AdminCourseForm = ({
         toast.error(message);
       }
     } catch (error) {
-      console.error("Create course error:", error);
+      console.error("Create tutor error:", error);
       toast.error("Unexpected error occurred");
     }
   };
@@ -79,7 +86,7 @@ export const AdminCourseForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Course*
+        Tutorial*
         <Button
           onClick={toggleCreating}
           variant="ghost"
@@ -90,7 +97,7 @@ export const AdminCourseForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a Course
+              Add a tutorial
             </>
           )}
         </Button>
@@ -110,7 +117,7 @@ export const AdminCourseForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Fashion Design Technology'"
+                      placeholder="e.g., 'Introduction to Fashion & Design Technology'"
                       {...field}
                     />
                   </FormControl>
@@ -132,35 +139,35 @@ export const AdminCourseForm = ({
         <div
           className={cn(
             "text-sm mt-2",
-            !initialData.courses.length && "text-slate-500 italic"
+            !initialData.tutors.length && "text-slate-500 italic"
           )}
         >
-          {!initialData.courses.length &&
-            "You can add as many Courses as you like but at least one published Course is required for a Admin."}
-          <AdminCourseList
+          {!initialData.tutors.length &&
+            "At least one published Tutorial is required. Tutorials break the entire Course into manageable lessons achievable within shorter session. Each tutorial should have an achievable objective or a set of objectives."}
+          <CourseTutorList
             onEditAction={async (id) => {
-              const result = await onEditAction(adminId, id);
+              const result = await onEditAction(courseId, id);
               if (result.success) {
                 router.push(
-                  `/admin/create-admin/${adminId}/course/${id}`
+                  `/admin/create-admin/${adminId}/course/${courseId}/tutor/${id}`
                 );
               }
               return result;
             }}
             onReorderAction={async (updateData) => {
               setIsUpdating(true);
-              const result = await onReorderAction(adminId, updateData);
+              const result = await onReorderAction(courseId, updateData);
               setIsUpdating(false);
               router.refresh();
               return result;
             }}
-            items={initialData.courses || []}
+            items={initialData.tutors || []}
           />
         </div>
       )}
       {!isCreating && (
         <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Courses
+          Drag and drop to reorder the Topics/Tutors
         </p>
       )}
     </div>
