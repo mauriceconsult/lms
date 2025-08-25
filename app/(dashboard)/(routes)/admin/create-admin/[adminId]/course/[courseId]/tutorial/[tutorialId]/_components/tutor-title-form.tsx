@@ -42,7 +42,7 @@ export const TutorTitleForm = ({ initialData, adminId, courseId, tutorialId }: T
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-admins/${adminId}/courses/${courseId}/tutorial/${tutorialId}/titles`, values);
+      await axios.patch(`/api/create-admins/${adminId}/courses/${courseId}/tutorials/${tutorialId}/titles`, values);
       toast.success("Tutorial created.");
       toggleEdit();
       router.refresh();

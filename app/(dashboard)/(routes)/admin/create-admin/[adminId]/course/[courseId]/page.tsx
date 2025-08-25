@@ -1,3 +1,4 @@
+// pages/admin/create-admin/[adminId]/course/[courseId]/index.tsx
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -6,21 +7,23 @@ import {
   ListChecks,
   File,
   ArrowLeft,
-  Eye,
+  // Eye,
   Image,
 } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
-import { CourseActions } from "../../../../../admin/create-admin/[adminId]/course/[courseId]/_components/course-actions";
-import { CourseTitleForm } from "../../../../../admin/create-admin/[adminId]/course/[courseId]/_components/course-title-form";
-import { CourseDescriptionForm } from "../../../../../admin/create-admin/[adminId]/course/[courseId]/_components/course-description-form";
-import { CourseAccessForm } from "../../../../../admin/create-admin/[adminId]/course/[courseId]/_components/course-access-form";
-import { CourseImageForm } from "../../../../../admin/create-admin/[adminId]/course/[courseId]/_components/course-image-form";
-import { CourseAttachmentForm } from "../../../../../admin/create-admin/[adminId]/course/[courseId]/_components/course-attachment-form";
-import { CourseTutorForm } from "../../../../../admin/create-admin/[adminId]/course/[courseId]/_components/course-tutor-form";
+import { CourseActions } from "./_components/course-actions";
+import { CourseTitleForm } from "./_components/course-title-form";
+import { CourseDescriptionForm } from "./_components/course-description-form";
+// import { CourseAccessForm } from "./_components/course-access-form";
+import { CourseImageForm } from "./_components/course-image-form";
+import { CourseAttachmentForm } from "./_components/course-attachment-form";
+import { CourseTutorForm } from "./_components/course-tutor-form";
 import Link from "next/link";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { CourseAdminForm } from "./_components/course-admin-form";
+
+export const dynamic = "force-dynamic"; 
 
 const CourseIdPage = async ({
   params,
@@ -56,9 +59,7 @@ const CourseIdPage = async ({
       adminId: resolvedParams.adminId,
     },
     include: {
-      tutors: {
-        where: { isPublished: true },
-      },
+      tutors: true, // Include all tutors, published or unpublished
       attachments: true,
       courseworks: true,
     },
@@ -71,7 +72,6 @@ const CourseIdPage = async ({
     },
   });
 
-  // Fetch all admins for the options prop
   const admins = await db.admin.findMany({
     where: { userId },
     select: {
@@ -100,8 +100,8 @@ const CourseIdPage = async ({
       <div className="p-6">
         <h2 className="text-2xl font-medium">Course or Admin Not Found</h2>
         <p>
-          The requested course or admin does not exist or you do not have
-          access to it.
+          The requested course or admin does not exist or you do not have access
+          to it.
         </p>
         <p>Admin ID: {resolvedParams.adminId}</p>
         <p>Course ID: {resolvedParams.courseId}</p>
@@ -124,7 +124,7 @@ const CourseIdPage = async ({
     initialData.description,
     initialData.imageUrl,
     initialData.adminId,
-    initialData.tutors.length > 0,
+    initialData.tutors.some((tutor) => tutor.isPublished), // At least one published tutor
     initialData.courseworks.length > 0,
   ];
   const optionalFields = [initialData.attachments.length > 0];
@@ -143,7 +143,7 @@ const CourseIdPage = async ({
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Course is unpublished. To publish, complete the required* fields and ensure you have at least one published Tutor and one Coursework."
+          label="This Course is unpublished. To publish, complete the required* fields. Ensure you have at least one published Tutorial and one Coursework."
         />
       )}
       <div className="p-6">
@@ -200,7 +200,7 @@ const CourseIdPage = async ({
               />
             </div>
             <div className="space-y-6">
-              <div>
+              {/* <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={Eye} />
                   <h2 className="text-xl">Access settings</h2>
@@ -210,7 +210,7 @@ const CourseIdPage = async ({
                   adminId={resolvedParams.adminId}
                   courseId={resolvedParams.courseId}
                 />
-              </div>
+              </div> */}
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={Image} />
@@ -236,7 +236,7 @@ const CourseIdPage = async ({
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={ListChecks} />
-                  <h2 className="text-xl">Course tutors</h2>
+                  <h2 className="text-xl">Course tutorials</h2>
                 </div>
                 <CourseTutorForm
                   initialData={initialData}

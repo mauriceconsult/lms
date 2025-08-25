@@ -10,7 +10,7 @@ export async function DELETE(
     params: Promise<{
       adminId: string;
       courseId: string;
-      tutorId: string;
+      tutorialId: string;
       attachmentId: string;
     }>;
   }
@@ -22,7 +22,7 @@ export async function DELETE(
     }
     const tutorOwner = await db.tutor.findUnique({
       where: {
-        id: (await params).tutorId,
+        id: (await params).tutorialId,
         userId: userId,
       },
     });
@@ -31,7 +31,7 @@ export async function DELETE(
     }
     const attachment = await db.attachment.delete({
       where: {
-        tutorId: (await params).tutorId,
+        tutorId: (await params).tutorialId,
         id: (await params).attachmentId,
       },
     });

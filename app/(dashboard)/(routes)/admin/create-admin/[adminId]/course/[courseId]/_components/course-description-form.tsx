@@ -183,7 +183,7 @@ export const CourseDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {!initialData.description && "In not more than 5,000 characters, articulate your mission here. A Course can have many Tutorials (i.e., lessons or sessions), you could highlight them cohesively here using rich text, tables, and images. This could help demonstrate value for money or other desired virtue as the Course evolves."}
+          {!initialData.description && "In not more than 5,000 characters, articulate your mission here. A Course can have many Tutorials (i.e., lessons or sessions), you could highlight them cohesively here. This could demonstrate value for money or other desired virtue."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}

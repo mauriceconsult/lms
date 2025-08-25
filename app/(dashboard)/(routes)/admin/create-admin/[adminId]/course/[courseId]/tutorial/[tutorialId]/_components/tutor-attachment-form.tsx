@@ -34,7 +34,7 @@ export const TutorAttachmentForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post(`/api/create-faculties/${adminId}/courses/${courseId}/tutorials/${tutorialId}/attachments`, values);
+      await axios.post(`/api/create-admins/${adminId}/courses/${courseId}/tutorials/${tutorialId}/attachments`, values);
       toast.success("Tutorial attachments updated.");
       toggleEdit();
       router.refresh();
@@ -45,7 +45,7 @@ export const TutorAttachmentForm = ({
   const onDelete = async (id: string) => {
     try {
       setDeletingId(id);
-      await axios.delete(`/api/create-faculties/${adminId}/courses/${courseId}/tutorials/${tutorialId}/attachments/${id}`);
+      await axios.delete(`/api/create-admins/${adminId}/courses/${courseId}/tutorials/${tutorialId}/attachments/${id}`);
       toast.success("Tutorial attachment deleted");
       router.refresh();
     } catch {

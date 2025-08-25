@@ -95,7 +95,7 @@ export const TutorDescriptionForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await fetch(
-        `/api/create-faculties/${adminId}/courses/${courseId}/tutors/${tutorialId}`,
+        `/api/create-admins/${adminId}/courses/${courseId}/tutorials/${tutorialId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -108,7 +108,7 @@ export const TutorDescriptionForm = ({
         throw new Error(error.message || "Failed to update description");
       }
 
-      toast.success("Topic description updated.");
+      toast.success("Tutorial description updated.");
       toggleEditing();
       reset({ description: values.description || "" });
       router.refresh();
@@ -198,7 +198,7 @@ export const TutorDescriptionForm = ({
           )}
         >
           {!initialData.description &&
-            "Explain the objective (or goals) of the tutorial. This guides the length of each tutorial video and helps the students to watch and learn from the video and in submitting the related assignment."}
+            "Explain the objective (or goals) of the tutorial. This will guide the length of tutorial video and helps the students to know the key theme(s) of the tutorial."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}

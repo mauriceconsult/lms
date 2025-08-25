@@ -81,9 +81,9 @@ export const CourseAccessForm = ({
           )}
         >
           {initialData.userId ? (
-            <>This tutorial is free for preview.</>
+            <>This Course is not free.</>
           ) : (
-            <>This tutorial is not free.</>
+            <>This Course is free for preview.</>
           )}
         </p>
       )}

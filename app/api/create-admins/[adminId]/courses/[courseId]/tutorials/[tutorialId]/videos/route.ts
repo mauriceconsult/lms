@@ -14,16 +14,16 @@ export async function PATCH(
   {
     params,
   }: {
-    params: Promise<{ adminId: string; courseId: string; tutorId: string }>;
+    params: Promise<{ adminId: string; courseId: string; tutorialId: string }>;
   }
 ) {
   try {
     const body = await request.json();
     const { videoUrl } = body;
     const { userId } = await auth();
-    const { adminId, courseId, tutorId } = await params;
+    const { adminId, courseId, tutorialId } = await params;
 
-    console.log("PATCH Params:", { adminId, courseId, tutorId });
+    console.log("PATCH Params:", { adminId, courseId, tutorialId });
     console.log("Request body:", { videoUrl });
 
     if (!userId) {
@@ -35,7 +35,7 @@ export async function PATCH(
 
     const tutorial = await db.tutor.findUnique({
       where: {
-        id: tutorId,
+        id: tutorialId,
         userId,
       },
       include: { muxData: true },
@@ -45,7 +45,7 @@ export async function PATCH(
     }
 
     const updatedTutorial = await db.tutor.update({
-      where: { id: tutorId },
+      where: { id: tutorialId },
       data: { videoUrl },
       include: { muxData: true },
     });
@@ -77,7 +77,7 @@ export async function PATCH(
     }
 
     revalidatePath(
-      `/admin/create-admin/${adminId}/course/${courseId}/tutor/${tutorId}`
+      `/admin/create-admin/${adminId}/course/${courseId}/tutorial/${tutorialId}`
     );
     return NextResponse.json(updatedTutorial);
   } catch (error) {

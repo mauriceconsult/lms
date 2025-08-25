@@ -1,74 +1,25 @@
-// app/(dashboard)/(routes)/course/create-course/[courseId]/actions.ts
 "use server";
 
 import { db } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { Prisma, Tutor } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
-export async function updateTutor( 
-  tutorId: string,
-  values: { description?: string }
-) {
+export async function onEditAction(courseId: string, tutorId: string) {
   try {
+    console.log("onEditAction called with:", { courseId, tutorId });
+    const course = await db.course.findUnique({
+      where: { id: courseId },
+    });
+    if (!course) {
+      console.error("Course not found:", { courseId });
+      return { success: false, message: "Course not found" };
+    }
     const tutor = await db.tutor.findUnique({
-      where: { id: tutorId },
+      where: { id: tutorId, courseId },
     });
     if (!tutor) {
-      return { success: false, message: "Tutor not found" };
-    }
-    if (values.description && values.description.length > 5000) {
-      return { success: false, message: "Description exceeds 5000 characters" };
-    }   
-    await db.tutor.update({
-      where: { id: tutorId },
-      data: { description: values.description || "" },
-    });
-    return {
-      success: true,
-      message: "Tutorial description updated successfully",
-    };
-  } catch (error) {
-    console.error("Update course error:", error);
-    return { success: false, message: "Failed to update course description" };
-  }
-}
-
-export async function onReorderAction(
-  courseId: string,
-  updateData: { id: string; position: number }[]
-) {
-  try {
-    const course = await db.course.findUnique({
-      where: { id: courseId },
-    });
-    if (!course) {
-      return { success: false, message: "Tutor not found" };
-    }
-    await db.$transaction(
-      updateData.map((update) =>
-        db.tutor.update({
-          where: { id: update.id },
-          data: { position: update.position },
-        })
-      )
-    );
-    return { success: true, message: "Tutors reordered successfully" };
-  } catch (error) {
-    console.error("Reorder error:", error);
-    return { success: false, message: "Failed to reorder tutors" };
-  }
-}
-
-export async function onEditAction(courseId: string, id: string) {
-  try {
-    const course = await db.course.findUnique({
-      where: { id: courseId },
-    });
-    if (!course) {
-      return { success: false, message: "Tutor not found" };
-    }
-    const tutor = await db.tutor.findUnique({ where: { id } });
-    if (!tutor) {
-      return { success: false, message: "Tutor not found" };
+      console.error("Tutor not found:", { tutorId, courseId });
+      return { success: false, message: "Tutorial not found" };
     }
     return { success: true, message: "Edit action triggered" };
   } catch (error) {
@@ -79,32 +30,34 @@ export async function onEditAction(courseId: string, id: string) {
 
 export async function createTutor(
   courseId: string,
-  values: { title: string; description?: string }
-) {
+  values: { title: string }
+): Promise<{ success: boolean; message: string; data?: Tutor }> {
   try {
     const course = await db.course.findUnique({
       where: { id: courseId },
     });
     if (!course) {
-      return { success: false, message: "Tutor not found" };
+      console.error("Course not found:", { courseId });
+      return { success: false, message: "Course not found" };
     }
-    if (values.description && values.description.length > 5000) {
-      return { success: false, message: "Description exceeds 5000 characters" };
-    }
-
-    const tutorial = await db.tutor.create({
+    const tutor = await db.tutor.create({
       data: {
         title: values.title,
-        description: values.description || "",
-        userId: course.userId || "",
+        userId: course.userId,
         courseId,
+        adminId: course.adminId,
         position: 0,
         isPublished: false,
       },
     });
+    revalidatePath(`/admin/create-admin/${course.adminId}/course/${courseId}`);
+    console.log(
+      `Revalidated path: /admin/create-admin/${course.adminId}/course/${courseId}`
+    );
     return {
       success: true,
-      message: `Tutorial "${tutorial.title}" created successfully`,
+      message: `Tutorial "${tutor.title}" created successfully`,
+      data: tutor,
     };
   } catch (error) {
     console.error("Create tutor error:", error);

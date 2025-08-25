@@ -1,8 +1,14 @@
-// app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/tutor/[tutorId]/page.tsx
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, ListChecks, File, ArrowLeft, Eye, Video } from "lucide-react";
+import {
+  LayoutDashboard,
+  ListChecks,
+  File,
+  ArrowLeft,
+  Eye,
+  Video,
+} from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
 import Link from "next/link";
@@ -16,6 +22,8 @@ import { TutorVideoForm } from "./_components/tutor-video-form";
 import { TutorAttachmentForm } from "./_components/tutor-attachment-form";
 import { TutorAssignmentForm } from "./_components/tutor-assignment-form";
 
+export const dynamic = "force-dynamic";
+
 const TutorIdPage = async ({
   params,
 }: {
@@ -27,23 +35,57 @@ const TutorIdPage = async ({
 }) => {
   const { userId } = await auth();
   if (!userId) {
+    console.error(
+      `[${new Date().toISOString()} TutorIdPage] No userId from auth`
+    );
     return redirect("/");
   }
 
   const resolvedParams = await params;
+  console.log("TutorIdPage params:", resolvedParams);
+
+  if (
+    !resolvedParams.tutorialId ||
+    !resolvedParams.courseId ||
+    !resolvedParams.adminId
+  ) {
+    console.error(
+      `[${new Date().toISOString()} TutorIdPage] Invalid params`,
+      resolvedParams
+    );
+    return redirect(
+      `/admin/create-admin/${resolvedParams.adminId}/course/${resolvedParams.courseId}`
+    );
+  }
+
   const tutor = await db.tutor.findUnique({
     where: {
       id: resolvedParams.tutorialId,
+      courseId: resolvedParams.courseId,
       userId,
     },
     include: {
       muxData: true,
       attachments: true,
       assignments: {
-        where: { isPublished: true },
+        orderBy: { createdAt: "asc" },
       },
     },
   });
+
+  if (!tutor) {
+    console.error(
+      `[${new Date().toISOString()} TutorIdPage] Tutor not found:`,
+      {
+        tutorId: resolvedParams.tutorialId,
+        courseId: resolvedParams.courseId,
+        userId,
+      }
+    );
+    return redirect(
+      `/admin/create-admin/${resolvedParams.adminId}/course/${resolvedParams.courseId}`
+    );
+  }
 
   const course = await db.course.findMany({
     select: {
@@ -55,12 +97,9 @@ const TutorIdPage = async ({
     },
   });
 
-  if (!tutor || course.length === 0) {
-    console.error(
-      `[${new Date().toISOString()} TutorIdPage] Tutor or course not found:`,
-      { tutorId: resolvedParams.tutorialId, userId }
-    );
-    return redirect("/");
+  if (course.length === 0) {
+    console.error(`[${new Date().toISOString()} TutorIdPage] No courses found`);
+    return redirect(`/admin/create-admin/${resolvedParams.adminId}`);
   }
 
   const initialData = {
@@ -81,16 +120,21 @@ const TutorIdPage = async ({
   ];
   const optionalFields = [initialData.attachments.length > 0];
   const totalFields = [...requiredFields, ...optionalFields].length;
-  const completedFields = [...requiredFields, ...optionalFields].filter(Boolean).length;
+  const completedFields = [...requiredFields, ...optionalFields].filter(
+    Boolean
+  ).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
 
   return (
-    <DashboardLayout adminId={resolvedParams.adminId} courseId={resolvedParams.courseId}>
+    <DashboardLayout
+      adminId={resolvedParams.adminId}
+      courseId={resolvedParams.courseId}
+    >
       {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Tutorial is unpublished. To publish, prepare and upload a good quality video clip of your lesson and at least one published assignment."
+          label="This Tutorial is unpublished. To publish, upload a good quality video of your tutorial and at least one published assignment."
         />
       )}
       <div className="p-6">

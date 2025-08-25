@@ -1,3 +1,4 @@
+// components/course-tutor-form.tsx
 "use client";
 
 import * as z from "zod";
@@ -20,12 +21,14 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Tutor, Course } from "@prisma/client";
 import { CourseTutorList } from "./course-tutor-list";
-import { createTutor, onEditAction, onReorderAction } from "../tutorial/[tutorialId]/actions";
-// import {
-//   createTutor,
-//   onEditAction,
-//   onReorderAction,
-// } from "../tutors/[tutorId]/actions";
+import { createTutor, onEditAction } from "../tutorial/[tutorialId]/actions";
+// import { createTutor, onEditAction } from "../tutorial/[tutorId]/actions";
+
+interface CreateTutorResponse {
+  success: boolean;
+  message: string;
+  data?: Tutor;
+}
 
 interface CourseTutorFormProps {
   initialData: Course & { tutors: Tutor[] };
@@ -43,14 +46,11 @@ export const CourseTutorForm = ({
   adminId,
 }: CourseTutorFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const toggleCreating = () => setIsCreating((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-    
     },
   });
   const {
@@ -58,16 +58,20 @@ export const CourseTutorForm = ({
     formState: { isSubmitting, isValid },
   } = form;
 
+  console.log("CourseTutorForm initialData.tutors:", initialData.tutors);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await createTutor(courseId, values);
-      if (success) {
-        toast.success(message);
-        toggleCreating();
+      const response: CreateTutorResponse = await createTutor(courseId, values);
+      console.log("createTutor result:", response);
+      if (response.success) {
+        toast.success(response.message);
+        setIsCreating(false);
         reset({ title: "" });
+        await new Promise((resolve) => setTimeout(resolve, 500));
         router.refresh();
       } else {
-        toast.error(message);
+        toast.error(response.message);
       }
     } catch (error) {
       console.error("Create tutor error:", error);
@@ -77,19 +81,10 @@ export const CourseTutorForm = ({
 
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
-      {isUpdating && (
-        <div
-          className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center"
-          role="status"
-          aria-live="polite"
-        >
-          <Loader2 className="animate-spin h-6 w-6 text-sky-700" />
-        </div>
-      )}
       <div className="font-medium flex items-center justify-between">
-        Tutorial*
+        Course Tutorials
         <Button
-          onClick={toggleCreating}
+          onClick={() => setIsCreating(!isCreating)}
           variant="ghost"
           disabled={isSubmitting}
         >
@@ -98,7 +93,7 @@ export const CourseTutorForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a tutorial
+              Add a Tutorial
             </>
           )}
         </Button>
@@ -118,7 +113,7 @@ export const CourseTutorForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Introduction to Fashion & Design Technology'"
+                      placeholder="e.g., 'Intro to Fashion Design'"
                       {...field}
                     />
                   </FormControl>
@@ -144,32 +139,26 @@ export const CourseTutorForm = ({
           )}
         >
           {!initialData.tutors.length &&
-            "At least one published Tutorial is required. Tutorials break the entire Course into manageable lessons achievable within shorter session. Each tutorial should have an achievable objective or a set of objectives."}
+            "You need at least one published Tutorial to complete this Course."}
           <CourseTutorList
             onEditAction={async (id) => {
+              if (!id) {
+                console.error("Invalid tutor ID passed to onEditAction:", id);
+                return { success: false, message: "Invalid tutor ID" };
+              }
+              console.log("Navigating to tutor ID:", id);
               const result = await onEditAction(courseId, id);
+              console.log("onEditAction result:", result);
               if (result.success) {
                 router.push(
-                  `/admin/create-admin/${adminId}/course/${courseId}/tutor/${id}`
+                  `/admin/create-admin/${adminId}/course/${courseId}/tutorial/${id}`
                 );
               }
-              return result;
-            }}
-            onReorderAction={async (updateData) => {
-              setIsUpdating(true);
-              const result = await onReorderAction(courseId, updateData);
-              setIsUpdating(false);
-              router.refresh();
               return result;
             }}
             items={initialData.tutors || []}
           />
         </div>
-      )}
-      {!isCreating && (
-        <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Topics/Tutors
-        </p>
       )}
     </div>
   );

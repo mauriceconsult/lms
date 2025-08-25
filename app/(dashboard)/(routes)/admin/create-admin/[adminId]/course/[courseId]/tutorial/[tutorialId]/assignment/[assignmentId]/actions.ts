@@ -2,24 +2,26 @@
 
 import { db } from "@/lib/db";
 import { Prisma } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function updateAssignment(
   assignmentId: string,
   values: { description?: string },
-  facultyId: string,
+  adminId: string,
   courseId: string,
-  tutorId: string
+  tutorialId: string
 ) {
   try {
     console.log(
       "updateAssignment - assignmentId:",
       assignmentId,
       "values:",
-      values
+      values,
+      "params:",
+      { adminId, courseId, tutorialId }
     );
     const assignment = await db.assignment.findUnique({
-      where: { id: assignmentId },
+      where: { id: assignmentId, tutorId: tutorialId },
     });
     if (!assignment) {
       return { success: false, message: "Assignment not found" };
@@ -32,8 +34,10 @@ export async function updateAssignment(
       data: { description: values.description || "" },
     });
     revalidatePath(
-      `/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}`
+      `/admin/create-admin/${adminId}/course/${courseId}/tutorial/${tutorialId}`
     );
+    revalidateTag(`assignments-${tutorialId}`);
+    console.log("Revalidated cache for:", { tutorialId, assignmentId });
     return {
       success: true,
       message: "Assignment description updated successfully",
@@ -48,47 +52,10 @@ export async function updateAssignment(
   }
 }
 
-export async function onReorderAction(
-  tutorId: string,
-  updateData: { id: string; position: number }[],
-  facultyId: string,
-  courseId: string
-) {
-  try {
-    console.log(
-      "onReorderAction - tutorId:",
-      tutorId,
-      "updateData:",
-      updateData
-    );
-    const tutor = await db.tutor.findUnique({
-      where: { id: tutorId },
-    });
-    if (!tutor) {
-      return { success: false, message: "Tutor not found" };
-    }
-    await db.$transaction(
-      updateData.map((update) =>
-        db.assignment.update({
-          where: { id: update.id },
-          data: { position: update.position },
-        })
-      )
-    );
-    revalidatePath(
-      `/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}`
-    );
-    return { success: true, message: "Assignments reordered successfully" };
-  } catch (error) {
-    console.error("Reorder error:", error);
-    return { success: false, message: "Failed to reorder assignments" };
-  }
-}
-
 export async function onEditAction(
   tutorId: string,
   assignmentId: string,
-  facultyId: string,
+  adminId: string,
   courseId: string
 ) {
   try {
@@ -97,27 +64,26 @@ export async function onEditAction(
       tutorId,
       "assignmentId:",
       assignmentId,
-      "facultyId:",
-      facultyId,
-      "courseId:",
-      courseId
+      "params:",
+      { adminId, courseId }
     );
     const tutor = await db.tutor.findUnique({
-      where: { id: tutorId },
+      where: { id: tutorId, courseId, adminId },
     });
     if (!tutor) {
       return { success: false, message: "Tutor not found" };
     }
     const assignment = await db.assignment.findUnique({
-      where: { id: assignmentId },
+      where: { id: assignmentId, tutorId },
     });
     if (!assignment) {
       return { success: false, message: "Assignment not found" };
     }
-    // Revalidate to ensure UI updates after navigation
     revalidatePath(
-      `/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}/assignment/${assignmentId}`
+      `/admin/create-admin/${adminId}/course/${courseId}/tutorial/${tutorId}/assignment/${assignmentId}`
     );
+    revalidateTag(`assignments-${tutorId}`);
+    console.log("Revalidated cache for edit:", { tutorId, assignmentId });
     return { success: true, message: "Edit action triggered" };
   } catch (error) {
     console.error("Edit error:", error);
@@ -128,13 +94,20 @@ export async function onEditAction(
 export async function createAssignment(
   tutorId: string,
   values: { title: string; description?: string },
-  facultyId: string,
+  adminId: string,
   courseId: string
 ) {
   try {
-    console.log("createAssignment - tutorId:", tutorId, "values:", values);
+    console.log(
+      "createAssignment - tutorId:",
+      tutorId,
+      "values:",
+      values,
+      "params:",
+      { adminId, courseId }
+    );
     const tutor = await db.tutor.findUnique({
-      where: { id: tutorId },
+      where: { id: tutorId, courseId, adminId },
     });
     if (!tutor) {
       return { success: false, message: "Tutor not found" };
@@ -142,20 +115,23 @@ export async function createAssignment(
     if (values.description && values.description.length > 5000) {
       return { success: false, message: "Description exceeds 5000 characters" };
     }
-
     const assignment = await db.assignment.create({
       data: {
         title: values.title,
         description: values.description || "",
         userId: tutor.userId || "",
         tutorId,
-        position: 0,
         isPublished: false,
       },
     });
     revalidatePath(
-      `/faculty/create-faculty/${facultyId}/course/${courseId}/tutor/${tutorId}`
+      `/admin/create-admin/${adminId}/course/${courseId}/tutorial/${tutorId}`
     );
+    revalidateTag(`assignments-${tutorId}`);
+    console.log("Revalidated cache for create:", {
+      tutorId,
+      assignmentId: assignment.id,
+    });
     return {
       success: true,
       message: `Assignment "${assignment.title}" created successfully`,
