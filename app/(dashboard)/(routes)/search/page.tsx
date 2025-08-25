@@ -146,17 +146,17 @@ const SearchPage = () => {
                   </p>
                 ) : (
                   <ul className="space-y-4">
-                    {school.admins.map((faculty) => (
-                      <li key={faculty.id}>
+                    {school.admins.map((admin) => (
+                      <li key={admin.id}>
                         <Link
-                          href={`/admins/${faculty.id}`}
+                          href={`/admins/${admin.id}`}
                           className="block hover:bg-slate-100 rounded-md transition p-2"
                         >
                           <div className="flex items-center gap-x-4">
-                            {faculty.imageUrl ? (
+                            {admin.imageUrl ? (
                               <Image
-                                src={faculty.imageUrl}
-                                alt={faculty.title}
+                                src={admin.imageUrl}
+                                alt={admin.title}
                                 width={80}
                                 height={80}
                                 className="rounded-md object-cover"
@@ -171,23 +171,23 @@ const SearchPage = () => {
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium">
-                                  {faculty.title}
+                                  {admin.title}
                                 </span>
                                 <Badge
                                   variant={
-                                    faculty.isPublished
+                                    admin.isPublished
                                       ? "default"
                                       : "secondary"
                                   }
                                 >
-                                  {faculty.isPublished ? "Published" : "Draft"}
+                                  {admin.isPublished ? "Published" : "Draft"}
                                 </Badge>
                               </div>
-                              {faculty.description && (
+                              {admin.description && (
                                 <p className="text-sm text-slate-600 mt-1">
-                                  {faculty.description.length > 100
-                                    ? `${faculty.description.slice(0, 100)}...`
-                                    : faculty.description}
+                                  {admin.description.length > 100
+                                    ? `${admin.description.slice(0, 100)}...`
+                                    : admin.description}
                                 </p>
                               )}
                             </div>

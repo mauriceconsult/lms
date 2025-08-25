@@ -17,7 +17,7 @@ export async function GET() {
       select: {
         id: true,
         name: true,
-        faculties: {
+        admins: {
           select: {
             id: true,
             title: true,
