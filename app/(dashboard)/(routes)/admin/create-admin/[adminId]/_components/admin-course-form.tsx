@@ -19,8 +19,18 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Course, Admin } from "@prisma/client";
+import {
+  createCourse,
+  onEditAction,
+} from "../../../../admin/create-admin/[adminId]/course/[courseId]/actions";
 import { AdminCourseList } from "./admin-course-list";
-import { createCourse, onEditAction, onReorderAction } from "../actions";
+
+// Define the expected return type for createCourse
+interface CreateCourseResponse {
+  success: boolean;
+  message: string;
+  data?: Course; // Optional course data
+}
 
 interface AdminCourseFormProps {
   initialData: Admin & { courses: Course[] };
@@ -28,7 +38,7 @@ interface AdminCourseFormProps {
 }
 
 const formSchema = z.object({
-  title: z.string().min(1, "Course name is required"),
+  title: z.string().min(1, "Title is required"),
 });
 
 export const AdminCourseForm = ({
@@ -36,8 +46,6 @@ export const AdminCourseForm = ({
   adminId,
 }: AdminCourseFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const toggleCreating = () => setIsCreating((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,16 +58,23 @@ export const AdminCourseForm = ({
     formState: { isSubmitting, isValid },
   } = form;
 
+  console.log("AdminCourseForm initialData.courses:", initialData.courses);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await createCourse(adminId, values);
-      if (success) {
-        toast.success(message);
-        toggleCreating();
+      const response: CreateCourseResponse = await createCourse(
+        adminId,
+        values
+      );
+      console.log("createCourse result:", response);
+      if (response.success) {
+        toast.success(response.message);
+        setIsCreating(false);
         reset({ title: "" });
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Wait for server action
         router.refresh();
       } else {
-        toast.error(message);
+        toast.error(response.message);
       }
     } catch (error) {
       console.error("Create course error:", error);
@@ -69,19 +84,10 @@ export const AdminCourseForm = ({
 
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
-      {isUpdating && (
-        <div
-          className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center"
-          role="status"
-          aria-live="polite"
-        >
-          <Loader2 className="animate-spin h-6 w-6 text-sky-700" />
-        </div>
-      )}
       <div className="font-medium flex items-center justify-between">
-        Course*
+        Admin course
         <Button
-          onClick={toggleCreating}
+          onClick={() => setIsCreating(!isCreating)}
           variant="ghost"
           disabled={isSubmitting}
         >
@@ -110,7 +116,7 @@ export const AdminCourseForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Fashion Design Technology'"
+                      placeholder="e.g., 'Fashion & Design'"
                       {...field}
                     />
                   </FormControl>
@@ -136,32 +142,19 @@ export const AdminCourseForm = ({
           )}
         >
           {!initialData.courses.length &&
-            "You can add as many Courses as you like but at least one published Course is required for a Admin."}
+            "You need at least one published Course to publish this Admin."}
           <AdminCourseList
             onEditAction={async (id) => {
               const result = await onEditAction(adminId, id);
+              console.log("onEditAction result:", result);
               if (result.success) {
-                router.push(
-                  `/admin/create-admin/${adminId}/course/${id}`
-                );
+                router.push(`/admin/create-admin/${adminId}/course/${id}`);
               }
-              return result;
-            }}
-            onReorderAction={async (updateData) => {
-              setIsUpdating(true);
-              const result = await onReorderAction(adminId, updateData);
-              setIsUpdating(false);
-              router.refresh();
               return result;
             }}
             items={initialData.courses || []}
           />
         </div>
-      )}
-      {!isCreating && (
-        <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Courses
-        </p>
       )}
     </div>
   );

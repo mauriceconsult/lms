@@ -22,10 +22,14 @@ import { Noticeboard, Admin } from "@prisma/client";
 import {
   createNoticeboard,
   onEditAction,
-  onReorderAction,
 } from "../../../../admin/create-admin/[adminId]/noticeboard/[noticeboardId]/actions";
 import { AdminNoticeboardList } from "./admin-noticeboard-list";
 
+interface CreateNoticeboardResponse {
+  success: boolean;
+  message: string;
+  data?: Noticeboard;
+}
 
 interface AdminNoticeboardFormProps {
   initialData: Admin & { noticeboards: Noticeboard[] };
@@ -41,13 +45,11 @@ export const AdminNoticeboardForm = ({
   adminId,
 }: AdminNoticeboardFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const toggleCreating = () => setIsCreating((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",     
+      title: "",
     },
   });
   const {
@@ -55,16 +57,26 @@ export const AdminNoticeboardForm = ({
     formState: { isSubmitting, isValid },
   } = form;
 
+  console.log(
+    "AdminNoticeboardForm initialData.noticeboards:",
+    initialData.noticeboards
+  );
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success, message } = await createNoticeboard(adminId, values);
-      if (success) {
-        toast.success(message);
-        toggleCreating();
+      const response: CreateNoticeboardResponse = await createNoticeboard(
+        adminId,
+        values
+      );
+      console.log("createNoticeboard result:", response);
+      if (response.success) {
+        toast.success(response.message);
+        setIsCreating(false);
         reset({ title: "" });
+        await new Promise((resolve) => setTimeout(resolve, 500));
         router.refresh();
       } else {
-        toast.error(message);
+        toast.error(response.message);
       }
     } catch (error) {
       console.error("Create noticeboard error:", error);
@@ -74,19 +86,10 @@ export const AdminNoticeboardForm = ({
 
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
-      {isUpdating && (
-        <div
-          className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center"
-          role="status"
-          aria-live="polite"
-        >
-          <Loader2 className="animate-spin h-6 w-6 text-sky-700" />
-        </div>
-      )}
       <div className="font-medium flex items-center justify-between">
         Admin noticeboard
         <Button
-          onClick={toggleCreating}
+          onClick={() => setIsCreating(!isCreating)}
           variant="ghost"
           disabled={isSubmitting}
         >
@@ -145,28 +148,15 @@ export const AdminNoticeboardForm = ({
           <AdminNoticeboardList
             onEditAction={async (id) => {
               const result = await onEditAction(adminId, id);
+              console.log("onEditAction result:", result);
               if (result.success) {
-                router.push(
-                  `/admin/create-admin/${adminId}/noticeboard/${id}`
-                );
+                router.push(`/admin/create-admin/${adminId}/noticeboard/${id}`);
               }
-              return result;
-            }}
-            onReorderAction={async (updateData) => {
-              setIsUpdating(true);
-              const result = await onReorderAction(adminId, updateData);
-              setIsUpdating(false);
-              router.refresh();
               return result;
             }}
             items={initialData.noticeboards || []}
           />
         </div>
-      )}
-      {!isCreating && (
-        <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the notices
-        </p>
       )}
     </div>
   );

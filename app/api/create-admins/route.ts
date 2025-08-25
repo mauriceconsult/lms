@@ -9,15 +9,15 @@ export async function POST(req: Request) {
     if (!userId) {
       return new NextResponse("Unauthorized!", { status: 401 });
     }
-    const faculty = await db.faculty.create({
+    const admin = await db.admin.create({
       data: {
         userId,
         title,
       },
     });
-    return NextResponse.json(faculty);
+    return NextResponse.json(admin);
   } catch (error) {
-    console.log("[CREATE_FACULTIES]", error);
+    console.log("[CREATE_ADMINS]", error);
     return new NextResponse("Internal error", { status: 500 });
   }
 }

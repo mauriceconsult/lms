@@ -3,16 +3,16 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { LayoutDashboard, ListChecks, File } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
-import { AdminTitleForm } from "../../../admin/create-admin/[adminId]/_components/admin-title-form";
-import { AdminImageForm } from "../../../admin/create-admin/[adminId]/_components/admin-image-form";
-import { AdminDescriptionForm } from "../../../admin/create-admin/[adminId]/_components/admin-description-form";
-import { AdminSchoolForm } from "../../../admin/create-admin/[adminId]/_components/admin-school-form";
-import { AdminCourseForm } from "../../../admin/create-admin/[adminId]/_components/admin-course-form";
-import { AdminAttachmentForm } from "../../../admin/create-admin/[adminId]/_components/admin-attachment-form";
+import { AdminTitleForm } from "./_components/admin-title-form";
+import { AdminImageForm } from "./_components/admin-image-form";
+import { AdminSchoolForm } from "./_components/admin-school-form";
+import { AdminCourseForm } from "./_components/admin-course-form";
+import { AdminAttachmentForm } from "./_components/admin-attachment-form";
 import { Banner } from "@/components/banner";
-import { AdminActions } from "../../../admin/create-admin/[adminId]/_components/admin-actions";
-import { AdminNoticeboardForm } from "../../../admin/create-admin/[adminId]/_components/admin-noticeboard-form";
+import { AdminActions } from "./_components/admin-actions";
+import { AdminNoticeboardForm } from "./_components/admin-noticeboard-form";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { AdminDescriptionForm } from "./_components/admin-description-form";
 
 const AdminIdPage = async ({
   params,
@@ -51,9 +51,7 @@ const AdminIdPage = async ({
     },
     include: {
       attachments: true,
-      courses: {
-        where: { isPublished: true },
-      },
+      courses: true,
       noticeboards: true,
     },
   });

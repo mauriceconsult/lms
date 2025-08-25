@@ -50,10 +50,10 @@ const CreateAdmin = () => {
         <p className="text-sm text-slate-600">
           <span>
             {" "}
-            Give your Faculty a name. Don&apos;t worry, you can change the name
+            Create an academic admin here (a Faculty). Don&apos;t worry, you can change the name
             later. The Faculty is your strategic (admin) level where you demonstrate a
-            vision that inspires Course(s) developed in your Faculty. You could
-            keep evaluating your vision as you grow and add Courses to the Faculty.
+            vision that inspires Course(s) developed in your admin. You could
+            keep evaluating your vision as you grow and add Courses to the admin.
           </span>
         </p>
         <Form {...form}>

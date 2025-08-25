@@ -1,71 +1,46 @@
-// app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/actions.ts
 "use server";
 
 import { db } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { Prisma, Course } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
-export async function updateFaculty(
-  facultyId: string,
+export async function updateAdmin(
+  adminId: string,
   values: { description?: string }
 ) {
   try {
-    const faculty = await db.faculty.findUnique({
-      where: { id: facultyId },
+    const admin = await db.admin.findUnique({
+      where: { id: adminId },
     });
-    if (!faculty) {
-      return { success: false, message: "Faculty not found" };
+    if (!admin) {
+      return { success: false, message: "Admin not found" };
     }
     if (values.description && values.description.length > 5000) {
       return { success: false, message: "Description exceeds 5000 characters" };
     }
 
-    await db.faculty.update({
-      where: { id: facultyId },
+    await db.admin.update({
+      where: { id: adminId },
       data: { description: values.description || "" },
     });
+    revalidatePath(`/admin/create-admin/${adminId}`);
     return {
       success: true,
-      message: "Faculty description updated successfully",
+      message: "Admin description updated successfully",
     };
   } catch (error) {
-    console.error("Update faculty error:", error);
-    return { success: false, message: "Failed to update faculty description" };
+    console.error("Update admin error:", error);
+    return { success: false, message: "Failed to update admin description" };
   }
 }
 
-export async function onReorderAction(
-  facultyId: string,
-  updateData: { id: string; position: number }[]
-) {
+export async function onEditAction(adminId: string, id: string) {
   try {
-    const faculty = await db.faculty.findUnique({
-      where: { id: facultyId },
+    const admin = await db.admin.findUnique({
+      where: { id: adminId },
     });
-    if (!faculty) {
-      return { success: false, message: "Faculty not found" };
-    }
-    await db.$transaction(
-      updateData.map((update) =>
-        db.course.update({
-          where: { id: update.id },
-          data: { position: update.position },
-        })
-      )
-    );
-    return { success: true, message: "Courses reordered successfully" };
-  } catch (error) {
-    console.error("Reorder error:", error);
-    return { success: false, message: "Failed to reorder courses" };
-  }
-}
-
-export async function onEditAction(facultyId: string, id: string) {
-  try {
-    const faculty = await db.faculty.findUnique({
-      where: { id: facultyId },
-    });
-    if (!faculty) {
-      return { success: false, message: "Faculty not found" };
+    if (!admin) {
+      return { success: false, message: "Admin not found" };
     }
     const course = await db.course.findUnique({ where: { id } });
     if (!course) {
@@ -79,15 +54,15 @@ export async function onEditAction(facultyId: string, id: string) {
 }
 
 export async function createCourse(
-  facultyId: string,
+  adminId: string,
   values: { title: string; description?: string }
-) {
+): Promise<{ success: boolean; message: string; data?: Course }> {
   try {
-    const faculty = await db.faculty.findUnique({
-      where: { id: facultyId },
+    const admin = await db.admin.findUnique({
+      where: { id: adminId },
     });
-    if (!faculty) {
-      return { success: false, message: "Faculty not found" };
+    if (!admin) {
+      return { success: false, message: "Admin not found" };
     }
     if (values.description && values.description.length > 5000) {
       return { success: false, message: "Description exceeds 5000 characters" };
@@ -97,15 +72,17 @@ export async function createCourse(
       data: {
         title: values.title,
         description: values.description || "",
-        userId: faculty.userId,
-        facultyId,
+        userId: admin.userId,
+        adminId,
         position: 0,
         isPublished: false,
       },
     });
+    revalidatePath(`/admin/create-admin/${adminId}`);
     return {
       success: true,
       message: `Course "${course.title}" created successfully`,
+      data: course,
     };
   } catch (error) {
     console.error("Create course error:", error);
