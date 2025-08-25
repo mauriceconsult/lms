@@ -7,6 +7,8 @@ import {
   File,
   ArrowLeft,
   Image,
+  // Eye,
+  DollarSign,
 } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
@@ -20,6 +22,7 @@ import { CourseCourseworkForm } from "./_components/course-coursework-form";
 import Link from "next/link";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { CourseAdminForm } from "./_components/course-admin-form";
+import { CourseAmountForm } from "./_components/course-amount-form";
 
 export const dynamic = "force-dynamic";
 
@@ -217,6 +220,17 @@ const CourseIdPage = async ({
                   <h2 className="text-xl">Resources & attachments</h2>
                 </div>
                 <CourseAttachmentForm
+                  initialData={initialData}
+                  adminId={resolvedParams.adminId}
+                  courseId={resolvedParams.courseId}
+                />
+              </div>
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={DollarSign} />
+                  <h2 className="text-xl">Sell your Course</h2>
+                </div>
+                <CourseAmountForm
                   initialData={initialData}
                   adminId={resolvedParams.adminId}
                   courseId={resolvedParams.courseId}

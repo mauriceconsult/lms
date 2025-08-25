@@ -1,63 +1,119 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, File, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, ArrowLeft } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
-import { CourseworkDescriptionForm } from "./_components/coursework-description-form";
-import { CourseworkTitleForm } from "./_components/coursework-title-form";
-import { CourseworkAttachmentForm } from "./_components/coursework-attachment-form";
-import { CourseworkActions } from "./_components/coursework-actions";
 import Link from "next/link";
-import { CourseworkCourseForm } from "./_components/coursework-course-form";
+import { DashboardLayout } from "@/components/dashboard-layout";
+import { CourseworkTitleForm } from "./_components/coursework-title-form";
+import { CourseworkDescriptionForm } from "./_components/coursework-description-form";
+import { CourseworkActions } from "./_components/coursework-actions";
+
+export const dynamic = "force-dynamic";
 
 const CourseworkIdPage = async ({
   params,
 }: {
   params: Promise<{
-    courseId: string;
     adminId: string;
+    courseId: string;
     courseworkId: string;
   }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
-    return redirect("/");
+    console.error(
+      `[${new Date().toISOString()} CourseworkIdPage] No userId from auth`
+    );
+    return redirect("/sign-in");
   }
 
   const resolvedParams = await params;
-  const coursework = await db.coursework.findFirst({
+  console.log("CourseworkIdPage params:", resolvedParams);
+
+  if (
+    !resolvedParams.adminId ||
+    !resolvedParams.courseId ||
+    !resolvedParams.courseworkId
+  ) {
+    console.error(
+      `[${new Date().toISOString()} CourseworkIdPage] Invalid params`,
+      resolvedParams
+    );
+    return redirect(
+      `/admin/create-admin/${resolvedParams.adminId}/course/${resolvedParams.courseId}`
+    );
+  }
+
+  const coursework = await db.coursework.findUnique({
     where: {
       id: resolvedParams.courseworkId,
-      courseId: resolvedParams.adminId,     
+      courseId: resolvedParams.courseId,
+      userId,
     },
     include: {
-      attachments: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
+      course: true,
     },
   });
-  const course = await db.course.findMany({
-    orderBy: {
-      title: "asc",
-    },
-  });
-  if (!coursework || !course) {
-    return redirect("/");
+
+  if (!coursework) {
+    console.error(
+      `[${new Date().toISOString()} CourseworkIdPage] Coursework not found:`,
+      {
+        courseworkId: resolvedParams.courseworkId,
+        courseId: resolvedParams.courseId,
+        userId,
+      }
+    );
+    return redirect(
+      `/admin/create-admin/${resolvedParams.adminId}/course/${resolvedParams.courseId}`
+    );
   }
-  const requiredFields = [coursework.title, coursework.description];
+
+  if (!coursework.course) {
+    console.error(
+      `[${new Date().toISOString()} CourseworkIdPage] Course not found for coursework:`,
+      {
+        courseworkId: resolvedParams.courseworkId,
+        courseId: resolvedParams.courseId,
+      }
+    );
+    return redirect(
+      `/admin/create-admin/${resolvedParams.adminId}/course/${resolvedParams.courseId}`
+    );
+  }
+
+  console.log("CourseworkIdPage fetched data:", {
+    courseworkId: coursework.id,
+    courseId: coursework.courseId,
+    adminId: coursework.course.adminId,
+  });
+
+  const initialData = {
+    ...coursework,
+    description: coursework.description ?? "",
+  };
+
+  const requiredFields = [
+    initialData.title,
+    initialData.description,
+    initialData.courseId,
+  ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
   const completionText = `(${completedFields} of ${totalFields})`;
   const isComplete = requiredFields.every(Boolean);
+
   return (
-    <>
-      {!coursework.isPublished && (
+    <DashboardLayout
+      adminId={resolvedParams.adminId}
+      courseId={resolvedParams.courseId}
+    >
+      {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Coursework is unpublished. Once published, students can submit their Course projects."
+          label="This Coursework is unpublished. To publish, complete the required fields."
         />
       )}
       <div className="p-6">
@@ -68,7 +124,7 @@ const CourseworkIdPage = async ({
               href={`/admin/create-admin/${resolvedParams.adminId}/course/${resolvedParams.courseId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Course creation.
+              Back to Course creation
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
@@ -79,10 +135,10 @@ const CourseworkIdPage = async ({
               </div>
               <CourseworkActions
                 disabled={!isComplete}
-                courseworkId={resolvedParams.courseworkId}
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                isPublished={coursework.isPublished}
+                courseworkId={coursework.id}
+                isPublished={initialData.isPublished}
               />
             </div>
           </div>
@@ -92,49 +148,25 @@ const CourseworkIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Enter the Coursework details</h2>
+                <h2 className="text-xl">Enter coursework details</h2>
               </div>
               <CourseworkTitleForm
-                initialData={coursework}
+                initialData={initialData}
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                courseworkId={resolvedParams.courseworkId}
-              />
-              <CourseworkCourseForm
-                initialData={coursework}
-                adminId={resolvedParams.adminId}
-                courseId={resolvedParams.courseId}
-                courseworkId={resolvedParams.courseworkId}
-                options={course.map((cat) => ({
-                  label: cat.title,
-                  value: cat.id,
-                }))}
+                courseworkId={coursework.id}
               />
               <CourseworkDescriptionForm
-                initialData={coursework}
+                initialData={initialData}
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                courseworkId={resolvedParams.courseworkId}
+                courseworkId={coursework.id}
               />
-            </div>
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center gap-x-2">
-                  <IconBadge icon={File} />
-                  <h2 className="text-xl">Resources & Attachments</h2>
-                </div>
-                <CourseworkAttachmentForm
-                  initialData={coursework}
-                  adminId={resolvedParams.adminId}
-                  courseId={resolvedParams.courseId}
-                  courseworkId={resolvedParams.courseworkId}
-                />
-              </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </DashboardLayout>
   );
 };
 

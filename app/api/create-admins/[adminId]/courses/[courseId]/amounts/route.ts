@@ -3,13 +3,13 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ facultyId: string; courseId: string }> }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ adminId: string; courseId: string }> }) {
     try {
-        const { facultyId, courseId } = await params;
+        const { adminId, courseId } = await params;
         const { amount } = await req.json();
 
-        if (!facultyId || !courseId) {
-            return NextResponse.json({ message: 'Invalid facultyId or courseId' }, { status: 400 });
+        if (!adminId || !courseId) {
+            return NextResponse.json({ message: 'Invalid adminId or courseId' }, { status: 400 });
         }
 
         const course = await prisma.course.findFirst({

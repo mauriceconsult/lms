@@ -11,13 +11,13 @@ import { formatAmountWithAccounting } from '@/lib/format';
 
 interface CourseAmountFormProps {
   initialData: { amount: string | null }; // Accept string | null
-  facultyId: string;
+  adminId: string;
   courseId: string;
 }
 
 export const CourseAmountForm = ({
     initialData,
-    facultyId,
+    adminId,
     courseId,
 }: CourseAmountFormProps) => {
     const [isEditing, setIsEditing] = useState(false);
@@ -72,10 +72,10 @@ export const CourseAmountForm = ({
             console.log(
                 `[${new Date().toISOString()} CourseAmountForm] Submitting payload:`,
                 payload,
-                { facultyId, courseId }
+                { adminId, courseId }
             );
             const response: AxiosResponse = await axios.patch(
-                `/api/create-faculties/${facultyId}/courses/${courseId}/amounts`,
+                `/api/create-admins/${adminId}/courses/${courseId}/amounts`,
                 payload,
                 {
                     headers: {
@@ -108,7 +108,7 @@ export const CourseAmountForm = ({
             if (axiosError.response?.status === 401) {
                 toast.error('Unauthorized: Please log in again');
             } else if (axiosError.response?.status === 404) {
-                toast.error('Course or faculty not found');
+                toast.error('Course or admin not found');
             } else if (axiosError.response?.status === 500) {
                 toast.error('Server error: Please check server logs or try again later');
             } else {
