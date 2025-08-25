@@ -4,20 +4,20 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: Promise<{ facultyId: string; noticeboardId: string; }> }
+  { params }: { params: Promise<{ adminId: string; noticeboardId: string; }> }
 ) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const faculty = await db.faculty.findUnique({
+    const admin = await db.admin.findUnique({
       where: {
-        id: (await params).facultyId,
+        id: (await params).adminId,
         userId: userId,
       },
     });
-    if (!faculty) {
+    if (!admin) {
       return new NextResponse("Not found", { status: 404 });
     }
     const noticeboard = await db.noticeboard.findUnique({
@@ -43,22 +43,22 @@ export async function DELETE(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ facultyId: string; noticeboardId: string; }> }
+  { params }: { params: Promise<{ adminId: string; noticeboardId: string; }> }
 ) {
   try {
     const { userId } = await auth();
-    const { facultyId, noticeboardId } = await params;
+    const { adminId, noticeboardId } = await params;
     const values = await req.json();
     if (!userId) {
       return new NextResponse("Unathorized", { status: 401 });
     }
-    const faculty = await db.faculty.findUnique({
+    const admin = await db.admin.findUnique({
       where: {
-        id: facultyId,
+        id: adminId,
         userId,
       },
     });
-    if (!faculty) {
+    if (!admin) {
       return new NextResponse("Not found", { status: 404 });
     }
     const noticeboard = await db.noticeboard.update({
@@ -72,7 +72,7 @@ export async function PATCH(
     });
     return NextResponse.json(noticeboard);
   } catch (error) {
-    console.log("[FACULTY_ID]", error);
+    console.log("[ADMIN_ID]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

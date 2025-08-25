@@ -19,36 +19,36 @@ import { cn } from "@/lib/utils";
 import { Noticeboard } from "@prisma/client";
 import { Combobox } from "@/components/ui/combobox";
 
-interface FacultyFormProps {
+interface AdminFormProps {
   initialData: Noticeboard;
-  facultyId: string;
+  adminId: string;
   noticeboardId: string;
   options: { label: string; value: string }[];
 }
 const formSchema = z.object({
-  facultyId: z.string().min(1),
+  adminId: z.string().min(1),
 });
 
-export const NoticeboardFacultyForm = ({
+export const NoticeboardAdminForm = ({
   initialData,
-  facultyId,
+  adminId,
   noticeboardId,
   options,
-}: FacultyFormProps) => {
+}: AdminFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      facultyId: initialData?.facultyId || "",
+      adminId: initialData?.adminId || "",
     },
   });
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/faculties`, values);
-      toast.success("Noticeboard faculty updated.");
+      await axios.patch(`/api/create-faculties/${adminId}/noticeboards/${noticeboardId}/faculties`, values);
+      toast.success("Noticeboard admin updated.");
       toggleEdit();
       router.refresh();
     } catch {
@@ -56,19 +56,19 @@ export const NoticeboardFacultyForm = ({
     }
   };
   const selectedOption = options.find(
-    (option) => option.value === initialData.facultyId
+    (option) => option.value === initialData.adminId
   );
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Faculty*
+        Admin*
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit Faculty
+              Edit Admin
             </>
           )}
         </Button>
@@ -80,7 +80,7 @@ export const NoticeboardFacultyForm = ({
             !initialData.title && "text-slate-500 italic"
           )}
         >
-          {selectedOption?.label || "No Faculty"}
+          {selectedOption?.label || "No Admin"}
         </p>
       )}
       {isEditing && (
@@ -91,7 +91,7 @@ export const NoticeboardFacultyForm = ({
           >
             <FormField
               control={form.control}
-              name="facultyId"
+              name="adminId"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>

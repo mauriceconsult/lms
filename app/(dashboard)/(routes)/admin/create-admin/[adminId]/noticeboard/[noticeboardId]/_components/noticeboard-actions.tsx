@@ -10,13 +10,13 @@ import toast from "react-hot-toast";
 
 interface NoticeboardActionsProps {
   disabled: boolean;
-  facultyId: string;
+  adminId: string;
   noticeboardId: string;
   isPublished: boolean;
 }
 export const NoticeboardActions = ({
   disabled,
-  facultyId,
+  adminId,
   noticeboardId,
   isPublished,
 }: NoticeboardActionsProps) => {
@@ -26,11 +26,11 @@ export const NoticeboardActions = ({
     try {
       setIsLoading(true);
       if (isPublished) {
-        await axios.patch(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/unpublish`);
+        await axios.patch(`/api/create-admins/${adminId}/noticeboards/${noticeboardId}/unpublish`);
         toast.success("Noticeboard unpublished");
       } else {
         await axios.patch(
-          `/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/publish`
+          `/api/create-admins/${adminId}/noticeboards/${noticeboardId}/publish`
         );
         toast.success("Noticeboard published");
       }

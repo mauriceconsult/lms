@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ facultyId: string; noticeboardId: string; }>}
+  { params }: { params: Promise<{ adminId: string; noticeboardId: string; }>}
 ) {
   try {
     const userId = await auth();
@@ -12,12 +12,12 @@ export async function POST(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const facultyOwner = await db.faculty.findUnique({
+    const adminOwner = await db.admin.findUnique({
       where: {
-        id: (await params).facultyId, 
+        id: (await params).adminId, 
       }
     });
-    if (!facultyOwner) {
+    if (!adminOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const attachment = await db.attachment.create({
@@ -25,7 +25,7 @@ export async function POST(
         url,
         // name: url.split("/").pop(),
         noticeboardId: (await params).noticeboardId,
-        facultyId: (await params).facultyId,
+        adminId: (await params).adminId,
       }
     });
     return NextResponse.json(attachment)

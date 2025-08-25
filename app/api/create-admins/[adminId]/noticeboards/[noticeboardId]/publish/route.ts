@@ -8,7 +8,7 @@ export async function PATCH(
     params,
   }: {
     params: Promise<{
-      facultyId: string;
+      adminId: string;
       noticeboardId: string;
     }>;
   }
@@ -18,20 +18,20 @@ export async function PATCH(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const faculty = await db.faculty.findUnique({
+    const admin = await db.admin.findUnique({
       where: {
-        id: (await params).facultyId,
+        id: (await params).adminId,
         userId,
       },
     });
-    if (!faculty) {
+    if (!admin) {
       return new NextResponse("Not found", { status: 404 });
     }
 
     const noticeboard = await db.noticeboard.findUnique({
       where: {
         id: (await params).noticeboardId,
-        facultyId: (await params).facultyId,
+        adminId: (await params).adminId,
       },
     });
     // const hasPublishedNotice = noticeboard?.tutors?.some((tutor) => tutor.isPublished);
@@ -42,7 +42,7 @@ export async function PATCH(
     const publishedCourse = await db.noticeboard.update({
       where: {
         id: (await params).noticeboardId,
-        facultyId: (await params).facultyId,
+        adminId: (await params).adminId,
       },
       data: {
         isPublished: true,

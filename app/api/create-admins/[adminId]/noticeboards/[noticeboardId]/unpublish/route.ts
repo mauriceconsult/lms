@@ -4,16 +4,16 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ facultyId: string; noticeboardId: string }> }
+  { params }: { params: Promise<{ adminId: string; noticeboardId: string }> }
 ) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const ownFaculty = await db.faculty.findUnique({
+    const ownFaculty = await db.admin.findUnique({
       where: {
-        id: (await params).facultyId,
+        id: (await params).adminId,
         userId,
       },
     });
@@ -33,7 +33,7 @@ export async function PATCH(
     const unpublishedNoticeboard = await db.noticeboard.update({
       where: {
         id: (await params).noticeboardId,
-        facultyId: (await params).facultyId,
+        adminId: (await params).adminId,
         userId,
       },
       data: {
@@ -43,14 +43,14 @@ export async function PATCH(
     const publishedNoticeboards = await db.noticeboard.findMany({
       where: {
         id: (await params).noticeboardId,
-        facultyId: (await params).facultyId,
+        adminId: (await params).adminId,
         isPublished: true,
       },
     });
     if (!publishedNoticeboards.length) {
-      await db.faculty.update({
+      await db.admin.update({
         where: {
-          id: (await params).facultyId,
+          id: (await params).adminId,
         },
         data: {
           isPublished: false,

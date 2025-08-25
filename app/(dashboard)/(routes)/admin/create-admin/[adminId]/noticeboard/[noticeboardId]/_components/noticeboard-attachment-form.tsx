@@ -11,7 +11,7 @@ import { Attachment, Noticeboard } from "@prisma/client";
 
 interface NoticeboardAttachmentFormProps {
   initialData: Noticeboard & { attachments: Attachment[] };
-  facultyId: string;
+  adminId: string;
   noticeboardId: string;
 }
 
@@ -22,7 +22,7 @@ const formSchema = z.object({
 
 export const NoticeboardAttachmentForm = ({
   initialData,
-  facultyId,
+  adminId,
   noticeboardId,
 }: NoticeboardAttachmentFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -33,7 +33,7 @@ export const NoticeboardAttachmentForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.post(
-        `/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/attachments`,
+        `/api/create-admins/${adminId}/noticeboards/${noticeboardId}/attachments`,
         values
       );
       toast.success("Noticeboard Attachments updated.");
@@ -47,7 +47,7 @@ export const NoticeboardAttachmentForm = ({
     try {
       setDeletingId(id);
       await axios.delete(
-        `/api/create-faculties/${facultyId}/attachments/${id}`
+        `/api/create-admins/${adminId}/attachments/${id}`
       );
       toast.success("Attachment deleted");
       router.refresh();

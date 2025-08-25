@@ -63,3 +63,34 @@ export async function createNoticeboard(
     return { success: false, message: "Failed to create noticeboard" };
   }
 }
+
+export async function updateNoticeboard(
+  noticeboardId: string,
+  values: { description?: string }
+): Promise<{ success: boolean; message: string; data?: Noticeboard }> {
+  try {
+    const noticeboard = await db.noticeboard.findUnique({
+      where: { id: noticeboardId },
+    });
+    if (!noticeboard) {
+      return { success: false, message: "Noticeboard not found" };
+    }
+    if (values.description && values.description.length > 5000) {
+      return { success: false, message: "Description exceeds 5000 characters" };
+    }
+
+    const updatedNoticeboard = await db.noticeboard.update({
+      where: { id: noticeboardId },
+      data: { description: values.description || "" },
+    });
+    revalidatePath(`/admin/create-admin/${noticeboard.adminId}`);
+    return {
+      success: true,
+      message: `Noticeboard "${updatedNoticeboard.title}" updated successfully`,
+      data: updatedNoticeboard,
+    };
+  } catch (error) {
+    console.error("Update noticeboard error:", error);
+    return { success: false, message: "Failed to update noticeboard" };
+  }
+}

@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { LayoutDashboard, File, ArrowLeft } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
-import { NoticeboardFacultyForm } from "./_components/noticeboard-faculty-form";
+import { NoticeboardAdminForm } from "./_components/noticeboard-admin-form";
 import { Banner } from "@/components/banner";
 import { NoticeboardActions } from "./_components/noticeboard-actions";
 import { NoticeboardTitleForm } from "./_components/noticeboard-title-form";
@@ -15,7 +15,7 @@ const NoticeboardIdPage = async ({
   params,
 }: {
   params: Promise<{
-    facultyId: string;
+    adminId: string;
     noticeboardId: string;
   }>;
 }) => {
@@ -37,17 +37,17 @@ const NoticeboardIdPage = async ({
       },
     },
   });
-  const faculty = await db.faculty.findMany({
+  const admin = await db.admin.findMany({
     orderBy: {
       title: "asc",
     },
   });
-  if (!noticeboard || !faculty) {
+  if (!noticeboard || !admin) {
     return redirect("/");
   }
   const requiredFields = [
     noticeboard.title,
-    noticeboard.facultyId,
+    noticeboard.adminId,
     noticeboard.description,    
   ];
   const optionalFields = [
@@ -62,7 +62,7 @@ const NoticeboardIdPage = async ({
       {!noticeboard.isPublished && (
         <Banner
           variant="warning"
-          label="This faculty notice is unpublished. It will not be visible to the Faculty until published."
+          label="This admin notice is unpublished. It will not be visible to the Admin until published."
         />
       )}
       <div className="p-6">
@@ -70,14 +70,14 @@ const NoticeboardIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${(await params).facultyId}`}
+              href={`/admin/create-admin/${(await params).adminId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Faculty creation.
+              Back to Admin creation.
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Faculty notice creation</h1>
+                <h1 className="text-2xl font-medium">Admin noticeboard</h1>
                 <span className="text-sm text-slate-700">
                   Complete all fields {completionText}
                 </span>
@@ -86,7 +86,7 @@ const NoticeboardIdPage = async ({
                 disabled={!isComplete}
                 noticeboardId={(await params).noticeboardId}
                 isPublished={noticeboard.isPublished}
-                facultyId={(await params).facultyId}
+                adminId={(await params).adminId}
               />
             </div>
           </div>
@@ -96,18 +96,18 @@ const NoticeboardIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Enter notice details</h2>
+                <h2 className="text-xl">Create notice</h2>
               </div>
               <NoticeboardTitleForm
                 initialData={noticeboard}
                 noticeboardId={noticeboard.id}
-                facultyId={noticeboard.facultyId || ""}
+                adminId={noticeboard.adminId || ""}
               />
-              <NoticeboardFacultyForm
+              <NoticeboardAdminForm
                 initialData={noticeboard}
                 noticeboardId={noticeboard.id}
-                facultyId={noticeboard.facultyId || ""}
-                options={faculty.map((cat) => ({
+                adminId={noticeboard.adminId || ""}
+                options={admin.map((cat) => ({
                   label: cat.title,
                   value: cat.id,
                 }))}
@@ -115,7 +115,7 @@ const NoticeboardIdPage = async ({
               <NoticeboardDescriptionForm
                 initialData={noticeboard}
                 noticeboardId={noticeboard.id}
-                facultyId={noticeboard.facultyId || ""}
+                adminId={noticeboard.adminId || ""}
               />     
             </div>
             <div className="space-y-6">
@@ -127,7 +127,7 @@ const NoticeboardIdPage = async ({
                 <NoticeboardAttachmentForm
                   initialData={noticeboard}
                   noticeboardId={noticeboard.id}
-                  facultyId={noticeboard.facultyId || ""}
+                  adminId={noticeboard.adminId || ""}
                 />
               </div>
             </div>

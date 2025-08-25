@@ -21,7 +21,7 @@ interface NoticeboardTitleFormProps {
   initialData: {
     title: string;
   };
-  facultyId: string;
+  adminId: string;
   noticeboardId: string;
 }
 const formSchema = z.object({
@@ -30,7 +30,7 @@ const formSchema = z.object({
   }),
 });
 
-export const NoticeboardTitleForm = ({ initialData, facultyId, noticeboardId }: NoticeboardTitleFormProps) => {
+export const NoticeboardTitleForm = ({ initialData, adminId, noticeboardId }: NoticeboardTitleFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
@@ -41,7 +41,7 @@ export const NoticeboardTitleForm = ({ initialData, facultyId, noticeboardId }: 
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${facultyId}/noticeboards/${noticeboardId}/titles`, values);
+      await axios.patch(`/api/create-admins/${adminId}/noticeboards/${noticeboardId}/titles`, values);
       toast.success("Noticeboard created.");
       toggleEdit();
       router.refresh();

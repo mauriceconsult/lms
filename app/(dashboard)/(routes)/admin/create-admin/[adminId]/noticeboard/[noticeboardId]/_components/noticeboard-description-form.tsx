@@ -19,10 +19,11 @@ import { useRouter } from "next/navigation";
 import { Noticeboard } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
+import { updateNoticeboard } from "../actions";
 
 interface NoticeboardDescriptionFormProps {
   initialData: Noticeboard;
-  facultyId: string;
+  adminId: string;
   noticeboardId: string;
 }
 
@@ -64,7 +65,6 @@ const formSchema = z.object({
 
 export const NoticeboardDescriptionForm = ({
   initialData,
-  facultyId,
   noticeboardId,
 }: NoticeboardDescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -88,26 +88,15 @@ export const NoticeboardDescriptionForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      console.log(
-        `[${new Date().toISOString()} NoticeboardDescriptionForm] Submitting:`,
-        { facultyId, noticeboardId, values }
-      );
-      const response = await fetch(`/api/noticeboard/update/${facultyId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ noticeboardId, ...values }),
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const { success, message } = await response.json();
-      if (success) {
-        toast.success(message);
+      const response = await updateNoticeboard(noticeboardId, values);
+      console.log("updateNoticeboard result:", response);
+      if (response.success) {
+        toast.success(response.message);
         toggleEditing();
         reset({ description: values.description || "" });
         router.refresh();
       } else {
-        toast.error(message);
+        toast.error(response.message);
       }
     } catch (error) {
       console.error(
@@ -130,7 +119,7 @@ export const NoticeboardDescriptionForm = ({
         </div>
       )}
       <div className="font-medium flex items-center justify-between">
-        Notice description*
+        Noticeboard description*
         <Button onClick={toggleEditing} variant="ghost" disabled={isSubmitting}>
           {isEditing ? <>Cancel</> : <>Edit description</>}
         </Button>
@@ -146,7 +135,7 @@ export const NoticeboardDescriptionForm = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>description</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     {typeof field.onChange === "function" ? (
                       <DynamicEditor
@@ -192,7 +181,8 @@ export const NoticeboardDescriptionForm = ({
             !initialData.description && "text-slate-500 italic"
           )}
         >
-          {!initialData.description && "Enter your notice here."}
+          {!initialData.description &&
+            "Add admin notices here."}
           {initialData.description && (
             <Preview value={initialData.description} />
           )}
