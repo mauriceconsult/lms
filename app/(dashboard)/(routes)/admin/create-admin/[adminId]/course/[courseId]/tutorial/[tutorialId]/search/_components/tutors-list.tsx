@@ -1,7 +1,7 @@
 // components/tutor-list.tsx
 "use client";
 
-import { VideoPlayer } from "@/app/(course)/courses/[courseId]/(tutor)/tutors/[tutorId]/_components/video-player";
+// import { VideoPlayer } from "@/app/(course)/courses/[courseId]/(tutor)/tutors/[tutorId]/_components/video-player";
 import { Tutor, Course } from "@prisma/client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
