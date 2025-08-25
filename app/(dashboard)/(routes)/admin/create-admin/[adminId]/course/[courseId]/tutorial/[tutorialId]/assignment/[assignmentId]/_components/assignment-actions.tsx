@@ -55,7 +55,7 @@ export const AssignmentActions = ({
       await axios.delete(
         `/api/create-admins/${adminId}/course/${courseId}/tutorial/${tutorialId}/assignment/${assignmentId}`
       );
-      toast.success("Topic deleted");
+      toast.success("Tutorial deleted");
       router.refresh();
       router.push(
         `/admin/create-admin/${adminId}/course/${courseId}/tutorial/${tutorialId}/assignment/${assignmentId}`

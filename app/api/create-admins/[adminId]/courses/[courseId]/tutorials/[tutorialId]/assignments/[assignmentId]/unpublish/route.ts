@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ adminId: string; courseId: string; tutorId: string; assignmentId: string; }> }
+  { params }: { params: Promise<{ adminId: string; courseId: string; tutorialId: string; assignmentId: string; }> }
 ) {
   try {
     const { userId } = await auth();
@@ -24,7 +24,7 @@ export async function PATCH(
     const unpublishedAssignment = await db.assignment.update({
       where: {
         id: (await params).assignmentId,
-        tutorId: (await params).tutorId,
+        tutorId: (await params).tutorialId,
         userId,
       },
       data: {
@@ -34,14 +34,14 @@ export async function PATCH(
     const publishedAssignments = await db.assignment.findMany({
       where: {
         id: (await params).assignmentId,
-        tutorId: (await params).tutorId,
+        tutorId: (await params).tutorialId,
         isPublished: true,
       },
     });
     if (!publishedAssignments.length) {
       await db.tutor.update({
         where: {
-          id: (await params).tutorId,
+          id: (await params).tutorialId,
         },
         data: {
           isPublished: false,

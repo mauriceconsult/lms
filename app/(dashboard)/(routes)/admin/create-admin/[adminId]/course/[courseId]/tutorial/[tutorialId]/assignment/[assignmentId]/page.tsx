@@ -21,7 +21,7 @@ const AssignmentIdPage = async ({
   params: Promise<{
     adminId: string;
     courseId: string;
-    tutorId: string;
+    tutorialId: string;
     assignmentId: string;
   }>;
 }) => {
@@ -84,7 +84,7 @@ const AssignmentIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/admin/create-admin/${(await params).adminId}/course/${(await params).courseId}/tutor/${(await params).tutorId}`}
+              href={`/admin/create-admin/${(await params).adminId}/course/${(await params).courseId}/tutorial/${(await params).tutorialId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Tutorial creation.
@@ -100,7 +100,7 @@ const AssignmentIdPage = async ({
                 disabled={!isComplete}                
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                tutorialId={resolvedParams.tutorId}
+                tutorialId={resolvedParams.tutorialId}
                 assignmentId={resolvedParams.assignmentId}
                 isPublished={initialData.isPublished}
               />
@@ -118,14 +118,14 @@ const AssignmentIdPage = async ({
                 initialData={initialData}
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                tutorialId={resolvedParams.tutorId}
+                tutorialId={resolvedParams.tutorialId}
                 assignmentId={resolvedParams.assignmentId}
               />
               <AssignmentTutorForm
                 initialData={initialData}
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                tutorialId={resolvedParams.tutorId}
+                tutorialId={resolvedParams.tutorialId}
                 assignmentId={resolvedParams.assignmentId}
                 options={tutor.map((cat) => ({
                   label: cat.title,
@@ -136,7 +136,7 @@ const AssignmentIdPage = async ({
                 initialData={initialData}
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                tutorialId={resolvedParams.tutorId}
+                tutorialId={resolvedParams.tutorialId}
                 assignmentId={resolvedParams.assignmentId}
               />
             </div>
@@ -150,7 +150,7 @@ const AssignmentIdPage = async ({
                   initialData={initialData}
                   adminId={resolvedParams.adminId}
                   courseId={resolvedParams.courseId}
-                  tutorialId={resolvedParams.tutorId}
+                  tutorialId={resolvedParams.tutorialId}
                   assignmentId={resolvedParams.assignmentId}
                 />
               </div>

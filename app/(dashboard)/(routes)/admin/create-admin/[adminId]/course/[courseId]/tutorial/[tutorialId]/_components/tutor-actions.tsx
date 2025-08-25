@@ -30,12 +30,12 @@ export const TutorActions = ({
       setIsLoading(true);
       if (isPublished) {
         await axios.patch(
-          `/api/create-admins/${adminId}/courses/${courseId}/tutors/${tutorialId}/unpublish`
+          `/api/create-admins/${adminId}/courses/${courseId}/tutorials/${tutorialId}/unpublish`
         );
         toast.success("Tutor unpublished");
       } else {
         await axios.patch(
-          `/api/create-admins/${adminId}/courses/${courseId}/tutors/${tutorialId}/publish`
+          `/api/create-admins/${adminId}/courses/${courseId}/tutorials/${tutorialId}/publish`
         );
         
         toast.success("Topic published");
@@ -50,10 +50,10 @@ export const TutorActions = ({
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await axios.delete(`/api/create-admins/${adminId}/courses/${courseId}/tutors/${tutorialId}`);
+      await axios.delete(`/api/create-admins/${adminId}/courses/${courseId}/tutorials/${tutorialId}`);
       toast.success("Topic deleted");
       router.refresh();
-      router.push(`/admin/create-admin/${adminId}/course/${courseId}/tutor`);
+      router.push(`/admin/create-admin/${adminId}/course/${courseId}/tutorial`);
     } catch {
       toast.error("Something went wrong");
     } finally {

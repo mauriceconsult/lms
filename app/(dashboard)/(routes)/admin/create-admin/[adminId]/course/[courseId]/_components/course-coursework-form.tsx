@@ -20,13 +20,19 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Coursework, Course } from "@prisma/client";
 import { CourseCourseworkList } from "./course-coursework-list";
-import { createCoursework, onEditCourseworkAction, onReorderCourseworkAction } from "../coursework/[courseworkId]/actions";
+import { createCoursework, onEditCourseworkAction } from "../coursework/[courseworkId]/actions";
+// import { createCoursework, onEditCourseworkAction } from "../actions";
 
+interface CreateCourseworkResponse {
+  success: boolean;
+  message: string;
+  coursework?: Coursework;
+}
 
 interface CourseCourseworkFormProps {
   initialData: Course & { courseworks: Coursework[] };
   courseId: string;
-  facultyId: string;
+  adminId: string;
 }
 
 const formSchema = z.object({
@@ -36,12 +42,16 @@ const formSchema = z.object({
 export const CourseCourseworkForm = ({
   initialData,
   courseId,
-  facultyId,
+  adminId,
 }: CourseCourseworkFormProps) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const toggleCreating = () => setIsCreating((current) => !current);
   const router = useRouter();
+
+  console.log(
+    "CourseCourseworkForm initialData.courseworks:",
+    initialData.courseworks
+  );
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,14 +65,19 @@ export const CourseCourseworkForm = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { success } = await createCoursework(courseId, values);
-      if (success) {
-        toast.success("Coursework created successfully");
-        toggleCreating();
+      const response: CreateCourseworkResponse = await createCoursework(
+        courseId,
+        values
+      );
+      console.log("createCoursework result:", response);
+      if (response.success) {
+        toast.success(response.message || "Coursework created successfully");
+        setIsCreating(false);
         reset({ title: "" });
+        await new Promise((resolve) => setTimeout(resolve, 500));
         router.refresh();
       } else {
-        toast.error("Something went wrong.");
+        toast.error(response.message);
       }
     } catch (error) {
       console.error("Create coursework error:", error);
@@ -72,19 +87,10 @@ export const CourseCourseworkForm = ({
 
   return (
     <div className="relative mt-6 border bg-slate-100 rounded-md p-4">
-      {isUpdating && (
-        <div
-          className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center"
-          role="status"
-          aria-live="polite"
-        >
-          <Loader2 className="animate-spin h-6 w-6 text-sky-700" />
-        </div>
-      )}
       <div className="font-medium flex items-center justify-between">
-        Coursework
+        Course Courseworks
         <Button
-          onClick={toggleCreating}
+          onClick={() => setIsCreating(!isCreating)}
           variant="ghost"
           disabled={isSubmitting}
         >
@@ -93,7 +99,7 @@ export const CourseCourseworkForm = ({
           ) : (
             <>
               <PlusCircle className="h-4 w-4 mr-2" />
-              Add a coursework
+              Add a Coursework
             </>
           )}
         </Button>
@@ -113,7 +119,7 @@ export const CourseCourseworkForm = ({
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g., 'Fashion & design coursework'"
+                      placeholder="e.g., 'Final Project: Fashion Portfolio'"
                       {...field}
                     />
                   </FormControl>
@@ -139,45 +145,29 @@ export const CourseCourseworkForm = ({
           )}
         >
           {!initialData.courseworks.length &&
-            "This is to evaluate the student's grasp of the key theme(s) across the entire Course. It could describe expectations regarding Course research, internship, or field reports or proposals. At least one Coursework is required."}
+            "You need at least one coursework to complete this course."}
           <CourseCourseworkList
             onEditAction={async (id) => {
+              if (!id) {
+                console.error(
+                  "Invalid coursework ID passed to onEditAction:",
+                  id
+                );
+                return { success: false, message: "Invalid coursework ID" };
+              }
+              console.log("Navigating to coursework ID:", id);
               const result = await onEditCourseworkAction(courseId, id);
+              console.log("onEditCourseworkAction result:", result);
               if (result.success) {
                 router.push(
-                  `/faculty/create-faculty/${facultyId}/course/${courseId}/coursework/${id}`
+                  `/admin/create-admin/${adminId}/course/${courseId}/coursework/${id}`
                 );
-              } else {
-                toast.error(result.message);
               }
-              return result;
-            }}
-            onReorderAction={async (
-              updateData: { id: string; position: number }[]
-            ) => {
-              setIsUpdating(true);
-              const courseworkIds = updateData.map((item) => item.id);
-              const result = await onReorderCourseworkAction(
-                courseId,
-                courseworkIds
-              );
-              setIsUpdating(false);
-              if (result.success) {
-                toast.success(result.message);
-              } else {
-                toast.error(result.message);
-              }
-              router.refresh();
               return result;
             }}
             items={initialData.courseworks || []}
           />
         </div>
-      )}
-      {!isCreating && (
-        <p className="text-xs text-muted-foreground mt-4">
-          Drag and drop to reorder the Coursework
-        </p>
       )}
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 
 export async function createCoursework(
   courseId: string,
@@ -34,10 +35,72 @@ export async function createCoursework(
       },
     });
 
-    return { success: true, coursework };
+    revalidatePath(`/admin/create-admin/${course.adminId}/course/${courseId}`);
+    console.log("Revalidated path for createCoursework:", {
+      courseId,
+      courseworkId: coursework.id,
+    });
+
+    return {
+      success: true,
+      message: `Coursework "${coursework.title}" created successfully`,
+      coursework,
+    };
   } catch (error) {
     console.error("Create coursework error:", error);
     return { success: false, message: "Failed to create coursework" };
+  }
+}
+
+export async function onEditCourseworkAction(
+  courseId: string,
+  courseworkId: string
+) {
+  try {
+    if (!courseId || !courseworkId) {
+      return { success: false, message: "Invalid course or coursework ID" };
+    }
+
+    const { userId } = await auth();
+    if (!userId) {
+      return { success: false, message: "Unauthorized" };
+    }
+
+    const coursework = await db.coursework.findUnique({
+      where: { id: courseworkId },
+      include: { course: true },
+    });
+
+    if (!coursework || coursework.courseId !== courseId) {
+      return {
+        success: false,
+        message: "Coursework not found or unauthorized",
+      };
+    }
+
+    if (!coursework.course) {
+      console.error("Coursework has no associated course:", {
+        courseworkId,
+        courseId,
+      });
+      return {
+        success: false,
+        message: "Coursework is not associated with a valid course",
+      };
+    }
+
+    revalidatePath(
+      `/admin/create-admin/${coursework.course.adminId}/course/${courseId}/coursework/${courseworkId}`
+    );
+    console.log("Revalidated path for editCoursework:", {
+      courseId,
+      courseworkId,
+    });
+
+    return { success: true, message: "Coursework edit authorized" };
+  } catch (error) {
+    console.error("Edit coursework error:", error);
+    return { success: false, message: "Failed to validate coursework" };
   }
 }
 
@@ -73,43 +136,20 @@ export async function createCourseNoticeboard(
       },
     });
 
-    return { success: true, noticeboard };
+    revalidatePath(`/admin/create-admin/${course.adminId}/course/${courseId}`);
+    console.log("Revalidated path for createCourseNoticeboard:", {
+      courseId,
+      noticeboardId: noticeboard.id,
+    });
+
+    return {
+      success: true,
+      message: `Noticeboard "${noticeboard.title}" created successfully`,
+      noticeboard,
+    };
   } catch (error) {
     console.error("Create noticeboard error:", error);
     return { success: false, message: "Failed to create noticeboard" };
-  }
-}
-
-export async function onEditCourseworkAction(
-  courseId: string,
-  courseworkId: string
-) {
-  try {
-    if (!courseId || !courseworkId) {
-      return { success: false, message: "Invalid course or coursework ID" };
-    }
-
-    const { userId } = await auth();
-    if (!userId) {
-      return { success: false, message: "Unauthorized" };
-    }
-
-    const coursework = await db.coursework.findUnique({
-      where: { id: courseworkId },
-      include: { course: true },
-    });
-
-    if (!coursework || coursework.courseId !== courseId) {
-      return {
-        success: false,
-        message: "Coursework not found or unauthorized",
-      };
-    }
-
-    return { success: true, message: "Coursework edit authorized" };
-  } catch (error) {
-    console.error("Edit coursework error:", error);
-    return { success: false, message: "Failed to validate coursework" };
   }
 }
 
@@ -138,6 +178,25 @@ export async function onEditCourseNoticeboardAction(
         message: "Noticeboard not found or unauthorized",
       };
     }
+
+    if (!noticeboard.course) {
+      console.error("Noticeboard has no associated course:", {
+        courseNoticeboardId,
+        courseId,
+      });
+      return {
+        success: false,
+        message: "Noticeboard is not associated with a valid course",
+      };
+    }
+
+    revalidatePath(
+      `/admin/create-admin/${noticeboard.course.adminId}/course/${courseId}/noticeboard/${courseNoticeboardId}`
+    );
+    console.log("Revalidated path for editCourseNoticeboard:", {
+      courseId,
+      courseNoticeboardId,
+    });
 
     return { success: true, message: "Noticeboard edit authorized" };
   } catch (error) {
@@ -182,6 +241,11 @@ export async function onReorderCourseworkAction(
         })
       )
     );
+
+    revalidatePath(
+      `/admin/create-admin/${courseworks[0].courseId}/course/${courseId}`
+    );
+    console.log("Revalidated path for reorderCoursework:", { courseId });
 
     return { success: true, message: "Courseworks reordered successfully" };
   } catch (error) {
@@ -229,6 +293,11 @@ export async function onReorderCourseNoticeboardAction(
         })
       )
     );
+
+    revalidatePath(
+      `/admin/create-admin/${noticeboards[0].courseId}/course/${courseId}`
+    );
+    console.log("Revalidated path for reorderCourseNoticeboard:", { courseId });
 
     return { success: true, message: "Noticeboards reordered successfully" };
   } catch (error) {

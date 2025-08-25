@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ adminId: string; courseId: string; tutorId: string; }> }
+  { params }: { params: Promise<{ adminId: string; courseId: string; tutorialId: string; }> }
 ) {
   try {
     const { userId } = await auth();
@@ -13,7 +13,7 @@ export async function PATCH(
     }   
     const ownTutor = await db.tutor.findUnique({
       where: {
-        id: (await params).tutorId,
+        id: (await params).tutorialId,
         userId,
       },
     });
@@ -23,7 +23,7 @@ export async function PATCH(
 
     const unpublishedTutorial = await db.tutor.update({
       where: {
-        id: (await params).tutorId,
+        id: (await params).tutorialId,
         courseId: (await params).courseId,
         userId,
       },
@@ -33,7 +33,7 @@ export async function PATCH(
     });
     const publishedTutorials = await db.tutor.findMany({
       where: {
-        id: (await params).tutorId,
+        id: (await params).tutorialId,
         courseId: (await params).courseId,
         isPublished: true,
       },
@@ -50,7 +50,7 @@ export async function PATCH(
     }
     return NextResponse.json(unpublishedTutorial);
   } catch (error) {
-    console.log("[TUTOR_UNPUBLISH]", error);
+    console.log("[TUTORIAL_UNPUBLISH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

@@ -1,4 +1,3 @@
-// pages/admin/create-admin/[adminId]/course/[courseId]/index.tsx
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -7,7 +6,6 @@ import {
   ListChecks,
   File,
   ArrowLeft,
-  // Eye,
   Image,
 } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
@@ -15,15 +13,15 @@ import { Banner } from "@/components/banner";
 import { CourseActions } from "./_components/course-actions";
 import { CourseTitleForm } from "./_components/course-title-form";
 import { CourseDescriptionForm } from "./_components/course-description-form";
-// import { CourseAccessForm } from "./_components/course-access-form";
 import { CourseImageForm } from "./_components/course-image-form";
 import { CourseAttachmentForm } from "./_components/course-attachment-form";
 import { CourseTutorForm } from "./_components/course-tutor-form";
+import { CourseCourseworkForm } from "./_components/course-coursework-form";
 import Link from "next/link";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { CourseAdminForm } from "./_components/course-admin-form";
 
-export const dynamic = "force-dynamic"; 
+export const dynamic = "force-dynamic";
 
 const CourseIdPage = async ({
   params,
@@ -59,9 +57,11 @@ const CourseIdPage = async ({
       adminId: resolvedParams.adminId,
     },
     include: {
-      tutors: true, // Include all tutors, published or unpublished
+      tutors: true,
       attachments: true,
-      courseworks: true,
+      courseworks: {
+        orderBy: { position: "asc" },
+      },
     },
   });
 
@@ -124,7 +124,7 @@ const CourseIdPage = async ({
     initialData.description,
     initialData.imageUrl,
     initialData.adminId,
-    initialData.tutors.some((tutor) => tutor.isPublished), // At least one published tutor
+    initialData.tutors.some((tutor) => tutor.isPublished),
     initialData.courseworks.length > 0,
   ];
   const optionalFields = [initialData.attachments.length > 0];
@@ -200,17 +200,6 @@ const CourseIdPage = async ({
               />
             </div>
             <div className="space-y-6">
-              {/* <div>
-                <div className="flex items-center gap-x-2">
-                  <IconBadge icon={Eye} />
-                  <h2 className="text-xl">Access settings</h2>
-                </div>
-                <CourseAccessForm
-                  initialData={initialData}
-                  adminId={resolvedParams.adminId}
-                  courseId={resolvedParams.courseId}
-                />
-              </div> */}
               <div>
                 <div className="flex items-center gap-x-2">
                   <IconBadge icon={Image} />
@@ -239,6 +228,17 @@ const CourseIdPage = async ({
                   <h2 className="text-xl">Course tutorials</h2>
                 </div>
                 <CourseTutorForm
+                  initialData={initialData}
+                  adminId={resolvedParams.adminId}
+                  courseId={resolvedParams.courseId}
+                />
+              </div>
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <IconBadge icon={ListChecks} />
+                  <h2 className="text-xl">Course courseworks</h2>
+                </div>
+                <CourseCourseworkForm
                   initialData={initialData}
                   adminId={resolvedParams.adminId}
                   courseId={resolvedParams.courseId}
