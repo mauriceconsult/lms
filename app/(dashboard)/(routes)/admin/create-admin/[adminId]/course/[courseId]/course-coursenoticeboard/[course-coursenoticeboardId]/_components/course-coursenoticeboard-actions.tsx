@@ -12,14 +12,14 @@ interface CourseCourseNoticeboardActionsProps {
   disabled: boolean;
   adminId: string;
   courseId: string;
-  courseCourseNoticeboardId: string;
+  courseCoursenoticeboardId: string;
   isPublished: boolean;
 }
 export const CourseCourseNoticeboardActions = ({
   disabled,
   adminId,
   courseId,
-  courseCourseNoticeboardId,
+  courseCoursenoticeboardId,
   isPublished,
 }: CourseCourseNoticeboardActionsProps) => {
   const router = useRouter();
@@ -28,13 +28,13 @@ export const CourseCourseNoticeboardActions = ({
     try {
       setIsLoading(true);
       if (isPublished) {
-        await axios.patch(`/api/create-faculties/${adminId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/unpublish`);
-        toast.success("Course Noticeboard unpublished");
+        await axios.patch(`/api/create-admins/${adminId}/courses/${courseId}/course-coursenoticeboards/${courseCoursenoticeboardId}/unpublish`);
+        toast.success("Course Notice unpublished");
       } else {
         await axios.patch(
-          `/api/create-faculties/${adminId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/publish`
+          `/api/create-admins/${adminId}/courses/${courseId}/course-coursenoticeboards/${courseCoursenoticeboardId}/publish`
         );
-        toast.success("Course Noticeboard published");
+        toast.success("Course Notice published");
       }
       router.refresh();
     } catch {
@@ -47,12 +47,12 @@ export const CourseCourseNoticeboardActions = ({
     try {
       setIsLoading(true);
       await axios.delete(
-        `/api/create-admin/${adminId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}`
+        `/api/create-admin/${adminId}/courses/${courseId}/course-coursenoticeboards/${courseCoursenoticeboardId}`
       );
       toast.success("Course Noticeboard deleted");
       router.refresh();
       router.push(
-        `/admin/create-admin/${adminId}/course/${courseId}/course-course-noticeboard`
+        `/admin/create-admin/${adminId}/course/${courseId}/course-coursenoticeboard`
       );
     } catch {
       toast.error("Something went wrong");

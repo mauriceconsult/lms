@@ -4,12 +4,14 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: {
+  {
+    params,
+  }: {
     params: Promise<{
       adminId: string;
       courseId: string;
-      courseworkId: string;
-    }>
+      courseCoursenoticeboardId: string;
+    }>;
   }
 ) {
   try {
@@ -17,56 +19,58 @@ export async function DELETE(
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    const coursework = await db.coursework.findUnique({
+    const courseNoticeboard = await db.courseNoticeboard.findUnique({
       where: {
-        id: (await params).courseworkId,
+        id: (await params).courseCoursenoticeboardId,
         userId: userId,
       },
     });
-    if (!coursework) {
+    if (!courseNoticeboard) {
       return new NextResponse("Not found", { status: 404 });
     }
-    const deletedCoursework = await db.coursework.delete({
+    const deletedCoursenoticeboard = await db.courseNoticeboard.delete({
       where: {
-        id: (await params).courseworkId,
+        id: (await params).courseCoursenoticeboardId,
       },
     });
-    return NextResponse.json(deletedCoursework);
+    return NextResponse.json(deletedCoursenoticeboard);
   } catch (error) {
-    console.log("[COURSEWORK_ID_DELETE]", error);
+    console.log("[COURSE_NOTICEBOARD_ID_DELETE]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
 
 export async function PATCH(
   req: Request,
-  { params }: {
+  {
+    params,
+  }: {
     params: Promise<{
       adminId: string;
       courseId: string;
-      courseworkId: string;
-    }>
+      courseCoursenoticeboardId: string;
+    }>;
   }
 ) {
   try {
     const { userId } = await auth();
-    const { courseworkId } = await params;
+    const { courseCoursenoticeboardId } = await params;
     const values = await req.json();
     if (!userId) {
       return new NextResponse("Unathorized", { status: 401 });
     }
-    const coursework = await db.coursework.update({
+    const courseCourseNoticeboard = await db.courseNoticeboard.update({
       where: {
-        id: courseworkId,
+        id: courseCoursenoticeboardId,
         userId,
       },
       data: {
         ...values,
       },
     });
-    return NextResponse.json(coursework);
+    return NextResponse.json(courseCourseNoticeboard);
   } catch (error) {
-    console.log("[COURSEWORK_ID]", error);
+    console.log("[COURSE_NOTICEBOARD_ID]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

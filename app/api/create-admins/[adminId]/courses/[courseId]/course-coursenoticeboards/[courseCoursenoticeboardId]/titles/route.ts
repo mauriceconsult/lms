@@ -8,9 +8,9 @@ export async function DELETE(
     params,
   }: {
     params: Promise<{
-      facultyId: string;
+      adminId: string;
       courseId: string;
-      courseCourseNoticeboardId: string;
+      courseCoursenoticeboardId: string;
     }>;
   }
 ) {
@@ -30,7 +30,7 @@ export async function DELETE(
     }
     const courseNoticeboard = await db.courseNoticeboard.findUnique({
       where: {
-        id: (await params).courseCourseNoticeboardId,
+        id: (await params).courseCoursenoticeboardId,
         courseId: (await params).courseId,
         userId,
       },
@@ -40,7 +40,7 @@ export async function DELETE(
     }
     const deletedCourseNotice = await db.courseNoticeboard.delete({
       where: {
-        id: (await params).courseCourseNoticeboardId,
+        id: (await params).courseCoursenoticeboardId,
       },
     });
     return NextResponse.json(deletedCourseNotice);
@@ -56,15 +56,15 @@ export async function PATCH(
     params,
   }: {
     params: Promise<{
-      facultyId: string;
+      adminId: string;
       courseId: string;
-      courseCourseNoticeboardId: string;
+      courseCoursenoticeboardId: string;
     }>;
   }
 ) {
   try {
     const { userId } = await auth();
-    const { courseId, courseCourseNoticeboardId } = await params;
+    const { courseId, courseCoursenoticeboardId } = await params;
     const values = await req.json();
     if (!userId) {
       return new NextResponse("Unathorized", { status: 401 });
@@ -80,7 +80,7 @@ export async function PATCH(
     }
     const courseNoticeboard = await db.courseNoticeboard.update({
       where: {
-        id: courseCourseNoticeboardId,
+        id: courseCoursenoticeboardId,
         userId,
       },
       data: {

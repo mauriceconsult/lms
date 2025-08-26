@@ -23,7 +23,7 @@ interface CourseCourseNoticeboardTitleFormProps {
   };
   adminId: string;
   courseId: string;
-  courseCourseNoticeboardId: string;
+  courseCoursenoticeboardId: string;
 }
 const formSchema = z.object({
   title: z.string().min(1, {
@@ -31,7 +31,7 @@ const formSchema = z.object({
   }),
 });
 
-export const CourseCourseNoticeboardTitleForm = ({ initialData, adminId, courseId, courseCourseNoticeboardId }: CourseCourseNoticeboardTitleFormProps) => {
+export const CourseCourseNoticeboardTitleForm = ({ initialData, adminId, courseId, courseCoursenoticeboardId }: CourseCourseNoticeboardTitleFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
@@ -42,7 +42,7 @@ export const CourseCourseNoticeboardTitleForm = ({ initialData, adminId, courseI
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${adminId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/titles`, values);
+      await axios.patch(`/api/create-faculties/${adminId}/courses/${courseId}/course-coursenoticeboards/${courseCoursenoticeboardId}/titles`, values);
       toast.success("Course Noticeboard created.");
       toggleEdit();
       router.refresh();

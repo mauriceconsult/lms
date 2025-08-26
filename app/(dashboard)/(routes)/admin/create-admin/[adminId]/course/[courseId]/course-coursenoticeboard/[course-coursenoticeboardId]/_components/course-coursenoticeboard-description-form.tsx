@@ -23,7 +23,7 @@ interface CourseCourseNoticeboardDescriptionProps {
   initialData: CourseNoticeboard;
   adminId: string;
   courseId: string;
-  courseCourseNoticeboardId: string; // Keep camelCase for prop
+  courseCoursenoticeboardId: string; // Keep camelCase for prop
 }
 
 const formSchema = z.object({
@@ -36,13 +36,13 @@ export const CourseCourseNoticeboardDescriptionForm = ({
   initialData,
   adminId,
   courseId,
-  courseCourseNoticeboardId,
+  courseCoursenoticeboardId,
 }: CourseCourseNoticeboardDescriptionProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
   const router = useRouter();
 
-  console.log("courseCourseNoticeboardId:", courseCourseNoticeboardId);
+  console.log("courseCoursenoticeboardId:", courseCoursenoticeboardId);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,19 +56,19 @@ export const CourseCourseNoticeboardDescriptionForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (
-        !courseCourseNoticeboardId ||
-        courseCourseNoticeboardId === "undefined"
+        !courseCoursenoticeboardId ||
+        courseCoursenoticeboardId === "undefined"
       ) {
-        toast.error(`Invalid noticeboard ID: ${courseCourseNoticeboardId}`);
+        toast.error(`Invalid noticeboard ID: ${courseCoursenoticeboardId}`);
         console.error(
-          "Invalid courseCourseNoticeboardId:",
-          courseCourseNoticeboardId
+          "Invalid courseCoursenoticeboardId:",
+          courseCoursenoticeboardId
         );
         return;
       }
 
       await axios.patch(
-        `/api/create-faculties/${adminId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/descriptions`,
+        `/api/create-admin/${adminId}/courses/${courseId}/course-coursenoticeboards/${courseCoursenoticeboardId}/descriptions`,
         values
       );
       toast.success("Course Notice description updated.");

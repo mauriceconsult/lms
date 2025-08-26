@@ -20,7 +20,7 @@ const CourseCourseNoticeboardIdPage = async ({
   params: Promise<{
     adminId: string;
     courseId: string;
-    courseCourseNoticeboardId: string;
+    courseCoursenoticeboardId: string;
   }>;
 }) => {
   const { userId } = await auth();
@@ -37,7 +37,7 @@ const CourseCourseNoticeboardIdPage = async ({
   if (
     !resolvedParams.adminId ||
     !resolvedParams.courseId ||
-    !resolvedParams.courseCourseNoticeboardId
+    !resolvedParams.courseCoursenoticeboardId
   ) {
     console.error(
       `[${new Date().toISOString()} CourseCourseNoticeboardIdPage] Invalid params`,
@@ -50,7 +50,7 @@ const CourseCourseNoticeboardIdPage = async ({
 
   const courseCourseNoticeboard = await db.courseNoticeboard.findUnique({
     where: {
-      id: resolvedParams.courseCourseNoticeboardId,
+      id: resolvedParams.courseCoursenoticeboardId,
       courseId: resolvedParams.courseId,
       userId,
     },
@@ -63,7 +63,7 @@ const CourseCourseNoticeboardIdPage = async ({
     console.error(
       `[${new Date().toISOString()} CourseCourseNoticeboardIdPage] CourseCourseNoticeboard not found:`,
       {
-        courseCourseNoticeboardId: resolvedParams.courseCourseNoticeboardId,
+        courseCoursenoticeboardId: resolvedParams.courseCoursenoticeboardId,
         courseId: resolvedParams.courseId,
         userId,
       }
@@ -77,7 +77,7 @@ const CourseCourseNoticeboardIdPage = async ({
     console.error(
       `[${new Date().toISOString()} CourseCourseNoticeboardIdPage] Course not found for courseCourseNoticeboard:`,
       {
-        courseCourseNoticeboardId: resolvedParams.courseCourseNoticeboardId,
+        courseCoursenoticeboardId: resolvedParams.courseCoursenoticeboardId,
         courseId: resolvedParams.courseId,
       }
     );
@@ -107,7 +107,7 @@ const CourseCourseNoticeboardIdPage = async ({
   }));
 
   console.log("CourseCourseNoticeboardIdPage fetched data:", {
-    courseCourseNoticeboardId: courseCourseNoticeboard.id,
+    courseCoursenoticeboardId: courseCourseNoticeboard.id,
     courseId: courseCourseNoticeboard.courseId,
     adminId: courseCourseNoticeboard.course.adminId,
     options: options.map((opt) => ({ label: opt.label, value: opt.value })),
@@ -160,7 +160,7 @@ const CourseCourseNoticeboardIdPage = async ({
                 disabled={!isComplete}
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                courseCourseNoticeboardId={courseCourseNoticeboard.id}
+                courseCoursenoticeboardId={courseCourseNoticeboard.id}
                 isPublished={initialData.isPublished}
               />
             </div>
@@ -177,20 +177,20 @@ const CourseCourseNoticeboardIdPage = async ({
                 initialData={initialData}
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                courseCourseNoticeboardId={courseCourseNoticeboard.id}
+                courseCoursenoticeboardId={courseCourseNoticeboard.id}
               />
               <CourseCourseNoticeboardCourseForm
                 initialData={initialData}
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                courseCourseNoticeboardId={courseCourseNoticeboard.id}
+                courseCoursenoticeboardId={courseCourseNoticeboard.id}
                 options={options}
               />
               <CourseCourseNoticeboardDescriptionForm
                 initialData={initialData}
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                courseCourseNoticeboardId={courseCourseNoticeboard.id}
+                courseCoursenoticeboardId={courseCourseNoticeboard.id}
               />
             </div>
           </div>

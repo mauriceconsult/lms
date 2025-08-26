@@ -1,4 +1,3 @@
-// app/api/create-faculties/[facultyId]/courses/[courseId]/course-course-noticeboards/[courseCourseNoticeboardId]/route.ts
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 
@@ -8,9 +7,9 @@ export async function PATCH(
     params,
   }: {
     params: Promise<{
-      facultyId: string;
+      adminId: string;
       courseId: string;
-      courseCourseNoticeboardId: string;
+      courseCoursenoticeboardId: string;
     }>;
   }
 ) {
@@ -32,7 +31,7 @@ export async function PATCH(
       });
     }
 
-    const { courseId, courseCourseNoticeboardId: courseCourseNoticeboardId } =
+    const { courseId, courseCoursenoticeboardId: courseCoursenoticeboardId } =
       await params;
 
     const course = await db.course.findUnique({
@@ -47,14 +46,14 @@ export async function PATCH(
 
     const updatedNoticeboard = await db.courseNoticeboard.upsert({
       where: {
-        id: courseCourseNoticeboardId,
+        id: courseCoursenoticeboardId,
       },
       update: {
         description,
       },
       create: {
-        id: courseCourseNoticeboardId,
-        title: "Default Noticeboard", // Adjust based on schema
+        id: courseCoursenoticeboardId,
+        title: "Default CourseNoticeboard", // Adjust based on schema
         description,
         userId,
         courseId,

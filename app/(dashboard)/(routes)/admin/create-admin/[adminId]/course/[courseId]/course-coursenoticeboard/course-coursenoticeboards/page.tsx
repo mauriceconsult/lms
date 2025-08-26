@@ -3,8 +3,6 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { DataTable } from "./_components/course-coursenoticeboard-data-table";
 import { columns } from "./_components/course-coursenoticeboard-columns";
-// import { DataTable } from "./_components/course-course-noticeboard-data-table";
-// import { columns } from "./_components/course-course-noticeboard-columns";
 
 
 const CourseNoticeboardsPage = async () => {
