@@ -66,7 +66,7 @@ const CreateAdmin = () => {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Faculty name</FormLabel>
+                  <FormLabel>Admin title</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}

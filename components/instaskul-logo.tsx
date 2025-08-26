@@ -40,7 +40,7 @@ export const InstaSkulLogo: React.FC<InstaSkulLogoProps> = ({
       </div>
       <span
         className={cn(
-          "text-slate-500 font-medium text-center text-sm",
+          "text-slate-500 font-medium text-center text-xs",
           sizeStyles[size].tagline
         )}
       >
