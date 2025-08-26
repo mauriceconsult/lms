@@ -13,21 +13,39 @@ export const InstaSkulLogo: React.FC<InstaSkulLogoProps> = ({
   size = "md",
 }) => {
   const sizeStyles = {
-    sm: "text-xl",
-    md: "text-2xl",
-    lg: "text-3xl",
+    sm: { logo: "text-xl", tagline: "text-xs", trademark: "text-[10px]" },
+    md: { logo: "text-2xl", tagline: "text-sm", trademark: "text-xs" },
+    lg: { logo: "text-3xl", tagline: "text-base", trademark: "text-sm" },
   };
 
   return (
-    <Link
-      href="/"
-      className={cn(
-        "font-bold text-slate-900 tracking-tight",
-        sizeStyles[size],
-        className
-      )}
-    >
-      instaSkul
+    <Link href="/" className={cn("flex flex-col items-center", className)}>
+      <div className="flex items-start">
+        <span
+          className={cn(
+            "font-bold text-slate-900 tracking-tight",
+            sizeStyles[size].logo
+          )}
+        >
+          instaSkul
+        </span>
+        <span
+          className={cn(
+            "text-slate-900 relative -top-1",
+            sizeStyles[size].trademark
+          )}
+        >
+          ®
+        </span>
+      </div>
+      <span
+        className={cn(
+          "text-slate-500 font-medium text-center text-sm",
+          sizeStyles[size].tagline
+        )}
+      >
+        Learning management
+      </span>
     </Link>
   );
 };
