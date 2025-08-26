@@ -39,12 +39,12 @@ const courseRoutes = [
   {
     icon: List,
     label: "Courses",
-    href: "/admin/course/courses",
+    href: "/admin/course/search",
   },
   {
     icon: Compass,
     label: "Browse Courses",
-    href: "/admin/course/courses/search",
+    href: "/admin/course/courses",
   },
   {
     icon: BarChart,
@@ -57,17 +57,17 @@ const tutorialRoutes = [
   {
     icon: List,
     label: "Tutorials",
-    href: "/admin/course/tutorial/tutorials",
+    href: "/admin/course/tutorial/search",
   },
   {
     icon: Compass,
     label: "Browse Tutorials",
-    href: "/admin/course/tutorial/tutorials/search",
+    href: "/admin/course/tutorial/tutorials",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: "/admin/course/tutorials/analytics",
+    href: "/admin/course/tutorial/analytics",
   },
 ];
 
@@ -75,7 +75,7 @@ const noticeboardRoutes = [
   {
     icon: List,
     label: "Noticeboards",
-    href: "/admin/noticeboard",
+    href: "/admin/noticeboard/search",
   },
   {
     icon: Compass,
@@ -93,17 +93,17 @@ const courseworkRoutes = [
   {
     icon: List,
     label: "Courseworks",
-    href: "/admin/coursework/courseworks",
+    href: "/admin/course/coursework/search",
   },
   {
     icon: Compass,
     label: "Browse Courseworks",
-    href: "/admin/coursework/search",
+    href: "/admin/course/coursework/courseworks",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: "/admin/coursework/analytics",
+    href: "/admin/course/coursework/analytics",
   },
 ];
 
@@ -111,17 +111,17 @@ const assignmentRoutes = [
   {
     icon: List,
     label: "Assignments",
-    href: "/admin/course/tutorial/assignment/assignments",
+    href: "/admin/course/tutorial/assignment/search",
   },
   {
     icon: Compass,
     label: "Browse Assignments",
-    href: "/admins/course/tutorial/assignments/search",
+    href: "/admins/course/tutorial/assignment/assignments",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: "/admins/course/tutorial/assignments/analytics",
+    href: "/admins/course/tutorial/assignment/analytics",
   },
 ];
 
@@ -129,17 +129,17 @@ const coursenoticeboardRoutes = [
   {
     icon: List,
     label: "Course Notices",
-    href: "/admins/course/course-coursenoticeboard/course-coursenoticeboards",
+    href: "/admins/course/course-coursenoticeboard/search",
   },
   {
     icon: Compass,
     label: "Browse Course Notices",
-    href: "/admins/course/course-coursenoticeboard/course-coursenoticeboards/search",
+    href: "/admins/course/course-coursenoticeboard/course-coursenoticeboards",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: "/admins/courses/course-coursenoticeboards/analytics",
+    href: "/admins/course/course-coursenoticeboard/analytics",
   },
 ];
 
@@ -147,12 +147,12 @@ const payrollRoutes = [
   {
     icon: List,
     label: "Payrolls",
-    href: "/payroll/payrolls",
+    href: "/payroll",
   },
   {
     icon: Compass,
     label: "Browse Payrolls",
-    href: "/payroll/payrolls/search",
+    href: "/payroll/search",
   },
   {
     icon: BarChart,

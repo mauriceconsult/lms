@@ -1,4 +1,3 @@
-// components/course-tutor-form.tsx
 "use client";
 
 import * as z from "zod";
@@ -22,7 +21,6 @@ import { cn } from "@/lib/utils";
 import { Tutor, Course } from "@prisma/client";
 import { CourseTutorList } from "./course-tutor-list";
 import { createTutor, onEditAction } from "../tutorial/[tutorialId]/actions";
-// import { createTutor, onEditAction } from "../tutorial/[tutorId]/actions";
 
 interface CreateTutorResponse {
   success: boolean;

@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+// Define public routes
 const isPublicRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",
@@ -8,6 +9,9 @@ const isPublicRoute = createRouteMatcher([
   "/api/uploadthing(.*)",
   "/:path*.(png|jpg|jpeg|gif|svg|ico)",
 ]);
+
+// Define protected routes that require authentication
+const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/payroll(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   const url = req.url;
@@ -20,40 +24,50 @@ export default clerkMiddleware(async (auth, req) => {
     pathname,
   });
 
-  // Allow public routes
+  // Allow public routes without authentication
   if (isPublicRoute(req)) {
     console.log(
-      `[${new Date().toISOString()} Middleware] Is public route: true`
+      `[${new Date().toISOString()} Middleware] Allowing public route: ${pathname}`
     );
     return NextResponse.next();
   }
 
   // Redirect unauthenticated users to sign-in for protected routes
-  if (!userId) {
+  if (isProtectedRoute(req) && !userId) {
     console.log(
-      `[${new Date().toISOString()} Middleware] Redirecting to sign-in due to no userId`
+      `[${new Date().toISOString()} Middleware] Redirecting to sign-in for protected route: ${pathname}`
     );
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
-  // Explicitly allow /admin/* routes for authenticated users
-  if (pathname.startsWith("/admin")) {
+  // Allow authenticated users to access protected routes
+  if (userId && isProtectedRoute(req)) {
     console.log(
-      `[${new Date().toISOString()} Middleware] Allowing access to /admin route`
+      `[${new Date().toISOString()} Middleware] Allowing authenticated access to: ${pathname}`
     );
     return NextResponse.next();
   }
 
-  // Log unexpected routes
+  // Allow any other routes for authenticated users
+  if (userId) {
+    console.log(
+      `[${new Date().toISOString()} Middleware] Allowing authenticated user to non-protected route: ${pathname}`
+    );
+    return NextResponse.next();
+  }
+
+  // Fallback: redirect unauthenticated users to sign-in for any other routes
   console.log(
-    `[${new Date().toISOString()} Middleware] Unexpected route for authenticated user`
+    `[${new Date().toISOString()} Middleware] Redirecting unauthenticated user to sign-in: ${pathname}`
   );
-  return NextResponse.next();
+  return NextResponse.redirect(new URL("/sign-in", req.url));
 });
 
 export const config = {
   matcher: [
+    // Match all routes except static assets and Next.js internals
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|ico)).*)",
+    // Match all API routes
     "/api/(.*)",
   ],
 };
