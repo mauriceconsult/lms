@@ -1,4 +1,3 @@
-// app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/course-course-noticeboard/[courseCourseNoticeboardId]/_components/course-course-noticeboard-description-form.tsx
 "use client";
 import * as z from "zod";
 import axios from "axios";
@@ -22,7 +21,7 @@ import { CourseNoticeboard } from "@prisma/client";
 
 interface CourseCourseNoticeboardDescriptionProps {
   initialData: CourseNoticeboard;
-  facultyId: string;
+  adminId: string;
   courseId: string;
   courseCourseNoticeboardId: string; // Keep camelCase for prop
 }
@@ -35,7 +34,7 @@ const formSchema = z.object({
 
 export const CourseCourseNoticeboardDescriptionForm = ({
   initialData,
-  facultyId,
+  adminId,
   courseId,
   courseCourseNoticeboardId,
 }: CourseCourseNoticeboardDescriptionProps) => {
@@ -69,7 +68,7 @@ export const CourseCourseNoticeboardDescriptionForm = ({
       }
 
       await axios.patch(
-        `/api/create-faculties/${facultyId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/descriptions`,
+        `/api/create-faculties/${adminId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/descriptions`,
         values
       );
       toast.success("Course Notice description updated.");

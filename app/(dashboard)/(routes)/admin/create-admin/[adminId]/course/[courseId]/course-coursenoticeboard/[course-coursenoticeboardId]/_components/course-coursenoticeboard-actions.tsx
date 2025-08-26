@@ -10,14 +10,14 @@ import toast from "react-hot-toast";
 
 interface CourseCourseNoticeboardActionsProps {
   disabled: boolean;
-  facultyId: string;
+  adminId: string;
   courseId: string;
   courseCourseNoticeboardId: string;
   isPublished: boolean;
 }
 export const CourseCourseNoticeboardActions = ({
   disabled,
-  facultyId,
+  adminId,
   courseId,
   courseCourseNoticeboardId,
   isPublished,
@@ -28,11 +28,11 @@ export const CourseCourseNoticeboardActions = ({
     try {
       setIsLoading(true);
       if (isPublished) {
-        await axios.patch(`/api/create-faculties/${facultyId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/unpublish`);
+        await axios.patch(`/api/create-faculties/${adminId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/unpublish`);
         toast.success("Course Noticeboard unpublished");
       } else {
         await axios.patch(
-          `/api/create-faculties/${facultyId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/publish`
+          `/api/create-faculties/${adminId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}/publish`
         );
         toast.success("Course Noticeboard published");
       }
@@ -47,12 +47,12 @@ export const CourseCourseNoticeboardActions = ({
     try {
       setIsLoading(true);
       await axios.delete(
-        `/api/create-faculty/${facultyId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}`
+        `/api/create-admin/${adminId}/courses/${courseId}/course-course-noticeboards/${courseCourseNoticeboardId}`
       );
       toast.success("Course Noticeboard deleted");
       router.refresh();
       router.push(
-        `/faculty/create-faculty/${facultyId}/course/${courseId}/course-course-noticeboard`
+        `/admin/create-admin/${adminId}/course/${courseId}/course-course-noticeboard`
       );
     } catch {
       toast.error("Something went wrong");

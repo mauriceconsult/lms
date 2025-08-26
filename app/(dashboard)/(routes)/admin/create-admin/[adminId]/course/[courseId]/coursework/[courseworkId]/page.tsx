@@ -9,6 +9,7 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 import { CourseworkTitleForm } from "./_components/coursework-title-form";
 import { CourseworkDescriptionForm } from "./_components/coursework-description-form";
 import { CourseworkActions } from "./_components/coursework-actions";
+import { CourseworkCourseForm } from "./_components/coursework-course-form";
 
 export const dynamic = "force-dynamic";
 
@@ -84,10 +85,31 @@ const CourseworkIdPage = async ({
     );
   }
 
+  // Fetch all courses for the admin to populate Combobox options
+  const courses = await db.course.findMany({
+    where: {
+      adminId: resolvedParams.adminId,
+      userId,
+    },
+    select: {
+      id: true,
+      title: true,
+    },
+    orderBy: {
+      title: "asc",
+    },
+  });
+
+  const options = courses.map((course) => ({
+    label: course.title,
+    value: course.id,
+  }));
+
   console.log("CourseworkIdPage fetched data:", {
     courseworkId: coursework.id,
     courseId: coursework.courseId,
     adminId: coursework.course.adminId,
+    options: options.map((opt) => ({ label: opt.label, value: opt.value })),
   });
 
   const initialData = {
@@ -155,6 +177,13 @@ const CourseworkIdPage = async ({
                 adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
                 courseworkId={coursework.id}
+              />
+              <CourseworkCourseForm
+                initialData={initialData}
+                adminId={resolvedParams.adminId}
+                courseId={resolvedParams.courseId}
+                courseworkId={coursework.id}
+                options={options}
               />
               <CourseworkDescriptionForm
                 initialData={initialData}

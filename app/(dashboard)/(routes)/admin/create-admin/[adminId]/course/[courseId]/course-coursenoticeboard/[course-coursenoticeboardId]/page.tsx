@@ -1,70 +1,127 @@
-// app/(dashboard)/(routes)/faculty/create-faculty/[facultyId]/course/[courseId]/course-course-noticeboard/[courseCourseNoticeboardId]/page.tsx
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, File, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, ArrowLeft } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Banner } from "@/components/banner";
 import Link from "next/link";
+import { DashboardLayout } from "@/components/dashboard-layout";
 import { CourseCourseNoticeboardActions } from "./_components/course-coursenoticeboard-actions";
 import { CourseCourseNoticeboardTitleForm } from "./_components/course-coursenoticeboard-title-form";
 import { CourseCourseNoticeboardCourseForm } from "./_components/course-coursenoticeboard-course-form";
 import { CourseCourseNoticeboardDescriptionForm } from "./_components/course-coursenoticeboard-description-form";
-import { CourseCourseNoticeboardAttachmentForm } from "./_components/course-coursenoticeboard-attachment-form";
 
-const CourseNoticeboardIdPage = async ({
+
+export const dynamic = "force-dynamic";
+
+const CourseCourseNoticeboardIdPage = async ({
   params,
 }: {
   params: Promise<{
+    adminId: string;
     courseId: string;
-    facultyId: string;
-    "course-course-noticeboardId": string;
+    courseCourseNoticeboardId: string;
   }>;
 }) => {
   const { userId } = await auth();
   if (!userId) {
-    return redirect("/");
+    console.error(
+      `[${new Date().toISOString()} CourseCourseNoticeboardIdPage] No userId from auth`
+    );
+    return redirect("/sign-in");
   }
 
   const resolvedParams = await params;
-  console.log("Page params:", resolvedParams);
+  console.log("CourseCourseNoticeboardIdPage params:", resolvedParams);
 
-  // Validate course-course-noticeboardId
-  if (!resolvedParams["course-course-noticeboardId"]) {
+  if (
+    !resolvedParams.adminId ||
+    !resolvedParams.courseId ||
+    !resolvedParams.courseCourseNoticeboardId
+  ) {
+    console.error(
+      `[${new Date().toISOString()} CourseCourseNoticeboardIdPage] Invalid params`,
+      resolvedParams
+    );
     return redirect(
-      `/faculty/create-faculty/${resolvedParams.facultyId}/course/${resolvedParams.courseId}`
+      `/admin/create-admin/${resolvedParams.adminId}/course/${resolvedParams.courseId}`
     );
   }
 
-  const courseNoticeboard = await db.courseNoticeboard.findUnique({
+  const courseCourseNoticeboard = await db.courseNoticeboard.findUnique({
     where: {
-      id: resolvedParams["course-course-noticeboardId"],
+      id: resolvedParams.courseCourseNoticeboardId,
       courseId: resolvedParams.courseId,
+      userId,
     },
     include: {
-      attachments: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
+      course: true,
     },
   });
 
-  const course = await db.course.findMany({
+  if (!courseCourseNoticeboard) {
+    console.error(
+      `[${new Date().toISOString()} CourseCourseNoticeboardIdPage] CourseCourseNoticeboard not found:`,
+      {
+        courseCourseNoticeboardId: resolvedParams.courseCourseNoticeboardId,
+        courseId: resolvedParams.courseId,
+        userId,
+      }
+    );
+    return redirect(
+      `/admin/create-admin/${resolvedParams.adminId}/course/${resolvedParams.courseId}`
+    );
+  }
+
+  if (!courseCourseNoticeboard.course) {
+    console.error(
+      `[${new Date().toISOString()} CourseCourseNoticeboardIdPage] Course not found for courseCourseNoticeboard:`,
+      {
+        courseCourseNoticeboardId: resolvedParams.courseCourseNoticeboardId,
+        courseId: resolvedParams.courseId,
+      }
+    );
+    return redirect(
+      `/admin/create-admin/${resolvedParams.adminId}/course/${resolvedParams.courseId}`
+    );
+  }
+
+  // Fetch all courses for the admin to populate Combobox options
+  const courses = await db.course.findMany({
+    where: {
+      adminId: resolvedParams.adminId,
+      userId,
+    },
+    select: {
+      id: true,
+      title: true,
+    },
     orderBy: {
       title: "asc",
     },
   });
 
-  if (!courseNoticeboard || !course.length) {
-    return redirect(
-      `/faculty/create-faculty/${resolvedParams.facultyId}/course/${resolvedParams.courseId}`
-    );
-  }
+  const options = courses.map((course) => ({
+    label: course.title,
+    value: course.id,
+  }));
+
+  console.log("CourseCourseNoticeboardIdPage fetched data:", {
+    courseCourseNoticeboardId: courseCourseNoticeboard.id,
+    courseId: courseCourseNoticeboard.courseId,
+    adminId: courseCourseNoticeboard.course.adminId,
+    options: options.map((opt) => ({ label: opt.label, value: opt.value })),
+  });
+
+  const initialData = {
+    ...courseCourseNoticeboard,
+    description: courseCourseNoticeboard.description ?? "",
+  };
 
   const requiredFields = [
-    courseNoticeboard.title,
-    courseNoticeboard.description,
+    initialData.title,
+    initialData.description,
+    initialData.courseId,
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
@@ -72,11 +129,14 @@ const CourseNoticeboardIdPage = async ({
   const isComplete = requiredFields.every(Boolean);
 
   return (
-    <>
-      {!courseNoticeboard.isPublished && (
+    <DashboardLayout
+      adminId={resolvedParams.adminId}
+      courseId={resolvedParams.courseId}
+    >
+      {!initialData.isPublished && (
         <Banner
           variant="warning"
-          label="This Course Notice is unpublished. Once published, it will be visible to the students."
+          label="This CourseCourseNoticeboard is unpublished. To publish, complete the required fields."
         />
       )}
       <div className="p-6">
@@ -84,26 +144,24 @@ const CourseNoticeboardIdPage = async ({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${resolvedParams.facultyId}/course/${resolvedParams.courseId}`}
+              href={`/admin/create-admin/${resolvedParams.adminId}/course/${resolvedParams.courseId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Course creation.
+              Back to Course creation
             </Link>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-y-2">
-                <h1 className="text-2xl font-medium">Course notice creation</h1>
+                <h1 className="text-2xl font-medium">CourseCourseNoticeboard creation</h1>
                 <div className="text-sm text-slate-700">
                   <div>Completed fields {completionText}</div>
                 </div>
               </div>
               <CourseCourseNoticeboardActions
                 disabled={!isComplete}
-                courseCourseNoticeboardId={
-                  resolvedParams["course-course-noticeboardId"]
-                }
-                facultyId={resolvedParams.facultyId}
+                adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                isPublished={courseNoticeboard.isPublished}
+                courseCourseNoticeboardId={courseCourseNoticeboard.id}
+                isPublished={initialData.isPublished}
               />
             </div>
           </div>
@@ -113,58 +171,33 @@ const CourseNoticeboardIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={LayoutDashboard} />
-                <h2 className="text-xl">Enter the Course notice details</h2>
+                <h2 className="text-xl">Enter courseCourseNoticeboard details</h2>
               </div>
               <CourseCourseNoticeboardTitleForm
-                initialData={courseNoticeboard}
-                courseCourseNoticeboardId={
-                  resolvedParams["course-course-noticeboardId"]
-                }
-                facultyId={resolvedParams.facultyId}
+                initialData={initialData}
+                adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
+                courseCourseNoticeboardId={courseCourseNoticeboard.id}
               />
               <CourseCourseNoticeboardCourseForm
-                initialData={courseNoticeboard}
-                courseCourseNoticeboardId={
-                  resolvedParams["course-course-noticeboardId"]
-                }
-                facultyId={resolvedParams.facultyId}
+                initialData={initialData}
+                adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
-                options={course.map((cat) => ({
-                  label: cat.title,
-                  value: cat.id,
-                }))}
+                courseCourseNoticeboardId={courseCourseNoticeboard.id}
+                options={options}
               />
               <CourseCourseNoticeboardDescriptionForm
-                initialData={courseNoticeboard}
-                courseCourseNoticeboardId={
-                  resolvedParams["course-course-noticeboardId"]
-                }
-                facultyId={resolvedParams.facultyId}
+                initialData={initialData}
+                adminId={resolvedParams.adminId}
                 courseId={resolvedParams.courseId}
+                courseCourseNoticeboardId={courseCourseNoticeboard.id}
               />
-            </div>
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center gap-x-2">
-                  <IconBadge icon={File} />
-                  <h2 className="text-xl">Resources & attachments</h2>
-                </div>
-                <CourseCourseNoticeboardAttachmentForm
-                  initialData={courseNoticeboard}
-                  courseCourseNoticeboardId={
-                    resolvedParams["course-course-noticeboardId"]
-                  }
-                  facultyId={resolvedParams.facultyId}
-                  courseId={resolvedParams.courseId}
-                />
-              </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </DashboardLayout>
   );
 };
 
-export default CourseNoticeboardIdPage;
+export default CourseCourseNoticeboardIdPage;

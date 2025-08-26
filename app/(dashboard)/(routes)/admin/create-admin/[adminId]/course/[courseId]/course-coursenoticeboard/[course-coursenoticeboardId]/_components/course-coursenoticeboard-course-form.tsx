@@ -21,7 +21,7 @@ import { Combobox } from "@/components/ui/combobox";
 
 interface CourseCourseNoticeboardCourseFormProps {
   initialData: CourseNoticeboard;
-  facultyId: string;
+  adminId: string;
   courseId: string;
   courseCourseNoticeboardId: string;
   options: { label: string; value: string }[];
@@ -32,7 +32,7 @@ const formSchema = z.object({
 
 export const CourseCourseNoticeboardCourseForm = ({
   initialData,
-  facultyId,
+  adminId,
   courseId,
   courseCourseNoticeboardId,
   options,
@@ -49,7 +49,7 @@ export const CourseCourseNoticeboardCourseForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/${facultyId}/courses/${courseId}/courseCourseNoticeboards/${courseCourseNoticeboardId}/courses`, values);
+      await axios.patch(`/api/${adminId}/courses/${courseId}/courseCourseNoticeboards/${courseCourseNoticeboardId}/courses`, values);
       toast.success("Course Notice course updated.");
       toggleEdit();
       router.refresh();
