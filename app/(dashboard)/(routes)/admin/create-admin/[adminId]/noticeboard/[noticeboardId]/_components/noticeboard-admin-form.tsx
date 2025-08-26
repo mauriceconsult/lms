@@ -47,7 +47,7 @@ export const NoticeboardAdminForm = ({
   const { isSubmitting, isValid } = form.formState;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/create-faculties/${adminId}/noticeboards/${noticeboardId}/faculties`, values);
+      await axios.patch(`/api/create-admins/${adminId}/noticeboards/${noticeboardId}/admins`, values);
       toast.success("Noticeboard admin updated.");
       toggleEdit();
       router.refresh();
