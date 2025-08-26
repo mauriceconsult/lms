@@ -1,14 +1,21 @@
 "use client";
 
 interface PreviewProps {
-  value: string;
+  value: string | null;
 }
 
 export const Preview = ({ value }: PreviewProps) => {
+  // Function to strip HTML tags
+  const stripHtml = (html: string | null) => {
+    if (!html) return "No description";
+    return html.replace(/<[^>]+>/g, "").trim();
+  };
+
   return (
-    <div
-      className="prose prose-sm sm:prose lg:prose-lg xl:prose-2xl"
-      dangerouslySetInnerHTML={{ __html: value }}
-    />
+    <span className="text-sm text-slate-600 mt-1 block">
+      {stripHtml(value).length > 100
+        ? `${stripHtml(value).slice(0, 100)}...`
+        : stripHtml(value)}
+    </span>
   );
 };

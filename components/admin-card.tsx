@@ -4,31 +4,25 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 
-interface FacultyCardProps {
+interface AdminCardProps {
   id: string;
   title: string;
   imageUrl: string;
   description: string;
   school: string;
-  role: "admin" | "student" | null;
 }
 
-export const FacultyCard: React.FC<FacultyCardProps> = ({
+export const AdminCard: React.FC<AdminCardProps> = ({
   id,
   title,
   imageUrl,
   description,
   school,
-  role,
 }) => {
   const router = useRouter();
 
   const handleClick = () => {
-    if (role === "admin") {
-      router.push(`/faculties/${id}`);
-    } else {
-      router.push(`/faculties/${id}/courses`);
-    }
+    router.push(`/admins/${id}`);
   };
 
   return (

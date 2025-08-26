@@ -1,4 +1,4 @@
-import { FacultyCard } from "@/components/faculty-card";
+import { FacultyCard } from "@/components/admin-card";
 import {
   Faculty,
   School

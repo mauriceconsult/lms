@@ -6,9 +6,10 @@ import { useUser } from "@clerk/nextjs";
 import { LayoutDashboard, ListCheck } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "react-hot-toast";
-import Image from "next/image";
+import { AdminCard } from "@/components/admin-card";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 
 interface Admin {
@@ -17,6 +18,7 @@ interface Admin {
   description: string | null;
   imageUrl: string | null;
   isPublished: boolean;
+  school: { name: string };
 }
 
 interface School {
@@ -54,7 +56,9 @@ const SearchPage = () => {
           user?.id
         );
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/schools`,
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+          }/api/schools`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -67,7 +71,9 @@ const SearchPage = () => {
           response.statusText
         );
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+          throw new Error(
+            `HTTP error! Status: ${response.status} ${response.statusText}`
+          );
         }
         const result: ApiResponse = await response.json();
         console.log(
@@ -99,7 +105,35 @@ const SearchPage = () => {
   if (loading) {
     return (
       <div className="p-6">
-        <h2 className="text-2xl font-medium">Loading...</h2>
+        <div className="flex items-center gap-x-2 mb-6">
+          <IconBadge icon={LayoutDashboard} />
+          <h1 className="text-2xl font-medium">Schools & Admins</h1>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="border bg-slate-50 animate-pulse">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-x-2">
+                  <div className="w-6 h-6 bg-slate-200 rounded-full" />
+                  <div className="h-6 w-3/4 bg-slate-200 rounded" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="h-4 w-1/2 bg-slate-200 rounded" />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-x-4">
+                    <div className="w-20 h-20 bg-slate-200 rounded-md" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-3/4 bg-slate-200 rounded" />
+                      <div className="h-3 w-1/4 bg-slate-200 rounded" />
+                      <div className="h-3 w-full bg-slate-200 rounded" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -107,8 +141,15 @@ const SearchPage = () => {
   if (error) {
     return (
       <div className="p-6">
-        <h2 className="text-2xl font-medium">Error</h2>
-        <p>{error}</p>
+        <div className="flex items-center gap-x-2 mb-6">
+          <IconBadge icon={LayoutDashboard} />
+          <h1 className="text-2xl font-medium">Error</h1>
+        </div>
+        <Card className="border bg-red-50">
+          <CardContent className="pt-6">
+            <p className="text-sm text-red-600">{error}</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -116,8 +157,23 @@ const SearchPage = () => {
   if (schools.length === 0) {
     return (
       <div className="p-6">
-        <h2 className="text-2xl font-medium">No Schools Found</h2>
-        <p>No schools are available. Please create a school first.</p>
+        <div className="flex items-center gap-x-2 mb-6">
+          <IconBadge icon={LayoutDashboard} />
+          <h1 className="text-2xl font-medium">No Schools Found</h1>
+        </div>
+        <Card className="border bg-slate-50">
+          <CardContent className="pt-6">
+            <p className="text-sm text-slate-500 italic">
+              No schools are available. Please create a school first.
+            </p>
+            <Link href="/admin/create-admin/new">
+              <Button className="mt-4">
+                <PlusCircle className="h-4 w-4 mr-2" />
+                Create School
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -126,11 +182,14 @@ const SearchPage = () => {
     <div className="p-6">
       <div className="flex items-center gap-x-2 mb-6">
         <IconBadge icon={LayoutDashboard} />
-        <h1 className="text-2xl font-medium">Schools & Faculties</h1>
+        <h1 className="text-2xl font-medium">Schools & Admins</h1>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {schools.map((school) => (
-          <Card key={school.id} className="border bg-slate-50">
+          <Card
+            key={school.id}
+            className="border bg-slate-50 hover:shadow-md transition"
+          >
             <CardHeader>
               <CardTitle className="flex items-center gap-x-2">
                 <IconBadge icon={ListCheck} />
@@ -139,63 +198,24 @@ const SearchPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h3 className="text-lg font-medium">Faculties</h3>
+                <h3 className="text-lg font-medium">Admins</h3>
                 {school.admins.length === 0 ? (
                   <p className="text-sm text-slate-500 italic">
                     No admins available
                   </p>
                 ) : (
-                  <ul className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
                     {school.admins.map((admin) => (
-                      <li key={admin.id}>
-                        <Link
-                          href={`/admins/${admin.id}`}
-                          className="block hover:bg-slate-100 rounded-md transition p-2"
-                        >
-                          <div className="flex items-center gap-x-4">
-                            {admin.imageUrl ? (
-                              <Image
-                                src={admin.imageUrl}
-                                alt={admin.title}
-                                width={80}
-                                height={80}
-                                className="rounded-md object-cover"
-                              />
-                            ) : (
-                              <div className="w-20 h-20 bg-slate-200 rounded-md flex items-center justify-center">
-                                <span className="text-sm text-slate-500">
-                                  No Image
-                                </span>
-                              </div>
-                            )}
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">
-                                  {admin.title}
-                                </span>
-                                <Badge
-                                  variant={
-                                    admin.isPublished
-                                      ? "default"
-                                      : "secondary"
-                                  }
-                                >
-                                  {admin.isPublished ? "Published" : "Draft"}
-                                </Badge>
-                              </div>
-                              {admin.description && (
-                                <p className="text-sm text-slate-600 mt-1">
-                                  {admin.description.length > 100
-                                    ? `${admin.description.slice(0, 100)}...`
-                                    : admin.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </Link>
-                      </li>
+                      <AdminCard
+                        key={admin.id}
+                        id={admin.id}
+                        title={admin.title}
+                        imageUrl={admin.imageUrl || "/placeholder.jpg"}
+                        description={admin.description || ""}
+                        school={school.name}
+                      />
                     ))}
-                  </ul>
+                  </div>
                 )}
               </div>
             </CardContent>

@@ -11,7 +11,10 @@ import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-
 import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/coursework/[courseworkId]/search/_components/coursework-search-input";
 import React, { FC, ReactElement } from "react";
 import ClientUserButton from "./client-user-button";
+import { TutorialSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/tutorial/[tutorialId]/search/_components/tutor-search-input";
+import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/tutorial/[tutorialId]/assignment/[assignmentId]/search/_components/assignment-search-input";
 import { CourseCourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/course-coursenoticeboard/[course-coursenoticeboardId]/search/_components/course-coursenoticeboard-search-input";
+
 
 
 type SearchInputComponent = FC<object>;
@@ -27,14 +30,14 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = ({ adminId, courseId }): Reac
   const isCoursePage = pathname?.includes("/course");
   const isNoticeboardPage = pathname?.includes("/noticeboard");
   const isCourseworkPage = pathname?.includes("/coursework");
-  const isTutorPage = pathname?.includes("/tutor");
+  const isTutorialPage = pathname?.includes("/tutor");
   const isAssignmentPage = pathname?.includes("/assignment");
-  const isCourseNoticeboardPage = pathname?.includes("/courseNoticeboard");
+  const isCourseNoticeboardPage = pathname?.includes("/coursenoticeboard");
   const isPayrollPage = pathname?.includes("/payroll");
 
   let isSearchPages: SearchInputComponent | undefined;
-  if (isTutorPage) {
-    // isSearchPages = TutorSearchInput; // Uncomment when available
+  if (isTutorialPage) {
+    isSearchPages = TutorialSearchInput;
   } else if (isCoursePage) {
     isSearchPages = CourseSearchInput;
   } else if (isNoticeboardPage) {
@@ -42,7 +45,7 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = ({ adminId, courseId }): Reac
   } else if (isCourseworkPage) {
     isSearchPages = CourseworkSearchInput;
   } else if (isAssignmentPage) {
-    // isSearchPages = AssignmentSearchInput; // Uncomment when available
+    isSearchPages = AssignmentSearchInput; 
   } else if (isCourseNoticeboardPage) {
     isSearchPages = CourseCourseNoticeboardSearchInput;
   // } else if (isPayrollPage) {
@@ -55,7 +58,7 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = ({ adminId, courseId }): Reac
     <>
       {(isAdminPage ||
         isCoursePage ||
-        isTutorPage ||
+        isTutorialPage ||
         isNoticeboardPage ||
         isCourseworkPage ||
         isAssignmentPage ||
@@ -68,7 +71,7 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = ({ adminId, courseId }): Reac
       <div className="flex gap-x-2 ml-auto">
         {isAdminPage ||
         isCoursePage ||
-        isTutorPage ||
+        isTutorialPage ||
         isNoticeboardPage ||
         isCourseworkPage ||
         isAssignmentPage ||
@@ -121,7 +124,7 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = ({ adminId, courseId }): Reac
           </Link>
         )}
         {adminId && courseId && (
-          <Link href={`/admin/create-admin/${adminId}/course/${courseId}/courseNoticeboard/courseNoticeboards`}>
+          <Link href={`/admin/create-admin/${adminId}/course/${courseId}/course-coursenoticeboard/course-coursenoticeboards`}>
             <Button size="sm" variant="ghost">
               Course Notices
             </Button>

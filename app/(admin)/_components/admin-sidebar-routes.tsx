@@ -1,8 +1,9 @@
 "use client";
 
 import { BarChart, Compass, Layout, List } from "lucide-react";
-import { SidebarItem } from "./sidebar-item";
+// import { SidebarItem } from "./sidebar-item";
 import { usePathname, useParams } from "next/navigation";
+import { AdminSidebarItem } from "./admin-sidebar-item";
 
 const guestRoutes = [
   {
@@ -197,7 +198,7 @@ export const SidebarRoutes = () => {
   return (
     <div className="flex flex-col w-full">
       {routes.map((route) => (
-        <SidebarItem
+        <AdminSidebarItem
           key={route.href}
           icon={route.icon}
           label={route.label}
