@@ -5,6 +5,7 @@
 import { Tutor, Course } from "@prisma/client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import VideoPlayer from "../../_components/video-player";
 
 type TutorWithCourse = Tutor & {
   course: Course | null;

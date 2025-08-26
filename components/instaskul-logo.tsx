@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 interface InstaSkulLogoProps {
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" ;
 }
 
 export const InstaSkulLogo: React.FC<InstaSkulLogoProps> = ({
