@@ -2,7 +2,7 @@
 
 import { BarChart, Compass, Layout, List } from "lucide-react";
 import { SidebarItem } from "./sidebar-item";
-import { usePathname, useParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const guestRoutes = [
   {
@@ -17,129 +17,129 @@ const guestRoutes = [
   },
 ];
 
-const adminRoutes = (adminId: string) => [
+const adminRoutes = [
   {
     icon: List,
-    label: "Admins",
-    href: `/admins/${adminId}`,
+    label: "Admin",
+    href: "/admin",
   },
   {
     icon: Compass,
     label: "Browse Admins",
-    href: `/admins/${adminId}/search`,
+    href: "/admin/search",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/admins/${adminId}/analytics`,
+    href: "/admin/analytics",
   },
 ];
 
-const courseRoutes = (adminId: string, courseId: string) => [
+const courseRoutes = [
   {
     icon: List,
     label: "Courses",
-    href: `/admins/${adminId}/courses`,
+    href: "/admin/course/courses",
   },
   {
     icon: Compass,
     label: "Browse Courses",
-    href: `/courses/${courseId}/search`,
+    href: "/admin/course/courses/search",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/courses/${courseId}/analytics`,
+    href: "/admin/course/analytics",
   },
 ];
 
-const tutorRoutes = (adminId: string, courseId: string) => [
+const tutorialRoutes = [
   {
     icon: List,
     label: "Tutorials",
-    href: `/admins/${adminId}/courses/${courseId}/tutors`,
+    href: "/admin/course/tutorial/tutorials",
   },
   {
     icon: Compass,
     label: "Browse Tutorials",
-    href: `/admins/${adminId}/courses/${courseId}/tutors/search`,
+    href: "/admin/course/tutorial/tutorials/search",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/admins/${adminId}/courses/${courseId}/tutors/analytics`,
+    href: "/admin/course/tutorials/analytics",
   },
 ];
 
-const noticeboardRoutes = (adminId: string) => [
+const noticeboardRoutes = [
   {
     icon: List,
     label: "Noticeboards",
-    href: `/admins/${adminId}/noticeboards`,
+    href: "/admin/noticeboard",
   },
   {
     icon: Compass,
     label: "Browse Admin Notices",
-    href: `/admins/${adminId}/noticeboards/search`,
+    href: "/admin/noticeboard/noticeboards/search",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/admins/${adminId}/noticeboards/analytics`,
+    href: "/admin/noticeboard/analytics",
   },
 ];
 
-const courseworkRoutes = (adminId: string) => [
+const courseworkRoutes = [
   {
     icon: List,
     label: "Courseworks",
-    href: `/admins/${adminId}/courseworks`,
+    href: "/admin/coursework/courseworks",
   },
   {
     icon: Compass,
     label: "Browse Courseworks",
-    href: `/admins/${adminId}/courseworks/search`,
+    href: "/admin/coursework/search",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/admins/${adminId}/courseworks/analytics`,
+    href: "/admin/coursework/analytics",
   },
 ];
 
-const assignmentRoutes = (adminId: string, courseId: string) => [
+const assignmentRoutes = [
   {
     icon: List,
     label: "Assignments",
-    href: `/admins/${adminId}/courses/${courseId}/assignments`,
+    href: "/admin/course/tutorial/assignment/assignments",
   },
   {
     icon: Compass,
     label: "Browse Assignments",
-    href: `/admins/${adminId}/courses/${courseId}/assignments/search`,
+    href: "/admins/course/tutorial/assignments/search",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/admins/${adminId}/courses/${courseId}/assignments/analytics`,
+    href: "/admins/course/tutorial/assignments/analytics",
   },
 ];
 
-const coursenoticeboardRoutes = (adminId: string, courseId: string) => [
+const coursenoticeboardRoutes = [
   {
     icon: List,
     label: "Course Notices",
-    href: `/admins/${adminId}/courses/${courseId}/course-coursenoticeboards`,
+    href: "/admins/course/course-coursenoticeboard/course-coursenoticeboards",
   },
   {
     icon: Compass,
     label: "Browse Course Notices",
-    href: `/admins/${adminId}/courses/${courseId}/course-coursenoticeboards/search`,
+    href: "/admins/course/course-coursenoticeboard/course-coursenoticeboards/search",
   },
   {
     icon: BarChart,
     label: "Analytics",
-    href: `/admins/${adminId}/courses/${courseId}/course-coursenoticeboards/analytics`,
+    href: "/admins/courses/course-coursenoticeboards/analytics",
   },
 ];
 
@@ -163,33 +163,34 @@ const payrollRoutes = [
 
 export const SidebarRoutes = () => {
   const pathname = usePathname();
-  const params = useParams<{ adminId: string; courseId: string }>();
   const isAdminPage = pathname?.includes("/admin");
   const isCoursePage = pathname?.includes("/course");
   const isTutorPage = pathname?.includes("/tutorial");
   const isNoticeboardPage = pathname?.includes("/noticeboard");
   const isCourseworkPage = pathname?.includes("/coursework");
-  const isCourseNoticeboardPage = pathname?.includes("/course-coursenoticeboard");
+  const isCourseNoticeboardPage = pathname?.includes(
+    "/course-coursenoticeboard"
+  );
   const isAssignmentPage = pathname?.includes("/assignment");
   const isPayrollPage = pathname?.includes("/payroll");
 
   let routes;
-  if (isTutorPage && params.adminId && params.courseId) {
-    routes = tutorRoutes(params.adminId, params.courseId);
-  } else if (isNoticeboardPage && params.adminId) {
-    routes = noticeboardRoutes(params.adminId);
-  } else if (isCourseNoticeboardPage && params.adminId && params.courseId) {
-    routes = coursenoticeboardRoutes(params.adminId, params.courseId);
-  } else if (isCourseworkPage && params.adminId) {
-    routes = courseworkRoutes(params.adminId);
-  } else if (isAssignmentPage && params.adminId && params.courseId) {
-    routes = assignmentRoutes(params.adminId, params.courseId);
+  if (isTutorPage) {
+    routes = tutorialRoutes;
+  } else if (isNoticeboardPage) {
+    routes = noticeboardRoutes;
+  } else if (isCourseNoticeboardPage) {
+    routes = coursenoticeboardRoutes;
+  } else if (isCourseworkPage) {
+    routes = courseworkRoutes;
+  } else if (isAssignmentPage) {
+    routes = assignmentRoutes;
   } else if (isPayrollPage) {
     routes = payrollRoutes;
-  } else if (isCoursePage && params.adminId && params.courseId) {
-    routes = courseRoutes(params.adminId, params.courseId);
-  } else if (isAdminPage && params.adminId) {
-    routes = adminRoutes(params.adminId);
+  } else if (isCoursePage) {
+    routes = courseRoutes;
+  } else if (isAdminPage) {
+    routes = adminRoutes;
   } else {
     routes = guestRoutes;
   }
@@ -207,3 +208,5 @@ export const SidebarRoutes = () => {
     </div>
   );
 };
+
+
