@@ -4,12 +4,12 @@ import { Admin } from "@prisma/client";
 import { AdminItem } from "./admin-item";
 
 
-interface FacultiesProps {
+interface AdminsProps {
     items: Admin[];
 }
-export const Faculties = ({
+export const Admins = ({
 items,
-}: FacultiesProps) => {
+}: AdminsProps) => {
     return (
       <div className="flex items-center gap-x-2 overflow-x-auto pb-2">
         {items.map((item) => (

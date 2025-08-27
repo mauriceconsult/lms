@@ -1,9 +1,9 @@
 import { db } from "@/lib/db";
 import { Schools } from "./_components/schools";
 import { SearchInput } from "./_components/search-input";
-import { getAdmins } from "@/actions/get-admins";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { getAdmins } from "@/actions/get-admins";
 import { AdminCourseList } from "../admin/create-admin/[adminId]/_components/admin-course-list";
 
 
@@ -11,7 +11,7 @@ import { AdminCourseList } from "../admin/create-admin/[adminId]/_components/adm
 interface SearchPageProps {
   searchParams: Promise<{
     title: string;
-    adminId: string;
+    schoolId: string;
   }>
 }
 

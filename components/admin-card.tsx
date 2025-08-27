@@ -9,7 +9,7 @@ interface AdminCardProps {
   title: string;
   imageUrl: string;
   description: string;
-  school: string;
+  admin: string;
 }
 
 export const AdminCard: React.FC<AdminCardProps> = ({
@@ -17,7 +17,7 @@ export const AdminCard: React.FC<AdminCardProps> = ({
   title,
   imageUrl,
   description,
-  school,
+  admin,
 }) => {
   const router = useRouter();
 
@@ -50,7 +50,7 @@ export const AdminCard: React.FC<AdminCardProps> = ({
                 .trim()
             : "No description available"}
         </p>
-        <p className="text-xs text-gray-500 mt-2">School: {school}</p>
+        <p className="text-xs text-gray-500 mt-2">Admin: {admin}</p>
       </CardContent>
     </Card>
   );
