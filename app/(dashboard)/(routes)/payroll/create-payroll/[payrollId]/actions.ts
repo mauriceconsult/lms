@@ -10,7 +10,7 @@ export async function onReorderAction(
   try {
     await db.$transaction(
       updateData.map((update) =>
-        db.facultyPayroll.update({
+        db.adminPayroll.update({
           where: { id: update.id },
           data: { position: update.position },
         })
@@ -35,12 +35,12 @@ export async function createFacultyPayroll(
   values: { title: string }
 ) {
   try {
-    await db.facultyPayroll.create({
+    await db.adminPayroll.create({
       data: {
         title: values.title,
         payrollId,
         userId: payrollId, // Adjust based on your schema
-        facultyId: "default-faculty-id", // Adjust based on your schema
+        adminId: "default-admin-id", // Adjust based on your schema
         position: 0, // Adjust as needed
         isPaid: false,        
       },

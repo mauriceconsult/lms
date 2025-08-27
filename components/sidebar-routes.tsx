@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-// import { Tutor, CourseWithProgressWithFaculty } from "@/actions/get-dashboard-courses";
+// import { Tutor, CourseWithProgressWithAdmin } from "@/actions/get-dashboard-courses";
 
 interface SidebarRoutesProps {
   items: Array<
-    | { type: "course"; id: string; title: string; facultyId?: string }
+    | { type: "course"; id: string; title: string; adminId?: string }
     | { type: "tutor"; id: string; title: string; isFree: boolean | null; courseId: string; isEnrolled: boolean }
   >;
 }
@@ -19,15 +19,15 @@ export const SidebarRoutes = ({ items }: SidebarRoutesProps) => {
       {items.map((item) => {
         const isActive =
           item.type === "course"
-            ? pathname === `/faculties/${item.facultyId}/courses/${item.id}`
-            : pathname.includes(`/courses/${item.courseId}`) && pathname.includes(`tutorId=${item.id}`);
+            ? pathname === `/admins/${item.adminId}/courses/${item.id}`
+            : pathname.includes(`/courses/${item.courseId}`) && pathname.includes(`tutorialId=${item.id}`);
         const isLocked = item.type === "tutor" && !(item.isFree ?? false) && !item.isEnrolled;
         const href =
           item.type === "course"
-            ? `/faculties/${item.facultyId}/courses/${item.id}`
+            ? `/admins/${item.adminId}/courses/${item.id}`
             : isLocked
             ? "#"
-            : `/courses/${item.courseId}?tutorId=${item.id}`;
+            : `/courses/${item.courseId}?tutorialId=${item.id}`;
 
         return (
           <Link

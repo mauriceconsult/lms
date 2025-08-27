@@ -21,12 +21,7 @@ interface NavbarRoutesProps {
   courseId?: string;
 }
 
-export const NavbarRoutes: FC<NavbarRoutesProps> = (
-  {
-    // adminId,
-    // courseId
-  }
-): ReactElement => {
+export const NavbarRoutes: FC<NavbarRoutesProps> = (): ReactElement => {
   const pathname: string | null = usePathname();
   const isAdminPage = pathname?.startsWith("/admin");
   const isCoursePage = pathname?.includes("/course");
@@ -92,48 +87,6 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = (
             </Button>
           </Link>
         )}
-        {/* <Link href="/payroll/payrolls">
-          <Button size="sm" variant="ghost">
-            Payrolls
-          </Button>
-        </Link>
-     
-          <Link href={`/admin/create-admin/${adminId}/course/courses`}>
-            <Button size="sm" variant="ghost">
-              Courses
-            </Button>
-          </Link>     
-       
-          <Link href={`/admin/create-admin/${adminId}/course/${courseId}/tutor/tutors`}>
-            <Button size="sm" variant="ghost">
-              Tutorials
-            </Button>
-          </Link>
-
-          <Link href={`/admin/create-admin/${adminId}/noticeboard/noticeboards`}>
-            <Button size="sm" variant="ghost">
-              Admin Notices
-            </Button>
-          </Link> */}
-
-        {/* <Link href={`/admin/create-admin/${adminId}/coursework/courseworks`}>
-            <Button size="sm" variant="ghost">
-              Courseworks
-            </Button>
-          </Link>
- 
-          <Link href={`/admin/create-admin/${adminId}/course/${courseId}/course-coursenoticeboard/course-coursenoticeboards`}>
-            <Button size="sm" variant="ghost">
-              Course Notices
-            </Button>
-          </Link>
- 
-          <Link href={`/admin/create-admin/${adminId}/course/${courseId}/assignment/assignments`}>
-            <Button size="sm" variant="ghost">
-              Assignments
-            </Button>
-          </Link> */}
-
         <ClientUserButton />
       </div>
     </>

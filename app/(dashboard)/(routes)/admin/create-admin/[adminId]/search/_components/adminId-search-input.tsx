@@ -36,7 +36,7 @@ export const AdminIdSearchInput = () => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className="w-full md:w-[300px] pl-9 rounded-full bg-slate-100 focus-visible:ring-slate-200"
-        placeholder="Search Faculties ..."
+        placeholder="Search Admins ..."
       />
     </div>
   );
