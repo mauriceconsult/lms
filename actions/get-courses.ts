@@ -1,5 +1,6 @@
+import { Admin, Course } from "@prisma/client";
+import { getProgress } from "./get-progress";
 import { db } from "@/lib/db";
-import { Course, Admin } from "@prisma/client";
 
 type CourseWithProgressWithAdmin = Course & {
   admin: Admin | null;
@@ -12,7 +13,9 @@ type GetCourses = {
   title?: string;
   adminId?: string;
 };
+
 export const getCourses = async ({
+  userId,
   title,
   adminId,
 }: GetCourses): Promise<CourseWithProgressWithAdmin[]> => {
@@ -22,6 +25,7 @@ export const getCourses = async ({
         isPublished: true,
         title: {
           contains: title,
+          mode: "insensitive", // Case-insensitive search
         },
         adminId,
       },
@@ -29,29 +33,40 @@ export const getCourses = async ({
         admin: true,
         tutors: {
           where: {
-            isPublished: true,         
+            isPublished: true,
           },
           select: {
             id: true,
           },
-          orderBy: {
-            createdAt: "desc",
+        },
+        tuitions: {
+          where: {
+            userId,
           },
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
-    const coursesWithProgressWithAdmin: CourseWithProgressWithAdmin[] = await Promise.all(
+
+    const coursesWithProgress: CourseWithProgressWithAdmin[] = await Promise.all(
       courses.map(async (course) => {
+        if (course.tuitions.length === 0) {
+          return {
+            ...course,
+            progress: null,
+          };
+        }
+        const progress = await getProgress(userId, course.id);
         return {
           ...course,
-          tutors: course.tutors
-            ? course.tutors.map((tutor) => ({ id: tutor.id }))
-            : [],
-          progress: null, // or calculate actual progress if available
+          progress,
         };
       })
     );
-    return coursesWithProgressWithAdmin;
+
+    return coursesWithProgress;
   } catch (error) {
     console.log("[GET_COURSES]", error);
     return [];

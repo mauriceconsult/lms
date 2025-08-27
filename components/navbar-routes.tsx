@@ -8,51 +8,43 @@ import { AdminIdSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admi
 import { CourseSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/search/_components/course-search-input";
 import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
 import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/coursework/[courseworkId]/search/_components/coursework-search-input";
-import React, { FC, ReactElement } from "react";
-import ClientUserButton from "./client-user-button";
 import { TutorialSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/tutorial/[tutorialId]/search/_components/tutor-search-input";
 import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/tutorial/[tutorialId]/assignment/[assignmentId]/search/_components/assignment-search-input";
 import { CourseCourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/course-coursenoticeboard/[course-coursenoticeboardId]/search/_components/course-coursenoticeboard-search-input";
+import React from "react";
+import ClientUserButton from "./client-user-button";
+import { SearchInput } from "@/app/(dashboard)/(routes)/search/_components/search-input";
 
-type SearchInputComponent = FC<object>;
+const NavbarRoutes = () => {
+  const pathname = usePathname();
 
-interface NavbarRoutesProps {
-  adminId?: string;
-  courseId?: string;
-}
-
-export const NavbarRoutes: FC<NavbarRoutesProps> = (): ReactElement => {
-  const pathname: string | null = usePathname();
   const isAdminPage = pathname?.startsWith("/admin");
   const isCoursePage = pathname?.includes("/course");
   const isNoticeboardPage = pathname?.includes("/noticeboard");
   const isCourseworkPage = pathname?.includes("/coursework");
-  const isTutorialPage = pathname?.includes("/tutor");
+  const isTutorialPage = pathname?.includes("/tutorial");
   const isAssignmentPage = pathname?.includes("/assignment");
-  const isCourseNoticeboardPage = pathname?.includes("/coursenoticeboard");
+  const isCourseNoticeboardPage = pathname?.includes("/course-coursenoticeboard");
   const isPayrollPage = pathname?.includes("/payroll");
+  const isSearchPage = pathname === "/search";
 
-  let isSearchPages: SearchInputComponent | undefined;
-  if (isTutorialPage) {
-    isSearchPages = TutorialSearchInput;
-  } else if (isCoursePage) {
-    isSearchPages = CourseSearchInput;
-  } else if (isNoticeboardPage) {
-    isSearchPages = NoticeboardSearchInput;
-  } else if (isCourseworkPage) {
-    isSearchPages = CourseworkSearchInput;
-  } else if (isAssignmentPage) {
-    isSearchPages = AssignmentSearchInput;
-  } else if (isCourseNoticeboardPage) {
-    isSearchPages = CourseCourseNoticeboardSearchInput;
-    // } else if (isPayrollPage) {
-    //   isSearch = PayrollSearchInput;
-  } else if (isAdminPage) {
-    isSearchPages = AdminIdSearchInput;
-  }
+  const searchComponents: { [key: string]: React.ComponentType } = {
+    "/search": SearchInput,
+    "/admin/create-admin": AdminIdSearchInput,
+    "/course": CourseSearchInput,
+    "/noticeboard": NoticeboardSearchInput,
+    "/coursework": CourseworkSearchInput,
+    "/tutorial": TutorialSearchInput,
+    "/assignment": AssignmentSearchInput,
+    "/course-coursenoticeboard": CourseCourseNoticeboardSearchInput,
+  };
+
+  const activeSearchComponent = Object.keys(searchComponents).find((key) =>
+    pathname?.includes(key)
+  ) || (isSearchPage ? "/search" : null);
 
   return (
-    <>
+    <div className="flex items-center gap-x-4 w-full px-4">
       {(isAdminPage ||
         isCoursePage ||
         isTutorialPage ||
@@ -60,12 +52,17 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = (): ReactElement => {
         isCourseworkPage ||
         isAssignmentPage ||
         isPayrollPage ||
-        isCourseNoticeboardPage) && (
-        <div className="mt-16 hidden md:block">
-          {isSearchPages && React.createElement(isSearchPages)}
+        isCourseNoticeboardPage ||
+        isSearchPage) && (
+        <div className="hidden md:block w-64">
+          {activeSearchComponent && searchComponents[activeSearchComponent] ? (
+            React.createElement(searchComponents[activeSearchComponent])
+          ) : (
+            isSearchPage && <SearchInput />
+          )}
         </div>
       )}
-      <div className="flex gap-x-2 ml-auto">
+      <div className="flex gap-x-2 ml-auto pr-4">
         {isAdminPage ||
         isCoursePage ||
         isTutorialPage ||
@@ -73,7 +70,8 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = (): ReactElement => {
         isCourseworkPage ||
         isAssignmentPage ||
         isPayrollPage ||
-        isCourseNoticeboardPage ? (
+        isCourseNoticeboardPage ||
+        isSearchPage ? (
           <Link href="/">
             <Button size="sm" variant="ghost">
               <LogOut className="h-4 w-4 mr-2" />
@@ -83,12 +81,14 @@ export const NavbarRoutes: FC<NavbarRoutesProps> = (): ReactElement => {
         ) : (
           <Link href="/admin/admins">
             <Button size="sm" variant="ghost">
-              Admins
+              Admin
             </Button>
           </Link>
         )}
         <ClientUserButton />
       </div>
-    </>
+    </div>
   );
 };
+
+export default NavbarRoutes;

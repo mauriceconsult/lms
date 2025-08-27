@@ -4,20 +4,20 @@ import { Attachment, Tutor } from "@prisma/client";
 interface GetTutorProps {
   userId: string;
   courseId: string;
-  facultyId: string;
+  adminId: string;
   tutorId: string;
 }
 export const getTutor = async ({
   userId,
   courseId,
-  facultyId,
+  adminId,
   tutorId,
 }: GetTutorProps) => {
   try {
-    const faculty = await db.faculty.findUnique({
+    const admin = await db.admin.findUnique({
       where: {
         isPublished: true,
-        id: facultyId,
+        id: adminId,
       }
     })
     const tuition = await db.tuition.findUnique({
@@ -43,7 +43,7 @@ export const getTutor = async ({
         isPublished: true,
       },
     });
-    if (!faculty || !course || !tutor) {
+    if (!admin || !course || !tutor) {
       throw new Error("Faculty, Course or Tutor not found");
     }
     let muxData = null;
@@ -86,7 +86,7 @@ export const getTutor = async ({
     return {
       tutor,
       course,
-      faculty,
+      admin,
       muxData,
       attachments,
       nextTutor,
@@ -98,7 +98,7 @@ export const getTutor = async ({
     return {
       tutor: null,
       course: null,
-      faculty: null,
+      admin: null,
       muxData: null,
       attachments: [],
       nextTutor: null,

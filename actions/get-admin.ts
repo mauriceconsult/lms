@@ -1,33 +1,33 @@
 import { db } from "@/lib/db";
-import { Attachment, Faculty } from "@prisma/client";
+import { Attachment, Admin } from "@prisma/client";
 
-interface GetFacultyProps {
+interface GetAdminProps {
   userId: string;
   schoolId: string;
-  facultyId: string;
+  adminId: string;
 }
-export const getFaculty = async ({
+export const getAdmin = async ({
   userId,
   schoolId,
-  facultyId,
-}: GetFacultyProps) => {
+  adminId,
+}: GetAdminProps) => {
   try {   
     const school = await db.school.findUnique({
       where: {        
         id: schoolId,        
       },   
     });
-    const faculty = await db.faculty.findUnique({
+    const admin = await db.admin.findUnique({
       where: {
-        id: facultyId,
+        id: adminId,
         isPublished: true,
       },
     });
-    if (!school || !faculty) {
-      throw new Error("School or Faculty not found");
+    if (!school || !admin) {
+      throw new Error("School or Admin not found");
     }
     let attachments: Attachment[] = [];
-    let nextFaculty: Faculty | null = null;
+    let nextAdmin: Admin | null = null;
     if (userId) {
       attachments = await db.attachment.findMany({
         where: {
@@ -35,13 +35,13 @@ export const getFaculty = async ({
         },
       });
     }
-    if (faculty.userId || userId) {    
-      nextFaculty = await db.faculty.findFirst({
+    if (admin.userId || userId) {    
+      nextAdmin = await db.admin.findFirst({
         where: {
           schoolId: school.id,
           isPublished: true,
           position: {
-            gt: faculty?.position ?? 0,
+            gt: admin?.position ?? 0,
           },
         },
         orderBy: {
@@ -51,26 +51,26 @@ export const getFaculty = async ({
     }
     // const userProgress = await db.userProgress.findUnique({
     //   where: {
-    //     userId_facultyId: {
+    //     userId_adminId: {
     //       userId,
-    //       facultyId,
+    //       adminId,
     //     },
     //   },
     // });
     return {
-      faculty,
+      admin,
       school,      
       attachments,
-      nextFaculty,
+      nextAdmin,
       // userProgress,    
     };
   } catch (error) {
     console.log("[GET_FACULTY_ERROR]", error);
     return {
-      faculty: null,
+      admin: null,
       school: null,      
       attachments: [],
-      nextFaculty: null,
+      nextAdmin: null,
       // userProgress: null,      
     };
   }

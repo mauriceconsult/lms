@@ -1,48 +1,39 @@
 import { db } from "@/lib/db";
 
-export async function getProgress(
+export const getProgress = async (
   userId: string,
   courseId: string
-): Promise<number | null> {
-  if (
-    !userId ||
-    typeof userId !== "string" ||
-    !courseId ||
-    typeof courseId !== "string"
-  ) {
-    console.error(
-      `[${new Date().toISOString()} GET_PROGRESS] Invalid arguments:`,
-      { userId, courseId }
-    );
-    return null;
-  }
-
+): Promise<number> => {
   try {
-    const completedContent = await db.content.findMany({
+    const publishedTutorials = await db.tutor.findMany({
       where: {
-        courseId,
-        userId,
+        courseId: courseId,
+        isPublished: true,
+      },
+      select: {
+        id: true,
+      },
+    });
+    const publishedTutorialsIds = publishedTutorials.map(
+      (tutorial) => tutorial.id
+    );
+    const validCompletedTutorials = await db.userProgress.count({
+      where: {
+        userId: userId,
+        tutorId: {
+          in: publishedTutorialsIds,
+        },
         isCompleted: true,
       },
-      select: { id: true },
     });
-
-    const totalContent = await db.content.findMany({
-      where: { courseId },
-      select: { id: true },
-    });
-
-    if (totalContent.length === 0) {
-      return null;
-    }
-
-    return (completedContent.length / totalContent.length) * 100;
+    const progressPercentage =
+      (validCompletedTutorials / publishedTutorialsIds.length) * 100;
+    return progressPercentage;
   } catch (error) {
-    console.error(`[${new Date().toISOString()} GET_PROGRESS] Error:`, {
-      userId,
-      courseId,
-      error,
-    });
-    return null;
+    console.log("[GET_PROGRESS]", error);
+    return 0;
   }
-}
+};
+
+
+

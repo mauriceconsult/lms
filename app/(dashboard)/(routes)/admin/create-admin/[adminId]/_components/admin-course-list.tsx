@@ -1,16 +1,15 @@
 "use client";
+
 import { useEffect } from "react";
-import { Course } from "@prisma/client";
+// import { AdminsWithSchool } from "@/app/(dashboard)/_actions/actions-getAdmins";
+import Link from "next/link";
+import { AdminsWithSchool } from "@/actions/get-admins";
 
 interface AdminCourseListProps {
-  items: Course[];
-  onEditAction: (id: string) => Promise<{ success: boolean; message: string }>;
+  items: AdminsWithSchool[];
 }
 
-export const AdminCourseList = ({
-  items,
-  onEditAction,
-}: AdminCourseListProps) => {
+export const AdminCourseList = ({ items }: AdminCourseListProps) => {
   useEffect(() => {
     console.log("AdminCourseList items:", items);
   }, [items]);
@@ -18,18 +17,22 @@ export const AdminCourseList = ({
   return (
     <div className="mt-2">
       {items.length === 0 ? (
-        <p className="text-slate-500 italic">No courses available.</p>
+        <p className="text-slate-500 italic">No admins available.</p>
       ) : (
-        items.map((course) => (
-          <div key={course.id} className="flex items-center gap-2 p-2 border-b">
-            <span className="flex-1">{course.title}</span>
-            <button
-              onClick={() => onEditAction(course.id)}
-              className="text-blue-600 hover:underline text-sm"
-            >
-              Edit
-            </button>
-          </div>
+        items.map((admin) => (
+          <Link
+            key={admin.id}
+            href={`/admin/admins/${admin.id}`}
+            className="flex items-center gap-4 p-2 border-b hover:bg-slate-50 transition"
+          >
+            <span className="flex-1 font-medium">{admin.title}</span>
+            <span className="text-sm text-slate-600">
+              {admin.school?.name || "No School"}
+            </span>
+            <span className="text-sm text-slate-500">
+              {admin.courses.length} {admin.courses.length === 1 ? "Course" : "Courses"}
+            </span>
+          </Link>
         ))
       )}
     </div>

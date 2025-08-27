@@ -2,34 +2,34 @@
 
 // import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { CourseWithProgressWithFaculty } from "@/actions/get-dashboard-courses";
+import { CourseWithProgressWithAdmin } from "@/actions/get-dashboard-courses";
 
-export async function getFacultyData(facultyId: string, userId: string): Promise<{
-  faculty: { id: string; title: string; description: string | null } | null;
-  courses: CourseWithProgressWithFaculty[];
+export async function getAdminData(adminId: string, userId: string): Promise<{
+  admin: { id: string; title: string; description: string | null } | null;
+  courses: CourseWithProgressWithAdmin[];
 } | null> {
   if (!userId) {
     console.log(
-      `[${new Date().toISOString()} getFacultyData] No userId, returning null`
+      `[${new Date().toISOString()} getAdminData] No userId, returning null`
     );
     return null;
   }
 
-  if (!facultyId || typeof facultyId !== "string") {
+  if (!adminId || typeof adminId !== "string") {
     console.log(
-      `[${new Date().toISOString()} getFacultyData] Invalid facultyId, returning null`
+      `[${new Date().toISOString()} getAdminData] Invalid adminId, returning null`
     );
     return null;
   }
 
   try {
-    const faculty = await db.faculty.findUnique({
-      where: { id: facultyId, isPublished: true },
+    const admin = await db.admin.findUnique({
+      where: { id: adminId, isPublished: true },
       include: {
         courses: {
           where: { isPublished: true },
           include: {
-            faculty: {
+            admin: {
               select: {
                 id: true,
                 title: true,
@@ -74,14 +74,14 @@ export async function getFacultyData(facultyId: string, userId: string): Promise
       },
     });
 
-    if (!faculty) {
+    if (!admin) {
       console.log(
-        `[${new Date().toISOString()} getFacultyData] Faculty not found for facultyId: ${facultyId}`
+        `[${new Date().toISOString()} getAdminData] Admin not found for adminId: ${adminId}`
       );
       return null;
     }
 
-    const courses: CourseWithProgressWithFaculty[] = faculty.courses.map((course) => {
+    const courses: CourseWithProgressWithAdmin[] = admin.courses.map((course) => {
       const totalTutors = course.tutors.length;
       const completedTutors = course.userProgress.filter((up) => up.isCompleted).length;
       const progress = totalTutors > 0 ? (completedTutors / totalTutors) * 100 : 0;
@@ -93,15 +93,15 @@ export async function getFacultyData(facultyId: string, userId: string): Promise
       };
     });
 
-    console.log(`[${new Date().toISOString()} getFacultyData] Faculty response:`, {
-      facultyId,
-      title: faculty.title,
+    console.log(`[${new Date().toISOString()} getAdminData] Admin response:`, {
+      adminId,
+      title: admin.title,
       courses: courses.map((c) => ({ id: c.id, title: c.title, progress: c.progress })),
     });
 
-    return { faculty: { id: faculty.id, title: faculty.title, description: faculty.description }, courses };
+    return { admin: { id: admin.id, title: admin.title, description: admin.description }, courses };
   } catch (error) {
-    console.error(`[${new Date().toISOString()} getFacultyData] Error:`, error);
+    console.error(`[${new Date().toISOString()} getAdminData] Error:`, error);
     return null;
   }
 }

@@ -1,32 +1,32 @@
 import { db } from "@/lib/db";
-import { Faculty, School } from "@prisma/client";
+import { Admin, School } from "@prisma/client";
 
-type FacultiesWithSchool = Faculty & {
+export type AdminsWithSchool = Admin & {
   school: School | null;
   courses: { id: string }[];
 };
 
-type GetFaculties = {
+export type GetAdmins = {
   userId: string;
   title?: string;
-  facultyId?: string;
-  schoolId?: string; // Add schoolId
+  adminId?: string;
+  schoolId?: string;
 };
 
-export const getFaculties = async ({
+export const getAdmins = async ({
   userId,
   title,
-  facultyId,
+  adminId,
   schoolId,
-}: GetFaculties): Promise<FacultiesWithSchool[]> => {
+}: GetAdmins): Promise<AdminsWithSchool[]> => {
   try {
-    const faculties = await db.faculty.findMany({
+    const admins = await db.admin.findMany({
       where: {
         userId,
         isPublished: true,
         ...(title ? { title: { contains: title, mode: "insensitive" } } : {}),
-        ...(facultyId ? { id: facultyId } : {}),
-        ...(schoolId ? { schoolId } : {}), // Filter by schoolId
+        ...(adminId ? { id: adminId } : {}),
+        ...(schoolId ? { schoolId } : {}),
       },
       include: {
         school: true,
@@ -43,9 +43,9 @@ export const getFaculties = async ({
         },
       },
     });
-    return faculties as FacultiesWithSchool[];
+    return admins as AdminsWithSchool[];
   } catch (error) {
-    console.error("[GET_FACULTIES]", error);
+    console.error("[GET_ADMINS]", error);
     return [];
   }
 };
