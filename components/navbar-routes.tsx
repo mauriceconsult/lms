@@ -6,7 +6,6 @@ import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { AdminIdSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/search/_components/adminId-search-input";
 import { CourseSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/search/_components/course-search-input";
-import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
 import { CourseworkSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/coursework/[courseworkId]/search/_components/coursework-search-input";
 import { TutorialSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/tutorial/[tutorialId]/search/_components/tutor-search-input";
 import { AssignmentSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/tutorial/[tutorialId]/assignment/[assignmentId]/search/_components/assignment-search-input";
@@ -14,6 +13,7 @@ import { CourseCourseNoticeboardSearchInput } from "@/app/(dashboard)/(routes)/a
 import React from "react";
 import ClientUserButton from "./client-user-button";
 import { SearchInput } from "@/app/(dashboard)/(routes)/search/_components/search-input";
+import { NoticeboardSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/noticeboard/[noticeboardId]/search/_components/noticeboard-search-input";
 
 const NavbarRoutes = () => {
   const pathname = usePathname();
