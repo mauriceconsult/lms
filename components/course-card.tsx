@@ -1,79 +1,62 @@
+"use client";
 
-// "use client";
+import Image from "next/image";
+import Link from "next/link";
+import { IconBadge } from "./icon-badge";
+import { BookOpen } from "lucide-react";
+import { formatAmount } from "@/lib/format";
 
-// import Image from "next/image";
-// import Link from "next/link";
-// import { CourseWithProgressWithAdmin } from "@/actions/get-dashboard-courses";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Progress } from "@/components/ui/progress";
-
-// interface CourseCardProps {
-//   course: CourseWithProgressWithAdmin;
-// }
-
-// export function CourseCard({ course }: CourseCardProps) {
-//   const { id, title, progress, tuition, admin, tutors, imageUrl, description } = course;
-//   const formattedProgress = typeof progress === 'number' ? progress.toFixed(2) : "0.00";
-//   const paymentStatus = tuition?.status ?? "Not Enrolled";
-//   const amount = tuition?.amount && /^[0-9]+(\.[0-9]{1,2})?$/.test(tuition.amount)
-//     ? parseFloat(tuition.amount).toFixed(2)
-//     : "0.00";
-//   const adminName = admin?.title ?? "No Admin";
-//   const tutorTitles =
-//     tutors.length > 0
-//       ? tutors.map((tutor) => tutor.title).join(", ")
-//       : "No Tutors";
-//   const courseImage = imageUrl ?? "/placeholder.png";
-//   const courseDescription = description ?? "No description available";
-
-//   console.log('CourseCard imageUrl:', { courseId: id, imageUrl });
-
-//   return (
-//     <Link
-//       href={`/courses/${id}`}
-//       className="block"
-//       onClick={() => console.log(`[${new Date().toISOString()} CourseCard] Navigating to /courses/${id}`)}
-//     >
-//       <Card className="w-full max-w-sm hover:shadow-lg transition-shadow">
-//         <CardHeader>
-//           <CardTitle className="hover:underline">{title}</CardTitle>
-//         </CardHeader>
-//         <CardContent>
-//           <div className="space-y-2">
-//             <div className="relative w-full h-40">
-//               <Image
-//                 src={courseImage}
-//                 alt={`${title} image`}
-//                 fill
-//                 sizes="(max-width: 640px) 100vw, 320px"
-//                 objectFit="cover"
-//                 className="rounded-md"
-//                 placeholder="blur"
-//                 blurDataURL="/placeholder.png"
-//               />
-//             </div>
-//             <div>
-//               <span className="font-semibold">Description:</span> {courseDescription}
-//             </div>
-//             <div>
-//               <span className="font-semibold">Progress:</span> {formattedProgress}%
-//             </div>
-//             <Progress value={progress ?? 0} />
-//             <div>
-//               <span className="font-semibold">Payment Status:</span> {paymentStatus}
-//             </div>
-//             <div>
-//               <span className="font-semibold">Amount:</span> ${amount}
-//             </div>
-//             <div>
-//               <span className="font-semibold">Admin:</span> {adminName}
-//             </div>
-//             <div>
-//               <span className="font-semibold">Tutors:</span> {tutorTitles}
-//             </div>
-//           </div>
-//         </CardContent>
-//       </Card>
-//     </Link>
-//   );
-// }
+interface CourseCardProps {
+  id: string;
+  title: string;
+  imageUrl: string;
+  coursesLength: number;
+  amount: string;
+  description: string;
+  progress: number | null;
+  admin: string;
+}
+export const CourseCard = ({
+  id,
+  title,
+  imageUrl,
+  coursesLength,
+  amount,
+  description,
+  progress,
+  admin,
+}: CourseCardProps) => {
+  return (
+    <Link href={`/courses/${id}`}>
+      <div className="group hover:shadow-md transition overflow-hidden border rounded-lg p-3 h-full">
+        <div className="relative w-full aspect-video rounded-md overflow-hidden">
+          <Image fill className="object-cover" alt={title} src={imageUrl} />
+        </div>
+        <div className="flex flex-col pt-2">
+          <div className="text-lg md:text-base font-medium group-hover:text-sky-700 transition line-clamp-2">
+            {title}
+          </div>
+          <p className="text-xs text-muted-foreground">{admin}</p>
+          <div className="my-3 flex items-center gap-x-2 text-sm md:text-xs">
+            <div className="flex items-center gap-x-1 text-slate-500">
+              <IconBadge size={"sm"} icon={BookOpen} />
+              <span>
+                {coursesLength} {coursesLength === 1 ? "Course" : "Courses"}
+              </span>
+            </div>
+          </div>
+          {progress !== null ? (
+            <div>{/*TODO: Progress button*/}</div>
+          ) : (
+            <p className="text-md md:text-sm font-medium text-slate-700">
+              {formatAmount(amount)}
+            </p>
+          )}
+        </div>
+        <div>
+          <p className="text-base">{description}</p>
+        </div>
+      </div>
+    </Link>
+  );
+};

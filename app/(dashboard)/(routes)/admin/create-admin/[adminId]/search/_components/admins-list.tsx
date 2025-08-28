@@ -3,12 +3,12 @@ import {
   Admin
 } from "@prisma/client";
 
-type AdminsWithAdmin = Admin & {
+type AdminsWithSchool = Admin & {
   admin: Admin | null;
   courses: { id: string }[];  
 };
 interface AdminsListProps {
-  item: AdminsWithAdmin[];
+  item: AdminsWithSchool[];
 }
 
 export const AdminsList = ({ item }: AdminsListProps) => {
