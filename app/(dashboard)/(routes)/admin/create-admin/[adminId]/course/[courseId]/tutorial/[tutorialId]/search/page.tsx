@@ -1,11 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { getTutors } from "@/actions/get-tutors";
-import { TutorialSearchInput } from "./_components/tutor-search-input";
-import { Courses } from "../../../search/_components/courses";
-import TutorList from "./_components/tutors-list";
-
+import { getAssignments } from "@/actions/get-assignments";
+import { AssignmentSearchInput } from "../assignment/[assignmentId]/search/_components/assignment-search-input";
+import { AssignmentsList } from "../assignment/[assignmentId]/search/_components/assignments-list";
+import { Tutors } from "./_components/tutors";
 
 interface TutorSearchPageProps {
   searchParams: Promise<{
@@ -23,7 +22,7 @@ const TutorSearchPage = async ({ searchParams }: TutorSearchPageProps) => {
   }
 
   const resolvedParams = await searchParams;
-  const courses = await db.course.findMany({
+  const tutorials = await db.tutor.findMany({
     where: {
       isPublished: true,
     },
@@ -32,23 +31,24 @@ const TutorSearchPage = async ({ searchParams }: TutorSearchPageProps) => {
     },
   });
 
-  const tutorials = await getTutors({
+  const assignments = await getAssignments({
     userId,
     title: resolvedParams.title,
-    courseId: resolvedParams.courseId,
+    tutorId: resolvedParams.tutorialId,
   });
 
   return (
     <div className="p-6 max-w-screen-xl mx-auto">
       <div className="px-6 pt-4 md:hidden md:mb-0 block">
-        <TutorialSearchInput />
+        <AssignmentSearchInput />
       </div>
       <div className="p-6 space-y-6">
-        <Courses items={courses} />
-        <TutorList
-          items={tutorials}
+        <Tutors items={tutorials} />
+        <AssignmentsList
+          items={assignments}
           courseId={resolvedParams.courseId ?? ""}
           adminId={resolvedParams.adminId ?? ""}
+          tutorId={resolvedParams.tutorialId}
         />
       </div>
     </div>

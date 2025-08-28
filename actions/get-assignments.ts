@@ -1,16 +1,17 @@
 import { db } from "@/lib/db";
 import { Assignment, Attachment, Tutor } from "@prisma/client";
 
-type AssignmentWithRelations = Assignment & {
+export type AssignmentWithRelations = Assignment & {
   tutor: Tutor | null;
   attachments: Attachment[];
 };
 
-type GetAssignments = {
+export type GetAssignments = {
   userId: string;
   title?: string;
   tutorId?: string;
 };
+
 export const getAssignments = async ({
   title,
   tutorId,
@@ -27,8 +28,8 @@ export const getAssignments = async ({
         attachments: true,
       },
       orderBy: {
-        createdAt: "desc"
-      }
+        createdAt: "desc",
+      },
     });
     return assignments;
   } catch (error) {
