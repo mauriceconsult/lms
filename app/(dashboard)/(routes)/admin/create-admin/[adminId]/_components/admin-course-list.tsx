@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-// import { AdminsWithSchool } from "@/app/(dashboard)/_actions/actions-getAdmins";
 import Link from "next/link";
 import { AdminsWithSchool } from "@/actions/get-admins";
 
@@ -22,7 +21,7 @@ export const AdminCourseList = ({ items }: AdminCourseListProps) => {
         items.map((admin) => (
           <Link
             key={admin.id}
-            href={`/admin/admins/${admin.id}`}
+            href={`/admins/${admin.id}`}
             className="flex items-center gap-4 p-2 border-b hover:bg-slate-50 transition"
           >
             <span className="flex-1 font-medium">{admin.title}</span>

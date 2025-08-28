@@ -13,21 +13,21 @@ export const AdminIdSearchInput = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const currentId = searchParams.get("schoolId");
+  const currentAdminId = searchParams.get("adminId");
 
   useEffect(() => {
     const url = qs.stringifyUrl(
       {
         url: pathname,
         query: {
-          schoolId: currentId,
+          adminId: currentAdminId,
           title: debouncedValue,
         },
       },
       { skipEmptyString: true, skipNull: true }
     );
     router.push(url);
-  }, [debouncedValue, currentId, router, pathname]);
+  }, [debouncedValue, currentAdminId, router, pathname]);
 
   return (
     <div className="relative">

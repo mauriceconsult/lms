@@ -1,13 +1,12 @@
-// actions/get-tutors.ts
 import { db } from "@/lib/db";
 import { Tutor, Course } from "@prisma/client";
 
-type TutorWithCourse = Tutor & {
+export type TutorialWithCourse = Tutor & {
   course: Course | null;
   attachmentIds: { id: string }[];
 };
 
-type GetTutors = {
+export type GetTutors = {
   userId: string;
   title?: string;
   courseId?: string;
@@ -16,7 +15,7 @@ type GetTutors = {
 export const getTutors = async ({
   title,
   courseId,
-}: GetTutors): Promise<TutorWithCourse[]> => {
+}: GetTutors): Promise<TutorialWithCourse[]> => {
   try {
     const tutorials = await db.tutor.findMany({
       where: {
@@ -32,13 +31,13 @@ export const getTutors = async ({
         createdAt: "desc",
       },
     });
-    const tutorialsWithCourse: TutorWithCourse[] = tutorials.map((tutor) => ({
-      ...tutor,
-      attachmentIds: tutor.attachments.map((a) => ({ id: a.id })),
+    const tutorialsWithCourse: TutorialWithCourse[] = tutorials.map((tutorial) => ({
+      ...tutorial,
+      attachmentIds: tutorial.attachments.map((a) => ({ id: a.id })),
     }));
     return tutorialsWithCourse;
   } catch (error) {
-    console.log("[GET_TUTORS]", error);
+    console.log("[GET_TUTORIALS]", error);
     return [];
   }
 };

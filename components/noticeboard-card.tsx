@@ -8,7 +8,6 @@ interface NoticeboardCardProps {
   title: string;
   description: string;
   admin: string;
-  adminId: string;
 }
 
 export const NoticeboardCard: React.FC<NoticeboardCardProps> = ({
@@ -16,12 +15,11 @@ export const NoticeboardCard: React.FC<NoticeboardCardProps> = ({
   title,
   description,
   admin,
-  adminId,
 }) => {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/admin/admins/${adminId}/noticeboards/${id}`);
+    router.push(`/admins/${id}/noticeboards/${id}`);
   };
 
   return (

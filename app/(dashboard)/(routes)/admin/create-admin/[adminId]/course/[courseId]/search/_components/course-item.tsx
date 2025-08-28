@@ -2,18 +2,18 @@
 
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-// import { IconType } from "react-icons";
+import { IconType } from "react-icons";
 import qs from "query-string";
 
 interface CourseItemProps {
     label: string;
     value?: string;
-    // icon?: IconType
+    icon?: IconType
 }
 export const CourseItem = ({
     label,
     value,
-    // icon: Icon,
+    icon: Icon,
 }: CourseItemProps) => {
     const pathname = usePathname();
     const router = useRouter();
@@ -40,7 +40,7 @@ export const CourseItem = ({
         )}
         type="button"
       >
-        {/* {Icon && <Icon size={20} />} */}
+        {Icon && <Icon size={20} />}
         <div className="truncate">{label}</div>
       </button>
     );

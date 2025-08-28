@@ -13,21 +13,21 @@ export const NoticeboardIdSearchInput = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const currentId = searchParams.get("adminId");
+  const currentNoticeboardId = searchParams.get("noticeboardId");
 
   useEffect(() => {
     const url = qs.stringifyUrl(
       {
         url: pathname,
         query: {
-          adminId: currentId,
+          noticeboardId: currentNoticeboardId,
           title: debouncedValue,
         },
       },
       { skipEmptyString: true, skipNull: true }
     );
     router.push(url);
-  }, [debouncedValue, currentId, router, pathname]);
+  }, [debouncedValue, currentNoticeboardId, router, pathname]);
 
   return (
     <div className="relative">

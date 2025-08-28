@@ -6,8 +6,6 @@ import { redirect } from "next/navigation";
 import { getAdmins } from "@/actions/get-admins";
 import { AdminCourseList } from "../admin/create-admin/[adminId]/_components/admin-course-list";
 
-
-
 interface SearchPageProps {
   searchParams: Promise<{
     title: string;

@@ -16,8 +16,7 @@ export const NoticeboardsList = ({ items }: NoticeboardsListProps) => {
             id={noticeboard.id}
             title={noticeboard.title}
             description={noticeboard.description ?? ""}
-            admin={noticeboard.admin?.title ?? ""}
-            adminId={noticeboard.adminId ?? ""}
+            admin={noticeboard.admin?.title ?? ""}            
           />
         ))}
       </div>

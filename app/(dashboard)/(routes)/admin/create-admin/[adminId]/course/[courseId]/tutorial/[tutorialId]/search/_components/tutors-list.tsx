@@ -1,55 +1,52 @@
-// components/tutor-list.tsx
 "use client";
 
-// import { VideoPlayer } from "@/app/(course)/courses/[courseId]/(tutor)/tutors/[tutorId]/_components/video-player";
-import { Tutor, Course } from "@prisma/client";
+import { TutorialWithCourse } from "@/actions/get-tutors";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import VideoPlayer from "../../_components/video-player";
 
-type TutorWithCourse = Tutor & {
-  course: Course | null;
-  attachmentIds: { id: string }[];
-};
 
 interface TutorListProps {
-  tutorials: TutorWithCourse[];
+  items: TutorialWithCourse[];
   courseId: string;
-  isEnrolled: boolean;
+  adminId: string;
 }
 
 export default function TutorList({
-  tutorials,
+  items,
   courseId,
-  isEnrolled,
+  adminId,
+ 
 }: TutorListProps) {
   const searchParams = useSearchParams();
-  const selectedTutorId = searchParams.get("tutorId");
+  const selectedTutorialId = searchParams.get("tutorialId");
 
-  const getTutorStatus = (tutor: TutorWithCourse, index: number) => {
-    const nextTutor = tutorials[index + 1];
+  const getTutorialStatus = (tutorial: TutorialWithCourse, index: number) => {
+    const nextTutorial = items[index + 1];
     return {
-      isLocked: !(tutor.isFree ?? false) && !isEnrolled,
-      completeOnEnd: !(tutor.isFree ?? false) && isEnrolled,
-      nextTutorId: nextTutor?.id ?? null,
+      isLocked: !(tutorial.isFree ?? false),
+      completeOnEnd: !(tutorial.isFree ?? false),
+      nextTutorialId: nextTutorial?.id ?? null,
     };
   };
 
   return (
     <div className="space-y-2 text-sm sm:text-base">
-      {tutorials.map((tutor, index) => {
-        const { isLocked, completeOnEnd, nextTutorId } = getTutorStatus(
-          tutor,
+      {items.map((tutorial, index) => {
+        const { isLocked, completeOnEnd, nextTutorialId } = getTutorialStatus(
+          tutorial,
           index
         );
         return (
-          <div key={tutor.id} className="space-y-2">
+          <div key={tutorial.id} className="space-y-2">
             <Link
               href={
-                isLocked ? "#" : `/courses/${courseId}?tutorialId=${tutor.id}`
+                isLocked
+                  ? "#"
+                  : `/admin/admins/${adminId}/course/${courseId}/tutorial/${tutorial.id}`
               }
               className={`block p-2 rounded-md ${
-                selectedTutorId === tutor.id
+                selectedTutorialId === tutorial.id
                   ? "bg-blue-100"
                   : isLocked
                   ? "bg-gray-200 cursor-not-allowed"
@@ -58,20 +55,20 @@ export default function TutorList({
               onClick={() =>
                 isLocked
                   ? console.log(
-                      `[${new Date().toISOString()} TutorList] Locked tutor clicked: ${
-                        tutor.id
+                      `[${new Date().toISOString()} TutorList] Locked tutorial clicked: ${
+                        tutorial.id
                       }`
                     )
                   : console.log(
-                      `[${new Date().toISOString()} TutorList] Navigating to tutor: ${
-                        tutor.id
+                      `[${new Date().toISOString()} TutorList] Navigating to tutorial: ${
+                        tutorial.id
                       }`
                     )
               }
             >
               <div className="flex items-center justify-between">
-                <span>{tutor.title}</span>
-                {tutor.isFree ?? false ? (
+                <span>{tutorial.title}</span>
+                {tutorial.isFree ?? false ? (
                   <span className="text-green-500 text-xs sm:text-sm">
                     (Free)
                   </span>
@@ -86,23 +83,23 @@ export default function TutorList({
                 )}
               </div>
             </Link>
-            {selectedTutorId === tutor.id && !isLocked && (
+            {selectedTutorialId === tutorial.id && !isLocked && (
               <VideoPlayer
-                playbackId={tutor.playbackId ?? ""}
+                playbackId={tutorial.playbackId ?? ""}
                 courseId={courseId}
-                tutorId={tutor.id}
-                nextTutorId={nextTutorId ?? ""}
+                tutorId={tutorial.id}
+                nextTutorId={nextTutorialId ?? ""}
                 isLocked={isLocked}
                 completeOnEnd={completeOnEnd}
-                title={tutor.title}
+                title={tutorial.title}
               />
             )}
           </div>
         );
       })}
-      {tutorials.length === 0 && (
+      {items.length === 0 && (
         <div className="text-center text-xs sm:text-sm text-muted-foreground mt-4">
-          No Tutorials found.
+          No tutorials found.
         </div>
       )}
     </div>

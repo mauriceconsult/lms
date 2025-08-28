@@ -13,21 +13,21 @@ export const CourseSearchInput = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const currentId = searchParams.get("facultyId");
+  const currentCourseId = searchParams.get("courseId");
 
   useEffect(() => {
     const url = qs.stringifyUrl(
       {
         url: pathname,
         query: {
-          facultyId: currentId,
+          courseId: currentCourseId,
           title: debouncedValue,
         },
       },
       { skipEmptyString: true, skipNull: true }
     );
     router.push(url);
-  }, [debouncedValue, currentId, router, pathname]);
+  }, [debouncedValue, currentCourseId, router, pathname]);
 
   return (
     <div className="relative">

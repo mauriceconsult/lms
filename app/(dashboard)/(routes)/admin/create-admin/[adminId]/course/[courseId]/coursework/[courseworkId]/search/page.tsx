@@ -1,23 +1,22 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { getCourseworks } from "@/actions/get-courseworks";
+import { CourseworksList } from "./_components/courseworks-list";
 import { Courses } from "../../../search/_components/courses";
-import { getCourseNoticeboards } from "@/actions/get-courseNoticeboards";
-import { CourseCourseNoticeboardSearchInput } from "./_components/course-coursenoticeboard-search-input";
-import { CourseCourseNoticeboardsList } from "./_components/course-coursenoticeboard-list";
+import { CourseworkSearchInput } from "./_components/coursework-search-input";
 
-
-interface CourseNoticeboardSearchPageProps {
+interface CourseworkSearchPageProps {
   searchParams: Promise<{
     title: string;
     courseId: string;
-    courseCoursenoticeboardId: string;
+    courseworkId: string;
   }>
 }
 
-const CourseNoticeboardSearchPage = async ({
+const CourseworkSearchPage = async ({
   searchParams
-}: CourseNoticeboardSearchPageProps) => {
+}: CourseworkSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/"); 
@@ -27,21 +26,21 @@ const CourseNoticeboardSearchPage = async ({
       title: "asc",
     },
   });
-  const courseCoursenoticeboards = await getCourseNoticeboards({
+  const courseworks = await getCourseworks({
     userId,
     ...await searchParams
   }) 
   return (
     <>
       <div className="px-6 pt-4 md:hidden md:mb-0 block">
-        <CourseCourseNoticeboardSearchInput />
+        <CourseworkSearchInput />
       </div>
       <div className="p-6">
         <Courses items={courses} />
-        <CourseCourseNoticeboardsList items={courseCoursenoticeboards} />
+        <CourseworksList items={courseworks} />
       </div>
     </>
   );
 };
 
-export default CourseNoticeboardSearchPage;
+export default CourseworkSearchPage;
