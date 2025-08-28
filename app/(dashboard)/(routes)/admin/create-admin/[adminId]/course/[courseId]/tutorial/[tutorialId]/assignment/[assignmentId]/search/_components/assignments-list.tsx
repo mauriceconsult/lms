@@ -1,15 +1,15 @@
 import { AssignmentWithRelations } from "@/actions/get-assignments";
 import { AssignmentCard } from "@/components/assignment-card";
-// import { AssignmentWithRelations } from "@/app/(dashboard)/_actions/getAssignments";
+
 
 interface AssignmentsListProps {
   items: AssignmentWithRelations[];
   courseId: string;
   adminId: string;
-  tutorId: string | undefined;
+  tutorialId: string | undefined;
 }
 
-export const AssignmentsList = ({ items, courseId, adminId, tutorId }: AssignmentsListProps) => {
+export const AssignmentsList = ({ items, courseId, adminId, tutorialId }: AssignmentsListProps) => {
   return (
     <div>
       <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
@@ -21,7 +21,7 @@ export const AssignmentsList = ({ items, courseId, adminId, tutorId }: Assignmen
             description={assignment.description ?? ""}
             courseId={courseId}
             adminId={adminId}
-            tutorialId={tutorId}
+            tutorialId={tutorialId}
           />
         ))}
       </div>
