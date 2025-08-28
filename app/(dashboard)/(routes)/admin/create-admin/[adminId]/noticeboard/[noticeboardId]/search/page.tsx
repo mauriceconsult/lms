@@ -1,25 +1,24 @@
 import { db } from "@/lib/db";
-import { NoticeboardSearchInput } from "./_components/noticeboard-search-input";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { NoticeboardsList } from "./_components/noticeboards-list";
 import { getNoticeboards } from "@/actions/get-noticeboards";
-import AdminsList from "./_components/admins-list";
-// import { AdminsList } from "./_components/admins-list"; // Add this import
+import { NoticeboardIdSearchInput } from "./_components/noticeboard-search-input";
+import { NoticeboardsList } from "./_components/noticeboards-list";
+import { Admins } from "../../../search/_components/admins";
 
-interface NoticeboardIdSearchPageProps {
+interface NoticeboardSearchPageProps {
   searchParams: Promise<{
     title: string;
-    adminId: string;
-  }>;
+    noticeboardId: string;
+  }>
 }
 
 const NoticeboardSearchPage = async ({
-  searchParams,
-}: NoticeboardIdSearchPageProps) => {
+  searchParams
+}: NoticeboardSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
-    return redirect("/");
+    return redirect("/"); 
   }
   const admins = await db.admin.findMany({
     orderBy: {
@@ -28,16 +27,15 @@ const NoticeboardSearchPage = async ({
   });
   const noticeboards = await getNoticeboards({
     userId,
-    ...(await searchParams),
-  });
-
+    ...await searchParams
+  }) 
   return (
     <>
-      <div className="px-6 pt-6 md:hidden md:mb-0 block">
-        <NoticeboardSearchInput />
+      <div className="px-6 pt-4 md:hidden md:mb-0 block">
+        <NoticeboardIdSearchInput />
       </div>
-      <div className="p-6 space-y-4">
-        <AdminsList items={admins} /> {/* Update to AdminsList */}
+      <div className="p-6">
+        <Admins items={admins} />
         <NoticeboardsList items={noticeboards} />
       </div>
     </>

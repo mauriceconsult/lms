@@ -2,13 +2,13 @@ import { Admin, Course } from "@prisma/client";
 import { getProgress } from "./get-progress";
 import { db } from "@/lib/db";
 
-type CourseWithProgressWithAdmin = Course & {
+export type CourseWithProgressWithAdmin = Course & {
   admin: Admin | null;
   tutors: { id: string }[];
   progress: number | null;
 };
 
-type GetCourses = {
+export type GetCourses = {
   userId: string;
   title?: string;
   adminId?: string;
@@ -25,7 +25,7 @@ export const getCourses = async ({
         isPublished: true,
         title: {
           contains: title,
-          mode: "insensitive", // Case-insensitive search
+          mode: "insensitive",
         },
         adminId,
       },

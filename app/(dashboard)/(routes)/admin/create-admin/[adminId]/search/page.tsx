@@ -1,63 +1,45 @@
-import { Course, Admin } from "@prisma/client";
 import { db } from "@/lib/db";
-import { AdminCourseForm } from "../../../../admin/create-admin/[adminId]/_components/admin-course-form";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { AdminIdSearchInput } from "./_components/adminId-search-input";
+import { getCourses } from "@/actions/get-courses";
+import { Admins } from "./_components/admins";
+import { CourseTutorList } from "../course/[courseId]/_components/course-tutor-list";
 
-async function getAdmin(
-  adminId: string,
-  search?: string
-): Promise<(Admin & { courses: Course[] }) | null> {
-  "use server";
-  try {
-    return await db.admin.findUnique({
-      where: { id: adminId },
-      include: {
-        courses: {
-          where: search
-            ? { title: { contains: search, mode: "insensitive" } }
-            : {},
-          orderBy: { position: "asc" },
-        },
-      },
-    });
-  } catch (error) {
-    console.error("Get admin error:", error);
-    return null;
-  }
+interface AdminSearchPageProps {
+  searchParams: Promise<{
+    title: string;
+    adminId: string;
+  }>
 }
 
-export default async function SearchPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ adminId: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const searchTerm =
-    typeof (await searchParams).search === "string"
-      ? (await searchParams).search
-      : "";
-  const admin = await getAdmin((await params).adminId);
-
-  if (!admin) {
-    return redirect("/");
+const AdminSearchPage = async ({
+  searchParams
+}: AdminSearchPageProps) => {
+  const { userId } = await auth();
+  if (!userId) {
+    return redirect("/"); 
   }
-
+  const admins = await db.admin.findMany({
+    orderBy: {
+      title: "asc",
+    },
+  });
+  const courses = await getCourses({
+    userId,
+    ...await searchParams
+  }) 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">Manage Admin Courses</h1>
-      <p className="text-sm text-muted-foreground mb-2">
-        Admin ID: {(await params).adminId}
-      </p>
-      {searchTerm && (
-        <p className="text-sm text-muted-foreground mb-4">
-          Search Term: {searchTerm}
-        </p>
-      )}
-      <AdminCourseForm
-        initialData={admin}
-        adminId={(await params).adminId}
-      />
-    </div>
+    <>
+      <div className="px-6 pt-4 md:hidden md:mb-0 block">
+        <AdminIdSearchInput />
+      </div>
+      <div className="p-6">
+        <Admins items={admins} />
+        <CourseTutorList items={courses} />
+      </div>
+    </>
   );
-}
+};
+
+export default AdminSearchPage;

@@ -7,7 +7,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import qs from "query-string";
 
-export const NoticeboardSearchInput = () => {
+export const NoticeboardIdSearchInput = () => {
   const [value, setValue] = useState("");
   const debouncedValue = useDebounce(value);
   const searchParams = useSearchParams();
@@ -36,7 +36,7 @@ export const NoticeboardSearchInput = () => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className="w-full md:w-[300px] pl-9 rounded-full bg-slate-100 focus-visible:ring-slate-200"
-        placeholder="Search Faculty notices..."
+        placeholder="Search Notices ..."
       />
     </div>
   );

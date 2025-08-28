@@ -1,16 +1,17 @@
 import { db } from "@/lib/db";
 import { Noticeboard, Admin, Attachment } from "@prisma/client";
 
-type NoticeboardWithRelations = Noticeboard & {
+export type NoticeboardWithRelations = Noticeboard & {
   admin: Admin | null;
   attachments: Attachment[];
 };
 
-type GetNoticeboards = {
+export type GetNoticeboards = {
   userId: string;
   title?: string;
   adminId?: string;
 };
+
 export const getNoticeboards = async ({
   title,
   adminId,

@@ -1,42 +1,38 @@
-// components/course-tutor-list.tsx
-import { Tutor } from "@prisma/client";
+"use client";
+
+import { useEffect } from "react";
+import Link from "next/link";
+import { CourseWithProgressWithAdmin } from "@/actions/get-courses";
 
 interface CourseTutorListProps {
-  items: Tutor[];
-  onEditAction: (id: string) => Promise<unknown>;
+  items: CourseWithProgressWithAdmin[];
 }
 
-export const CourseTutorList = ({
-  items,
-  onEditAction,
-}: CourseTutorListProps) => {
-  console.log("CourseTutorList items:", items); // Debug log
+export const CourseTutorList = ({ items }: CourseTutorListProps) => {
+  useEffect(() => {
+    console.log("CourseTutorList items:", items);
+  }, [items]);
+
   return (
-    <div className="mt-4">
-      {items.length > 0 ? (
-        items.map((tutor) => {
-          if (!tutor.id) {
-            console.error("Invalid tutor ID:", tutor); // Log invalid tutors
-            return null; // Skip rendering
-          }
-          return (
-            <div
-              key={tutor.id}
-              className="p-2 border-b cursor-pointer flex justify-between items-center"
-              onClick={() => {
-                console.log("Clicked tutor ID:", tutor.id); // Debug click
-                onEditAction(tutor.id);
-              }}
-            >
-              <span>{tutor.title}</span>
-              {!tutor.isPublished && (
-                <span className="text-sm text-slate-500">(Unpublished)</span>
-              )}
-            </div>
-          );
-        })
+    <div className="mt-2">
+      {items.length === 0 ? (
+        <p className="text-slate-500 italic">No courses available.</p>
       ) : (
-        <p>No tutorials available</p>
+        items.map((course) => (
+          <Link
+            key={course.id}
+            href={`/course/courses/${course.id}`}
+            className="flex items-center gap-4 p-2 border-b hover:bg-slate-50 transition"
+          >
+            <span className="flex-1 font-medium">{course.title}</span>
+            <span className="text-sm text-slate-600">
+              {course.admin?.title || "No Admin"}
+            </span>
+            <span className="text-sm text-slate-500">
+              {course.tutors.length} {course.tutors.length === 1 ? "Tutorial" : "Tutorials"}
+            </span>
+          </Link>
+        ))
       )}
     </div>
   );

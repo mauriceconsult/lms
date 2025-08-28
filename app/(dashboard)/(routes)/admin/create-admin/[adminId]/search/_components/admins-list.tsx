@@ -22,7 +22,7 @@ export const AdminsList = ({ item }: AdminsListProps) => {
             title={admin.title}
             imageUrl={admin.imageUrl!}
             description={admin.description ?? ""}
-            school={admin.}               
+            admin={admin.admin?.id ?? ""}
           />
         ))}
       </div>
