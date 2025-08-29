@@ -3,21 +3,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FC } from "react";
-import { Preview } from "@/components/preview";
 
 interface AdminCardProps {
   id: string;
   title: string;
   imageUrl: string;
-  description: string;
   school: string;
 }
 
 export const AdminCard: FC<AdminCardProps> = ({
   id,
   title,
-  imageUrl,
-  description,
+  imageUrl,  
   school,
 }) => {
   return (
@@ -32,10 +29,7 @@ export const AdminCard: FC<AdminCardProps> = ({
           </div>
           <p className="text-xs text-muted-foreground">
             {school || "No school"}
-          </p>
-          <div className="my-3 md:text-base font-normal group-hover:text-sky-700 transition">
-            <Preview value={description} />
-          </div>
+          </p>         
         </div>
       </div>
     </Link>
