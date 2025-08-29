@@ -1,51 +1,71 @@
 import { db } from "@/lib/db";
-import { Admin, School } from "@prisma/client";
+import { Admin, School, Course } from "@prisma/client";
+import { getProgress } from "./get-progress";
 
-export type AdminsWithSchool = Admin & {
+export type AdminWithSchool = Admin & {
   school: School | null;
-  courses: { id: string }[];
+  courses: Course[];
+  noticeboards: { id: string }[];
+  progress: number | null;
 };
 
 export type GetAdmins = {
   userId: string;
   title?: string;
-  adminId?: string;
   schoolId?: string;
 };
 
 export const getAdmins = async ({
   userId,
   title,
-  adminId,
   schoolId,
-}: GetAdmins): Promise<AdminsWithSchool[]> => {
+}: GetAdmins): Promise<AdminWithSchool[]> => {
   try {
     const admins = await db.admin.findMany({
       where: {
-        userId,
         isPublished: true,
-        ...(title ? { title: { contains: title, mode: "insensitive" } } : {}),
-        ...(adminId ? { id: adminId } : {}),
-        ...(schoolId ? { schoolId } : {}),
+        title: {
+          contains: title,
+          mode: "insensitive",
+        },
+        schoolId,
       },
       include: {
         school: true,
-        courses: {
+        courses: true,
+        noticeboards: {
           where: {
             isPublished: true,
           },
           select: {
             id: true,
           },
-          orderBy: {
-            createdAt: "desc",
-          },
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
-    return admins as AdminsWithSchool[];
+
+    const adminWithSchool: AdminWithSchool[] = await Promise.all(
+      admins.map(async (admin) => {
+        if (admin.courses.length === 0) {
+          return {
+            ...admin,
+            progress: null,
+          };
+        }
+        const progress = await getProgress(userId, admin.id);
+        return {
+          ...admin,
+          progress,
+        };
+      })
+    );
+
+    return adminWithSchool;
   } catch (error) {
-    console.error("[GET_ADMINS]", error);
+    console.log("[GET_ADMINS]", error);
     return [];
   }
 };

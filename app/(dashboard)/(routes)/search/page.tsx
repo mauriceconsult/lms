@@ -3,8 +3,8 @@ import { Schools } from "./_components/schools";
 import { SearchInput } from "./_components/search-input";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { AdminsList } from "./_components/admins-list";
 import { getAdmins } from "@/actions/get-admins";
-import { AdminCourseList } from "../admin/create-admin/[adminId]/_components/admin-course-list";
 
 interface SearchPageProps {
   searchParams: Promise<{
@@ -36,7 +36,7 @@ const SearchPage = async ({
       </div>
       <div className="p-6">
         <Schools items={schools} />
-        <AdminCourseList items={admins} />
+        <AdminsList items={admins} />
       </div>
     </>
   );
