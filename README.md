@@ -1,79 +1,70 @@
-InstaSkul
-InstaSkul is a next-generation Learning Management System (LMS) designed to empower communities by transforming knowledge and skills into social and economic opportunities. Built with modern web technologies, InstaSkul fosters a collaborative ecosystem where educators and learners connect, share, and monetize expertise through IT consulting and training.
-Features
+InstaSkul User Guide and Terms of Use
+Version 1.0 | August 2025InstaSkul Team | instaskul.comCopyright © 2025 InstaSkul. All rights reserved.
+Introduction
+InstaSkul is a learning management platform that connects creators and learners through engaging online courses. This document provides a guide for using the platform and outlines the Terms of Use to protect our content and ensure a fair, professional experience.
+About InstaSkul
+InstaSkul empowers creators to build and share educational courses, while learners can enroll, track progress, and complete tutorials. The platform is accessible on web and mobile, with secure payments via MoMo API.
+Purpose of This Document
+This guide helps creators and learners navigate InstaSkul’s features. The Terms of Use section ensures copyright protection and clarifies user responsibilities. For updates, visit instaskul.com/docs.
+User Guide for Creators
+Creating a Course
 
-Dynamic Course Management: Create and manage digital courses with videos, assignments, and interactive content.
-Secure Authentication: Powered by Clerk for seamless and secure user login.
-Multimedia Support: Engage learners with rich media, including videos and interactive assignments.
-Monetization: Integrated payment gateways (MTN MoMo, Stripe planned) for course sales.
-Responsive Design: Built with React, Next.js 15, TypeScript, and Tailwind CSS for cross-device compatibility.
-Database: Prisma ORM with PostgreSQL/MySQL for robust data management.
+Log In: Sign in at instaskul.com with your credentials.
+Access Dashboard: Navigate to the Creator Dashboard via the sidebar.
+Add Course: Click "Create Course," enter a title, description, and price (as a string, e.g., "1000").
+Add Tutorials: In the course page, add tutorials with titles, content, and set isPublished: true for visibility.
+Publish: Save and publish the course to make it available to learners.
 
-Tech Stack
+Managing Tutorials
 
-Frontend: React, Next.js 15, TypeScript, JavaScript
-Authentication: Clerk
-Styling: Tailwind CSS
-Database: Prisma ORM with PostgreSQL/MySQL
-Payment: MTN MoMo, Stripe (planned)
-Deployment: Vercel
+Edit Content: From the course page, edit tutorial titles, content, or order (via position field).
+Track Progress: Monitor learner enrollment and progress via dashboard analytics.
+Set Free/Locked: Mark tutorials as free or locked (requires enrollment) in the tutorial settings.
 
-Getting Started
+Best Practices
 
-Clone the Repository:
-git clone https://github.com/your-org/instaskul.git
-cd instaskul
+Use clear, concise titles and descriptions.
+Ensure content is original to avoid copyright issues.
+Test tutorials for accessibility on mobile and web.
 
+User Guide for Learners
+Enrolling in a Course
 
-Install Dependencies:
-npm install
+Browse Courses: Visit instaskul.com/courses and use the search bar to find courses.
+Enroll: Click a course, select "Enroll," and complete payment via MoMo API (use a 12-digit MSISDN, e.g., 256123456789).
+Confirm Enrollment: After payment, the course appears in your dashboard.
 
+Navigating Courses
 
-Set Up Environment Variables: Create a .env.local file:
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-CLERK_SECRET_KEY=your_clerk_secret_key
-MOMO_PRIMARY_KEY=your_momo_primary_key
-MOMO_API_KEY=your_momo_api_key
-MOMO_API_USER=your_momo_api_user
-MOMO_TARGET_ENVIRONMENT=sandbox
-DATABASE_URL=your_database_url
+Access Sidebar: On desktop, view the sidebar at instaskul.com/courses/[courseId]. On mobile, tap the menu icon to open it.
+View Tutorials: Click tutorial titles to access content. Locked tutorials require enrollment.
+Track Progress: Check completion status (checkmark for completed, play icon for in-progress) and overall progress percentage in the sidebar.
 
+Payment Instructions
 
-Run the Development Server:
-npm run dev
+Use a valid 12-digit MSISDN for MoMo payments.
+Ensure the course amount is valid (contact support if errors occur).
+After payment, tutorials unlock automatically.
 
-Open http://localhost:3000.
+Terms of Use
+By using InstaSkul, you agree to these Terms of Use, which protect our intellectual property and ensure a fair platform experience.
+Copyright and Intellectual Property
 
-Build for Production:
-npm run build
-npm start
+All content on InstaSkul, including courses, tutorials, and the InstaSkul logo, is owned by InstaSkul or its creators and protected by copyright law.
+Users may not reproduce, distribute, or modify content without written permission from InstaSkul.
+Creators retain ownership of their course content but grant InstaSkul a non-exclusive license to host and display it.
 
+User Responsibilities
 
+Creators: Must upload original content and comply with copyright laws. InstaSkul is not liable for user-generated content violations.
+Learners: Must use content for personal learning only. Sharing login credentials or course materials is prohibited.
+Report copyright concerns to support@instaskul.com.
 
-Closed Beta Testing
-We’re in a closed beta phase, seeking developers, educators, and learners to test InstaSkul. Beta testers get early access and help shape the platform.
+Limitations of Liability
+InstaSkul is not responsible for payment issues due to invalid MSISDN or course data errors. Contact support for assistance.
+Contact and Support
+For questions, feedback, or issues (e.g., payment errors, course access):
 
-How to Join: Email beta@instaskul.com with your name, role (e.g., developer, educator), and why you’re interested.
-Note: Beta access is invite-only, despite the public repository.
-
-License and Copyright
-InstaSkul is licensed under the MIT License. See the LICENSE file for details.
-Copyright © 2025 InstaSkul. All rights reserved. The source code, documentation, and original content (including but not limited to course materials, images, and videos) are the intellectual property of InstaSkul and its contributors. Use is governed by the MIT License, except where specified in the Terms of Service for user-generated content.
-Contributing
-We welcome contributions! To get started:
-
-Fork the repository.
-Create a feature branch (git checkout -b feature/your-feature).
-Commit changes (git commit -m "Add your feature").
-Push to the branch (git push origin feature/your-feature).
-Open a Pull Request.
-
-See Contributing Guidelines and Code of Conduct.
-Documentation
-Detailed docs are in the /docs folder or at docs.instaskul.com.
-Contact
-
-Support: support@instaskul.com
-Beta Testing: beta@instaskul.com
-GitHub Issues: Report bugs or suggest features
-
+Email: support@instaskul.com
+Website: instaskul.com/support
+Social Media: Follow @InstaSkul on Twitter, Instagram, and LinkedIn for updates.
