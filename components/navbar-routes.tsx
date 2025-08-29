@@ -19,13 +19,13 @@ const NavbarRoutes = () => {
   const pathname = usePathname();
 
   const isAdminPage = pathname?.startsWith("/admin");
-  const isCoursePage = pathname?.includes("/course");
-  const isNoticeboardPage = pathname?.includes("/noticeboard");
-  const isCourseworkPage = pathname?.includes("/coursework");
-  const isTutorialPage = pathname?.includes("/tutorial");
-  const isAssignmentPage = pathname?.includes("/assignment");
-  const isCourseNoticeboardPage = pathname?.includes("/course-coursenoticeboard");
-  const isPayrollPage = pathname?.includes("/payroll");
+  const isCoursePage = pathname?.includes("/courses");
+  const isNoticeboardPage = pathname?.includes("/noticeboards");
+  const isCourseworkPage = pathname?.includes("/courseworks");
+  const isTutorialPage = pathname?.includes("/tutorials");
+  const isAssignmentPage = pathname?.includes("/assignments");
+  const isCourseNoticeboardPage = pathname?.includes("/course-coursenoticeboards");
+  const isPayrollPage = pathname?.includes("/payrolls");
   const isSearchPage = pathname === "/search";
 
   const searchComponents: { [key: string]: React.ComponentType } = {

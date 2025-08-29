@@ -5,6 +5,7 @@ import Link from "next/link";
 import { IconBadge } from "./icon-badge";
 import { BookOpen } from "lucide-react";
 import { formatAmount } from "@/lib/format";
+import { Preview } from "./preview";
 
 interface CourseCardProps {
   id: string;
@@ -53,8 +54,8 @@ export const CourseCard = ({
             </p>
           )}
         </div>
-        <div>
-          <p className="text-base">{description}</p>
+        <div className="my-3 md:text-base font-normal group-hover:text-sky-700 transition">
+          <Preview value={description} />
         </div>
       </div>
     </Link>

@@ -20,7 +20,7 @@ import toast from "react-hot-toast";
 
 const formSchema = z.object({
   title: z.string().min(1, {
-    message: "Faculty name is required",
+    message: "Admin title is required",
   }),
 });
 
