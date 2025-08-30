@@ -1,55 +1,26 @@
-import { db } from "@/lib/db";
+// app/api/courses/[courseId]/route.ts
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
-  req: Request,
+  request: Request,
   { params }: { params: Promise<{ courseId: string }> }
 ) {
   try {
-    const course = await db.course.findUnique({
+    const course = await prisma.course.findUnique({
       where: { id: (await params).courseId },
-      include: {
-        tutors: {
-          where: { isPublished: true },
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            videoUrl: true,
-            isPublished: true,
-            position: true,
-          },
-        },
-      },
+      select: { amount: true },
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, message: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        ...course,
-        imageUrl:
-          course.imageUrl && course.imageUrl !== "" ? course.imageUrl : null,
-        tutors: course.tutors.map((tutor) => ({
-          ...tutor,
-          videoUrl:
-            tutor.videoUrl && tutor.videoUrl !== "" ? tutor.videoUrl : null,
-        })),
-      },
-    });
+    return NextResponse.json({ amount: course.amount || "0" });
   } catch (error) {
-    console.error(
-      `[${new Date().toISOString()} API] Error fetching course:`,
-      error
-    );
+    console.error("[API/courses/[courseId]] Error:", error);
     return NextResponse.json(
-      { success: false, message: "Internal server error" },
+      { error: "Failed to fetch course data" },
       { status: 500 }
     );
   }

@@ -3,7 +3,7 @@
 import { TutorialWithCourse } from "@/actions/get-tutors";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import VideoPlayer from "../../_components/video-player";
+import VideoPlayer from "../../../../../../../../../../../(course)/courses/[courseId]/tutorials/[tutorialId]/_components/video-player";
 
 
 interface TutorListProps {

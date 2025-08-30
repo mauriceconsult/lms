@@ -1,25 +1,18 @@
 import { db } from "@/lib/db";
-import { Attachment, Tutor } from "@prisma/client";
+import { Assignment, Attachment, Tutor } from "@prisma/client";
 
 interface GetTutorProps {
   userId: string;
-  courseId: string;
-  adminId: string;
+  courseId: string; 
   tutorId: string;
 }
 export const getTutor = async ({
   userId,
-  courseId,
-  adminId,
+  courseId,  
   tutorId,
 }: GetTutorProps) => {
   try {
-    const admin = await db.admin.findUnique({
-      where: {
-        isPublished: true,
-        id: adminId,
-      }
-    })
+
     const tuition = await db.tuition.findUnique({
       where: {
         userId_courseId: {
@@ -37,37 +30,47 @@ export const getTutor = async ({
         amount: true,
       },
     });
-    const tutor = await db.tutor.findUnique({
+    const tutorial = await db.tutor.findUnique({
       where: {
         id: tutorId,
         isPublished: true,
       },
+      include: {
+        assignments: true,
+        attachments: true,
+      }
     });
-    if (!admin || !course || !tutor) {
-      throw new Error("Faculty, Course or Tutor not found");
+    if (!course || !tutorial) {
+      throw new Error("Admin, Course or Tutorial not found");
     }
     let muxData = null;
     let attachments: Attachment[] = [];
-    let nextTutor: Tutor | null = null;
+    let assignments: Assignment[] = [];
+    let nextTutorial: Tutor | null = null;
     if (tuition) {
       attachments = await db.attachment.findMany({
         where: {
           courseId: courseId,
         },
       });
+      assignments = await db.assignment.findMany({
+        where: {
+          tutorId: tutorId,
+        },
+      });
     }
-    if (tutor.isFree || tuition) {
+    if (tutorial.isFree || tuition) {
       muxData = await db.muxData.findUnique({
         where: {
           tutorId: tutorId,
         },
       });
-      nextTutor = await db.tutor.findFirst({
+      nextTutorial = await db.tutor.findFirst({
         where: {
           courseId: courseId,
           isPublished: true,
           position: {
-            gt: tutor?.position ?? 0,
+            gt: tutorial?.position ?? 0,
           },
         },
         orderBy: {
@@ -84,24 +87,24 @@ export const getTutor = async ({
       },
     });
     return {
-      tutor,
-      course,
-      admin,
+      tutorial,
+      course,   
       muxData,
+      assignments,
       attachments,
-      nextTutor,
+      nextTutorial,
       userProgress,
       tuition,
     };
   } catch (error) {
     console.log("[GET_TUTOR_ERROR]", error);
     return {
-      tutor: null,
-      course: null,
-      admin: null,
+      tutorial: null,
+      course: null,      
       muxData: null,
       attachments: [],
-      nextTutor: null,
+      assignments: [],
+      nextTutorial: null,
       userProgress: null,
       tuition: null,
     };

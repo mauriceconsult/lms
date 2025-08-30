@@ -2,13 +2,16 @@
 
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { VideoIcon, Pencil, PlusCircle } from "lucide-react";
+import {
+  // VideoIcon,
+  Pencil, PlusCircle
+} from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileUpload } from "@/components/file-upload";
 import { MuxData, Tutor } from "@prisma/client";
-import MuxPlayer from "@mux/mux-player-react";
+
 
 interface TutorVideoFormProps {
   initialData: Tutor & { muxData?: MuxData | null };
@@ -61,27 +64,7 @@ export const TutorVideoForm = ({
           )}
         </Button>
       </div>
-      {!isEditing &&
-        (!initialData.videoUrl ? (
-          <div className="flex items-center justify-center h-60 bg-slate-200 rounded-md">
-            <VideoIcon className="h-10 w-10 text-slate-500" />
-          </div>
-        ) : initialData.muxData?.playbackId ? (
-          <div className="relative aspect-video mt-2">
-            <MuxPlayer
-              playbackId={initialData.muxData.playbackId}
-              className="w-full h-full"
-            />
-          </div>
-        ) : (
-          <div className="relative aspect-video mt-2">
-            <video
-              src={initialData.videoUrl}
-              controls
-              className="w-full h-full object-cover rounded-md"
-            />
-          </div>
-        ))}
+    
       {isEditing && (
         <div>
           <FileUpload
