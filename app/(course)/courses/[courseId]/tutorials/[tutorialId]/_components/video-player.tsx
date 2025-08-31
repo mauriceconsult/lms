@@ -1,60 +1,101 @@
 "use client";
 
-import { Loader2, Lock } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MuxPlayer from "@mux/mux-player-react";
-import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface VideoPlayerProps {
-  playbackId: string;
+  tutorialId: string;
+  title: string;
   courseId: string;
-  tutorialId: string
   nextTutorialId: string;
+  playbackId: string;
   isLocked: boolean;
   completeOnEnd: boolean;
-  title: string;
 }
 
 export default function VideoPlayer({
-  playbackId,
-  courseId,
   tutorialId,
+  title,
+  courseId,
   nextTutorialId,
+  playbackId,
   isLocked,
   completeOnEnd,
-  title,
 }: VideoPlayerProps) {
-  const [isReady, setIsReady] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const markComplete = async () => {
+    try {
+      const response = await fetch("/api/mark-completed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tutorialId, courseId }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to mark as completed");
+      }
+      console.log("[VideoPlayer] Marked as completed:", tutorialId);
+      if (nextTutorialId) {
+        router.push(`/courses/${courseId}/tutorials/${nextTutorialId}`);
+      } else {
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("[VideoPlayer] Error marking complete:", err);
+      setError("Failed to mark tutorial as completed");
+    }
+  };
+
+  const handleEnded = () => {
+    console.log("[VideoPlayer] Video ended:", {
+      tutorialId,
+      completeOnEnd,
+      nextTutorialId,
+    });
+    if (completeOnEnd) {
+      markComplete();
+    }
+  };
+
+  if (!isMounted) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!playbackId || isLocked) {
+    setError(isLocked ? "This tutorial is locked" : "No video available");
+    return <div className="text-red-500 text-center">{error}</div>;
+  }
+
   return (
     <div className="relative aspect-video">
-      {!isReady && !isLocked && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
-          <Loader2
-            className="h-8 w-8 animate-spin text-secondary"
-          />
+      <MuxPlayer
+        playbackId={playbackId}
+        title={title}
+        onError={(e) => {
+          console.error("[MuxPlayer] Error:", e);
+          setError("Failed to load video");
+        }}
+        onEnded={handleEnded}
+        autoPlay
+        className="w-full h-full"
+      />
+      {error && (
+        <div className="absolute top-0 left-0 w-full p-4 text-red-500 bg-black/50">
+          {error}
         </div>
       )}
-      {isLocked && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-800 flex-col gap-y-2 text-secondary">
-          <Lock className="h-8 w-8" />
-          <p className="text-sm">
-            This Tutorial is locked.
-          </p>
-        </div>
-      )}
-      {!isLocked && (
-        <MuxPlayer
-          title={title}
-          className={cn(
-            !isReady && "hidden"
-          )}
-          onCanPlay={() => setIsReady(true)}
-          onEnded={() => { }}
-          autoPlay
-          playbackId={playbackId}
-        />
-      )}
-
     </div>
-  )
+  );
 }

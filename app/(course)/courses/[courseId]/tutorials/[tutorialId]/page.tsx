@@ -1,12 +1,14 @@
+// app/(course)/courses/[courseId]/tutorials/[tutorialId]/page.tsx
 import { getTutor } from "@/actions/get-tutor";
 import { Banner } from "@/components/banner";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import VideoPlayer from "./_components/video-player";
 import CourseEnrollButton from "./_components/course-enroll-button";
+import ProgressButton from "./_components/progress-button";
 import { Separator } from "@/components/ui/separator";
 import { Preview } from "@/components/preview";
-import { BookOpen } from "lucide-react";
+import { BookOpen, File } from "lucide-react";
 
 const TutorialIdPage = async ({
   params,
@@ -17,6 +19,8 @@ const TutorialIdPage = async ({
   if (!userId) {
     return redirect("/");
   }
+
+  const resolvedParams = await params;
   const {
     tutorial,
     course,
@@ -28,12 +32,14 @@ const TutorialIdPage = async ({
     tuition,
   } = await getTutor({
     userId,
-    tutorId: (await params).tutorialId,
-    courseId: (await params).courseId,
+    tutorId: resolvedParams.tutorialId,
+    courseId: resolvedParams.courseId,
   });
+
   if (!tutorial || !course) {
     return redirect("/");
   }
+
   const isLocked = !tutorial.isFree && !tuition;
   const completeOnEnd = !!tuition && !userProgress?.isCompleted;
 
@@ -54,9 +60,9 @@ const TutorialIdPage = async ({
       <div className="flex flex-col max-w-4xl mx-auto pb-20">
         <div className="p-4">
           <VideoPlayer
-            tutorialId={(await params).tutorialId}
+            tutorialId={resolvedParams.tutorialId}
             title={tutorial.title}
-            courseId={(await params).courseId}
+            courseId={resolvedParams.courseId}
             nextTutorialId={nextTutorial?.id ?? ""}
             playbackId={muxData?.playbackId ?? ""}
             isLocked={isLocked}
@@ -67,10 +73,15 @@ const TutorialIdPage = async ({
           <div className="p-4 flex flex-col md:flex-row items-center justify-between">
             <h2 className="text-2xl font-semibold mb-2">{tutorial.title}</h2>
             {tuition ? (
-              <div>{/*add some*/}</div>
+              <ProgressButton
+                userId={userId}
+                tutorialId={resolvedParams.tutorialId}
+                courseId={resolvedParams.courseId}
+                isCompleted={userProgress?.isCompleted ?? false}
+              />
             ) : (
               <CourseEnrollButton
-                courseId={(await params).courseId}
+                courseId={resolvedParams.courseId}
                 amount={course.amount ?? ""}
               />
             )}
@@ -108,7 +119,7 @@ const TutorialIdPage = async ({
                     key={attachment.url}
                     className="flex items-center p-3 w-full bg-sky-200 border text-sky-700 rounded-md hover:underline"
                   >
-                    <BookOpen />
+                    <File />
                     <p className="line-clamp-1">{attachment.url}</p>
                   </a>
                 ))}
