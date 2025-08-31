@@ -1,15 +1,12 @@
-// app/(course)/courses/[courseId]/tutorials/[tutorialId]/page.tsx
 import { getTutor } from "@/actions/get-tutor";
 import { Banner } from "@/components/banner";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import CourseEnrollButton from "./_components/course-enroll-button";
-// import ProgressButton from "./_components/progress-button";
 import { Separator } from "@/components/ui/separator";
 import { Preview } from "@/components/preview";
 import { BookOpen, File } from "lucide-react";
 import { VideoPlayer } from "./_components/video-player";
-// import { CourseProgress } from "@/components/course-progress";
 import { CourseProgressButton } from "./_components/course-progress-button";
 
 const TutorialIdPage = async ({
@@ -43,7 +40,7 @@ const TutorialIdPage = async ({
   }
 
   const isLocked = !tutorial.isFree && !tuition;
-  // const completeOnEnd = !!tuition && !userProgress?.isCompleted;
+  const completeOnEnd = !!tuition && !userProgress?.isCompleted;
 
   return (
     <div>
@@ -67,7 +64,8 @@ const TutorialIdPage = async ({
             courseId={resolvedParams.courseId}
             nextTutorialId={nextTutorial?.id ?? ""}
             playbackId={muxData?.playbackId ?? ""}
-            isLocked={isLocked}           
+            isLocked={isLocked}
+            completeOnEnd={completeOnEnd}
           />
         </div>
         <div>
@@ -75,8 +73,8 @@ const TutorialIdPage = async ({
             <h2 className="text-2xl font-semibold mb-2">{tutorial.title}</h2>
             {tuition ? (
               <CourseProgressButton
-                tutorialId={(await params).tutorialId}
-                courseId={(await params).courseId}
+                tutorialId={resolvedParams.tutorialId}
+                courseId={resolvedParams.courseId}
                 nextTutorialId={nextTutorial?.id ?? ""}
                 isCompleted={!!userProgress?.isCompleted}
               />
