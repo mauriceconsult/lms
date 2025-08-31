@@ -276,7 +276,7 @@ model UserProgress {
   courseworks  Coursework? @relation(fields: [courseworkId], references: [id], onDelete: Cascade)
   courseworkId String?
   courses      Course?     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId     String
+  courseId     String?
   assignments  Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   assignmentId String?
   isEnrolled   Boolean     @default(false)

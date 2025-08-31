@@ -29,7 +29,7 @@ export async function POST(
       return new NextResponse("Tuition already paid", { status: 400 });
     }
     if (!course) {
-      return new NextResponse("Not found.", { status: 401 });
+      return new NextResponse("Not found.", { status: 404 });
     }
     {/*add momo line item*/}
   } catch (error) {

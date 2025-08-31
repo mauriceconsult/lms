@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InstaSkulLogo } from "@/components/instaskul-logo";
 
 export default function CheckoutPage({
   params,
@@ -12,7 +13,10 @@ export default function CheckoutPage({
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+      <div className="mb-6">
+        <InstaSkulLogo />
+      </div>
       <Card className="max-w-md w-full">
         <CardHeader>
           <CardTitle className="text-2xl text-slate-900">

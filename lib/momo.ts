@@ -1,4 +1,3 @@
-// lib/momo.ts
 import axios, { AxiosError } from "axios";
 
 interface MoMoErrorResponse {
@@ -21,8 +20,13 @@ export const collections = {
     payerMessage: string;
     payeeNote: string;
   }) {
+    if (!process.env.MOMO_TARGET_ENVIRONMENT) {
+      throw new Error("MOMO_TARGET_ENVIRONMENT is not defined in .env");
+    }
+
     try {
       const referenceId = crypto.randomUUID(); // Generate UUID upfront
+
       console.log("[MoMo] requestToPay Payload:", {
         amount,
         currency,
@@ -33,7 +37,7 @@ export const collections = {
         referenceId,
       });
       const response = await axios.post(
-        "https://sandbox.momodeveloper.mtn.com/collection/v1_0/requesttopay",
+        `${process.env.MOMO_TARGET_ENVIRONMENT}/collection/v1_0/requesttopay`,
         {
           amount,
           currency,
@@ -73,9 +77,13 @@ export const collections = {
   },
 
   async checkTransactionStatus(transactionId: string) {
+    if (!process.env.MOMO_TARGET_ENVIRONMENT) {
+      throw new Error("MOMO_TARGET_ENVIRONMENT is not defined in .env");
+    }
+
     try {
       const response = await axios.get(
-        `https://sandbox.momodeveloper.mtn.com/collection/v1_0/requesttopay/${transactionId}`,
+        `${process.env.MOMO_TARGET_ENVIRONMENT}/collection/v1_0/requesttopay/${transactionId}`,
         {
           headers: {
             "X-Target-Environment": "sandbox",
@@ -103,9 +111,13 @@ export const collections = {
 };
 
 async function getAccessToken() {
+  if (!process.env.MOMO_TARGET_ENVIRONMENT) {
+    throw new Error("MOMO_TARGET_ENVIRONMENT is not defined in .env");
+  }
+
   try {
     const response = await axios.post(
-      "https://sandbox.momodeveloper.mtn.com/collection/token/",
+      `${process.env.MOMO_TARGET_ENVIRONMENT}/collection/token/`,
       {},
       {
         auth: {

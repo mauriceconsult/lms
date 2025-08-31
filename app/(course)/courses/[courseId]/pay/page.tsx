@@ -105,7 +105,7 @@ export default function TuitionPaymentPage({
       <Card className="max-w-md w-full">
         <CardHeader>
           <CardTitle className="text-2xl text-slate-900">
-            Create a student account and pay with MTN MoMo
+            Create your student account and pay with MTN MoMo
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -162,7 +162,7 @@ export default function TuitionPaymentPage({
             </form>
           </Form>
           <p className="text-sm text-slate-500 mt-4 text-center">
-            Student account successfully created after submission.
+            Access the Course instantly.
           </p>
         </CardContent>
       </Card>
