@@ -8,7 +8,7 @@ import { InstaSkulLogo } from "@/components/instaskul-logo";
 export default function CheckoutPage({
   params,
 }: {
-  params: { courseId: string };
+  params: Promise<{ courseId: string }>;
 }) {
   const router = useRouter();
 
@@ -25,7 +25,9 @@ export default function CheckoutPage({
         </CardHeader>
         <CardContent>
           <Button
-            onClick={() => router.push(`/courses/${params.courseId}/pay`)}
+            onClick={async () =>
+              router.push(`/courses/${(await params).courseId}/pay`)
+            }
             className="w-full bg-slate-800 text-white hover:bg-slate-900"
           >
             Pay with MTN MoMo

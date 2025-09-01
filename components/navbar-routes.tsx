@@ -6,7 +6,13 @@ import { LogOut, LogIn } from "lucide-react";
 import Link from "next/link";
 import { CourseSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/search/_components/course-search-input";
 
-const NavbarRoutes = ({ className }: { className?: string }) => {
+interface NavbarRoutesProps {
+  className?: string;
+  adminId?: string;
+  courseId?: string;
+}
+
+const NavbarRoutes = ({ className, adminId, courseId }: NavbarRoutesProps) => {
   const pathname = usePathname();
   const router = useRouter();
   console.log("[NavbarRoutes] Pathname:", pathname);
@@ -27,7 +33,7 @@ const NavbarRoutes = ({ className }: { className?: string }) => {
     <div className={`flex items-center gap-x-4 w-full px-4 ${className}`}>
       {isCoursePage && (
         <div className="w-64">
-          <CourseSearchInput />
+          <CourseSearchInput adminId={adminId} courseId={courseId} />
         </div>
       )}
       <Link

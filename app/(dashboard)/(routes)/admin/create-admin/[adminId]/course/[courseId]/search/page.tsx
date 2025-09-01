@@ -4,32 +4,68 @@ import { redirect } from "next/navigation";
 import { CourseSearchInput } from "./_components/course-search-input";
 import { Admins } from "../../../search/_components/admins";
 import { getAdmins } from "@/actions/get-admins";
-import CoursesList from "./_components/courses-list";
+import { CoursesList } from "./_components/courses-list";
+import { getProgress } from "@/actions/get-progress";
+import { Admin, Course } from "@prisma/client";
+
+type CourseWithProgressWithAdmin = Course & {
+  admin: Admin | null;
+  courses: { id: string }[];
+  progress: number | null;
+};
 
 interface CourseSearchPageProps {
   searchParams: Promise<{
     title: string;
     courseId: string;
     adminId: string;
-  }>
+  }>;
 }
 
-const CourseSearchPage = async ({
-  searchParams
-}: CourseSearchPageProps) => {
+const CourseSearchPage = async ({ searchParams }: CourseSearchPageProps) => {
   const { userId } = await auth();
   if (!userId) {
-    return redirect("/"); 
+    return redirect("/");
   }
+
+  const { title, courseId, adminId } = await searchParams;
+
   const courses = await db.course.findMany({
+    where: {
+      isPublished: true,
+      title: {
+        contains: title,
+        mode: "insensitive",
+      },
+      id: courseId || undefined,
+      adminId: adminId || undefined,
+    },
+    include: {
+      admin: true,
+    },
     orderBy: {
       title: "asc",
     },
   });
+
+  const coursesWithProgress: CourseWithProgressWithAdmin[] = await Promise.all(
+    courses.map(async (course) => {
+      const progress = await getProgress(userId, course.id);
+      return {
+        ...course,
+        admin: course.admin,
+        courses: [{ id: course.id }], // Simplified to include only the current course ID
+        progress,
+      };
+    })
+  );
+
   const admins = await getAdmins({
     userId,
-    ...await searchParams
-  }) 
+    title,
+    // adminId,
+  });
+
   return (
     <>
       <div className="px-6 pt-4 md:hidden md:mb-0 block">
@@ -37,7 +73,7 @@ const CourseSearchPage = async ({
       </div>
       <div className="p-6">
         <Admins items={admins} />
-        <CoursesList items={courses} />
+        <CoursesList items={coursesWithProgress} />
       </div>
     </>
   );

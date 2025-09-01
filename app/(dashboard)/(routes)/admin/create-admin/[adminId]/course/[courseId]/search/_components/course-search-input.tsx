@@ -4,30 +4,34 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import qs from "query-string";
 
-export const CourseSearchInput = () => {
+interface CourseSearchInputProps {
+  adminId?: string;
+  courseId?: string;
+}
+
+export const CourseSearchInput = ({ adminId, courseId }: CourseSearchInputProps) => {
   const [value, setValue] = useState("");
   const debouncedValue = useDebounce(value);
-  const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const currentCourseId = searchParams.get("courseId");
 
   useEffect(() => {
     const url = qs.stringifyUrl(
       {
         url: pathname,
         query: {
-          courseId: currentCourseId,
+          courseId,
+          adminId,
           title: debouncedValue,
         },
       },
       { skipEmptyString: true, skipNull: true }
     );
     router.push(url);
-  }, [debouncedValue, currentCourseId, router, pathname]);
+  }, [debouncedValue, courseId, adminId, router, pathname]);
 
   return (
     <div className="relative">

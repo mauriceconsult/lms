@@ -8,6 +8,7 @@ interface AdminCardProps {
   id: string;
   title: string;
   imageUrl: string;
+  description: string;
   school: string;
 }
 
