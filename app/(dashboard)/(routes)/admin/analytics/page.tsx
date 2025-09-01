@@ -1,12 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getAnalytics } from "@/actions/get-analytics";
-// import DataCard from "./_components/data-card";
-import { Chart } from "./_components/chart";
+import { AnalyticsChart } from "./_components/chart";
 import { DataCard } from "./_components/data-card";
 
-
-export default async function FacultyAnalyticsPage() {
+export default async function AdminAnalyticsPage() {
   const { userId } = await auth();
   if (!userId) {
     return redirect("/");
@@ -24,7 +22,7 @@ export default async function FacultyAnalyticsPage() {
           shouldFormat={true}
         />
       </div>
-      <Chart data={data} />
+      <AnalyticsChart data={data} />
     </div>
   );
 }

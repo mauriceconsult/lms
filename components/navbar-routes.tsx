@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, LogIn } from "lucide-react";
 import Link from "next/link";
 import { CourseSearchInput } from "@/app/(dashboard)/(routes)/admin/create-admin/[adminId]/course/[courseId]/search/_components/course-search-input";
 
@@ -11,7 +11,17 @@ const NavbarRoutes = ({ className }: { className?: string }) => {
   const router = useRouter();
   console.log("[NavbarRoutes] Pathname:", pathname);
 
-  const isCoursePage = pathname?.startsWith("/courses");
+  // Reuse route checks from SidebarRoutes, plus /search
+  const isAdminPage = pathname?.includes("/admin");
+  const isCoursePage = pathname?.includes("/courses");
+  const isTutorPage = pathname?.includes("/tutorials");
+  const isNoticeboardPage = pathname?.includes("/noticeboards");
+  const isCourseworkPage = pathname?.includes("/courseworks");
+  const isCourseNoticeboardPage = pathname?.includes("/course-coursenoticeboards");
+  const isAssignmentPage = pathname?.includes("/assignments");
+  const isPayrollPage = pathname?.includes("/payrolls");
+  const isSearchPage = pathname === "/search";
+  const isRootPage = pathname === "/";
 
   return (
     <div className={`flex items-center gap-x-4 w-full px-4 ${className}`}>
@@ -27,17 +37,35 @@ const NavbarRoutes = ({ className }: { className?: string }) => {
         Docs
       </Link>
       <div className="flex gap-x-2 ml-auto">
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => {
-            console.log("[NavbarRoutes] Exit clicked");
-            router.push("/");
-          }}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Exit
-        </Button>
+        {(isAdminPage ||
+          isCoursePage ||
+          isTutorPage ||
+          isNoticeboardPage ||
+          isCourseworkPage ||
+          isCourseNoticeboardPage ||
+          isAssignmentPage ||
+          isPayrollPage ||
+          isSearchPage) && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              console.log("[NavbarRoutes] Exit clicked");
+              router.push("/");
+            }}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Exit
+          </Button>
+        )}
+        {isRootPage && (
+          <Link href="/admin/admins">
+            <Button size="sm" variant="ghost">
+              <LogIn className="h-4 w-4 mr-2" />
+              Admin
+            </Button>
+          </Link>
+        )}
       </div>
     </div>
   );

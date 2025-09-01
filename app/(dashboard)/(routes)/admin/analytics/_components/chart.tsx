@@ -1,70 +1,51 @@
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Title,
-  Tooltip,
-  Legend,
-  ChartOptions,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
+"use client";
 
-ChartJS.register(
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Title,
-  Tooltip,
-  Legend
-);
+// import { useRef } from "react";
+import { Chart as ChartJS, registerables } from "chart.js";
+import { Chart as ChartReact } from "react-chartjs-2";
+// import type { ChartJS } from "chart.js";
+import { useRef } from "react";
 
-type ChartProps = {
-  data: { name: string; total: number }[];
-};
+// Register Chart.js components
+ChartJS.register(...registerables);
 
-export const Chart = ({ data }: ChartProps) => {
+// Define type based on getAnalytics output
+type AnalyticsData = {
+  name: string;
+  total: number;
+}[];
+
+interface AnalyticsChartProps {
+  data: AnalyticsData;
+}
+
+export const AnalyticsChart = ({ data }: AnalyticsChartProps) => {
+  const chartRef = useRef<ChartJS<"bar", number[], string> | null>(null);
+
+  // Transform data for Chart.js
   const chartData = {
     labels: data.map((item) => item.name),
     datasets: [
       {
-        label: "Revenue by Course ($)",
+        label: "Analytics",
         data: data.map((item) => item.total),
-        backgroundColor: ["#4CAF50", "#2196F3", "#FF9800"],
-        borderColor: ["#388E3C", "#1976D2", "#F57C00"],
+        backgroundColor: ["#3b82f6", "#10b981", "#ef4444", "#f59e0b"],
+        borderColor: ["#1e3a8a", "#047857", "#b91c1c", "#b45309"],
         borderWidth: 1,
       },
     ],
   };
 
-  const chartOptions: ChartOptions<"bar"> = {
+  const options = {
     responsive: true,
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "Revenue ($)",
-        },
-      },
-      x: {
-        title: {
-          display: true,
-          text: "Course Title",
-        },
-      },
-    },
     plugins: {
-      legend: {
-        display: true,
-        position: "top" as const, // Explicitly set to literal type
-      },
-      title: {
-        display: true,
-        text: "Revenue by Course",
-      },
+      legend: { position: "top" as const },
     },
   };
 
-  return <Bar data={chartData} options={chartOptions} />;
+  return (
+    <div className="w-full h-96">
+      <ChartReact type="bar" data={chartData} options={options} ref={chartRef} />
+    </div>
+  );
 };
