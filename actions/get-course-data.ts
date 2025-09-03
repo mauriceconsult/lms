@@ -133,6 +133,10 @@ export async function getCourseData(
         ...tutor,
         attachmentIds: tutor.attachments.map((a) => ({ id: a.id })),
       })),
+      userProgress: course.userProgress.map((up) => ({
+        ...up,
+        courseId: up.courseId ?? "",
+      })),
       progress,
       tuition: course.tuitions[0] || undefined,
       admin: course.admin || undefined,

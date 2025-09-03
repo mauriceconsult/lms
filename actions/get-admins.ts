@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { Admin, School, Course } from "@prisma/client";
 import { getProgress } from "./get-progress";
 
-export type AdminWithSchool = Admin & {
+export type AdminsWithSchool = Admin & {
   school: School | null;
   courses: Course[];
   noticeboards: { id: string }[];
@@ -19,7 +19,7 @@ export const getAdmins = async ({
   userId,
   title,
   schoolId,
-}: GetAdmins): Promise<AdminWithSchool[]> => {
+}: GetAdmins): Promise<AdminsWithSchool[]> => {
   try {
     const admins = await db.admin.findMany({
       where: {
@@ -47,7 +47,7 @@ export const getAdmins = async ({
       },
     });
 
-    const adminWithSchool: AdminWithSchool[] = await Promise.all(
+    const adminWithSchool: AdminsWithSchool[] = await Promise.all(
       admins.map(async (admin) => {
         if (admin.courses.length === 0) {
           return {

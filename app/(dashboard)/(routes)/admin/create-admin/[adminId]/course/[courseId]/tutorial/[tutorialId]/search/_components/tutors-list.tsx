@@ -3,7 +3,6 @@
 import { TutorialWithCourse } from "@/actions/get-tutors";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import VideoPlayer from "../../../../../../../../../../../(course)/courses/[courseId]/tutorials/[tutorialId]/_components/video-player";
 
 
 interface TutorListProps {
@@ -33,7 +32,7 @@ export default function TutorList({
   return (
     <div className="space-y-2 text-sm sm:text-base">
       {items.map((tutorial, index) => {
-        const { isLocked, completeOnEnd, nextTutorialId } = getTutorialStatus(
+        const { isLocked } = getTutorialStatus(
           tutorial,
           index
         );
@@ -45,25 +44,22 @@ export default function TutorList({
                   ? "#"
                   : `/admin/admins/${adminId}/course/${courseId}/tutorial/${tutorial.id}`
               }
-              className={`block p-2 rounded-md ${
-                selectedTutorialId === tutorial.id
+              className={`block p-2 rounded-md ${selectedTutorialId === tutorial.id
                   ? "bg-blue-100"
                   : isLocked
-                  ? "bg-gray-200 cursor-not-allowed"
-                  : "hover:bg-gray-100"
-              }`}
+                    ? "bg-gray-200 cursor-not-allowed"
+                    : "hover:bg-gray-100"
+                }`}
               onClick={() =>
                 isLocked
                   ? console.log(
-                      `[${new Date().toISOString()} TutorList] Locked tutorial clicked: ${
-                        tutorial.id
-                      }`
-                    )
+                    `[${new Date().toISOString()} TutorList] Locked tutorial clicked: ${tutorial.id
+                    }`
+                  )
                   : console.log(
-                      `[${new Date().toISOString()} TutorList] Navigating to tutorial: ${
-                        tutorial.id
-                      }`
-                    )
+                    `[${new Date().toISOString()} TutorList] Navigating to tutorial: ${tutorial.id
+                    }`
+                  )
               }
             >
               <div className="flex items-center justify-between">
@@ -83,25 +79,15 @@ export default function TutorList({
                 )}
               </div>
             </Link>
-            {selectedTutorialId === tutorial.id && !isLocked && (
-              <VideoPlayer
-                playbackId={tutorial.playbackId ?? ""}
-                courseId={courseId}
-                tutorId={tutorial.id}
-                nextTutorId={nextTutorialId ?? ""}
-                isLocked={isLocked}
-                completeOnEnd={completeOnEnd}
-                title={tutorial.title}
-              />
+
+            {items.length === 0 && (
+              <div className="text-center text-xs sm:text-sm text-muted-foreground mt-4">
+                No tutorials found.
+              </div>
             )}
           </div>
         );
       })}
-      {items.length === 0 && (
-        <div className="text-center text-xs sm:text-sm text-muted-foreground mt-4">
-          No tutorials found.
-        </div>
-      )}
     </div>
   );
 }

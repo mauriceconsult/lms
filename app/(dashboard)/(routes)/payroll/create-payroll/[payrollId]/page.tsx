@@ -9,7 +9,7 @@ import { PayrollAttachmentForm } from "./_components/payroll-attachment-form";
 import { Banner } from "@/components/banner";
 import { PayrollActions } from "./_components/payroll-actions";
 import Link from "next/link";
-import { PayrollFacultyPayrollForm } from "./_components/payroll-faculty-form";
+// import { PayrollAdminPayrollForm } from "./_components/payroll-admin-form";
 
 const PayrollIdPage = async ({
   params,
@@ -34,7 +34,7 @@ const PayrollIdPage = async ({
            createdAt: "desc",
          },
        },
-       facultyPayrolls: {
+       adminPayrolls: {
          orderBy: {
            position: "asc",
          },
@@ -52,7 +52,7 @@ const PayrollIdPage = async ({
   const requiredFields = [
     payroll.title,
     payroll.schoolId,
-    payroll.facultyPayrolls.length > 0,
+    payroll.adminPayrolls.length > 0,
   ];
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
@@ -63,7 +63,7 @@ const PayrollIdPage = async ({
       {!payroll.isPublished && (
         <Banner
           variant="warning"
-          label="This Payroll is unpublished. Once published, it will be available for processing the Faculty Payrolls."
+          label="This Payroll is unpublished. Once published, it will be available for processing the Admin Payrolls."
         />
       )}
       <div className="p-6">
@@ -111,12 +111,12 @@ const PayrollIdPage = async ({
             <div>
               <div className="flex items-center gap-x-2">
                 <IconBadge icon={ListChecks} />
-                <h2 className="text-xl">Faculty Payrolls</h2>
+                <h2 className="text-xl">Admin Payrolls</h2>
               </div>
-              <PayrollFacultyPayrollForm
+              {/* <PayrollAdminPayrollForm
                 initialData={payroll}
                 payrollId={payroll.id}
-              />
+              /> */}
             </div>
             <div className="space-y-6">
               <div>

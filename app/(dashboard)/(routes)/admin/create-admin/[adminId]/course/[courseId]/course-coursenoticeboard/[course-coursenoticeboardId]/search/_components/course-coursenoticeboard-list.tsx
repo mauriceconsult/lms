@@ -1,35 +1,34 @@
+"use client";
+
+import { useEffect } from "react";
 import { CourseNoticeboardCard } from "@/components/courseNoticeboard-card";
-import { Course, CourseNoticeboard } from "@prisma/client";
+import { CourseNoticeboard } from "@prisma/client";
 
-type CourseCourseNoticeboardsWithCourse = CourseNoticeboard & {
-  course: Course | null;
-};
-
-interface CourseCourseNoticeboardsListProps {
-  items: CourseCourseNoticeboardsWithCourse[];
+interface CourseNoticeboardListProps {
+  items: CourseNoticeboard[];
 }
 
 export const CourseCourseNoticeboardsList = ({
   items,
-}: CourseCourseNoticeboardsListProps) => {
+}: CourseNoticeboardListProps) => {
+  useEffect(() => {
+    console.log("CourseNoticeboardList items:", items);
+  }, [items]);
+
   return (
-    <div>
-      <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
-        {items.map((item) => (
+    <div className="mt-4">
+      {items.length === 0 ? (
+        <p className="text-slate-500 italic">No noticeboards available.</p>
+      ) : (
+        items.map((item) => (
           <CourseNoticeboardCard
             key={item.id}
             id={item.id}
             title={item.title}
-            course={item.course?.title ?? ""}
-            courseNoticeboardsLength={0} // Update if you have logic to compute this
-            progress={null}
+            description={item.description ?? ""}
+            courseNoticeboard={item.title} // Map course title to courseNoticeboard
           />
-        ))}
-      </div>
-      {items.length === 0 && (
-        <div className="text-center text-sm text-muted-foreground mt-10">
-          No CourseCourseNoticeboards found.
-        </div>
+        ))
       )}
     </div>
   );

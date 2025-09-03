@@ -16,9 +16,9 @@ import { Textarea } from '@/components/ui/textarea';
 
 interface TutorObjectiveFormProps {
   initialData: Pick<Tutor, 'objective'>;
-  facultyId: string;
+  adminId: string;
   courseId: string;
-  tutorId: string;
+  tutorialId: string;
 }
 
 const formSchema = z.object({
@@ -29,9 +29,9 @@ const formSchema = z.object({
 
 export const TutorObjectiveForm = ({
   initialData,
-  facultyId,
+  adminId,
   courseId,
-  tutorId,
+  tutorialId,
 }: TutorObjectiveFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const toggleEdit = () => setIsEditing((current) => !current);
@@ -49,10 +49,10 @@ export const TutorObjectiveForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(
-        `/api/create-faculties/${facultyId}/courses/${courseId}/tutors/${tutorId}`,
+        `/api/create-admins/${adminId}/courses/${courseId}/tutorials/${tutorialId}`,
         values
       );
-      toast.success('Topic objective updated.');
+      toast.success('Tutorial objective updated.');
       toggleEdit();
       router.refresh();
     } catch (error) {
@@ -64,7 +64,7 @@ export const TutorObjectiveForm = ({
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Topic objective
+        Tutorial objective
         <Button onClick={toggleEdit} variant="ghost" disabled={isSubmitting}>
           {isEditing ? (
             <>Cancel</>
@@ -78,7 +78,7 @@ export const TutorObjectiveForm = ({
       </div>
       {!isEditing && (
         <p className={cn('text-sm mt-2', !initialData.objective && 'text-slate-500 italic')}>
-          {initialData.objective || 'No objective'}
+          {initialData.objective || 'Indicate the main objective(s) of this tutorial.'}
         </p>
       )}
       {isEditing && (

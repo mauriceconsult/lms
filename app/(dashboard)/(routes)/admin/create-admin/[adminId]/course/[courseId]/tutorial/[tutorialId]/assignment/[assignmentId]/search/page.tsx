@@ -51,9 +51,7 @@ const AssignmentSearchPage = async ({ searchParams }: AssignmentSearchPageProps)
       <div className="p-6 space-y-4">
         <Tutors items={tutorials} />
         <AssignmentsList
-          items={assignments}
-          courseId={resolvedParams.courseId ?? ""}
-          adminId={resolvedParams.adminId ?? ""}
+          items={assignments}    
           tutorialId={resolvedParams.tutorialId}
         />
       </div>

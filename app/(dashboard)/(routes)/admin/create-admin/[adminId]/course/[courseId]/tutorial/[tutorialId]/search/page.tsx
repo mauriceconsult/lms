@@ -46,9 +46,9 @@ const TutorSearchPage = async ({ searchParams }: TutorSearchPageProps) => {
         <Tutors items={tutorials} />
         <AssignmentsList
           items={assignments}
-          courseId={resolvedParams.courseId ?? ""}
-          adminId={resolvedParams.adminId ?? ""}
-          tutorId={resolvedParams.tutorialId}
+          tutorialId={resolvedParams.tutorialId ?? ""}
+          // adminId={resolvedParams.adminId ?? ""}
+          // tutorId={resolvedParams.tutorialId}
         />
       </div>
     </div>

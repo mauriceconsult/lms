@@ -13,17 +13,17 @@ import { TutorDescriptionForm } from "./tutor-description-form";
 interface TutorIdPageClientProps {
   tutor: Tutor & { attachments: Attachment[] };
   course: Course;
-  facultyId: string;
+  adminId: string;
   courseId: string;
-  tutorId: string;
+  tutorialId: string;
 }
 
 export default function TutorIdPageClient({
   tutor,
   course,
-  facultyId,
+  adminId,
   courseId,
-  tutorId,
+  tutorialId,
 }: TutorIdPageClientProps) {
   const requiredFields = [
     tutor.title,
@@ -41,7 +41,7 @@ export default function TutorIdPageClient({
       {!tutor.isPublished && (
         <Banner
           variant="warning"
-          label="This tutor is not published yet. You can continue editing it, but it won't be visible to students until you publish it."
+          label="This tutorial is not published yet. You can continue editing it, but it won't be visible to students until you publish it."
         />
       )}
       <div className="p-6">
@@ -49,7 +49,7 @@ export default function TutorIdPageClient({
           <div className="w-full">
             <Link
               className="flex items-center text-sm hover:opacity-75 transition mb-6"
-              href={`/faculty/create-faculty/${facultyId}/course/${courseId}`}
+              href={`/admin/create-admin/${adminId}/course/${courseId}`}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Course creation
@@ -66,9 +66,9 @@ export default function TutorIdPageClient({
               </div>
               <TutorActions
                 disabled={!isComplete}
-                facultyId={facultyId}
+                adminId={adminId}
                 courseId={courseId}
-                tutorId={tutorId}
+                tutorialId={tutorialId}
                 isPublished={tutor.isPublished}
               />
             </div>
@@ -83,21 +83,21 @@ export default function TutorIdPageClient({
               </div>
               <TutorTitleForm
                 initialData={{ title: tutor.title }}
-                facultyId={facultyId}
+                adminId={adminId}
                 courseId={courseId}
-                tutorId={tutorId}
+                tutorialId={tutorialId}
               />
               <TutorObjectiveForm
                 initialData={{ objective: tutor.objective }}
-                facultyId={facultyId}
+                adminId={adminId}
                 courseId={courseId}
-                tutorId={tutorId}
+                tutorialId={tutorialId}
               />
               <TutorDescriptionForm
                 initialData={{ description: tutor.description }}
-                facultyId={facultyId}
+                adminId={adminId}
                 courseId={courseId}
-                tutorId={tutorId}
+                tutorialId={tutorialId}
               />
             </div>
           </div>

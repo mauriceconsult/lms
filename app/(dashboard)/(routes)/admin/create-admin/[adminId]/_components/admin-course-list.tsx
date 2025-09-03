@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { AdminsWithSchool } from "@/actions/get-admins";
 
+
 interface AdminCourseListProps {
   items: AdminsWithSchool[];
 }

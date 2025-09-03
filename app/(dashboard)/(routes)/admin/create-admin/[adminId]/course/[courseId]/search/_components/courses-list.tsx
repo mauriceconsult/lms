@@ -6,7 +6,7 @@ import {
 
 type CoursesWithProgressWithAdmin = Course & {
   admin: Admin | null;
-  courses: { id: string }[];
+  tutors: { id: string }[];
   progress: number | null;
 };
 interface CoursesListProps {
@@ -23,7 +23,7 @@ export const CoursesList = ({ items }: CoursesListProps) => {
             id={item.id}
             title={item.title}
             imageUrl={item.imageUrl!}
-            coursesLength={item.courses.length}
+            tutorialsLength={item.tutors.length}
             amount={item.amount!}
             progress={item.progress}
             admin={item?.admin?.title ?? ""}

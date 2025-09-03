@@ -5,6 +5,7 @@ import { Courses } from "../../../search/_components/courses";
 import { getCourseNoticeboards } from "@/actions/get-courseNoticeboards";
 import { CourseCourseNoticeboardSearchInput } from "./_components/course-coursenoticeboard-search-input";
 import { CourseCourseNoticeboardsList } from "./_components/course-coursenoticeboard-list";
+// import { CourseCourseNoticeboardsList } from "./_components/course-coursenoticeboard-list";
 
 
 interface CourseNoticeboardSearchPageProps {

@@ -1,9 +1,9 @@
-import { AdminWithSchool } from "@/actions/get-admins";
+import { AdminsWithSchool } from "@/actions/get-admins";
 import { AdminCard } from "@/components/admin-card";
 
 
 interface AdminsListProps {
-  items: AdminWithSchool[];
+  items: AdminsWithSchool[];
 }
 
 export const AdminsList = ({ items }: AdminsListProps) => {

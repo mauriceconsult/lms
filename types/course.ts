@@ -1,4 +1,4 @@
-import { Course, Faculty, Tuition } from "@prisma/client";
+import { Course, Admin, Tuition } from "@prisma/client";
 
 export interface Tutor {
   id: string;
@@ -8,8 +8,8 @@ export interface Tutor {
   playbackId: string | null;
 }
 
-export interface CourseWithProgressWithFaculty extends Course {
-  faculty: Faculty | null;
+export interface CourseWithProgressWithAdmin extends Course {
+  faculty: Admin | null;
   tutors: Tutor[];
   progress: number | null;
   tuition: (Omit<Tuition, "amount"> & { amount: string | null }) | null;

@@ -99,7 +99,7 @@ const AdminIdPage = async ({ params }: AdminIdPageProps) => {
                   id={course.id}
                   title={course.title}
                   imageUrl={course.imageUrl ?? "/placeholder.jpg"}
-                  coursesLength={course.tutors.length}
+                  tutorialsLength={course.tutors.length}
                   amount={formatAmount("")}
                   description={course.description ?? ""}
                   progress={null} // TODO: Implement progress if needed

@@ -10,15 +10,15 @@ import {
 import { Badge, Grip, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Dialog, DialogTitle, DialogContent, Button } from "@mui/material";
-import { FacultyPayroll } from "@prisma/client";
+import { AdminPayroll } from "@prisma/client";
 import toast from "react-hot-toast";
 
-type Item = FacultyPayroll & {
+type Item = AdminPayroll & {
   payroll?: { id: string; amount: number } | null;
 };
 
-export default function FacultyPayrollList({
-  items: facultyPayrolls,
+export default function AdminPayrollList({
+  items: adminPayrolls,
   onReorderAction,
   onEditAction,
 }: {
@@ -28,7 +28,7 @@ export default function FacultyPayrollList({
   ) => Promise<{ success: boolean; message: string }>;
   onEditAction: (id: string) => Promise<{ success: boolean; message: string }>;
 }) {
-  const [items, setItems] = useState<Item[]>(facultyPayrolls);
+  const [items, setItems] = useState<Item[]>(adminPayrolls);
   const [isMounted, setIsMounted] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
@@ -38,8 +38,8 @@ export default function FacultyPayrollList({
   }, []);
 
   useEffect(() => {
-    setItems(facultyPayrolls);
-  }, [facultyPayrolls]);
+    setItems(adminPayrolls);
+  }, [adminPayrolls]);
 
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
@@ -70,20 +70,20 @@ export default function FacultyPayrollList({
   return (
     <>
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="facultyPayrolls">
+        <Droppable droppableId="adminPayrolls">
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>
-              {items.map((facultyPayroll, index) => (
+              {items.map((adminPayroll, index) => (
                 <Draggable
-                  key={facultyPayroll.id}
-                  draggableId={facultyPayroll.id}
+                  key={adminPayroll.id}
+                  draggableId={adminPayroll.id}
                   index={index}
                 >
                   {(provided) => (
                     <div
                       className={cn(
                         "flex items-center gap-x-2 bg-slate-200 border-slate-200 border text-slate-700 rounded-md mb-4 text-sm",
-                        facultyPayroll.isPaid &&
+                        adminPayroll.isPaid &&
                           "bg-sky-100 border-sky-200 text-sky-700"
                       )}
                       ref={provided.innerRef}
@@ -92,26 +92,26 @@ export default function FacultyPayrollList({
                       <div
                         className={cn(
                           "px-2 py-3 border-r border-r-slate-200 hover:bg-slate-300 rounded-l-md transition",
-                          facultyPayroll.isPaid &&
+                          adminPayroll.isPaid &&
                             "border-r-sky-200 hover:bg-sky-200"
                         )}
                         {...provided.dragHandleProps}
                       >
                         <Grip className="h-5 w-5" />
                       </div>
-                      {facultyPayroll.title}
+                      {adminPayroll.title}
                       <div className="ml-auto pr-2 flex items-center gap-x-2">
                         <Badge
                           className={cn(
                             "bg-slate-500",
-                            facultyPayroll.isPaid && "bg-sky-700"
+                            adminPayroll.isPaid && "bg-sky-700"
                           )}
                         >
-                          {facultyPayroll.isPaid ? "Published" : "Draft"}
+                          {adminPayroll.isPaid ? "Published" : "Draft"}
                         </Badge>
                         <Pencil
                           onClick={async () => {
-                            setSelectedItem(facultyPayroll);
+                            setSelectedItem(adminPayroll);
                             setOpenDialog(true);
                           }}
                           className="w-4 h-4 cursor-pointer hover:opacity-75 transition"

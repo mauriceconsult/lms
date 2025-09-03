@@ -10,7 +10,7 @@ import { Admin, Course } from "@prisma/client";
 
 type CourseWithProgressWithAdmin = Course & {
   admin: Admin | null;
-  courses: { id: string }[];
+  tutors: { id: string }[];
   progress: number | null;
 };
 
@@ -42,6 +42,9 @@ const CourseSearchPage = async ({ searchParams }: CourseSearchPageProps) => {
     },
     include: {
       admin: true,
+      tutors: {
+        select: { id: true },
+      },
     },
     orderBy: {
       title: "asc",
@@ -54,7 +57,7 @@ const CourseSearchPage = async ({ searchParams }: CourseSearchPageProps) => {
       return {
         ...course,
         admin: course.admin,
-        courses: [{ id: course.id }], // Simplified to include only the current course ID
+        tutors: course.tutors,
         progress,
       };
     })

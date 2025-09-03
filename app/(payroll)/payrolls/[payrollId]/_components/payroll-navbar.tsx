@@ -1,4 +1,4 @@
-import { NavbarRoutes } from "@/components/navbar-routes";
+// import { NavbarRoutes } from "@/components/navbar-routes";
 import { Payroll } from "@prisma/client";
 import { PayrollMobileSidebar } from "./payroll-mobile-sidebar";
 
@@ -13,6 +13,6 @@ export const PayrollNavbar = ({
         <PayrollMobileSidebar
             payroll={payroll}            
         />
-        <NavbarRoutes />      
+        {/* <NavbarRoutes />       */}
   </div>
 };

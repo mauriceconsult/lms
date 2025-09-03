@@ -17,7 +17,7 @@ export const TutorCard = ({
   course,
 }: TutorCardProps) => {
   return (
-    <Link href={`/faculties/${id}/courses/${id}/tutors/${id}`}>
+    <Link href={`/admins/${id}/courses/${id}/tutors/${id}`}>
       <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
         <div className="relative w-full aspect-video rounded-md overflow-hidden">
           <Image
@@ -36,7 +36,7 @@ export const TutorCard = ({
             <div className="flex items-center gap-x-1 text-slate-500">
               <IconBadge size={"sm"} icon={BookOpen} />
               <span>
-                {tutorsLength} {tutorsLength === 1 ? "Topic" : "Topics"}
+                {tutorsLength} {tutorsLength === 1 ? "Tutorial" : "Tutorials"}
               </span>
             </div>
           </div>
