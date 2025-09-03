@@ -85,9 +85,9 @@ const TutorialIdPage = async ({
               />
             )}
           </div>
-          <Separator />
+          <Separator />          
           <div>
-            <Preview value={tutorial.objective} />
+            <Preview value={tutorial.description} />  
           </div>
           {!!assignments.length && (
             <>
