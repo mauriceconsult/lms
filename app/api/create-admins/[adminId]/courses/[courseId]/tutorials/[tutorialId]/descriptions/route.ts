@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ adminId: string;  courseId: string; tutorId: string }> }
+  { params }: { params: Promise<{ adminId: string;  courseId: string; tutorialId: string }> }
 ) {
   const body = await request.json();
   const { description } = body;
@@ -16,7 +16,7 @@ export async function PATCH(
   }
   const tutorial = await db.tutor.findUnique({
     where: {
-      id: (await params).tutorId,
+      id: (await params).tutorialId,
       userId,
     },
   });

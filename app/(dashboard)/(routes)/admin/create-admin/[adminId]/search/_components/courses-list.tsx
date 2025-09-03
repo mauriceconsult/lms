@@ -1,10 +1,12 @@
 import { CourseCard } from "@/components/course-card";
-import { Admin, Course } from "@prisma/client";
+import { Admin, Course, Tuition, UserProgress } from "@prisma/client";
 
 type CoursesWithProgressWithAdmin = Course & {
   admin: Admin | null;
-  tutors: { id: string }[]; // Changed from 'courses' to 'tutors'
+  tutors: { id: string }[];
   progress: number | null;
+  tuition?: Tuition | null;
+  userProgress?: UserProgress[];
 };
 
 interface CoursesListProps {
@@ -21,7 +23,7 @@ export const CoursesList = ({ items }: CoursesListProps) => {
             id={item.id}
             title={item.title}
             imageUrl={item.imageUrl ?? ""}
-            coursesLength={item.tutors.length} // Changed from 'courses' to 'tutors'
+            tutorialsLength={item.tutors.length} // Renamed from tutorialsLength
             description={item.description ?? ""}
             admin={item.admin?.id ?? ""}
             amount={item.amount ?? ""}

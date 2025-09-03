@@ -7,12 +7,13 @@ import { BookOpen } from "lucide-react";
 import { formatAmount } from "@/lib/format";
 import { Preview } from "./preview";
 import { CourseProgress } from "./course-progress";
+// import { CourseProgress } from "./tutorial-progress";
 
 interface CourseCardProps {
   id: string;
   title: string;
   imageUrl: string;
-  coursesLength: number;
+  tutorialsLength: number;
   amount: string;
   description: string;
   progress: number | null;
@@ -22,14 +23,14 @@ export const CourseCard = ({
   id,
   title,
   imageUrl,
-  coursesLength,
+  tutorialsLength,
   amount,
   description,
   progress,
   admin,
 }: CourseCardProps) => {
   return (
-    <Link href={`/courses/${id}`}>
+    <Link href={`/tutorials/${id}`}>
       <div className="group hover:shadow-md transition overflow-hidden border rounded-lg p-3 h-full">
         <div className="relative w-full aspect-video rounded-md overflow-hidden">
           <Image fill className="object-cover" alt={title} src={imageUrl} />
@@ -43,7 +44,7 @@ export const CourseCard = ({
             <div className="flex items-center gap-x-1 text-slate-500">
               <IconBadge size={"sm"} icon={BookOpen} />
               <span>
-                {coursesLength} {coursesLength === 1 ? "Course" : "Courses"}
+                {tutorialsLength} {tutorialsLength === 1 ? "Course" : "Courses"}
               </span>
             </div>
           </div>

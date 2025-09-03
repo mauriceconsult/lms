@@ -1,8 +1,7 @@
 "use server";
 
-// import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { CourseWithProgressWithAdmin } from "@/actions/get-dashboard-courses";
+import { CourseWithProgressWithAdmin } from "@/actions/get-courses";
 
 export async function getAdminData(adminId: string, userId: string): Promise<{
   admin: { id: string; title: string; description: string | null } | null;
@@ -66,7 +65,18 @@ export async function getAdminData(adminId: string, userId: string): Promise<{
             },
             userProgress: {
               where: { userId },
-              select: { isCompleted: true, isEnrolled: true, tutorId: true },
+              select: {
+                id: true,
+                userId: true,
+                createdAt: true,
+                updatedAt: true,
+                courseId: true,
+                tutorId: true,
+                courseworkId: true,
+                assignmentId: true,
+                isEnrolled: true,
+                isCompleted: true,
+              },
             },
           },
           orderBy: { position: "asc" },

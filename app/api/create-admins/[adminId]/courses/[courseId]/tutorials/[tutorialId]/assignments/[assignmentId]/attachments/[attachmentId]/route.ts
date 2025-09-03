@@ -10,7 +10,7 @@ export async function DELETE(
     params: Promise<{
       adminId: string;
       courseId: string;
-      tutorId: string;
+      tutorialId: string;
       assignmentId: string;
       attachmentId: string;
     }>;

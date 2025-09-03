@@ -4,14 +4,14 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: { courseId: string } }
+  { params }: { params: Promise<{ courseId: string }> }
 ) {
   const { userId } = await auth();
   if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const { courseId } = params;
+  const { courseId } = await params; // Await params to resolve courseId
 
   const enrollment = await db.userProgress.findFirst({
     where: { userId, courseId, isEnrolled: true },
@@ -19,4 +19,4 @@ export async function GET(
   });
 
   return NextResponse.json({ isEnrolled: !!enrollment });
-};
+}

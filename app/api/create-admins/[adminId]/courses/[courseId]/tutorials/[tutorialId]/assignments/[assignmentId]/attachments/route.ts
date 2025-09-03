@@ -6,7 +6,7 @@ export async function POST(
   req: Request,
   { params }: {
     params: Promise<{
-      adminId: string; courseId: string; tutorId: string; assignmentId: string;
+      adminId: string; courseId: string; tutorialId: string; assignmentId: string;
     }>
   }
 ) {
