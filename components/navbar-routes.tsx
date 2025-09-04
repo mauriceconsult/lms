@@ -38,7 +38,7 @@ const NavbarRoutes = ({ className, adminId, courseId }: NavbarRoutesProps) => {
       )}
       <Link
         href="/docs"
-        className="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors"
+        className="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors ml-auto"
       >
         Docs
       </Link>
